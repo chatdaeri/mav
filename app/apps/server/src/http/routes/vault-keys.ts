@@ -836,7 +836,7 @@ export function createVaultKeyRoutes(): Hono {
   // ── Seamless keys F: the password unlocks the account key. The unlock key is
   // derived with the server-only pepper, so the database alone (hashes +
   // `priv_wrapped_password`) never yields it. Never log the body or the key.
-  // A Google-only account adds a Baalda password (owner decision 2026-11-01):
+  // A Google-only account adds a 마브 password (owner decision 2026-11-01):
   // it then unlocks the account key on a new computer like any password, and
   // can sign in with email and password too. Hashing goes through the same
   // Better Auth override, so it is peppered (`p1$`) when the pepper is set.

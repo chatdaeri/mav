@@ -10,7 +10,7 @@ it.each(["", "cloud-billing-token"])("keeps Cloud AI Pro-only independent of bil
   vi.stubEnv("BAALDA_DEPLOYMENT", "cloud"); vi.stubEnv("POLAR_ACCESS_TOKEN", token);
   expect(requiresCloudPlan()).toBe(true);
 });
-it("defaults to restricted Cloud policy and rejects misspelled modes", () => {
-  vi.stubEnv("BAALDA_DEPLOYMENT", undefined); expect(requiresCloudPlan()).toBe(true);
+it("defaults to self-hosted (마이 세컨드 브레인 has no Cloud) and rejects misspelled modes", () => {
+  vi.stubEnv("BAALDA_DEPLOYMENT", undefined); expect(requiresCloudPlan()).toBe(false);
   vi.stubEnv("BAALDA_DEPLOYMENT", "selfhost"); expect(() => requiresCloudPlan()).toThrow("BAALDA_DEPLOYMENT");
 });

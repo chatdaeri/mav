@@ -21,15 +21,12 @@ export function writeAccountVaultsView(view: AccountVaultsView): void {
   }
 }
 
-function plural(n: number, one: string, many: string): string {
-  return `${n} ${n === 1 ? one : many}`;
-}
 
 export interface VaultCardLabels {
   name: string;
-  /** "1 person · 21 notes", or null when the counts are not known. */
+  /** "멤버 1명 · 노트 21개", or null when the counts are not known. */
   counts: string | null;
-  /** The details line: the counts, else "Folder missing" for a card whose
+  /** The details line: the counts, else "폴더를 찾을 수 없음" for a card whose
       folder is gone, else null (the line still renders, empty). */
   meta: string | null;
   /** The details line is the folder-missing warning (danger colour). */
@@ -37,7 +34,7 @@ export interface VaultCardLabels {
 }
 
 /** The card's details line when its folder is gone and no counts are known. */
-export const CARD_FOLDER_MISSING = "Folder missing";
+export const CARD_FOLDER_MISSING = "폴더를 찾을 수 없음";
 
 /** The two text lines of a vault card. Every card has the same shape, so
     there is no optional slug line: the slug lives on the vault's page. */
@@ -47,7 +44,7 @@ export function vaultCardLabels(
   opts: { folderMissing?: boolean } = {},
 ): VaultCardLabels {
   const counts = usage
-    ? `${plural(usage.people, "person", "people")} · ${plural(usage.notes, "note", "notes")}`
+    ? `멤버 ${usage.people}명 · 노트 ${usage.notes}개`
     : null;
   const metaDanger = !counts && !!opts.folderMissing;
   return {
@@ -79,7 +76,7 @@ export function vaultSlugLabel(org: { name: string; slug?: string | null }): str
 
 export interface LocalCardLabels {
   name: string;
-  /** "Local", or "Local · <folder>" when the folder's name differs from the vault's. */
+  /** "이 기기", or "이 기기 · <folder>" when the folder's name differs from the vault's. */
   meta: string;
   /** The letter the row's swatch shows. */
   letter: string;
@@ -91,7 +88,7 @@ export function localCardLabels(row: { name: string; path: string }): LocalCardL
   const differs = segment !== "" && segment.toLowerCase() !== row.name.trim().toLowerCase();
   return {
     name: row.name,
-    meta: differs ? `Local · ${segment}` : "Local",
+    meta: differs ? `이 기기 · ${segment}` : "이 기기",
     letter: Array.from(row.name.trim())[0]?.toUpperCase() ?? "?",
   };
 }

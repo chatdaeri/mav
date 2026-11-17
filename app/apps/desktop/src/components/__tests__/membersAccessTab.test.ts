@@ -97,7 +97,7 @@ describe("Members and access tab", () => {
     const rows = () => host.querySelector(".members-access-rows");
     expect(rows()).not.toBeNull();
     expect(rows()!.querySelectorAll(".members-access-trigger")).toHaveLength(0);
-    expect(rows()!.textContent).not.toMatch(/Can edit|Can view|No access/);
+    expect(rows()!.textContent).not.toMatch(/편집 가능|보기 가능|접근 불가/);
     await act(async () => {
       team.resolve({ mode: "readonly", posture: "view", grantId: "g", overrides: [] });
       joining.resolve({ mode: "private" });
@@ -105,8 +105,8 @@ describe("Members and access tab", () => {
     await flush();
     const triggers = rows()!.querySelectorAll(".members-access-trigger");
     expect(triggers).toHaveLength(2);
-    expect(triggers[0].textContent).toContain("Can view");
-    expect(triggers[1].textContent).toContain("No access");
+    expect(triggers[0].textContent).toContain("보기 가능");
+    expect(triggers[1].textContent).toContain("접근 불가");
   });
 
   it("reads a never-shared vault as No access with the authorship note", async () => {
@@ -114,8 +114,8 @@ describe("Members and access tab", () => {
     await render();
     await flush();
     const everyone = host.querySelector(".members-access-row");
-    expect(everyone?.textContent).toContain("No access");
-    expect(everyone?.textContent).toContain("Members keep notes they wrote");
+    expect(everyone?.textContent).toContain("접근 불가");
+    expect(everyone?.textContent).toContain("멤버는 자신이 쓴 노트를 계속 볼 수 있어요");
   });
 
   it("lets an owner in a No access vault give themselves Can edit everything", async () => {
@@ -128,12 +128,12 @@ describe("Members and access tab", () => {
     await render();
     await flush();
     // Owner and admin rows show their computed level, not a role exemption.
-    const own = document.body.querySelector<HTMLButtonElement>('[aria-label="Access for Owner One"]');
-    expect(own?.textContent).toContain("No access");
-    expect(document.body.querySelector('[aria-label="Access for Ana Admin"]')?.textContent).toContain("Can view everything");
+    const own = document.body.querySelector<HTMLButtonElement>('[aria-label="Owner One의 권한"]');
+    expect(own?.textContent).toContain("접근 불가");
+    expect(document.body.querySelector('[aria-label="Ana Admin의 권한"]')?.textContent).toContain("모두 보기 가능");
     await act(async () => own!.click());
     const edit = [...document.body.querySelectorAll('[role="menuitemradio"]')]
-      .find((n) => n.textContent?.startsWith("Can edit everything")) as HTMLElement;
+      .find((n) => n.textContent?.startsWith("모두 편집 가능")) as HTMLElement;
     await act(async () => edit.click());
     await flush();
     // Widening needs no confirm and targets exactly the caller, vault-wide.
@@ -150,33 +150,33 @@ describe("Members and access tab", () => {
     api.getMembersOverview.mockResolvedValue(overview([person("u1", "Owner One", "owner"), person("u2", "Sara Khan")]));
     await render();
     await flush();
-    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Actions for Sara Khan"]')!.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Sara Khan 작업"]')!.click());
     const item = (label: string) => [...document.body.querySelectorAll('[role="menuitem"]')]
       .find((n) => n.textContent === label) as HTMLElement;
-    await act(async () => item("View profile").click());
+    await act(async () => item("프로필 보기").click());
     await flush();
     expect(host.querySelector(".members-table")).toBeNull();
     expect(host.querySelector('[role="dialog"]')).toBeNull();
     expect(host.querySelector(".member-profile-name")?.textContent).toBe("Sara Khan");
-    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("Personal info");
-    const back = [...host.querySelectorAll("button")].find((b) => b.textContent?.includes("Members and access"))!;
+    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("개인 정보");
+    const back = [...host.querySelectorAll("button")].find((b) => b.textContent?.includes("멤버와 권한"))!;
     await act(async () => back.click());
     expect(host.querySelector(".members-table")).not.toBeNull();
     // "Manage access…" in the row dropdown lands on the Access tab directly.
-    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Access for Sara Khan"]')!.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Sara Khan의 권한"]')!.click());
     const manage = [...document.body.querySelectorAll('[role="menuitemradio"]')]
-      .find((n) => n.textContent?.startsWith("Manage access")) as HTMLElement;
+      .find((n) => n.textContent?.startsWith("권한 관리")) as HTMLElement;
     await act(async () => manage.click());
     await flush();
-    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("Access");
+    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("권한");
   });
 
   it("shows owners a quiet MCP tip that opens the MCP tab", async () => {
     await render();
     await flush();
     const hint = host.querySelector(".members-access-mcp-hint");
-    expect(hint?.textContent).toContain("manage access by chatting with Claude or ChatGPT through MCP");
-    const link = [...hint!.querySelectorAll("button")].find((b) => b.textContent?.startsWith("Set it up"))!;
+    expect(hint?.textContent).toContain("MCP로 Claude나 ChatGPT와 대화하면서 권한을 관리할 수도 있어요");
+    const link = [...hint!.querySelectorAll("button")].find((b) => b.textContent?.startsWith("설정하기"))!;
     await act(async () => link.click());
     expect(onOpenTab).toHaveBeenCalledWith("mcp");
   });
@@ -191,7 +191,7 @@ describe("Members and access tab", () => {
     await render();
     await flush();
     // The Access dropdown is a control: the table stays.
-    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Access for Sara Khan"]')!.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Sara Khan의 권한"]')!.click());
     expect(host.querySelector(".members-table")).not.toBeNull();
     await act(async () => document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })));
     // An invited row has no profile.
@@ -200,12 +200,12 @@ describe("Members and access tab", () => {
     await act(async () => (invited.querySelector(".members-table-name") as HTMLElement).click());
     expect(host.querySelector(".members-table")).not.toBeNull();
     // The name cell opens Personal info.
-    const row = host.querySelector<HTMLElement>('[aria-label="Open profile of Sara Khan"]')!;
+    const row = host.querySelector<HTMLElement>('[aria-label="Sara Khan의 프로필 열기"]')!;
     await act(async () => (row.querySelector(".members-table-name") as HTMLElement).click());
     await flush();
     expect(host.querySelector(".members-table")).toBeNull();
     expect(host.querySelector(".member-profile-name")?.textContent).toBe("Sara Khan");
-    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("Personal info");
+    expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe("개인 정보");
   });
 
   it("counts the viewer as present while their vault channel is connected", async () => {
@@ -217,16 +217,16 @@ describe("Members and access tab", () => {
     patchStore({ vaultSyncStatus: "offline" });
     await render();
     await flush();
-    const ownRow = () => host.querySelector<HTMLElement>('[aria-label="Open profile of Owner One"]')!;
-    expect(ownRow().textContent).not.toContain("Now");
+    const ownRow = () => host.querySelector<HTMLElement>('[aria-label="Owner One의 프로필 열기"]')!;
+    expect(ownRow().textContent).not.toContain("지금");
     await act(async () => patchStore({ vaultSyncStatus: "synced" }));
-    expect([...ownRow().querySelectorAll("td")].some((td) => td.textContent === "Now")).toBe(true);
+    expect([...ownRow().querySelectorAll("td")].some((td) => td.textContent === "지금")).toBe(true);
     await act(async () => (ownRow().querySelector(".members-table-name") as HTMLElement).click());
     await flush();
     const dd = (label: string) =>
       [...host.querySelectorAll(".member-profile-about dt")].find((dt) => dt.textContent === label)?.nextElementSibling?.textContent;
-    expect(dd("Status")).toBe("Online");
-    expect(dd("Last active")).toBe("Now");
+    expect(dd("상태")).toBe("온라인");
+    expect(dd("마지막 활동")).toBe("지금");
     patchStore({ vaultSyncStatus: "offline" });
   });
 
@@ -234,7 +234,7 @@ describe("Members and access tab", () => {
     api.getMembersOverview.mockResolvedValue(overview([person("u1", "Owner One", "owner"), person("u2", "Sara Khan")]));
     await render();
     await flush();
-    const row = host.querySelector<HTMLElement>('[aria-label="Open profile of Sara Khan"]')!;
+    const row = host.querySelector<HTMLElement>('[aria-label="Sara Khan의 프로필 열기"]')!;
     await act(async () => row.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true })));
     expect(host.querySelector(".member-profile-name")?.textContent).toBe("Sara Khan");
   });
@@ -245,18 +245,18 @@ describe("Members and access tab", () => {
     await render();
     await flush();
     const pick = async (label: string) => {
-      await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Access for Sara Khan"]')!.click());
+      await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Sara Khan의 권한"]')!.click());
       const item = [...document.body.querySelectorAll('[role="menuitemradio"]')]
         .find((n) => n.textContent?.startsWith(label)) as HTMLElement;
       await act(async () => item.click());
       await flush();
     };
-    await pick("Can view everything");
+    await pick("모두 보기 가능");
     expect(document.body.querySelector('[role="alertdialog"]')).toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
     expect(api.setBulkAccess.mock.calls[0][1]).toMatchObject({ mode: "readonly", audience: { type: "users", userIds: ["u2"] } });
-    await pick("No access");
-    expect(document.body.querySelector('[role="alertdialog"] .confirm-title')?.textContent).toBe("Remove Sara Khan's access to this vault?");
+    await pick("접근 불가");
+    expect(document.body.querySelector('[role="alertdialog"] .confirm-title')?.textContent).toBe("Sara Khan님의 이 볼트 권한을 제거할까요?");
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
   });
 
@@ -267,8 +267,8 @@ describe("Members and access tab", () => {
     await render(false);
     await flush();
     const headers = [...host.querySelectorAll("th")].map((th) => th.textContent);
-    expect(headers).toContain("Access");
-    expect([...host.querySelectorAll("button")].some((b) => b.textContent === "Invite people")).toBe(true);
+    expect(headers).toContain("권한");
+    expect([...host.querySelectorAll("button")].some((b) => b.textContent === "사람 초대")).toBe(true);
     // The store learns the fresh role, so the dialog's other tabs follow too.
     const members = (useStore as unknown as { getState: () => { members: { userId: string; role: string }[] } }).getState().members;
     expect(members.find((m) => m.userId === "u1")?.role).toBe("admin");
@@ -285,14 +285,14 @@ describe("Members and access tab", () => {
     expect(api.getAccessDefault).not.toHaveBeenCalled();
     expect(host.querySelector(".members-access-rows")).toBeNull();
     const headers = [...host.querySelectorAll("th")].map((th) => th.textContent);
-    expect(headers).toEqual(["Name", "Role", "Last active"]);
-    expect([...host.querySelectorAll("button")].some((b) => b.textContent === "Invite people")).toBe(false);
-    expect(host.querySelector('[aria-label^="Actions for"]')).toBeNull();
-    expect(host.textContent).toContain("Me (you)");
+    expect(headers).toEqual(["이름", "역할", "마지막 활동"]);
+    expect([...host.querySelectorAll("button")].some((b) => b.textContent === "사람 초대")).toBe(false);
+    expect(host.querySelector('[aria-label$=" 작업"]')).toBeNull();
+    expect(host.textContent).toContain("Me (나)");
     expect(host.querySelector(".members-access-mcp-hint")).toBeNull();
     // Rows still open a read-only profile: Personal info only, no Access or Activity tab (#301).
-    await act(async () => (host.querySelector('[aria-label="Open profile of Owner"] .members-table-name') as HTMLElement).click());
+    await act(async () => (host.querySelector('[aria-label="Owner의 프로필 열기"] .members-table-name') as HTMLElement).click());
     expect(host.querySelector(".member-profile-name")?.textContent).toBe("Owner");
-    expect([...host.querySelectorAll('[role="tab"]')].map((t) => t.textContent)).toEqual(["Personal info"]);
+    expect([...host.querySelectorAll('[role="tab"]')].map((t) => t.textContent)).toEqual(["개인 정보"]);
   });
 });

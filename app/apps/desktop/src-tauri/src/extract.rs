@@ -128,6 +128,8 @@ pub enum Extractor {
     Docx,
     Xlsx,
     Pptx,
+    /// Hancom HWPX (OWPML): `Contents/sectionN.xml`, a zip like OOXML.
+    Hwpx,
     /// Entry names only: what is IN the archive is the only searchable thing
     /// about it without unpacking the whole thing.
     Zip,
@@ -151,7 +153,11 @@ pub fn extractor_for(ext: &str) -> Extractor {
         "docx" => Extractor::Docx,
         "xlsx" | "xlsm" => Extractor::Xlsx,
         "pptx" => Extractor::Pptx,
+        "hwpx" => Extractor::Hwpx,
         "zip" => Extractor::Zip,
+        // Legacy OLE binaries (HWP 5, Word 97, PowerPoint 97, Excel 97): listed,
+        // synced and opened in their own app, searchable by name only.
+        "hwp" | "doc" | "ppt" | "xls" => Extractor::NameOnly,
         "pdf" => Extractor::Unsupported,
         // Images, audio, video — and anything new that reaches here before this
         // table learns about it. Name-only is the safe default: it indexes
@@ -169,9 +175,9 @@ pub fn kind_for(ext: &str) -> &'static str {
         "png" | "jpg" | "jpeg" | "jfif" | "gif" | "webp" | "svg" | "bmp" | "ico" | "avif"
         | "heic" | "heif" | "tiff" | "tif" => "image",
         "pdf" => "pdf",
-        "docx" => "office-doc",
-        "xlsx" | "xlsm" => "spreadsheet",
-        "pptx" => "presentation",
+        "docx" | "hwpx" | "hwp" | "doc" => "office-doc",
+        "xlsx" | "xlsm" | "xls" => "spreadsheet",
+        "pptx" | "ppt" => "presentation",
         "mp4" | "m4v" | "mov" | "webm" => "video",
         "mp3" | "wav" | "m4a" | "ogg" | "aac" | "flac" => "audio",
         "zip" => "archive",
@@ -188,7 +194,7 @@ pub fn kind_for(ext: &str) -> &'static str {
 pub fn max_input_bytes(extractor: Extractor) -> u64 {
     match extractor {
         Extractor::Utf8 | Extractor::Html => MAX_TEXT_BYTES,
-        Extractor::Docx | Extractor::Xlsx | Extractor::Pptx | Extractor::Zip => {
+        Extractor::Docx | Extractor::Xlsx | Extractor::Pptx | Extractor::Hwpx | Extractor::Zip => {
             MAX_CONTAINER_BYTES
         }
         Extractor::NameOnly | Extractor::Unsupported => 0,
@@ -225,6 +231,7 @@ pub fn extract_text(path: &Path, ext: &str, bytes: &[u8]) -> Extracted {
         Extractor::Docx => docx_text(bytes),
         Extractor::Xlsx => xlsx_text(bytes),
         Extractor::Pptx => pptx_text(bytes),
+        Extractor::Hwpx => hwpx_text(bytes),
         Extractor::Zip => zip_names(bytes),
         Extractor::NameOnly | Extractor::Unsupported => unreachable!("handled above"),
     }));
@@ -258,14 +265,14 @@ fn clean(text: String) -> String {
 
 // ---- containers -----------------------------------------------------------
 
-type Archive<'a> = zip::ZipArchive<Cursor<&'a [u8]>>;
+pub(crate) type Archive<'a> = zip::ZipArchive<Cursor<&'a [u8]>>;
 
 /// Open the container and refuse a bomb before decompressing anything.
 ///
 /// Sizes come from the central directory, which is metadata: a lying header
 /// cannot make us allocate, because every entry is ALSO read through a
 /// `take(MAX_ZIP_ENTRY_BYTES)` in [`read_entry`].
-fn open_archive(bytes: &[u8]) -> Result<Archive<'_>, TextStatus> {
+pub(crate) fn open_archive(bytes: &[u8]) -> Result<Archive<'_>, TextStatus> {
     let mut zip = zip::ZipArchive::new(Cursor::new(bytes)).map_err(|_| TextStatus::Error)?;
     if zip.len() > MAX_ZIP_ENTRIES {
         return Err(TextStatus::SkippedSize);
@@ -287,7 +294,7 @@ fn open_archive(bytes: &[u8]) -> Result<Archive<'_>, TextStatus> {
 
 /// One entry as a string, or `None` when the part is absent (a `.xlsx` with no
 /// `sharedStrings.xml` is perfectly legal — every cell is inline or numeric).
-fn read_entry(zip: &mut Archive<'_>, name: &str) -> Option<String> {
+pub(crate) fn read_entry(zip: &mut Archive<'_>, name: &str) -> Option<String> {
     let entry = zip.by_name(name).ok()?;
     let mut text = String::new();
     // The second half of the bomb guard: whatever the header claimed, stop
@@ -302,7 +309,7 @@ fn read_entry(zip: &mut Archive<'_>, name: &str) -> Option<String> {
 /// Entry names matching a prefix/suffix, ordered by the NUMBER in their name
 /// (`slide2.xml` before `slide10.xml`, which a lexical sort gets wrong) and then
 /// by name, so two runs over the same file produce the same text.
-fn parts_in_order(zip: &Archive<'_>, prefix: &str, suffix: &str) -> Vec<String> {
+pub(crate) fn parts_in_order(zip: &Archive<'_>, prefix: &str, suffix: &str) -> Vec<String> {
     let mut names: Vec<String> = zip
         .file_names()
         .filter(|n| n.starts_with(prefix) && n.ends_with(suffix))
@@ -352,6 +359,28 @@ fn pptx_text(bytes: &[u8]) -> Result<String, TextStatus> {
     Ok(out)
 }
 
+/// `Contents/sectionN.xml`: every `<hp:t>` run, one line per `<hp:p>` paragraph
+/// (table cells and text boxes are paragraphs too, so they read in order).
+///
+/// Runs are joined WITHOUT a space, unlike OOXML: Hangul splits a word across
+/// runs at every formatting change ("세컨" bold + "브레인"), and an inserted space
+/// would make "세컨브레인" unsearchable. HWPX keeps real spaces inside `<hp:t>`.
+fn hwpx_text(bytes: &[u8]) -> Result<String, TextStatus> {
+    let mut zip = open_archive(bytes)?;
+    let sections = parts_in_order(&zip, "Contents/section", ".xml");
+    if sections.is_empty() {
+        return Err(TextStatus::Error);
+    }
+    let mut out = String::new();
+    for name in sections {
+        let Some(xml) = read_entry(&mut zip, &name) else {
+            continue;
+        };
+        out.push_str(&xml_text_joined(&xml, &["t"], &["p"], false));
+    }
+    Ok(out)
+}
+
 /// Pull the text of `text_tags`, breaking a line whenever a `break_tag` closes.
 ///
 /// Tags are matched on their LOCAL name, so a part that declares the OOXML
@@ -360,6 +389,12 @@ fn pptx_text(bytes: &[u8]) -> Result<String, TextStatus> {
 /// across runs at every formatting change, and concatenating them bare would
 /// glue "the" and "word" into "theword" — which no search would then match.
 fn xml_text(xml: &str, text_tags: &[&str], break_tags: &[&str]) -> String {
+    xml_text_joined(xml, text_tags, break_tags, true)
+}
+
+/// [`xml_text`] with the run separator made explicit: `space_runs` inserts a
+/// space between runs of one paragraph (OOXML), `false` concatenates them (HWPX).
+fn xml_text_joined(xml: &str, text_tags: &[&str], break_tags: &[&str], space_runs: bool) -> String {
     use quick_xml::events::Event;
     let mut reader = quick_xml::Reader::from_str(xml);
     let mut out = String::new();
@@ -383,7 +418,7 @@ fn xml_text(xml: &str, text_tags: &[&str], break_tags: &[&str]) -> String {
             Ok(Event::Text(e)) if depth > 0 => {
                 let text = e.unescape().unwrap_or_default();
                 if !text.is_empty() {
-                    if !line.is_empty() && !line.ends_with(' ') {
+                    if space_runs && !line.is_empty() && !line.ends_with(' ') {
                         line.push(' ');
                     }
                     line.push_str(&text);
@@ -623,6 +658,39 @@ mod tests {
         ]);
         let out = extract("pptx", &bytes);
         assert_eq!(out.text, "first\nsecond\ntenth\n");
+    }
+
+    #[test]
+    fn hwpx_reads_sections_in_order_and_glues_hangul_runs() {
+        let sec = |body: &str| {
+            format!(r#"<?xml version="1.0"?><hs:sec xmlns:hs="s" xmlns:hp="p">{body}</hs:sec>"#)
+        };
+        let bytes = zip_of(&[
+            ("mimetype", "application/hwp+zip"),
+            (
+                "Contents/section1.xml",
+                &sec("<hp:p><hp:run><hp:t>둘째 구역</hp:t></hp:run></hp:p>"),
+            ),
+            (
+                "Contents/section0.xml",
+                &sec("<hp:p><hp:run><hp:t>세컨</hp:t></hp:run><hp:run><hp:t>브레인 강의</hp:t></hp:run></hp:p>\
+                      <hp:p><hp:run><hp:tbl><hp:tr><hp:tc><hp:subList><hp:p><hp:run><hp:t>표 칸</hp:t></hp:run></hp:p></hp:subList></hp:tc></hp:tr></hp:tbl></hp:run></hp:p>"),
+            ),
+        ]);
+        let out = extract("hwpx", &bytes);
+        assert_eq!(out.status, TextStatus::Ok);
+        assert_eq!(out.text, "세컨브레인 강의\n표 칸\n둘째 구역\n");
+    }
+
+    #[test]
+    fn legacy_office_binaries_are_name_only() {
+        for ext in ["hwp", "doc", "ppt", "xls"] {
+            assert_eq!(extractor_for(ext), Extractor::NameOnly, "{ext}");
+            assert_eq!(extract(ext, b"\xD0\xCF\x11\xE0").status, TextStatus::Ok, "{ext}");
+        }
+        assert_eq!(kind_for("hwp"), "office-doc");
+        assert_eq!(kind_for("ppt"), "presentation");
+        assert_eq!(kind_for("xls"), "spreadsheet");
     }
 
     #[test]

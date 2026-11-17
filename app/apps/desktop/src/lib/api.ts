@@ -25,8 +25,8 @@ import type { DeliveredMessage, MessageReceiptEvent } from "./messages/types";
 
 /**
  * Which build starts a checkout, so the server's success page hands back to
- * THIS app (`baalda-staging://` for Staging, `baalda-dev://` for a dev build)
- * rather than whichever app owns `baalda://`. The server allow-lists the scheme.
+ * THIS app (`mav-staging://` for Staging, `mav-dev://` for a dev build)
+ * rather than whichever app owns `mav://`. The server allow-lists the scheme.
  */
 const CHECKOUT_CLIENT = { channel: APP_CHANNEL, scheme: APP_SCHEME } as const;
 // Type-only import: `bulkTypes.ts` is the hand-mirrored copy of the server's
@@ -44,7 +44,7 @@ import type {
   NoteDeleteResult,
 } from "./sync/bulkTypes";
 
-// The ONE typed HTTP boundary to the Baalda server. Every `fetch`
+// The ONE typed HTTP boundary to the 마브 server. Every `fetch`
 // to the server lives here — auth, organizations, registry, shares, sync-token.
 // Components and managers call these methods; they never call `fetch` directly.
 // (Tauri `invoke` lives in `ipc.ts`; these two are the only I/O boundaries.)
@@ -70,8 +70,11 @@ import type {
 // localhost:3010 meant a fresh install could only ever report "Load failed"
 // until the user found Server settings on their own. Self-hosters override it
 // there; nothing here is pinned at build time beyond this default.
-/** The managed instance. Named so the dev guard below can recognise it. */
-export const PRODUCTION_SERVER_URL = "https://api.baalda.com";
+/** The managed instance. 마브 has none: every team runs its own server (Railway
+ *  template or Docker), so a release build starts with NO server and the auth
+ *  dialog asks for one. Kept as a named constant so the dev guard below and the
+ *  "managed service" card stay wired if a managed instance ever exists. */
+export const PRODUCTION_SERVER_URL = "";
 export const LOCAL_SERVER_URL = "http://localhost:3010";
 
 /** Explicit opt-out of everything below: `VITE_SERVER_URL=… pnpm dev:desktop`. */
@@ -1263,7 +1266,7 @@ export function blobErrorCode(e: unknown): string | null {
 export function rateLimitedMessage(e: unknown): string | null {
   if (!(e instanceof ApiError) || e.status !== 429 || errorCodeOf(e.body) !== "rate_limited") return null;
   const b = e.body as { error?: unknown } | undefined;
-  return typeof b?.error === "string" && b.error ? b.error : "Too many security key changes. Try again later.";
+  return typeof b?.error === "string" && b.error ? b.error : "보안 키를 너무 많이 바꿨어요. 잠시 후 다시 시도해 주세요.";
 }
 
 function errorCodeOf(body: unknown): string | null {
@@ -1437,8 +1440,8 @@ export const REGISTRY_LISTING_TIMEOUT_MS = 120_000;
 // The two things a person can actually act on. Kept as constants so the dialog
 // and Settings → Connection say the same words for the same failure.
 const UNREACHABLE_MESSAGE =
-  "Couldn't reach that server. Check the URL and that it's online.";
-const NOT_BAALDA_MESSAGE = "That address answered, but it isn't a Baalda server.";
+  "서버에 연결할 수 없어요. 주소가 맞는지, 서버가 켜져 있는지 확인해 주세요.";
+const NOT_BAALDA_MESSAGE = "해당 주소에서 응답했지만 마이 세컨드 브레인 서버가 아니에요.";
 
 type FetchLike = typeof fetch;
 
@@ -1555,7 +1558,7 @@ export type MyVaultKeys =
       /** Other current members with an account key (conversion safety rule;
        *  undefined on a server that does not report it). */
       otherMembersWithKeys?: number;
-      /** The launch safety net is on: a lost laptop is recoverable by Baalda. */
+      /** The launch safety net is on: a lost laptop is recoverable by 마브. */
       recoveryNet?: boolean;
       /** Another owner/admin's device started converting and sealed the
        *  pending key to this account (base64 sealed box). */
@@ -1764,7 +1767,7 @@ export class ApiClient {
       return { keyed: true, pending: true, vkCheck: data?.vkCheck, generation: data?.generation };
     }
     if (typeof data?.vkCheck !== "string" || typeof data.generation !== "number" || !Array.isArray(data.wraps)) {
-      throw new ApiError(status, "Unexpected vault key answer", data);
+      throw new ApiError(status, "볼트 키 응답이 올바르지 않아요.", data);
     }
     return {
       keyed: true,
@@ -1814,7 +1817,7 @@ export class ApiClient {
     await this.request("POST", `/api/messages/${encodeURIComponent(id)}/receipt`, { body });
   }
 
-  /** A Google-only account adds a Baalda password (`POST /api/me/password`). */
+  /** A Google-only account adds a 마브 password (`POST /api/me/password`). */
   async setAccountPassword(password: string): Promise<"set" | "has-password"> {
     try {
       await this.request("POST", "/api/me/password", { body: { password } });
@@ -1886,7 +1889,7 @@ export class ApiClient {
       const { data } = await this.request<{ unlockKey?: string }>("POST", "/api/me/keys/unlock", {
         body: { password },
       });
-      if (typeof data?.unlockKey !== "string") throw new ApiError(500, "Unexpected unlock answer");
+      if (typeof data?.unlockKey !== "string") throw new ApiError(500, "잠금 해제 응답이 올바르지 않아요.");
       return { unlockKey: data.unlockKey };
     } catch (e) {
       if (e instanceof ApiError) {
@@ -2166,7 +2169,7 @@ export class ApiClient {
   // ---- Reachability -------------------------------------------------------
 
   /**
-   * Is there a Baalda server at this address? Resolves if yes, throws a
+   * Is there a 마브 server at this address? Resolves if yes, throws a
    * {@link ServerCheckError} if no.
    *
    * The ONE probe in this file that fails OPEN, and it exists precisely because
@@ -2224,7 +2227,7 @@ export class ApiClient {
   /**
    * The server's `/health` body, parsed for capability detection
    * (`lib/serverFeatures.ts`). Unlike {@link health} this never throws:
-   * any failure (timeout, network, 5xx, non-JSON, not Baalda) answers null,
+   * any failure (timeout, network, 5xx, non-JSON, not 마브) answers null,
    * which the caller reads as "unknown", never as "outdated".
    */
   async getHealth(baseUrl?: string): Promise<ServerHealth | null> {
@@ -2385,7 +2388,7 @@ export class ApiClient {
       { body: { provider, callbackURL } },
     );
     if (!data?.url) {
-      throw new ApiError(500, "Server did not return an authorization URL");
+      throw new ApiError(500, "서버가 인증 주소를 보내지 않았어요.");
     }
     return data.url;
   }
@@ -2422,7 +2425,7 @@ export class ApiClient {
           activeOrganizationId: data.session?.activeOrganizationId ?? null,
         };
       }
-      throw new ApiError(0, "Unexpected get-session response shape");
+      throw new ApiError(0, "세션 응답이 올바르지 않아요.");
     } catch (e) {
       if (e instanceof ApiError && (e.status === 401 || e.status === 403)) return null;
       throw e;
@@ -4217,7 +4220,7 @@ export class ApiClient {
       { body: { groups, userIds } },
     );
     if (!Array.isArray(data.modes) || data.modes.length !== groups.length) {
-      throw new Error("Access summaries did not match the request");
+      throw new Error("권한 요약이 요청과 일치하지 않아요.");
     }
     return data.modes;
   }

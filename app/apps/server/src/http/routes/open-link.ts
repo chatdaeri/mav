@@ -7,11 +7,11 @@ import { config } from "../../config.js";
  * Clickable share links — `GET /open/note/:orgId/:docId` and
  * `GET /open/connect`.
  *
- * A `baalda://` link is dead weight in most chat apps: schemes nobody has
+ * A `mav://` link is dead weight in most chat apps: schemes nobody has
  * allow-listed don't linkify, so the recipient had to copy-paste it into a
  * browser. Share links are therefore `https://<server>/open/note/…` — every
  * chat app makes those clickable — and this page is the landing spot: it
- * immediately bounces to the `baalda://` deep link (which the OS hands to the
+ * immediately bounces to the `mav://` deep link (which the OS hands to the
  * installed app) and shows a button + install pointer as the fallback.
  *
  * Public and unauthenticated ON PURPOSE. The URL carries identity, not access:
@@ -33,18 +33,18 @@ openLinkRoutes.get("/open/note/:orgId/:docId", (c) => {
   const orgId = c.req.param("orgId");
   const docId = c.req.param("docId");
   if (!ID_RE.test(orgId) || !ID_RE.test(docId)) {
-    return c.text("Malformed link", 400);
+    return c.text("잘못된 링크예요", 400);
   }
   // Re-encoded on the way out even after the shape check, so the deep link is
   // inert as markup no matter what future id shapes are allowed through.
   const deepLink = `${config.deepLinkScheme}://note/${encodeURIComponent(orgId)}/${encodeURIComponent(docId)}`;
   return c.html(`<!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Open note · ${esc(BRAND_NAME)}</title>
+<title>노트 열기 · ${esc(BRAND_NAME)}</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
          display: grid; place-items: center; min-height: 100vh; margin: 0;
@@ -60,10 +60,10 @@ openLinkRoutes.get("/open/note/:orgId/:docId", (c) => {
 </head>
 <body>
 <main>
-  <h1>Opening this note in ${esc(BRAND_NAME)}…</h1>
-  <p>If nothing happens, ${esc(BRAND_NAME)} may not be installed on this device.</p>
-  <a class="button" href="${esc(deepLink)}">Open in ${esc(BRAND_NAME)}</a>
-  <p><a class="plain" href="https://baalda.com" rel="noopener">Get ${esc(BRAND_NAME)}</a></p>
+  <h1>${esc(BRAND_NAME)}에서 노트를 여는 중…</h1>
+  <p>아무 일도 일어나지 않으면 이 기기에 ${esc(BRAND_NAME)}이 설치되어 있지 않을 수 있어요.</p>
+  <a class="button" href="${esc(deepLink)}">${esc(BRAND_NAME)}에서 열기</a>
+  <p><a class="plain" href="https://github.com/chatdaeri/mav" rel="noopener">${esc(BRAND_NAME)} 받기</a></p>
   <script>location.href = ${JSON.stringify(deepLink)};</script>
 </main>
 </body>
@@ -79,7 +79,7 @@ openLinkRoutes.get("/open/note/:orgId/:docId", (c) => {
  * correctly; the ones who didn't signed up on the managed instance instead and
  * nobody found out until the admin couldn't see them. Now the admin sends
  * `https://<their server>/open/connect` and this page bounces into
- * `baalda://connect?server=<this server>`, which opens the app on a confirm
+ * `mav://connect?server=<this server>`, which opens the app on a confirm
  * step.
  *
  * Carries no identity and no access — just this server's own address, which is
@@ -91,12 +91,12 @@ openLinkRoutes.get("/open/connect", (c) => {
   const server = publicBaseUrl(c);
   const deepLink = `${config.deepLinkScheme}://connect?server=${encodeURIComponent(server)}`;
   return c.html(`<!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Connect to this ${esc(BRAND_NAME)} server</title>
+<title>${esc(BRAND_NAME)} 서버에 연결</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
          display: grid; place-items: center; min-height: 100vh; margin: 0;
@@ -113,11 +113,11 @@ openLinkRoutes.get("/open/connect", (c) => {
 </head>
 <body>
 <main>
-  <h1>Pointing ${esc(BRAND_NAME)} at <code>${esc(server)}</code>…</h1>
-  <p>Your ${esc(BRAND_NAME)} app will ask you to confirm before it connects.
-     If nothing happens, ${esc(BRAND_NAME)} may not be installed on this device.</p>
-  <a class="button" href="${esc(deepLink)}">Connect ${esc(BRAND_NAME)}</a>
-  <p><a class="plain" href="https://baalda.com" rel="noopener">Get ${esc(BRAND_NAME)}</a></p>
+  <h1>${esc(BRAND_NAME)}을 <code>${esc(server)}</code>에 연결하는 중…</h1>
+  <p>연결하기 전에 ${esc(BRAND_NAME)} 앱이 확인을 요청해요.
+     아무 일도 일어나지 않으면 이 기기에 ${esc(BRAND_NAME)}이 설치되어 있지 않을 수 있어요.</p>
+  <a class="button" href="${esc(deepLink)}">${esc(BRAND_NAME)} 연결</a>
+  <p><a class="plain" href="https://github.com/chatdaeri/mav" rel="noopener">${esc(BRAND_NAME)} 받기</a></p>
   <script>location.href = ${JSON.stringify(deepLink)};</script>
 </main>
 </body>
@@ -141,7 +141,7 @@ const PREFIX_RE = /^(?:\/[A-Za-z0-9._~-]{1,64})*$/;
  *
  * The Host header is client-supplied, and that is fine here: nobody can set it
  * on someone else's browser, and a link to an attacker's own `/open/connect` is
- * no different from mailing a `baalda://connect` link directly — which the app
+ * no different from mailing a `mav://connect` link directly — which the app
  * confirms before honouring either way. The shape checks exist so a hostile
  * value can't smuggle a path or markup into the link, not as an authz boundary.
  */

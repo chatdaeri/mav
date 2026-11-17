@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { DEFAULT_SERVER_URL } from "../lib/api";
+import { DEFAULT_SERVER_URL, PRODUCTION_SERVER_URL } from "../lib/api";
 import { authManager } from "../lib/auth/authManager";
 import {
   type AuthStep,
@@ -192,7 +192,8 @@ export function AuthDialog({
   const [failedSignIns, setFailedSignIns] = useState<Record<string, number>>({});
   // Revealed by the "Your own server" card rather than shown alongside it: an
   // input sitting under two options reads as belonging to both.
-  const [ownOpen, setOwnOpen] = useState(false);
+  // With no managed instance the "own server" card is the only option: open it.
+  const [ownOpen, setOwnOpen] = useState(!PRODUCTION_SERVER_URL);
   const [urlDraft, setUrlDraft] = useState("");
   // Inline, never a toast: `<Toasts />` is only mounted in the vault-open
   // branch of App, so anything raised from the welcome screen's sign-in would
@@ -254,7 +255,7 @@ export function AuthDialog({
   const connectTo = async (raw: string) => {
     const url = normalizeServerUrl(raw);
     if (!url) {
-      setServerError("That doesn't look like a server address. Try https://notes.example.com");
+      setServerError("서버 주소가 올바르지 않아요. 예: https://notes.example.com");
       return;
     }
     setServerError(null);
@@ -316,8 +317,8 @@ export function AuthDialog({
       // Keep the switch available to retry forgetting if the keychain is locked.
       setRememberPassword(!next);
       setRememberError(next
-        ? "Couldn't enable Remember password on this device."
-        : "Couldn't remove the saved password from the OS keychain. Unlock it and try again.");
+        ? "이 기기에서 비밀번호 저장을 켜지 못했어요."
+        : "OS 키체인에서 저장된 비밀번호를 지우지 못했어요. 키체인을 잠금 해제한 뒤 다시 시도하세요.");
     }
   };
 
@@ -353,7 +354,7 @@ export function AuthDialog({
       try {
         await saveRememberedPassword(serverUrl, email.trim(), password);
       } catch {
-        setRememberError("You're signed in, but the password couldn't be saved in the OS keychain.");
+        setRememberError("로그인했지만 비밀번호를 OS 키체인에 저장하지 못했어요.");
       }
       setPassword("");
     } catch {
@@ -426,21 +427,21 @@ export function AuthDialog({
 
   const title =
     step === "choose-server"
-      ? "Where do your notes live?"
+      ? "노트를 어디에 저장할까요?"
       : step === "confirm-link"
-        ? `Connect to ${serverHost(pendingServerLink ?? serverUrl)}?`
+        ? `${serverHost(pendingServerLink ?? serverUrl)}에 연결할까요?`
         : mode === "reset"
-          ? "Reset your password"
+          ? "비밀번호 재설정"
           : mode === "sign-in"
-            ? "Welcome back"
-            : "Create your account";
+            ? "다시 오신 것을 환영해요"
+            : "계정 만들기";
 
   return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal auth-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <span>{title}</span>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <button className="icon-btn" onClick={onClose} aria-label="닫기">
             ✕
           </button>
         </div>
@@ -448,12 +449,14 @@ export function AuthDialog({
         {step === "choose-server" ? (
           <div className="server-choice">
             <p className="server-choice-lede">
-              Your account and your team live on one server. Pick the managed
-              service, or your team's own.
+              {PRODUCTION_SERVER_URL
+                ? "계정과 팀은 서버 한 곳에 저장돼요. 마이 세컨드 브레인 관리형 서비스나 팀의 자체 서버 중에서 고르세요."
+                : "계정과 팀 노트는 팀 서버에 저장돼요. 팀 서버 주소를 넣어 주세요."}
             </p>
             {/* Two cards, one class: a self-hosting team's members were signing
                 up on the managed service because it was the only option with
                 any visual weight at all. */}
+            {PRODUCTION_SERVER_URL && (
             <button
               type="button"
               className="server-option"
@@ -464,9 +467,9 @@ export function AuthDialog({
                   <CloudGlyph />
                 </span>
                 <span className="server-option-text">
-                  <span className="server-option-title">Baalda managed service</span>
+                  <span className="server-option-title">마이 세컨드 브레인 관리형 서비스</span>
                   <span className="server-option-hint">
-                    Hosted for you at {serverHost(DEFAULT_SERVER_URL)}
+                    {serverHost(DEFAULT_SERVER_URL)}에서 대신 운영해요
                   </span>
                 </span>
                 <span className="server-option-chevron">
@@ -474,6 +477,7 @@ export function AuthDialog({
                 </span>
               </span>
             </button>
+            )}
             {/* A div, not a button: once open, this card holds the URL input
                 and the Connect button, and interactive content can't nest
                 inside a <button>. The header row stays the clickable part. */}
@@ -491,9 +495,13 @@ export function AuthDialog({
                   <ServerGlyph />
                 </span>
                 <span className="server-option-text">
-                  <span className="server-option-title">Your own server</span>
+                  <span className="server-option-title">
+                    {PRODUCTION_SERVER_URL ? "내 서버" : "팀 서버"}
+                  </span>
                   <span className="server-option-hint">
-                    Self-hosted: enter the address your team gave you
+                    {PRODUCTION_SERVER_URL
+                      ? "자체 운영: 팀에서 받은 주소를 입력하세요"
+                      : "예: https://○○.up.railway.app"}
                   </span>
                 </span>
                 <span className="server-option-chevron">
@@ -523,7 +531,7 @@ export function AuthDialog({
                       disabled={urlDraft.trim() === ""}
                       onClick={() => connectTo(urlDraft)}
                     >
-                      Connect
+                      연결
                     </AsyncButton>
                   </div>
                   {serverError && <div className="auth-error">{serverError}</div>}
@@ -534,7 +542,7 @@ export function AuthDialog({
         ) : step === "confirm-link" ? (
           <div className="server-choice">
             <p className="server-choice-lede">
-              Your account and notes for this device will live on this server.
+              이 기기의 계정과 노트가 이 서버에 저장돼요.
             </p>
             <code className="server-link-url">{pendingServerLink}</code>
             <div className="row server-connect-row">
@@ -543,7 +551,7 @@ export function AuthDialog({
                 className="primary"
                 onClick={() => connectTo(pendingServerLink ?? "")}
               >
-                Connect
+                연결
               </AsyncButton>
               <button
                 type="button"
@@ -554,7 +562,7 @@ export function AuthDialog({
                   setStep(stepAfterServer());
                 }}
               >
-                Not now
+                나중에
               </button>
             </div>
             {serverError && <div className="auth-error">{serverError}</div>}
@@ -566,9 +574,9 @@ export function AuthDialog({
                 needs to know — use the invited address — is unsaid. */}
             {invitePrompt && (
               <p className="auth-invite-lede">
-                <strong>{invitePrompt.inviterName ?? "A teammate"}</strong> invited you to
-                join <strong>{invitePrompt.organizationName}</strong>. Sign in (or create an
-                account) with <strong>{invitePrompt.email}</strong> to accept.
+                <strong>{invitePrompt.inviterName ?? "팀원"}</strong>님이 <strong>{invitePrompt.organizationName}</strong>에
+                초대했어요. <strong>{invitePrompt.email}</strong>으로 로그인(또는 계정 만들기)하면
+                초대를 수락할 수 있어요.
               </p>
             )}
             {mode !== "reset" && (
@@ -578,14 +586,14 @@ export function AuthDialog({
                   onClick={() => setMode("sign-in")}
                   type="button"
                 >
-                  Sign in
+                  로그인
                 </button>
                 <button
                   className={mode === "sign-up" ? "active" : ""}
                   onClick={() => setMode("sign-up")}
                   type="button"
                 >
-                  Sign up
+                  가입
                 </button>
               </div>
             )}
@@ -601,19 +609,19 @@ export function AuthDialog({
                 >
                   <GoogleGlyph />
                   <span>
-                    {googleBusy ? "Waiting for your browser…" : "Continue with Google"}
+                    {googleBusy ? "브라우저를 기다리는 중…" : "Google로 계속"}
                   </span>
                   {googleBusy && <Spinner size="xs" tone="neutral" />}
                 </button>
                 {googleBusy && (
                   <p className="auth-hint">
                     <button type="button" className="link-btn" onClick={cancelGoogleSignIn}>
-                      Cancel
+                      취소
                     </button>
                   </p>
                 )}
                 <div className="auth-divider">
-                  <span>or</span>
+                  <span>또는</span>
                 </div>
               </>
             )}
@@ -624,12 +632,12 @@ export function AuthDialog({
                 // message, so this sentence is a fact rather than a hope.
                 <div className="auth-reset-done">
                   <p>
-                    Reset link sent to <strong>{resetSent}</strong>. Check your inbox (and
-                    spam). The link is valid for one hour. Setting a new password there
-                    brings you back here to sign in.
+                    <strong>{resetSent}</strong>(으)로 재설정 링크를 보냈어요. 받은편지함(스팸함 포함)을
+                    확인하세요. 링크는 한 시간 동안 유효해요. 링크에서 새 비밀번호를 설정하면
+                    이곳으로 돌아와 로그인할 수 있어요.
                   </p>
                   <button type="button" className="link-btn" onClick={backToSignIn}>
-                    Back to sign in
+                    로그인으로 돌아가기
                   </button>
                 </div>
               ) : (
@@ -641,11 +649,11 @@ export function AuthDialog({
                   }}
                 >
                   <p className="auth-reset-lede">
-                    Enter your email and we'll send a link to choose a new password.
+                    이메일을 입력하면 새 비밀번호를 정할 수 있는 링크를 보내드려요.
                   </p>
                   <input
                     type="email"
-                    placeholder="Email"
+                    placeholder="이메일"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
@@ -662,10 +670,10 @@ export function AuthDialog({
                     disabled={email.trim() === ""}
                     onClick={requestReset}
                   >
-                    Email me a reset link
+                    재설정 링크 받기
                   </AsyncButton>
                   <button type="button" className="link-btn" onClick={backToSignIn}>
-                    Back to sign in
+                    로그인으로 돌아가기
                   </button>
                 </form>
               )
@@ -673,7 +681,7 @@ export function AuthDialog({
               <form onSubmit={submit} className="auth-form">
                 {mode === "sign-up" && (
                   <input
-                    placeholder="Name"
+                    placeholder="이름"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     autoComplete="name"
@@ -682,7 +690,7 @@ export function AuthDialog({
                 )}
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder="이메일"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -691,7 +699,7 @@ export function AuthDialog({
                 />
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder="비밀번호"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
@@ -711,10 +719,10 @@ export function AuthDialog({
                   <label className="auth-remember">
                     <Switch
                       checked={rememberPassword}
-                      ariaLabel="Remember password"
+                      ariaLabel="비밀번호 저장"
                       onChange={(next) => void toggleRememberPassword(next)}
                     />
-                    <span>Remember password</span>
+                    <span>비밀번호 저장</span>
                   </label>
                   {mode === "sign-in" && resetAvailable && (
                     <button
@@ -726,7 +734,7 @@ export function AuthDialog({
                         setMode("reset");
                       }}
                     >
-                      Forgot password?
+                      비밀번호를 잊으셨나요?
                     </button>
                   )}
                 </div>
@@ -737,7 +745,7 @@ export function AuthDialog({
                   aria-busy={busy || undefined}
                 >
                   <span className="async-btn-label">
-                    {mode === "sign-in" ? "Sign in" : "Create account"}
+                    {mode === "sign-in" ? "로그인" : "계정 만들기"}
                   </span>
                   {busy && <Spinner size="xs" tone="on-accent" />}
                 </button>
@@ -752,8 +760,8 @@ export function AuthDialog({
               email.trim() !== "" &&
               email.trim().toLowerCase() !== invitePrompt.email.toLowerCase() && (
                 <p className="auth-hint">
-                  This invitation was sent to {invitePrompt.email}. Use that address, or it
-                  can't be accepted.
+                  이 초대는 {invitePrompt.email}(으)로 보냈어요. 이 주소를 쓰지 않으면
+                  초대를 수락할 수 없어요.
                 </p>
               )}
 
@@ -766,7 +774,7 @@ export function AuthDialog({
                 {rememberError}
                 {authStatus === "signed-in" && (
                   <button type="button" className="linkish" onClick={() => setRememberError(null)}>
-                    Continue
+                    계속
                   </button>
                 )}
               </div>
@@ -790,7 +798,7 @@ export function AuthDialog({
                 leaves the person retyping. Offer the two exits. */}
             {authError != null && mode === "sign-up" && /already exists/i.test(authError) && (
               <p className="auth-hint">
-                An account with this email already exists.{" "}
+                이미 이 이메일로 만든 계정이 있어요.{" "}
                 <button
                   type="button"
                   className="linkish"
@@ -799,12 +807,12 @@ export function AuthDialog({
                     setMode("sign-in");
                   }}
                 >
-                  Sign in instead
+                  로그인하기
                 </button>
                 {resetAvailable && (
                   <>
                     {" "}
-                    or{" "}
+                    또는{" "}
                     <button
                       type="button"
                       className="linkish"
@@ -815,7 +823,7 @@ export function AuthDialog({
                         setMode("reset");
                       }}
                     >
-                      reset your password
+                      비밀번호 재설정
                     </button>
                   </>
                 )}
@@ -829,10 +837,10 @@ export function AuthDialog({
             <p className="auth-server-note">
               <span>
                 {mode === "reset"
-                  ? "Resetting your password on "
+                  ? "비밀번호 재설정 서버: "
                   : mode === "sign-in"
-                    ? "Signing in to "
-                    : "Creating your account on "}
+                    ? "로그인 서버: "
+                    : "계정을 만들 서버: "}
                 <strong>{serverHost(serverUrl)}</strong>
               </span>
               <button
@@ -848,8 +856,8 @@ export function AuthDialog({
                 {/* On the build's default (managed) server, name the escape
                     hatch outright: a fresh install no longer asks first (#305). */}
                 {normalizeServerUrl(serverUrl) === normalizeServerUrl(DEFAULT_SERVER_URL)
-                  ? "Use a self-hosted server"
-                  : "Change"}
+                  ? "자체 서버 사용"
+                  : "변경"}
               </button>
             </p>
           </>

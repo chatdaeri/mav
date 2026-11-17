@@ -59,7 +59,7 @@ describe("bug reports", () => {
     const mail = reports()[0]!;
     expect(mail.to).toBe("bugs@baalda.local");
     expect(mail.replyTo).toBe("alice@bugs.io");
-    expect(mail.subject).toBe("Bug report: Sidebar froze <b>after</b> a rename");
+    expect(mail.subject).toBe("버그 제보: Sidebar froze <b>after</b> a rename");
     expect(mail.text).toContain("App version: 0.1.73");
     expect(mail.text).toContain("Account: alice@bugs.io");
     expect(mail.text).not.toContain("dropped");
@@ -100,7 +100,7 @@ describe("bug reports", () => {
     );
     expect(res.status).toBe(200);
     const mail = reports()[0]!;
-    expect(mail.text).toContain("Video: https://www.loom.com/share/abc123");
+    expect(mail.text).toContain("영상: https://www.loom.com/share/abc123");
     expect(mail.html).toContain('href="https://www.loom.com/share/abc123"');
     // Type comes from the extension (never the client), the path is stripped.
     expect(mail.attachments?.map((a) => [a.filename, a.contentType])).toEqual([

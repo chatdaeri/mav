@@ -113,7 +113,7 @@ export interface HealthInput {
   /** `store.members` — the vault's roster, used ONLY to name the owner in an
    *  access explanation ("Ask <name> …"). Structural on purpose so the model
    *  needs no value import from `lib/api.ts`; absent ⇒ the explanations fall
-   *  back to "the vault's owner". */
+   *  back to "볼트 소유자". */
   members?: HealthMember[];
   /** `store.syncPause` — the server's shrink burst brake holding this
    *  account's writes in the vault (#252). Absent ⇒ none. */
@@ -127,7 +127,7 @@ export interface HealthMember {
 }
 
 /** Who to ask for access. Null when the roster hasn't loaded or has no owner —
- *  in which case every sentence says "the vault's owner" rather than guessing. */
+ *  in which case every sentence says "볼트 소유자" rather than guessing. */
 export function ownerOf(members: HealthMember[] | undefined): {
   name: string;
   email: string;
@@ -139,9 +139,9 @@ export function ownerOf(members: HealthMember[] | undefined): {
   return { name, email: user.email };
 }
 
-/** "Ben (ben@example.com)" or "the vault's owner". */
+/** "Ben (ben@example.com)" or "볼트 소유자". */
 function ownerPhrase(owner: { name: string; email: string } | null): string {
-  return owner ? `${owner.name} (${owner.email})` : "the vault's owner";
+  return owner ? `${owner.name} (${owner.email})` : "볼트 소유자";
 }
 
 // ── Small text helpers (deliberately `Intl`-free) ─────────────────────────────
@@ -154,7 +154,7 @@ export function num(n: number): string {
 }
 
 function plural(n: number, word: string): string {
-  return `${num(n)} ${word}${n === 1 ? "" : "s"}`;
+  return `${word} ${num(n)}개`;
 }
 
 /** Host of the server this vault syncs against, or null when unparseable. */
@@ -229,11 +229,11 @@ interface IssueContext {
 }
 
 function pathFact(path: string | null): HealthFact[] {
-  return path ? [{ label: "Path", value: path }] : [];
+  return path ? [{ label: "경로", value: path }] : [];
 }
 
 function docIdFact(docId: string | null): HealthFact[] {
-  return docId ? [{ label: "Doc id", value: docId, copyable: true }] : [];
+  return docId ? [{ label: "문서 ID", value: docId, copyable: true }] : [];
 }
 
 function tooLargeIssue(f: HealthContentFailure, ctx: IssueContext): HealthIssue {
@@ -275,45 +275,43 @@ function tooLargeIssue(f: HealthContentFailure, ctx: IssueContext): HealthIssue 
 
   const why =
     cause === "history"
-      ? `This note's edit history is ${historyText ?? "over the limit"}; the Remote Vault ` +
-        `accepts up to ${capMb} MB per note. The note's own text is not the problem.`
+      ? `이 노트의 편집 기록이 ${historyText ?? "한도를 넘었어요"}. 원격 볼트는 노트당 ` +
+        `최대 ${capMb}MB까지 받아요. 노트 본문은 문제가 아니에요.`
       : cause === "file"
-        ? `This note is ${sizeText ?? "over the limit"}; the Remote Vault accepts up to ` +
-          `${capMb} MB. It has to get smaller before it can sync.`
-        : `The Remote Vault refused this note as too large: ${f.reason}`;
+        ? `이 노트는 ${sizeText ?? "한도를 넘었어요"}. 원격 볼트는 최대 ` +
+          `${capMb}MB까지 받아요. 동기화하려면 크기를 줄여야 해요.`
+        : `원격 볼트가 이 노트를 너무 크다는 이유로 거부했어요: ${f.reason}`;
 
   const meaning =
     cause === "history"
-      ? "Every edit Baalda has ever merged into this note is stored alongside it so " +
-        "offline changes can merge instead of overwriting. That stored history has " +
-        "grown past what the Remote Vault accepts, so the note stops uploading. Your text " +
-        "is intact on this device; only the record of past edits is oversized."
+      ? "마이 세컨드 브레인은 오프라인 변경을 덮어쓰지 않고 병합할 수 있도록, 이 노트에 병합한 모든 편집을 " +
+        "노트와 함께 저장해요. 저장된 기록이 원격 볼트가 받을 수 있는 크기를 넘어서 " +
+        "노트 업로드가 멈췄어요. 본문은 이 기기에 그대로 있고, 과거 편집 기록만 너무 커요."
       : cause === "file"
-        ? "The note itself is bigger than one note is allowed to be on the Remote Vault, " +
-          "usually because something large is pasted into the file rather than kept " +
-          "beside it. The Remote Vault will not accept it at any size above the limit, so " +
-          "it stays on this device only."
-        : "The Remote Vault refused this note because of its size. Baalda recorded the " +
-          "refusal but not which half was oversized.";
+        ? "노트 자체가 원격 볼트에서 허용하는 노트 크기보다 커요. 보통 큰 내용을 " +
+          "파일 옆에 두지 않고 안에 붙여 넣어서 생겨요. 원격 볼트는 한도를 넘는 노트를 " +
+          "받지 않으므로 이 기기에만 남아 있어요."
+        : "원격 볼트가 크기 때문에 이 노트를 거부했어요. 마이 세컨드 브레인은 거부 사실만 기록했고 " +
+          "어느 쪽이 너무 큰지는 기록하지 못했어요.";
 
   const fixes =
     cause === "history"
       ? [
-          "Reset this note's history. It clears the stored edit history and keeps " +
-            "the note's text exactly as it is. This is the fix in almost every case.",
-          "If it comes back, something is rewriting this note repeatedly (an " +
-            "automation or a script). Stop that first, then reset again.",
+          "이 노트의 기록을 초기화하세요. 저장된 편집 기록만 지우고 본문은 그대로 둬요. " +
+            "대부분 이렇게 해결돼요.",
+          "다시 생기면 자동화나 스크립트가 이 노트를 계속 고쳐 쓰고 있을 수 있어요. " +
+            "그것부터 멈춘 뒤 다시 초기화하세요.",
         ]
       : cause === "file"
         ? [
-            "Move large embedded content (images, PDFs, pasted base64) out of the " +
-              "note and into the attachments folder, then link to it.",
-            "Split the note into several smaller notes.",
-            "Save a copy outside the vault, then shorten the note here.",
+            "큰 삽입 내용(이미지, PDF, 붙여 넣은 base64)을 노트에서 꺼내 " +
+              "첨부 파일 폴더에 두고 링크로 연결하세요.",
+            "노트를 여러 개의 작은 노트로 나누세요.",
+            "볼트 밖에 사본을 저장한 뒤 이 노트를 줄이세요.",
           ]
         : [
-            "Save a copy outside the vault so you have it, then reset this note's " +
-              "history and shorten the note.",
+            "볼트 밖에 사본을 저장해 두고, 이 노트의 기록을 초기화한 뒤 " +
+              "노트를 줄이세요.",
           ];
 
   const remedies: HealthRemedy[] =
@@ -323,11 +321,11 @@ function tooLargeIssue(f: HealthContentFailure, ctx: IssueContext): HealthIssue 
 
   const facts: HealthFact[] = [
     ...pathFact(f.relPath),
-    { label: "Size", value: sizeText ?? "Not measured on this page" },
-    { label: "Limit", value: `${capMb} MB per note` },
-    ...(historyText ? [{ label: "History size", value: historyText }] : []),
+    { label: "크기", value: sizeText ?? "이 페이지에서는 측정하지 않았어요" },
+    { label: "한도", value: `노트당 ${capMb}MB` },
+    ...(historyText ? [{ label: "기록 크기", value: historyText }] : []),
     ...docIdFact(f.docId),
-    { label: "Raw reason", value: f.reason, copyable: true },
+    { label: "원본 사유", value: f.reason, copyable: true },
   ];
 
   return {
@@ -336,13 +334,13 @@ function tooLargeIssue(f: HealthContentFailure, ctx: IssueContext): HealthIssue 
     path: f.relPath,
     kind: "too-large",
     severity: "error",
-    title: "Too large to sync",
+    title: "동기화하기에는 너무 커요",
     why,
     remedies,
     code: null,
     explanation: {
       meaning,
-      next: "Nothing. Baalda will not retry until the note is smaller.",
+      next: "할 일 없음. 노트가 작아질 때까지 마이 세컨드 브레인은 다시 시도하지 않아요.",
       fixes,
       safety: "only-here",
     },
@@ -364,54 +362,53 @@ export function classifyUploadReason(reason: string): string | null {
   const r = reason.trim().toLowerCase();
   if (r.startsWith("open failed")) {
     return (
-      "Baalda could not open this note's local copy to send it, so nothing was " +
-      "uploaded. That is usually a file permission problem or a note the local " +
-      "index and the disk disagree about."
+      "마이 세컨드 브레인이 보내려고 이 노트의 로컬 사본을 열지 못해서 아무것도 " +
+      "업로드되지 않았어요. 보통 파일 권한 문제이거나, 로컬 인덱스와 디스크의 " +
+      "내용이 서로 다른 노트예요."
     );
   }
   if (r.includes("did not respond to the initial sync")) {
     return (
-      "The connection opened, but the Remote Vault never sent back what it already " +
-      "holds for this note. Baalda refuses to upload before it has read the " +
-      "Remote Vault's copy, because uploading first is how two versions of a note end " +
-      "up merged into one doubled note. Usually the Remote Vault was unreachable or " +
-      "too slow."
+      "연결은 열렸지만 원격 볼트가 이 노트에 대해 이미 갖고 있는 내용을 보내오지 않았어요. " +
+      "먼저 업로드하면 한 노트의 두 버전이 합쳐져 내용이 두 배가 될 수 있어서, 마이 세컨드 브레인은 " +
+      "원격 볼트의 사본을 읽기 전에는 업로드하지 않아요. 보통 원격 볼트에 " +
+      "연결할 수 없었거나 응답이 너무 느렸어요."
     );
   }
   if (r.includes("did not acknowledge the content")) {
     return (
-      "The content was sent, but the Remote Vault never confirmed it had stored it. " +
-      "Baalda will not call a note synced on a guess, so it is reported as " +
-      "failed. A dropped connection or an overloaded Remote Vault both look like this."
+      "내용은 보냈지만 원격 볼트가 저장했다는 확인을 보내오지 않았어요. " +
+      "마이 세컨드 브레인은 추측만으로 노트를 동기화됨으로 표시하지 않아서 실패로 " +
+      "보고해요. 연결이 끊겼거나 원격 볼트가 과부하일 때 이렇게 보여요."
     );
   }
   if (r === "no-access" || r.includes("403") || r.includes("forbidden")) {
     return (
-      "The Remote Vault refused this note: your access to it is view-only, or it has " +
-      "been withdrawn. Nothing you type here will reach the Remote Vault until access " +
-      "is restored."
+      "원격 볼트가 이 노트를 거부했어요. 이 노트에 대한 권한이 보기 전용이거나 " +
+      "회수됐어요. 권한이 복구되기 전까지는 여기서 입력한 내용이 원격 볼트에 " +
+      "전달되지 않아요."
     );
   }
   if (r === "deleted" || r.includes("404") || r.includes("not found")) {
     return (
-      "The Remote Vault has no record for this note any more. It was deleted there while " +
-      "this device still held it. Your copy is untouched on disk."
+      "원격 볼트에 이 노트의 기록이 더 이상 없어요. 이 기기가 노트를 갖고 있는 동안 " +
+      "원격에서 삭제됐어요. 디스크의 사본은 그대로예요."
     );
   }
   if (r === "too-large" || r.includes("too large")) {
-    return "The Remote Vault refused this note because it is over the per-note size limit.";
+    return "노트당 크기 한도를 넘어서 원격 볼트가 이 노트를 거부했어요.";
   }
   if (r.includes("401") || r.includes("unauthor")) {
     return (
-      "The Remote Vault did not accept this device's sign-in. Signing out and back in " +
-      "usually clears it."
+      "원격 볼트가 이 기기의 로그인을 받아들이지 않았어요. 로그아웃한 뒤 " +
+      "다시 로그인하면 보통 해결돼요."
     );
   }
   if (/\b5\d\d\b/.test(r) || r.includes("internal server error")) {
-    return "The Remote Vault hit an error of its own while storing this note.";
+    return "원격 볼트가 이 노트를 저장하는 중 자체 오류가 났어요.";
   }
   if (r.includes("timed out") || r.includes("timeout")) {
-    return "The Remote Vault took too long to answer, so Baalda stopped waiting.";
+    return "원격 볼트의 응답이 너무 오래 걸려서 마이 세컨드 브레인이 기다리기를 멈췄어요.";
   }
   if (
     r.includes("failed to fetch") ||
@@ -421,10 +418,10 @@ export function classifyUploadReason(reason: string): string | null {
     r.includes("enotfound") ||
     r.includes("socket")
   ) {
-    return "This device could not reach the Remote Vault, so nothing was sent.";
+    return "이 기기가 원격 볼트에 연결하지 못해서 아무것도 보내지 못했어요.";
   }
   if (r === "error") {
-    return "The connection Baalda opened for this note failed before the content landed.";
+    return "마이 세컨드 브레인이 이 노트를 위해 연 연결이 내용이 도착하기 전에 실패했어요.";
   }
   return null;
 }
@@ -437,31 +434,31 @@ function uploadFailedIssue(f: HealthContentFailure): HealthIssue {
     path: f.relPath,
     kind: "upload-failed",
     severity: "error",
-    title: "Couldn't upload",
+    title: "업로드할 수 없어요",
     why:
-      `This note's content did not reach the Remote Vault. ${capitalize(f.reason)} ` +
-      `Its only copy is on this device.`,
+      `이 노트의 내용이 원격 볼트에 도착하지 못했어요. ${capitalize(f.reason)} ` +
+      `유일한 사본은 이 기기에 있어요.`,
     remedies: ["retry", "open", "reveal", "export-copy", "copy-details"],
     code: null,
     explanation: {
       meaning:
-        (cause ? `${cause} ` : `Baalda recorded: ${capitalize(f.reason)} `) +
-        "The note itself is safe: it is written to disk on this device exactly as " +
-        "you left it. What failed is the copy going to the Remote Vault, so your other " +
-        "devices and your teammates do not have it yet.",
-      next: "Baalda retries on the next connect, and again the next time the file changes.",
+        (cause ? `${cause} ` : `마이 세컨드 브레인이 기록한 내용: ${capitalize(f.reason)} `) +
+        "노트 자체는 안전해요. 마지막에 둔 그대로 이 기기의 디스크에 저장돼 있어요. " +
+        "실패한 것은 원격 볼트로 보내는 사본이라서, 다른 기기와 팀원에게는 아직 " +
+        "전달되지 않았어요.",
+      next: "마이 세컨드 브레인은 다음에 연결될 때와 파일이 다시 바뀔 때 다시 시도해요.",
       fixes: [
-        "Retry now if you want it to go straight away.",
-        "Check you are online and that the Remote Vault is reachable.",
-        "Save a copy outside the vault if this is work you cannot afford to lose " +
-          "while it is only on this device.",
+        "바로 보내려면 지금 다시 시도하세요.",
+        "온라인 상태인지, 원격 볼트에 연결할 수 있는지 확인하세요.",
+        "이 기기에만 있는 동안 잃으면 안 되는 작업이라면 " +
+          "볼트 밖에 사본을 저장해 두세요.",
       ],
       safety: "only-here",
     },
     facts: [
       ...pathFact(f.relPath),
       ...docIdFact(f.docId),
-      { label: "Last error", value: f.reason, copyable: true },
+      { label: "마지막 오류", value: f.reason, copyable: true },
     ],
     autoRetries: true,
   };
@@ -475,32 +472,32 @@ function noWriteAccessIssue(f: HealthContentFailure): HealthIssue {
     path: f.relPath,
     kind: "no-write-access",
     severity: "error",
-    title: "Read-only sync needs review",
+    title: "읽기 전용 동기화 확인 필요",
     why: saved
-      ? "The Remote Vault refused this note as read-only. Baalda kept a recovery copy before restoring the Remote Vault's version."
-      : "The Remote Vault refused this note as read-only. Check again to verify whether its current local and remote text already match.",
+      ? "원격 볼트가 이 노트를 읽기 전용이라며 거부했어요. 마이 세컨드 브레인이 복구용 사본을 남긴 뒤 원격 볼트의 버전으로 되돌렸어요."
+      : "원격 볼트가 이 노트를 읽기 전용이라며 거부했어요. 다시 확인해서 현재 로컬 본문과 원격 본문이 이미 같은지 확인하세요.",
     remedies: ["retry", "open", "reveal", "export-copy", "copy-details"],
     code: null,
     explanation: {
       meaning:
-        "The Remote Vault still has its confirmed copy, but it did not accept this device's submitted state because you do not have write access.",
+        "원격 볼트에는 확인된 사본이 그대로 있지만, 쓰기 권한이 없어서 이 기기가 보낸 상태는 받아들이지 않았어요.",
       next:
-        "Check again. If the current text already matches the Remote Vault, the warning clears without changing the note.",
+        "다시 확인하세요. 현재 본문이 원격 볼트와 이미 같다면 노트를 바꾸지 않고 경고만 사라져요.",
       fixes: saved
         ? [
-            "Check again to compare the current read-only copy with the Remote Vault.",
-            "Open the recovery copy named in the details and restore the edit after access returns.",
+            "다시 확인해서 현재 읽기 전용 사본을 원격 볼트와 비교하세요.",
+            "세부 정보에 적힌 복구용 사본을 열고, 권한이 돌아오면 편집 내용을 복원하세요.",
           ]
         : [
-            "Check again to compare the current read-only copy with the Remote Vault.",
-            "If the warning remains, ask the vault owner for edit access before making changes.",
+            "다시 확인해서 현재 읽기 전용 사본을 원격 볼트와 비교하세요.",
+            "경고가 계속되면 변경하기 전에 볼트 소유자에게 편집 권한을 요청하세요.",
           ],
       safety: "only-here",
     },
     facts: [
       ...pathFact(f.relPath),
       ...docIdFact(f.docId),
-      { label: "Last error", value: f.reason, copyable: true },
+      { label: "마지막 오류", value: f.reason, copyable: true },
     ],
     autoRetries: false,
   };
@@ -532,30 +529,28 @@ function registerCodeMeaning(code: string | null, kind: "folder" | "note"): stri
   switch (code) {
     case "no_write_access":
       return (
-        `Your access to this folder is view-only, so the Remote Vault refused to create ` +
-        `the ${kind}.`
+        `이 폴더에 대한 권한이 보기 전용이라서 원격 볼트가 ${kind === "folder" ? "폴더" : "노트"} 만들기를 거부했어요.`
       );
     case "root_frozen":
       return (
-        `This vault's top level is locked, so new items can only be created inside ` +
-        `a folder. Move this ${kind} into one and it will register.`
+        `이 볼트의 최상위는 잠겨 있어서 새 항목은 폴더 안에서만 만들 수 있어요. ` +
+        `이 ${kind === "folder" ? "폴더" : "노트"}를 폴더 안으로 옮기면 등록돼요.`
       );
     case "path_folder_mismatch":
       return (
-        `The folder this ${kind} sits in on disk and the folder the Remote Vault has ` +
-        `recorded for it disagree, so the Remote Vault refused the request rather than ` +
-        `guess which one is right.`
+        `이 ${kind === "folder" ? "폴더" : "노트"}가 디스크에서 들어 있는 폴더와 원격 볼트에 기록된 폴더가 ` +
+        `서로 달라요. 원격 볼트는 어느 쪽이 맞는지 추측하지 않고 요청을 거부했어요.`
       );
     case "doc_id_conflict":
       return (
-        `This ${kind}'s id already belongs to a different vault on the Remote Vault, so ` +
-        `it cannot be created here under the same id.`
+        `이 ${kind === "folder" ? "폴더" : "노트"}의 ID가 원격 볼트의 다른 볼트에서 이미 쓰이고 있어서 ` +
+        `같은 ID로는 여기서 만들 수 없어요.`
       );
     case "note_deleted":
       return (
-        `This ${kind} was deleted on the Remote Vault by another member. Your copy is ` +
-        `kept on this device but no longer syncs; delete it, or save its text as a new ` +
-        `${kind} to share it again.`
+        `다른 멤버가 원격 볼트에서 이 ${kind === "folder" ? "폴더" : "노트"}를 삭제했어요. 사본은 ` +
+        `이 기기에 남아 있지만 더 이상 동기화되지 않아요. 삭제하거나, 내용을 새 ` +
+        `${kind === "folder" ? "폴더" : "노트"}로 저장해 다시 공유하세요.`
       );
     default:
       return null;
@@ -571,37 +566,37 @@ function limitIssue(f: HealthRegistryFailure): HealthIssue {
     path: f.path,
     kind: "limit",
     severity: "error",
-    title: "Plan limit reached",
-    why: notes ? "This vault reached its sync limit for notes. Upgrade to Team to sync more. Existing notes keep syncing; additional notes stay on this device." : member
-      ? "This vault has as many members as the free plan allows, so the Remote Vault " +
-        "refused. Upgrade to add more."
-      : "This account has as many vaults as the free plan allows, so the Remote Vault " +
-        "refused to create more. Upgrade to keep syncing.",
+    title: "요금제 한도에 도달했어요",
+    why: notes ? "이 볼트는 노트 동기화 한도에 도달했어요. 더 동기화하려면 Team으로 업그레이드하세요. 기존 노트는 계속 동기화되고, 추가 노트는 이 기기에만 남아요." : member
+      ? "이 볼트의 멤버 수가 무료 요금제 한도에 도달해서 원격 볼트가 " +
+        "거부했어요. 더 추가하려면 업그레이드하세요."
+      : "이 계정의 볼트 수가 무료 요금제 한도에 도달해서 원격 볼트가 " +
+        "더 만들기를 거부했어요. 계속 동기화하려면 업그레이드하세요.",
     remedies: ["upgrade", "copy-details"],
     code: f.code,
     explanation: {
-      meaning: notes ? "This vault reached its sync limit for notes. Your additional notes remain safely on this device." : member
-        ? "The free plan allows a limited number of people in one vault. This vault " +
-          "is at that number, so the Remote Vault turned this request down. Nothing was " +
-          "lost. The work simply stopped at the gate."
-        : "The free plan allows a limited number of vaults per account. This account " +
-          "is at that number, so the Remote Vault would not create another one. Nothing " +
-          "was lost. The work simply stopped at the gate.",
-      next: "Nothing. The Remote Vault will refuse this the same way every time until the limit lifts.",
+      meaning: notes ? "이 볼트는 노트 동기화 한도에 도달했어요. 추가한 노트는 이 기기에 안전하게 남아 있어요." : member
+        ? "무료 요금제는 한 볼트에 넣을 수 있는 인원이 제한돼요. 이 볼트가 그 한도에 " +
+          "도달해서 원격 볼트가 이 요청을 거절했어요. 잃은 것은 없고, " +
+          "작업이 입구에서 멈췄을 뿐이에요."
+        : "무료 요금제는 계정당 만들 수 있는 볼트 수가 제한돼요. 이 계정이 그 한도에 " +
+          "도달해서 원격 볼트가 볼트를 더 만들지 않았어요. 잃은 것은 " +
+          "없고, 작업이 입구에서 멈췄을 뿐이에요.",
+      next: "할 일 없음. 한도가 풀릴 때까지 원격 볼트는 매번 같은 방식으로 거부해요.",
       fixes: [
-        notes ? "Upgrade this vault to Team to sync more notes." : member
-          ? "Upgrade this vault to add more people."
-          : "Upgrade to create more vaults.",
+        notes ? "더 많은 노트를 동기화하려면 이 볼트를 Team으로 업그레이드하세요." : member
+          ? "더 많은 인원을 추가하려면 이 볼트를 업그레이드하세요."
+          : "볼트를 더 만들려면 업그레이드하세요.",
         member
-          ? "Or remove a member you no longer work with, which frees a seat."
-          : "Or delete a vault you no longer use, which frees a slot.",
+          ? "또는 더 이상 함께 일하지 않는 멤버를 제거하면 자리가 생겨요."
+          : "또는 쓰지 않는 볼트를 삭제하면 자리가 생겨요.",
       ],
       safety: "only-here",
     },
     facts: [
       ...pathFact(f.path),
-      { label: "Limit", value: member ? "Members per vault" : "Vaults per account" },
-      { label: "Remote Vault code", value: f.code ?? "unknown", copyable: true },
+      { label: "한도", value: member ? "볼트당 멤버 수" : "계정당 볼트 수" },
+      { label: "원격 볼트 코드", value: f.code ?? "알 수 없음", copyable: true },
     ],
     autoRetries: false,
   };
@@ -620,27 +615,27 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: null,
       kind: "register-failed",
       severity: "error",
-      title: "New notes and folder changes aren't syncing",
+      title: "새 노트와 폴더 변경이 동기화되지 않아요",
       why:
-        `The app can't load the vault's file list (last error: ${f.reason}). ` +
-        "Edits to existing notes still sync.",
+        `앱이 볼트의 파일 목록을 불러올 수 없어요 (마지막 오류: ${f.reason}). ` +
+        "기존 노트의 편집은 계속 동기화돼요.",
       remedies: ["copy-details"],
       code: f.code,
       explanation: {
         meaning:
-          "New notes, new folders, renames and deletes sync through the vault's file list. " +
-          "Loading that list from the Remote Vault keeps failing, so these changes are waiting " +
-          "on this computer. Nothing was lost.",
-        next: "Baalda tries again on the next change, reconnect or retry, and this clears once it works.",
+          "새 노트, 새 폴더, 이름 변경, 삭제는 볼트의 파일 목록을 통해 동기화돼요. " +
+          "원격 볼트에서 그 목록을 불러오는 데 계속 실패해서 이 변경 사항이 " +
+          "이 컴퓨터에서 대기 중이에요. 잃은 것은 없어요.",
+        next: "마이 세컨드 브레인은 다음 변경, 재연결, 재시도 때 다시 시도하고 성공하면 이 표시가 사라져요.",
         fixes: [
-          "Check your internet connection and the server address in Settings → Connection.",
-          "If it keeps happening, send the details below to support.",
+          "인터넷 연결과 설정 → 연결의 서버 주소를 확인하세요.",
+          "계속 생기면 아래 세부 정보를 지원팀에 보내 주세요.",
         ],
         safety: "only-here",
       },
       facts: [
-        ...(f.code ? [{ label: "Remote Vault code", value: f.code, copyable: true }] : []),
-        { label: "Last error", value: f.reason, copyable: true },
+        ...(f.code ? [{ label: "원격 볼트 코드", value: f.code, copyable: true }] : []),
+        { label: "마지막 오류", value: f.reason, copyable: true },
       ],
       autoRetries: true,
     };
@@ -652,18 +647,18 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: f.path,
       kind: "inbound-blocked",
       severity: "error",
-      title: "Linked path not synced",
+      title: "연결된 경로가 동기화되지 않았어요",
       why: f.reason,
       remedies: ["reveal", "copy-details"],
       code: f.code,
       explanation: {
         meaning:
-          "The Remote Vault has a note at this path, but on this computer the path is a " +
-          "symbolic link. Baalda never writes through a link, so the file it points at was left untouched.",
-        next: "Baalda checks again on the next sync pass.",
+          "원격 볼트에는 이 경로에 노트가 있지만, 이 컴퓨터에서는 이 경로가 " +
+          "심볼릭 링크예요. 마이 세컨드 브레인은 링크를 통해 쓰지 않아서 링크가 가리키는 파일은 그대로 뒀어요.",
+        next: "마이 세컨드 브레인은 다음 동기화 때 다시 확인해요.",
         fixes: [
-          "Remove the link if the real file is already in the vault.",
-          "Or move the real file to this path instead of linking to it.",
+          "실제 파일이 이미 볼트 안에 있다면 링크를 삭제하세요.",
+          "또는 링크 대신 실제 파일을 이 경로로 옮기세요.",
         ],
         safety: "on-server",
       },
@@ -678,19 +673,19 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: f.path,
       kind: "inbound-blocked",
       severity: "warn",
-      title: "Removed on disk, being restored",
-      why: "This note was removed from the vault folder together with many others at once.",
+      title: "디스크에서 삭제돼 복원 중이에요",
+      why: "이 노트가 다른 많은 노트와 함께 한꺼번에 볼트 폴더에서 삭제됐어요.",
       remedies: ["copy-details"],
       code: f.code,
       explanation: {
         meaning:
-          "Many notes disappeared from this folder in one go while Baalda was open. Baalda held " +
-          "the change instead of syncing it, so the note is still on the Remote Vault and nothing " +
-          "was deleted for your team.",
-        next: "It comes back on this device when the notice at the top is dismissed or fades.",
+          "마이 세컨드 브레인이 열려 있는 동안 이 폴더에서 많은 노트가 한꺼번에 사라졌어요. 마이 세컨드 브레인은 " +
+          "그 변경을 동기화하지 않고 보류했어요. 그래서 노트는 원격 볼트에 그대로 있고 " +
+          "팀에서는 아무것도 삭제되지 않았어요.",
+        next: "맨 위 알림을 닫거나 알림이 사라지면 이 기기에 다시 돌아와요.",
         fixes: [
-          "Choose Restore now to bring the notes back from the Remote Vault straight away.",
-          "To delete notes for everyone, delete them inside Baalda instead.",
+          "지금 복원을 선택하면 원격 볼트에서 노트를 바로 되돌려 받아요.",
+          "모든 사람에게서 노트를 삭제하려면 마이 세컨드 브레인 안에서 삭제하세요.",
         ],
         safety: "on-server",
       },
@@ -705,17 +700,17 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: f.path,
       kind: "inbound-blocked",
       severity: "error",
-      title: "Local change held for safety",
-      why: `Baalda kept this item on disk because a sync safety check did not pass. ${capitalize(f.reason)}`,
+      title: "안전을 위해 로컬 변경을 보류했어요",
+      why: `동기화 안전 점검을 통과하지 못해서 마이 세컨드 브레인이 이 항목을 디스크에 그대로 뒀어요. ${capitalize(f.reason)}`,
       remedies: ["retry", "reveal", "copy-details"],
       code: f.code,
       explanation: {
-        meaning: "A removal or move requested by the Remote Vault was not applied. This is a safety check, not a failure to write a downloaded note.",
-        next: "Baalda checks again on the next sync pass. Items stay here until the required checks pass.",
-        fixes: ["Retry sync to check the current access and structure.", "If this repeats, copy the details for investigation before removing local files."],
+        meaning: "원격 볼트가 요청한 삭제나 이동을 적용하지 않았어요. 받은 노트를 쓰지 못한 것이 아니라 안전 점검 때문이에요.",
+        next: "마이 세컨드 브레인은 다음 동기화 때 다시 확인해요. 필요한 점검을 통과할 때까지 항목이 여기에 남아요.",
+        fixes: ["동기화를 다시 시도해 현재 권한과 구조를 확인하세요.", "반복되면 로컬 파일을 지우기 전에 세부 정보를 복사해 조사에 쓰세요."],
         safety: "unknown",
       },
-      facts: [...pathFact(f.path), ...docIdFact(f.docId), { label: "Safety check", value: f.reason, copyable: true }],
+      facts: [...pathFact(f.path), ...docIdFact(f.docId), { label: "안전 점검", value: f.reason, copyable: true }],
       autoRetries: true,
     };
   }
@@ -726,33 +721,32 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: f.path,
       kind: "materialize-failed",
       severity: "error",
-      title: "Couldn't write this to disk",
+      title: "디스크에 쓸 수 없어요",
       why:
-        `The Remote Vault has this note, but it could not be written into your vault ` +
-        `folder. ${capitalize(f.reason)}`,
+        `원격 볼트에 이 노트가 있지만 볼트 폴더에 쓸 수 없었어요. ` +
+        `${capitalize(f.reason)}`,
       remedies: ["retry", "reveal", "copy-details"],
       code: f.code,
       explanation: {
         meaning:
-          "This note exists on the Remote Vault and is safe there. What failed is the " +
-          "last step: writing it into your vault folder on this device. The usual " +
-          "causes are a folder this app is not allowed to write to, a filename this " +
-          "operating system will not accept, or a path that has grown too long.",
-        next: "Baalda tries again on the next sync pass.",
+          "이 노트는 원격 볼트에 안전하게 있어요. 실패한 것은 마지막 단계인 " +
+          "이 기기의 볼트 폴더에 쓰는 일이에요. 보통 앱이 쓸 수 없는 폴더, " +
+          "운영체제가 받아들이지 않는 파일 이름, 너무 길어진 경로가 원인이에요.",
+        next: "마이 세컨드 브레인은 다음 동기화 때 다시 시도해요.",
         fixes: [
-          "Check the vault folder is writable and not inside a synced folder that " +
-            "locks files (some cloud drives do).",
-          "If the name contains characters this system rejects, rename the note on " +
-            "another device or on the Remote Vault.",
-          "Shorten the folder path if it is very deep.",
+          "볼트 폴더에 쓸 수 있는지, 파일을 잠그는 동기화 폴더(일부 클라우드 드라이브) " +
+            "안에 있지 않은지 확인하세요.",
+          "이름에 이 시스템이 받아들이지 않는 문자가 있다면 다른 기기나 " +
+            "원격 볼트에서 노트 이름을 바꾸세요.",
+          "폴더 경로가 아주 깊다면 줄이세요.",
         ],
         safety: "on-server",
       },
       facts: [
         ...pathFact(f.path),
         ...docIdFact(f.docId),
-        ...(f.code ? [{ label: "Remote Vault code", value: f.code, copyable: true }] : []),
-        { label: "Last error", value: f.reason, copyable: true },
+        ...(f.code ? [{ label: "원격 볼트 코드", value: f.code, copyable: true }] : []),
+        { label: "마지막 오류", value: f.reason, copyable: true },
       ],
       autoRetries: true,
     };
@@ -768,41 +762,41 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
       path: f.path,
       kind: "left-behind",
       severity: "error",
-      title: "Left on disk, not on the Remote Vault",
+      title: "디스크에만 남고 원격 볼트에는 없어요",
       why:
-        `${capitalize(f.reason)} It was kept here rather than removed, because ` +
-        `this device may hold the only copy. Open it to check, then delete it if ` +
-        `you don't need it.`,
+        `${capitalize(f.reason)} 이 기기에 유일한 사본이 있을 수 있어서 ` +
+        `삭제하지 않고 남겨 뒀어요. 열어서 확인한 뒤 필요 없으면 ` +
+        `삭제하세요.`,
       remedies: ["open", "reveal", "reregister", "export-copy", "delete", "copy-details"],
       code: f.code,
       explanation: {
         meaning:
-          "The Remote Vault no longer has this note. Either someone deleted it, or your " +
-          "access to it was withdrawn. Normally Baalda would remove the file here " +
-          "to match, but this device never got confirmation that the Remote Vault had " +
-          "this note's content, so the copy in front of you may be the only one " +
-          "that exists. It was kept on purpose rather than deleted.",
-        next: "Nothing. Baalda will not remove it and will not re-upload it on its own.",
+          "원격 볼트에 이 노트가 더 이상 없어요. 누군가 삭제했거나 이 노트에 대한 " +
+          "권한이 회수됐어요. 보통은 마이 세컨드 브레인이 이 기기의 파일도 지워서 맞추지만, " +
+          "이 기기는 원격 볼트가 이 노트의 내용을 받았다는 확인을 받은 적이 없어서 " +
+          "지금 보이는 사본이 유일한 사본일 수 있어요. 그래서 삭제하지 않고 " +
+          "일부러 남겨 뒀어요.",
+        next: "할 일 없음. 마이 세컨드 브레인은 스스로 삭제하거나 다시 업로드하지 않아요.",
         fixes: [
-          "Open it and decide whether you still want it.",
-          "Put it back on the Remote Vault with Re-register, which creates a fresh note " +
-            "from this file and uploads it.",
-          "Save a copy outside the vault if you want it kept but not synced.",
-          "Delete it once you are sure you do not need it.",
+          "열어서 계속 필요한지 판단하세요.",
+          "다시 등록으로 원격 볼트에 되돌릴 수 있어요. 이 파일로 새 노트를 " +
+            "만들어 업로드해요.",
+          "남기되 동기화하지 않으려면 볼트 밖에 사본을 저장하세요.",
+          "필요 없다고 확신하면 삭제하세요.",
         ],
         safety: "only-here",
       },
       facts: [
         ...pathFact(f.path),
         ...docIdFact(f.docId),
-        ...(f.code ? [{ label: "Remote Vault code", value: f.code, copyable: true }] : []),
-        { label: "Raw reason", value: f.reason, copyable: true },
+        ...(f.code ? [{ label: "원격 볼트 코드", value: f.code, copyable: true }] : []),
+        { label: "원본 사유", value: f.reason, copyable: true },
       ],
       autoRetries: false,
     };
   }
   const isFolder = f.kind === "folder";
-  const what = isFolder ? "folder" : "note";
+  const what = isFolder ? "폴더" : "노트";
   const coded = registerCodeMeaning(f.code, isFolder ? "folder" : "note");
   const remedies: HealthRemedy[] = isFolder
     ? ["retry", "reveal", "copy-details"]
@@ -814,49 +808,49 @@ function registryIssue(f: HealthRegistryFailure, ctx: IssueContext): HealthIssue
     path: f.path,
     kind: "register-failed",
     severity: "error",
-    title: isFolder ? "Folder couldn't be registered" : "Couldn't be registered",
+    title: isFolder ? "폴더를 등록할 수 없어요" : "등록할 수 없어요",
     why:
-      `The Remote Vault has no record for this ${what}, so nothing ` +
-      `under it can sync. ${capitalize(f.reason)}`,
+      `원격 볼트에 이 ${what}의 기록이 없어서 그 아래의 어떤 것도 ` +
+      `동기화할 수 없어요. ${capitalize(f.reason)}`,
     remedies,
     code: f.code,
     explanation: {
       meaning:
-        `Before anything can sync, the Remote Vault needs a record that this ${what} ` +
-        `exists. That record could not be created, so this ${what} (and, for a ` +
-        `folder, everything inside it) stays on this device only. ` +
+        `동기화하려면 먼저 원격 볼트에 이 ${what}이(가) 있다는 기록이 필요해요. ` +
+        `그 기록을 만들지 못해서 이 ${what}(폴더라면 그 안의 모든 것 포함)은 ` +
+        `이 기기에만 남아 있어요. ` +
         (coded ??
           (f.code
-            ? `The Remote Vault answered with "${f.code}".`
-            : "The Remote Vault did not say why.")) +
+            ? `원격 볼트의 응답: "${f.code}".`
+            : "원격 볼트가 이유를 알려 주지 않았어요.")) +
         (f.code === "no_write_access"
-          ? ` Ask ${ownerPhrase(ctx.owner)} for edit access.`
+          ? ` ${ownerPhrase(ctx.owner)}에게 편집 권한을 요청하세요.`
           : ""),
-      next: "Baalda tries again on the next registry pass, which runs on every sync and whenever the folder changes.",
+      next: "마이 세컨드 브레인은 다음 등록 때 다시 시도해요. 등록은 동기화할 때마다, 폴더가 바뀔 때마다 실행돼요.",
       fixes:
         f.code === "no_write_access"
           ? [
-              `Ask ${ownerPhrase(ctx.owner)} to give you edit access to this folder.`,
-              "Until then, move the note to a folder you can write to and it will sync from there.",
+              `${ownerPhrase(ctx.owner)}에게 이 폴더의 편집 권한을 달라고 요청하세요.`,
+              "그 전까지는 노트를 쓸 수 있는 폴더로 옮기면 거기서 동기화돼요.",
             ]
           : f.code === "root_frozen"
-            ? [`Move this ${what} into a folder instead of the top level of the vault.`]
+            ? [`이 ${what}을(를) 볼트 최상위 대신 폴더 안으로 옮기세요.`]
             : f.code === "path_folder_mismatch"
               ? [
-                  `Move the ${what} somewhere else and back, which re-states where it lives.`,
-                  "If it persists, report it with Copy details. The two Remote Vault records need reconciling.",
+                  `${what}을(를) 다른 곳으로 옮겼다가 되돌리면 위치가 다시 기록돼요.`,
+                  "계속되면 세부 정보 복사로 신고하세요. 원격 볼트의 두 기록을 맞춰야 해요.",
                 ]
               : [
-                  "Retry now.",
-                  "Check you are online and that you still have access to this vault.",
+                  "지금 다시 시도하세요.",
+                  "온라인 상태인지, 이 볼트에 아직 접근할 수 있는지 확인하세요.",
                 ],
       safety: "only-here",
     },
     facts: [
       ...pathFact(f.path),
       ...docIdFact(f.docId),
-      ...(f.code ? [{ label: "Remote Vault code", value: f.code, copyable: true }] : []),
-      { label: "Last error", value: f.reason, copyable: true },
+      ...(f.code ? [{ label: "원격 볼트 코드", value: f.code, copyable: true }] : []),
+      { label: "마지막 오류", value: f.reason, copyable: true },
     ],
     autoRetries: true,
   };
@@ -873,7 +867,7 @@ export function createRefusalIssueKey(code: string, folder: string): string {
 /** Every create refused for the same access reason in one folder, as ONE issue. */
 export function createRefusalIssue(g: CreateRefusalGroup, ctx: IssueContext): HealthIssue {
   const n = g.paths.length;
-  const what = g.notes === n ? plural(n, "new note") : plural(n, "new item");
+  const what = g.notes === n ? plural(n, "새 노트") : plural(n, "새 항목");
   const where = wherePhrase(g.folder);
   const access = g.code === "no_write_access";
   const shown = g.paths.slice(0, MAX_REFUSAL_PATHS_SHOWN);
@@ -884,39 +878,39 @@ export function createRefusalIssue(g: CreateRefusalGroup, ctx: IssueContext): He
     kind: "register-failed",
     severity: "error",
     title: access
-      ? `${what} not syncing: no permission to add notes ${where}`
-      : `${what} not syncing: notes can't be added at the top of this vault`,
+      ? `${what} 동기화 안 됨: ${where} 노트를 추가할 권한이 없어요`
+      : `${what} 동기화 안 됨: 이 볼트의 최상위에는 노트를 추가할 수 없어요`,
     why: access
-      ? `You don't have permission to add notes ${where}, so these stay on this computer. ` +
-        "Edits to notes that already exist still sync."
-      : "This vault's top level is locked, so these stay on this computer until they are in a folder.",
+      ? `${where} 노트를 추가할 권한이 없어서 이 노트들은 이 컴퓨터에 남아 있어요. ` +
+        "이미 있는 노트의 편집은 계속 동기화돼요."
+      : "이 볼트의 최상위는 잠겨 있어서 폴더 안으로 옮길 때까지 이 컴퓨터에 남아 있어요.",
     remedies: access ? ["contact-owner", "copy-details"] : ["copy-details"],
     code: g.code,
     explanation: {
       meaning: access
-        ? `Before a new note can sync, the Remote Vault has to accept it. You can read ${
-            g.folder === "" ? "this vault" : "this folder"
-          } but not add to it, so the Remote Vault turned these down. Nothing was lost. ` +
-          "The files are safe on this computer."
-        : "This vault's top level is locked, so new notes can only be added inside a folder. " +
-          "Nothing was lost. The files are safe on this computer.",
+        ? `새 노트를 동기화하려면 원격 볼트가 받아들여야 해요. ${
+            g.folder === "" ? "이 볼트" : "이 폴더"
+          }는 읽을 수만 있고 추가할 수는 없어서 원격 볼트가 거절했어요. 잃은 것은 없어요. ` +
+          "파일은 이 컴퓨터에 안전하게 있어요."
+        : "이 볼트의 최상위는 잠겨 있어서 새 노트는 폴더 안에만 추가할 수 있어요. " +
+          "잃은 것은 없어요. 파일은 이 컴퓨터에 안전하게 있어요.",
       next: access
-        ? "They sync by themselves as soon as your access changes. Baalda also checks again every 10 minutes."
-        : "They sync by themselves once they are inside a folder.",
+        ? "권한이 바뀌면 바로 알아서 동기화돼요. 마이 세컨드 브레인은 10분마다 다시 확인해요."
+        : "폴더 안으로 옮기면 알아서 동기화돼요.",
       fixes: access
         ? [
-            `Ask ${ownerPhrase(ctx.owner)} to give you edit access ${where}.`,
-            "Or move these notes to a folder you can edit.",
+            `${ownerPhrase(ctx.owner)}에게 ${where} 편집 권한을 달라고 요청하세요.`,
+            "또는 이 노트들을 편집할 수 있는 폴더로 옮기세요.",
           ]
-        : ["Move these notes into a folder."],
+        : ["이 노트들을 폴더 안으로 옮기세요."],
       safety: "only-here",
     },
     facts: [
-      { label: "Folder", value: g.folder === "" ? "Top of the vault" : g.folder },
-      { label: "Not syncing", value: num(n) },
-      ...shown.map((p) => ({ label: "Path", value: p })),
-      ...(n > shown.length ? [{ label: "More", value: `${num(n - shown.length)} more` }] : []),
-      { label: "Remote Vault code", value: g.code, copyable: true },
+      { label: "폴더", value: g.folder === "" ? "볼트 최상위" : g.folder },
+      { label: "동기화 안 됨", value: num(n) },
+      ...shown.map((p) => ({ label: "경로", value: p })),
+      ...(n > shown.length ? [{ label: "더 있음", value: `${num(n - shown.length)}개 더` }] : []),
+      { label: "원격 볼트 코드", value: g.code, copyable: true },
     ],
     autoRetries: access,
   };
@@ -1017,36 +1011,36 @@ export function syncPausedIssue(
     path: null,
     kind: "sync-paused",
     severity: "warn",
-    title: "Sync paused",
+    title: "동기화 일시 중지",
     why:
       (count != null && count > 0
-        ? `${num(count)} notes were emptied at once from this account, so the Remote Vault paused your sync. `
-        : "Many notes were emptied at once from this account, so the Remote Vault paused your sync. ") +
-      "Your edits are safe on this device.",
+        ? `이 계정에서 노트 ${num(count)}개가 한꺼번에 비워져서 원격 볼트가 동기화를 일시 중지했어요. `
+        : "이 계정에서 많은 노트가 한꺼번에 비워져서 원격 볼트가 동기화를 일시 중지했어요. ") +
+      "편집 내용은 이 기기에 안전하게 있어요.",
     remedies: ["copy-details"],
     code: "shrink_held",
     explanation: {
       meaning:
-        "When one person's notes lose most of their text all at once, the Remote Vault stops " +
-        "accepting their edits for a while, in case something went wrong (a script, a bad " +
-        "sync, a folder emptied by mistake). Every note that lost its text was saved as a " +
-        "version first, so nothing on the server is lost.",
+        "한 사람의 노트 대부분이 한꺼번에 본문을 잃으면, 무언가 잘못됐을 가능성(스크립트, " +
+        "잘못된 동기화, 실수로 비운 폴더)에 대비해 원격 볼트가 잠시 그 사람의 편집을 " +
+        "받지 않아요. 본문을 잃은 노트는 모두 먼저 버전으로 저장돼서 " +
+        "서버에서 잃은 것은 없어요.",
       next:
         (minutes != null
-          ? `The pause ends on its own in about ${minutes} min`
-          : "The pause ends on its own shortly") +
-        ", or sooner if a vault owner or admin releases it from Activity. Then your edits sync like any other edit.",
+          ? `약 ${minutes}분 뒤 일시 중지가 저절로 풀려요`
+          : "곧 일시 중지가 저절로 풀려요") +
+        ". 볼트 소유자나 관리자가 활동에서 풀면 더 빨리 풀려요. 그 후에는 편집 내용이 다른 편집처럼 동기화돼요.",
       fixes: [
-        "Keep working. Everything you change stays on this device until the pause ends.",
-        "If the emptied notes were a mistake, restore them from version history before the pause ends.",
-        "Ask a vault owner or admin to release the pause if the change was intended.",
+        "계속 작업하세요. 일시 중지가 끝날 때까지 바꾼 내용은 이 기기에 남아요.",
+        "비워진 노트가 실수였다면 일시 중지가 끝나기 전에 버전 기록에서 복원하세요.",
+        "의도한 변경이라면 볼트 소유자나 관리자에게 일시 중지를 풀어 달라고 요청하세요.",
       ],
       safety: "only-here",
     },
     facts: [
-      ...(count != null ? [{ label: "Notes emptied", value: num(count) }] : []),
-      ...(heldNotes > 0 ? [{ label: "Notes waiting to sync", value: num(heldNotes) }] : []),
-      ...(minutes != null ? [{ label: "Ends in", value: `about ${minutes} min` }] : []),
+      ...(count != null ? [{ label: "비워진 노트", value: num(count) }] : []),
+      ...(heldNotes > 0 ? [{ label: "동기화 대기 중인 노트", value: num(heldNotes) }] : []),
+      ...(minutes != null ? [{ label: "종료까지", value: `약 ${minutes}분` }] : []),
     ],
     autoRetries: true,
   };
@@ -1133,7 +1127,7 @@ function buildIssues(
       }),
       key: `limit:${input.failures.limitCode}`,
       path: null,
-      why: "The Remote Vault stopped this sync run at a plan limit. Upgrade to continue.",
+      why: "요금제 한도에서 원격 볼트가 이 동기화를 멈췄어요. 계속하려면 업그레이드하세요.",
     });
   }
 
@@ -1144,22 +1138,22 @@ function buildIssues(
       path: null,
       kind: "no-access",
       severity: "error",
-      title: "No access to this vault",
+      title: "이 볼트에 접근할 수 없어요",
       why:
-        "The Remote Vault refused a sync token for this vault, so nothing is uploading " +
-        "or downloading. Ask the vault's owner to share it with you again.",
+        "원격 볼트가 이 볼트의 동기화 토큰을 거부해서 업로드도 다운로드도 되지 않아요. " +
+        "볼트 소유자에게 다시 공유해 달라고 요청하세요.",
       remedies: ["contact-owner", "copy-details"],
       code: null,
       explanation: {
         meaning:
-          "Every note asks the Remote Vault for permission before it syncs, and the " +
-          "Remote Vault is turning this vault down. That happens when the vault was set " +
-          "to No access, when view access was withdrawn, or when " +
-          `you were removed from it. Only ${ownerPhrase(owner)} can change that.`,
-        next: "Nothing until access is granted. Baalda keeps asking, and will resume on its own the moment the answer changes.",
+          "모든 노트는 동기화하기 전에 원격 볼트에 권한을 확인하는데, " +
+          "원격 볼트가 이 볼트를 거절하고 있어요. 볼트가 접근 불가로 설정됐거나, " +
+          "보기 권한이 회수됐거나, " +
+          `볼트에서 제거됐을 때 생겨요. 이 상태는 ${ownerPhrase(owner)}만 바꿀 수 있어요.`,
+        next: "권한이 주어질 때까지 할 일 없음. 마이 세컨드 브레인이 계속 확인하고, 답이 바뀌는 순간 알아서 재개해요.",
         fixes: [
-          `Ask ${ownerPhrase(owner)} to share this vault with you again.`,
-          "If you expected to be removed, your local files are still here and still yours to keep or export.",
+          `${ownerPhrase(owner)}에게 이 볼트를 다시 공유해 달라고 요청하세요.`,
+          "제거될 것을 예상했더라도 로컬 파일은 그대로 있고, 보관하거나 내보낼 수 있어요.",
         ],
         // Deliberately `unknown`: refused access means this device cannot ask
         // the server what it holds, so claiming a copy is (or is not) up there
@@ -1167,8 +1161,8 @@ function buildIssues(
         safety: "unknown",
       },
       facts: [
-        { label: "Vault", value: "Access refused by the Remote Vault" },
-        ...(owner ? [{ label: "Owner", value: `${owner.name} (${owner.email})`, copyable: true }] : []),
+        { label: "볼트", value: "원격 볼트가 접근을 거부했어요" },
+        ...(owner ? [{ label: "소유자", value: `${owner.name} (${owner.email})`, copyable: true }] : []),
       ],
       autoRetries: true,
     });
@@ -1206,27 +1200,26 @@ function buildIssues(
         path,
         kind: "unregistered",
         severity: "warn",
-        title: "Not on the Remote Vault yet",
+        title: "아직 원격 볼트에 없어요",
         why:
-          "This note exists only on this device: the Remote Vault has no record for it, " +
-          "and nothing has reported a failure. A sync run should pick it up.",
+          "이 노트는 이 기기에만 있어요. 원격 볼트에 기록이 없고, " +
+          "실패 보고도 없어요. 동기화가 실행되면 처리될 거예요.",
         remedies: ["retry", "open", "reveal"],
         code: null,
         explanation: {
           meaning:
-            "The Remote Vault does not know this note yet. That is normal for a note " +
-            "created while you were offline, one added to the folder from outside " +
-            "Baalda a moment ago, or one whose registration is still queued behind " +
-            "others. Nothing has failed. It simply has not had its turn.",
-          next: "Registers on the next sync pass, then its content uploads straight after.",
+            "원격 볼트가 아직 이 노트를 몰라요. 오프라인일 때 만든 노트, 방금 마이 세컨드 브레인 " +
+            "밖에서 폴더에 추가한 노트, 등록이 다른 노트 뒤에 대기 중인 노트라면 " +
+            "정상이에요. 실패한 것은 없고 아직 차례가 오지 않았을 뿐이에요.",
+          next: "다음 동기화 때 등록되고, 곧바로 내용이 업로드돼요.",
           fixes: [
-            "Wait. This usually clears itself within a few seconds of being connected.",
-            "Retry now if it has been sitting here.",
-            "If it never clears, Copy details from any other note on this page and report it.",
+            "기다리세요. 연결되면 보통 몇 초 안에 저절로 사라져요.",
+            "계속 남아 있다면 지금 다시 시도하세요.",
+            "계속 사라지지 않으면 이 페이지의 다른 노트에서 세부 정보 복사를 눌러 신고하세요.",
           ],
           safety: "only-here",
         },
-        facts: [{ label: "Path", value: path }],
+        facts: [{ label: "경로", value: path }],
         autoRetries: true,
       });
     }
@@ -1245,7 +1238,7 @@ function buildIssues(
 
 /**
  * The two link findings of the Rust checks (#216). Sync never follows a
- * symbolic link, so a link is a path the user can see in Finder that Baalda
+ * symbolic link, so a link is a path the user can see in Finder that 마브
  * treats as absent — a warning. Two mapped notes that resolve to ONE file are
  * worse: each identity egests over the same bytes, so the stale one can
  * overwrite the newer text — an error, one per file.
@@ -1262,25 +1255,25 @@ export function linkIssues(checks: VaultChecks | null | undefined): HealthIssue[
       path: null,
       kind: "linked-paths",
       severity: "warn",
-      title: `${plural(linked.count, "linked path")} ${linked.count === 1 ? "is" : "are"} ignored by sync`,
-      why: "These paths are symbolic links. Baalda does not sync through links.",
+      title: `${plural(linked.count, "연결된 경로")}가 동기화에서 제외됐어요`,
+      why: "이 경로들은 심볼릭 링크예요. 마이 세컨드 브레인은 링크를 통해 동기화하지 않아요.",
       remedies: ["copy-details"],
       code: "symlink",
       explanation: {
         meaning:
-          "A symbolic link points at another file or folder. Baalda syncs the real file " +
-          "or folder, never the link, so anything reached only through a link stays on this device.",
-        next: "Nothing. Links are always skipped.",
+          "심볼릭 링크는 다른 파일이나 폴더를 가리켜요. 마이 세컨드 브레인은 링크가 아니라 실제 파일이나 " +
+          "폴더를 동기화하므로, 링크로만 닿는 항목은 이 기기에만 남아요.",
+        next: "할 일 없음. 링크는 항상 건너뛰어요.",
         fixes: [
-          "Move the real file or folder into the vault where you want it, instead of linking to it.",
-          "Or delete the link if the real one is already in the vault.",
+          "링크 대신 실제 파일이나 폴더를 원하는 위치의 볼트 안으로 옮기세요.",
+          "또는 실제 항목이 이미 볼트 안에 있다면 링크를 삭제하세요.",
         ],
         safety: "unknown",
       },
       facts: [
-        { label: "Links", value: num(linked.count) },
+        { label: "링크", value: num(linked.count) },
         ...shown.map((p, i) => ({
-          label: "Path",
+          label: "경로",
           value: linked.items[i]?.detail ? `${p} (${linked.items[i].detail})` : p,
         })),
       ],
@@ -1295,23 +1288,23 @@ export function linkIssues(checks: VaultChecks | null | undefined): HealthIssue[
       path: group.paths[0],
       kind: "shared-file",
       severity: "error",
-      title: "Two notes share one file on disk",
-      why: `${group.paths.join(", ")} are the same file on disk, usually through a symbolic link.`,
+      title: "노트 두 개가 디스크의 한 파일을 공유해요",
+      why: `${group.paths.join(", ")}은(는) 디스크에서 같은 파일이에요. 보통 심볼릭 링크 때문이에요.`,
       remedies: ["reveal", "copy-details"],
       code: "shared-file",
       explanation: {
         meaning:
-          "Each of these paths is its own note in Baalda, but they are one file on this computer. " +
-          "Edits made through one can overwrite the other.",
-        next: "Nothing. Baalda will not pick which note is the real one.",
+          "이 경로들은 마이 세컨드 브레인에서는 각각 별개의 노트지만 이 컴퓨터에서는 하나의 파일이에요. " +
+          "한쪽에서 한 편집이 다른 쪽을 덮어쓸 수 있어요.",
+        next: "할 일 없음. 마이 세컨드 브레인은 어느 노트가 진짜인지 고르지 않아요.",
         fixes: [
-          "Remove the symbolic link, so only the real path is left.",
-          "If a copy of the note comes back at the linked path afterwards, delete that copy.",
+          "심볼릭 링크를 삭제해서 실제 경로만 남기세요.",
+          "이후 링크 경로에 노트 사본이 다시 생기면 그 사본을 삭제하세요.",
         ],
         safety: "unknown",
       },
       facts: group.paths.flatMap((p, i) => [
-        { label: "Path", value: p },
+        { label: "경로", value: p },
         ...docIdFact(group.docIds[i] ?? null),
       ]),
       autoRetries: false,
@@ -1356,46 +1349,46 @@ function buildStages(
 
   const disk: HealthStage = {
     id: "disk",
-    label: "Files on disk",
+    label: "디스크의 파일",
     state: "ok",
     headline: num(stats ? stats.notes.count : counts.total),
     detail: stats
-      ? `${plural(stats.notes.count, "note")}, ${plural(stats.folders, "folder")} and ` +
-        `${plural(stats.attachments.count + stats.otherFiles.count, "other file")} in this vault.`
-      : `${plural(counts.total, "note")} in this vault.`,
+      ? `이 볼트에 ${plural(stats.notes.count, "노트")}, ${plural(stats.folders, "폴더")}, ` +
+        `${plural(stats.attachments.count + stats.otherFiles.count, "기타 파일")}이 있어요.`
+      : `이 볼트에 ${plural(counts.total, "노트")}가 있어요.`,
   };
 
   const index: HealthStage = {
     id: "index",
-    label: "Local index",
+    label: "로컬 인덱스",
     state: "ok",
-    headline: stats ? num(stats.notes.count) : "Indexed",
+    headline: stats ? num(stats.notes.count) : "인덱싱됨",
     detail: stats
-      ? `${plural(stats.tags, "tag")} and ${plural(stats.links, "link")} indexed` +
+      ? `${plural(stats.tags, "태그")}, ${plural(stats.links, "링크")}를 인덱싱했어요` +
         (stats.brokenLinks > 0
-          ? `, plus ${plural(stats.brokenLinks, "link")} that point at nothing.`
+          ? `. 대상이 없는 ${plural(stats.brokenLinks, "링크")}도 있어요.`
           : ".")
-      : "Search and links are built from the local index.",
+      : "검색과 링크는 로컬 인덱스로 만들어요.",
   };
 
   const orphanDocs = stats?.history.orphanDocs ?? 0;
   const history: HealthStage = {
     id: "history",
-    label: "Local history",
+    label: "로컬 기록",
     // Informational only: reclaimed automatically, never something to act on.
     state: "ok",
     headline: stats ? num(stats.history.docs) : "—",
     detail: stats
-      ? `${plural(stats.history.docs, "note")} have edit history stored on this device` +
+      ? `이 기기에 ${plural(stats.history.docs, "노트")}의 편집 기록이 저장돼 있어요` +
         (orphanDocs > 0
-          ? `, of which ${num(orphanDocs)} belong to notes this vault no longer has.`
+          ? `. 그중 ${num(orphanDocs)}개는 이 볼트에 더 이상 없는 노트의 기록이에요.`
           : ".")
-      : "Edit history is kept locally so offline edits merge instead of clobbering.",
+      : "오프라인 편집이 덮어쓰이지 않고 병합되도록 편집 기록을 로컬에 보관해요.",
   };
 
   const connection: HealthStage = {
     id: "connection",
-    label: "Connection",
+    label: "연결",
     state: off
       ? "off"
       : connectionBroken
@@ -1406,31 +1399,31 @@ function buildStages(
             ? "warn"
             : "ok",
     headline: off
-      ? "Off"
+      ? "꺼짐"
       : verdict === "signed-out"
-        ? "Signed out"
+        ? "로그아웃됨"
         : verdict === "no-access"
-          ? "No access"
+          ? "접근 불가"
           : verdict === "offline"
-            ? "Offline"
+            ? "오프라인"
             : verdict === "connecting"
-              ? "Reconnecting…"
+              ? "다시 연결하는 중…"
               : input.syncStatus === "read-only"
-                ? "View only"
-                : "Connected",
+                ? "보기 전용"
+                : "연결됨",
     detail: off
-      ? "This vault is not connected to a Remote Vault."
+      ? "이 볼트는 원격 볼트에 연결돼 있지 않아요."
       : verdict === "signed-out"
-        ? "Sign in to start syncing again. Edits stay on this device until you do."
+        ? "로그인하면 동기화를 다시 시작해요. 그 전까지 편집 내용은 이 기기에 남아요."
         : verdict === "no-access"
-          ? "The Remote Vault refused a sync token for this vault."
+          ? "원격 볼트가 이 볼트의 동기화 토큰을 거부했어요."
           : verdict === "offline"
-            ? `Not reachable right now${serverHost ? ` · ${serverHost}` : ""}.`
+            ? `지금은 연결할 수 없어요${serverHost ? ` · ${serverHost}` : ""}.`
             : verdict === "connecting"
-              ? "Establishing the connection."
+              ? "연결을 만드는 중이에요."
               : input.syncStatus === "read-only"
-                ? "You have view-only access, so your edits stay on this device."
-                : `Connected${serverHost ? ` to ${serverHost}` : ""}.`,
+                ? "보기 권한만 있어서 편집 내용은 이 기기에 남아요."
+                : `${serverHost ? `${serverHost}에 ` : ""}연결됐어요.`,
   };
 
   const serverState: HealthStageState = off
@@ -1447,12 +1440,12 @@ function buildStages(
 
   const server: HealthStage = {
     id: "server",
-    label: "Remote Vault",
+    label: "원격 볼트",
     state: serverState,
     headline: off ? "—" : num(counts.synced),
     detail: off
-      ? "Turn on sync to keep a copy on the Remote Vault."
-      : `${num(counts.synced)} of ${plural(counts.total, "note")} confirmed on the Remote Vault` +
+      ? "원격 볼트에 사본을 두려면 동기화를 켜세요."
+      : `${plural(counts.total, "노트")} 중 ${num(counts.synced)}개를 원격 볼트에서 확인했어요` +
         (serverHost ? ` · ${serverHost}` : "") +
         ".",
   };
@@ -1477,66 +1470,66 @@ function describe(
   const where = serverHost ? ` · ${serverHost}` : "";
   const last =
     input.lastSyncedAt != null
-      ? `Last confirmed ${relativeTime(input.lastSyncedAt, input.now)}`
-      : "Nothing confirmed yet this session";
+      ? `마지막 확인 ${relativeTime(input.lastSyncedAt, input.now)}`
+      : "이번 세션에서는 아직 확인된 것이 없어요";
   const overflow =
     ctx.unregisteredTotal > MAX_UNREGISTERED_ISSUES
-      ? ` Showing the first ${num(MAX_UNREGISTERED_ISSUES)} of ${num(ctx.unregisteredTotal)} unregistered notes.`
+      ? ` 등록되지 않은 노트 ${num(ctx.unregisteredTotal)}개 중 처음 ${num(MAX_UNREGISTERED_ISSUES)}개를 보여 줘요.`
       : "";
 
   switch (verdict) {
     case "local":
       return {
-        headline: "Sync is off for this folder",
+        headline: "이 폴더는 동기화가 꺼져 있어요",
         detail:
-          `${plural(counts.total, "note")} live here on this device only. ` +
-          `Turn on sync to reach your other devices and your team.`,
+          `${plural(counts.total, "노트")}가 이 기기에만 있어요. ` +
+          `다른 기기와 팀에서 보려면 동기화를 켜세요.`,
       };
     case "signed-out":
       return {
-        headline: "Signed out. Nothing is syncing",
+        headline: "로그아웃됨. 동기화되지 않아요",
         detail:
-          `This vault syncs with${serverHost ? ` ${serverHost}` : " its Remote Vault"}. ` +
-          `Sign in to resume. Your edits are safe on disk in the meantime.`,
+          `이 볼트는 ${serverHost ? serverHost : "원격 볼트"}와 동기화해요. ` +
+          `재개하려면 로그인하세요. 그동안 편집 내용은 디스크에 안전하게 있어요.`,
       };
     case "no-access":
       return {
-        headline: "You no longer have access to this vault",
+        headline: "이 볼트에 더 이상 접근할 수 없어요",
         detail:
-          `The Remote Vault refused a sync token, so nothing is moving in either ` +
-          `direction. Ask the vault's owner to share it with you again.${where}`,
+          `원격 볼트가 동기화 토큰을 거부해서 어느 방향으로도 ` +
+          `전달되지 않아요. 볼트 소유자에게 다시 공유해 달라고 요청하세요.${where}`,
       };
     case "offline":
       return {
-        headline: `Offline: ${num(counts.synced)} of ${plural(counts.total, "note")} are on the Remote Vault`,
-        detail: `${last}. Syncing resumes on its own when the connection comes back.${where}`,
+        headline: `오프라인: ${plural(counts.total, "노트")} 중 ${num(counts.synced)}개가 원격 볼트에 있어요`,
+        detail: `${last}. 연결이 돌아오면 동기화가 저절로 재개돼요.${where}`,
       };
     case "connecting":
       return {
-        headline: "Connecting…",
+        headline: "연결 중…",
         detail: `${last}${where}.`,
       };
     case "syncing": {
       const p = input.syncProgress;
       if (p?.phase === "removing") return {
-        headline: `Updating access: ${num(Math.max(0, p.total - p.done))} remaining`,
-        detail: "Removing local copies you can no longer access.",
+        headline: `권한 업데이트: ${num(Math.max(0, p.total - p.done))}개 남음`,
+        detail: "더 이상 접근할 수 없는 로컬 사본을 삭제하는 중이에요.",
       };
       // #258: content the server has never had (an interrupted first upload
       // resuming, or a fresh one) is named as such, because "keep the app open
       // until this reaches zero" is the one thing the reader needs to know.
       const notUploaded = p?.notUploaded ?? 0;
       if (notUploaded > 0) return {
-        headline: `Uploading: ${plural(notUploaded, "note")} not uploaded yet`,
+        headline: `업로드 중: ${plural(notUploaded, "노트")}가 아직 업로드되지 않았어요`,
         detail:
-          `Teammates see these notes as empty until their content arrives. Keep ` +
-          `${BRAND_NAME} open until this reaches zero${where}.${overflow}`,
+          `내용이 도착하기 전까지 팀원에게는 이 노트들이 비어 보여요. 0이 될 때까지 ` +
+          `${BRAND_NAME}을(를) 열어 두세요${where}.${overflow}`,
       };
-      const of = p && p.total > 0 ? `${num(p.done)} of ${num(p.total)}` : num(behind);
+      const of = p && p.total > 0 ? `${num(p.total)}개 중 ${num(p.done)}개` : `${num(behind)}개`;
       return {
-        headline: `Syncing: ${of} updates`,
+        headline: `동기화 중: ${of} 업데이트`,
         detail:
-          `${num(counts.synced)} of ${plural(counts.total, "note")} are confirmed so far` +
+          `${plural(counts.total, "노트")} 중 ${num(counts.synced)}개를 지금까지 확인했어요` +
           `${where}.${overflow}`,
       };
     }
@@ -1544,10 +1537,10 @@ function describe(
       return {
         headline:
           behind === 0
-            ? `${plural(errors, "thing")} need${errors === 1 ? "s" : ""} you`
+            ? `${plural(errors, "항목")}을 확인해 주세요`
             : errors > 0
-              ? `${plural(behind, "note")} not on the Remote Vault, ${num(errors)} need you`
-              : `${plural(behind, "note")} ${behind === 1 ? "is" : "are"} not on the Remote Vault`,
+              ? `${plural(behind, "노트")}가 원격 볼트에 없고, ${num(errors)}개는 확인이 필요해요`
+              : `${plural(behind, "노트")}가 원격 볼트에 없어요`,
         detail: `${last}${where}.${overflow}`,
       };
     case "healthy":
@@ -1555,8 +1548,8 @@ function describe(
       return {
         headline:
           counts.total === 0
-            ? "This vault is empty"
-            : `All ${plural(counts.total, "note")} are on the Remote Vault`,
+            ? "이 볼트는 비어 있어요"
+            : `${plural(counts.total, "노트")} 모두 원격 볼트에 있어요`,
         detail: `${last}${where}.${overflow}`,
       };
   }
@@ -1570,13 +1563,13 @@ function describe(
 export function safetyLabel(safety: HealthExplanation["safety"]): string {
   switch (safety) {
     case "only-here":
-      return "On this device only. The Remote Vault has no confirmed copy of it.";
+      return "이 기기에만 있어요. 원격 볼트에 확인된 사본이 없어요.";
     case "on-server":
-      return "On the Remote Vault. What failed was writing it onto this device.";
+      return "원격 볼트에 있어요. 이 기기에 쓰는 데 실패했어요.";
     case "both":
-      return "On this device and on the Remote Vault.";
+      return "이 기기와 원격 볼트에 있어요.";
     case "unknown":
-      return "Not known. Baalda cannot confirm right now where a copy exists.";
+      return "알 수 없어요. 마이 세컨드 브레인이 지금은 사본이 어디에 있는지 확인할 수 없어요.";
   }
 }
 
@@ -1611,20 +1604,20 @@ export interface InspectVerdictInput {
  * or a `synced` report actually said so.
  */
 export function composeInspectionVerdict(i: InspectVerdictInput): string {
-  if (!i.exists) return "There is no file at this path.";
-  if (!i.syncEnabled) return "This folder does not sync, so this note lives on this device only.";
-  if (i.issue) return `${i.issue.title}. See Needs attention above for what to do.`;
+  if (!i.exists) return "이 경로에는 파일이 없어요.";
+  if (!i.syncEnabled) return "이 폴더는 동기화되지 않아서 이 노트는 이 기기에만 있어요.";
+  if (i.issue) return `${i.issue.title}. 해야 할 일은 위의 확인 필요 항목을 보세요.`;
   if (i.permanentFailure) {
-    return `Baalda stopped trying to sync this note: ${capitalize(i.permanentFailure)}`;
+    return `마이 세컨드 브레인이 이 노트의 동기화를 더 이상 시도하지 않아요: ${capitalize(i.permanentFailure)}`;
   }
-  if (i.queued) return "Waiting to be pushed. It is in the queue for the next sync pass.";
-  if (i.diverged) return "Has edits the Remote Vault may not have yet; the next sync pass will send them.";
+  if (i.queued) return "업로드 대기 중이에요. 다음 동기화 대기열에 있어요.";
+  if (i.diverged) return "원격 볼트에 아직 없을 수 있는 편집이 있어요. 다음 동기화 때 보내요.";
   if (i.state === "synced" && i.pushed) {
-    return "Synced. The Remote Vault confirmed this note's content.";
+    return "동기화됨. 원격 볼트가 이 노트의 내용을 확인했어요.";
   }
   if (i.pushed && i.state === null) {
-    return "On the Remote Vault; nothing about it has changed since this app launched.";
+    return "원격 볼트에 있어요. 앱을 시작한 뒤로 바뀐 것은 없어요.";
   }
-  if (i.docId === null) return "The Remote Vault does not know this note yet.";
-  return "Not confirmed yet. Nothing has reported this note's content as stored on the Remote Vault.";
+  if (i.docId === null) return "원격 볼트가 아직 이 노트를 몰라요.";
+  return "아직 확인되지 않았어요. 이 노트의 내용이 원격 볼트에 저장됐다는 보고가 없어요.";
 }

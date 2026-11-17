@@ -20,10 +20,10 @@ describe("activityRowText", () => {
     const t = activityRowText(row, NOW);
     expect(t.label).toBe("Access");
     expect(t.message).toBe("You removed your access");
-    expect(t.when).toBe("13 min ago");
+    expect(t.when).toBe("13분 전");
     expect(t.path).toBe("Concepts/Wikilinks and backlinks.md");
     expect(t.detail).toBe(ACTIVITY_HINT.access);
-    expect(t.absoluteTime).toBe("19:34, 8 Oct 2026");
+    expect(t.absoluteTime).toBe("2026년 10월 8일 19:34");
     // The body shows the full path once (the head hides line 2 when open).
     expect(t.bodyPaths).toEqual(["Concepts/Wikilinks and backlinks.md"]);
     expect(t.facts).toEqual([]);
@@ -58,7 +58,7 @@ describe("activityRowText", () => {
     const r = activityRowText(reconcile, NOW);
     expect(r.message).toBe("plan");
     expect(r.bodyPaths).toEqual([]);
-    expect(r.facts).toEqual(["In Projects", "Renamed to Projects/plan (conflict 2026-10-08).md"]);
+    expect(r.facts).toEqual(["Projects 안", "Projects/plan (conflict 2026-10-08).md(으)로 이름 변경됨"]);
 
     const shrunk = {
       type: "shrunk",
@@ -71,7 +71,7 @@ describe("activityRowText", () => {
     } as unknown as ActivityRow;
     const s = activityRowText(shrunk, NOW);
     expect(s.message).toBe("Went from 1,000 to 10 characters");
-    expect(s.facts).toEqual(["The note is deleted now."]);
+    expect(s.facts).toEqual(["지금은 노트가 삭제된 상태예요."]);
   });
 
   it("moves trash facts into the detail", () => {
@@ -94,9 +94,9 @@ describe("activityRowText", () => {
     const t = activityRowText(row, NOW);
     expect(t.message).toBe("gone");
     expect(t.bodyPaths).toEqual([]);
-    expect(t.facts[0]).toBe("Deleted by Sam");
-    expect(t.facts[1]).toMatch(/^Purges on /);
-    expect(t.facts[2]).toMatch(/arrived after/);
+    expect(t.facts[0]).toBe("삭제한 사람: Sam");
+    expect(t.facts[1]).toMatch(/에 영구 삭제돼요$/);
+    expect(t.facts[2]).toMatch(/수정이 도착했어요/);
   });
 
   it("never repeats a named note in the body: no path, folder only, copy location without the name", () => {
@@ -122,7 +122,7 @@ describe("activityRowText", () => {
       item: { kind: "deletedByTeammate", docId: "d", path: "Notes/a.md", detail: ".context/trash/S/Notes/a.md", at: AT },
     };
     const k = activityRowText(kept, NOW);
-    expect(k.facts).toEqual(["In Notes", "Copy saved in .context/trash/S/Notes/"]);
+    expect(k.facts).toEqual(["Notes 안", "사본 저장 위치: .context/trash/S/Notes/"]);
 
     const copy: ActivityRow = {
       type: "copy",

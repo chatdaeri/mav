@@ -67,14 +67,14 @@ export function SkillSourceRow({
       const files = await fetchSkillFolder(await readerFor(serverUrl, orgId), upstream);
       const detail = await authManager.api.getSkill(orgId, skillId);
       await authManager.api.putSkillDraft(orgId, skillId, detail.draftRevision, files, originOf(upstream));
-      toast(`Pulled ${skillDisplayName(skillName)} into its draft. Review, then publish.`);
+      toast(`${skillDisplayName(skillName)}을(를) 초안으로 가져왔어요. 검토한 뒤 게시하세요.`);
       setCheck({ status: "current" });
       onPulled();
     } catch (e) {
       toast(
         skillErrorCode(e) === "stale_draft"
-          ? `Someone changed the draft of ${skillName}. Try again.`
-          : `Couldn't pull ${skillName}: ${e instanceof Error ? e.message : String(e)}`,
+          ? `다른 사람이 ${skillName}의 초안을 바꿨어요. 다시 시도해 주세요.`
+          : `${skillName}을(를) 가져오지 못했어요: ${e instanceof Error ? e.message : String(e)}`,
         "error",
       );
     }
@@ -96,21 +96,21 @@ export function SkillSourceRow({
         <span className="skills-row-side">
           {check?.status === "checking" ? (
             <span className="field-hint skills-inline">
-              <Spinner size="xs" /> Checking for updates…
+              <Spinner size="xs" /> 업데이트 확인 중…
             </span>
           ) : check?.status === "current" ? (
-            <span className="field-hint">Up to date</span>
+            <span className="field-hint">최신 상태</span>
           ) : check?.status === "update" ? (
             <>
-              <Tag tone="warn">Update available</Tag>
-              <BusyButton className="primary skills-btn-sm" busyLabel="Pulling…" onClick={() => pull(check.upstream)}>Pull update</BusyButton>
+              <Tag tone="warn">업데이트 있음</Tag>
+              <BusyButton className="primary skills-btn-sm" busyLabel="가져오는 중…" onClick={() => pull(check.upstream)}>업데이트 가져오기</BusyButton>
             </>
           ) : check?.status === "gone" ? (
-            <Tag tone="warn" title="The folder is no longer in the repository">Gone upstream</Tag>
+            <Tag tone="warn" title="저장소에서 이 폴더가 사라졌어요">원본에서 삭제됨</Tag>
           ) : check?.status === "error" ? (
             <>
-              <span className="field-hint skills-hint-bad" title={check.message}>Couldn't check</span>
-              <button className="link-btn skills-source-link" onClick={() => void run()}>Retry</button>
+              <span className="field-hint skills-hint-bad" title={check.message}>확인하지 못함</span>
+              <button className="link-btn skills-source-link" onClick={() => void run()}>다시 시도</button>
             </>
           ) : null}
         </span>

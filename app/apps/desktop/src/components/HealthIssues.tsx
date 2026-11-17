@@ -5,7 +5,7 @@
 
    Each row is ONE line: badge, title, the path with a few words of cause, the
    action most likely to fix it, and Ignore. The full reasoning (what it means,
-   what Baalda does next, where the content is, the raw facts) is not painted;
+   what 마이 세컨드 브레인 does next, where the content is, the raw facts) is not painted;
    Copy details puts it on the clipboard, and the full sentence is the row's
    tooltip. None of it is computed here: `lib/health/model.ts` reasoned about
    it, so the screen and the clipboard can never disagree. */
@@ -103,13 +103,13 @@ export function HealthIssues({
             <Glyph name="check" size={18} />
           </span>
           <div>
-            <strong>Nothing needs attention</strong>
+            <strong>확인할 항목이 없어요</strong>
             <p className="muted">
               {hidden.length > 0
-                ? `${hidden.length} ${hidden.length === 1 ? "row is" : "rows are"} dismissed below.`
+                ? `아래에 숨긴 항목이 ${hidden.length}개 있어요.`
                 : syncEnabled
-                  ? "No sync errors reported."
-                  : "Sync is off, so there is nothing to report here."}
+                  ? "보고된 동기화 오류가 없어요."
+                  : "동기화가 꺼져 있어서 여기에 보고할 내용이 없어요."}
             </p>
           </div>
         </div>}
@@ -146,8 +146,8 @@ export function HealthIssues({
     setSelected(new Set());
     toast(
       failed === 0
-        ? `${verb} ${done} ${done === 1 ? "note" : "notes"}`
-        : `${verb} ${done - failed} of ${done}; ${failed} failed`,
+        ? `노트 ${done}개 ${verb}`
+        : `${done}개 중 ${done - failed}개 ${verb}, ${failed}개 실패`,
     );
   };
 
@@ -155,22 +155,22 @@ export function HealthIssues({
     <div className="health-attention-list">
       {before}
       {(picked.length > 0 || bulk) && (
-        <div className="health-bulkbar" role="group" aria-label="Actions for selected issues">
+        <div className="health-bulkbar" role="group" aria-label="선택한 문제에 대한 작업">
           <span className="health-bulk-count">
             {bulk
-              ? `${bulk.verb} ${bulk.done} of ${bulk.total}…`
-              : `${picked.length} selected`}
+              ? `${bulk.verb} ${bulk.done}/${bulk.total}…`
+              : `${picked.length}개 선택됨`}
           </span>
           {!bulk && retryable.length > 0 && (
             <AsyncButton
               className="ghost-pill sm"
               onClick={() =>
-                runBulk("Retried", retryable, (i) =>
+                runBulk("다시 시도함", retryable, (i) =>
                   handlers.actions.retryDoc(i.docId as string),
                 )
               }
             >
-              Retry selected
+              선택 항목 다시 시도
             </AsyncButton>
           )}
           {!bulk && deletable.length > 0 && (
@@ -182,12 +182,12 @@ export function HealthIssues({
               }
               title={
                 deletable.length > 1
-                  ? "Deleting more than one at a time is not offered here. Delete them one by one so each confirm names the note"
+                  ? "여기서는 여러 개를 한 번에 삭제할 수 없어요. 확인 창에서 노트 이름을 볼 수 있도록 하나씩 삭제하세요"
                   : undefined
               }
               disabled={deletable.length > 1}
             >
-              Delete selected
+              선택 항목 삭제
             </button>
           )}
           {!bulk && onDismiss && (
@@ -199,12 +199,12 @@ export function HealthIssues({
                 setSelected(new Set());
               }}
             >
-              Ignore selected
+              선택 항목 무시
             </button>
           )}
           {!bulk && (
             <button type="button" className="link-btn" onClick={() => setSelected(new Set())}>
-              Clear
+              선택 해제
             </button>
           )}
         </div>
@@ -223,7 +223,7 @@ export function HealthIssues({
               )
             }
           />
-          Select all visible
+          보이는 항목 모두 선택
         </label>
       )}
 
@@ -262,7 +262,7 @@ export function HealthIssues({
       {leftBehindPaths.length === 0 && <LeftBehindErrors handlers={handlers} standalone />}
       {shown.length < matching.length && (
         <button type="button" onClick={() => setPageSize((size) => size + 100)}>
-          {`Show more (${matching.length - shown.length} remaining)`}
+          {`더 보기 (${matching.length - shown.length}개 남음)`}
         </button>
       )}
       {hidden.length > 0 && <DismissedIssues rows={hidden} onRestore={onRestore} />}
@@ -297,13 +297,13 @@ function LeftBehindActions({
   if (!group || paths.length === 0) return null;
   const running = group.run?.running ? group.run.verb : null;
   return (
-    <span className="health-group-actions" role="group" aria-label="Left on disk">
+    <span className="health-group-actions" role="group" aria-label="디스크에 남은 파일">
       <AsyncButton
         className="ghost-pill sm"
         disabled={running != null}
         onClick={() => group.start("reregister", paths)}
       >
-        Re-register all
+        모두 다시 등록
       </AsyncButton>
       <button
         type="button"
@@ -312,7 +312,7 @@ function LeftBehindActions({
         aria-busy={running === "delete" || undefined}
         onClick={() => handlers.confirm({ kind: "delete-left-behind", paths })}
       >
-        <span className="async-btn-label">Delete all local copies</span>
+        <span className="async-btn-label">로컬 사본 모두 삭제</span>
         {running === "delete" && <Spinner size="xs" tone="inherit" />}
       </button>
     </span>
@@ -331,11 +331,11 @@ function LeftBehindErrors({
 }) {
   const run = handlers.leftBehind?.run;
   if (!run || run.running || run.failed.length === 0) return null;
-  const verbed = run.verb === "delete" ? "Deleted" : "Re-registered";
+  const verbed = run.verb === "delete" ? "삭제함" : "다시 등록함";
   const list = (
     <ul className="health-group-errors" role="alert">
       <li className="health-group-status">
-        {`${verbed} ${(run.done - run.failed.length).toLocaleString()} of ${run.done.toLocaleString()}; ${run.failed.length.toLocaleString()} failed`}
+        {`${run.done.toLocaleString()}개 중 ${(run.done - run.failed.length).toLocaleString()}개 ${verbed}, ${run.failed.length.toLocaleString()}개 실패`}
       </li>
       {run.failed.slice(0, 20).map((f) => (
         <li key={f.path}>
@@ -344,13 +344,13 @@ function LeftBehindErrors({
         </li>
       ))}
       {run.failed.length > 20 && (
-        <li className="muted">And {(run.failed.length - 20).toLocaleString()} more.</li>
+        <li className="muted">외 {(run.failed.length - 20).toLocaleString()}개.</li>
       )}
     </ul>
   );
   return standalone ? (
     <div className="health-difference-group health-issue-group">
-      <div className="health-difference-grouphead"><h4>Left on disk</h4></div>
+      <div className="health-difference-grouphead"><h4>디스크에 남은 파일</h4></div>
       {list}
     </div>
   ) : list;
@@ -377,7 +377,7 @@ function DismissedIssues({
         <span className="health-chevron" data-open={open ? "" : undefined} aria-hidden="true">
           <Glyph name="chevron" />
         </span>
-        Ignored · {rows.length}
+        무시함 · {rows.length}
       </button>
       {open && (
         <ul className="health-ignored-list">
@@ -387,7 +387,7 @@ function DismissedIssues({
               {i.path && <PathText path={i.path} />}
               {onRestore && (
                 <button type="button" className="link-btn" onClick={() => onRestore(i.key)}>
-                  Show again
+                  다시 표시
                 </button>
               )}
             </li>
@@ -453,12 +453,12 @@ function IssueRow({
           className="health-issue-check"
           checked={selected}
           onChange={onSelect}
-          aria-label={`Select ${issue.title}${issue.path ? `, ${issue.path}` : ""}`}
+          aria-label={`${issue.title} 선택${issue.path ? `, ${issue.path}` : ""}`}
         />
         <span className="health-issue-summary" title={issue.why}>
           <span
             className="health-issue-badge"
-            aria-label={issue.severity === "error" ? "Error" : "Warning"}
+            aria-label={issue.severity === "error" ? "오류" : "경고"}
           >
             <Glyph name="alert" size={13} />
           </span>
@@ -482,7 +482,7 @@ function IssueRow({
           <button
             type="button"
             className="link-btn health-issue-dismiss"
-            title="Hide this row for this vault on this device. It waits in the Ignored list"
+            title="이 기기의 이 볼트에서 이 항목을 숨겨요. 무시함 목록에 보관돼요"
             onClick={onDismiss}
           >
             Ignore
@@ -536,19 +536,19 @@ function Remedy({
           className={pill}
           onClick={() => actions.retryDoc(issue.docId as string)}
         >
-          Retry
+          다시 시도
         </AsyncButton>
       );
     case "open":
       return (
         <button type="button" className={pill} onClick={() => openNote(issue.path as string)}>
-          Open
+          열기
         </button>
       );
     case "reveal":
       return (
         <AsyncButton className={pill} onClick={() => actions.reveal(issue.path as string)}>
-          Reveal
+          {document.documentElement.dataset.platform === "windows" ? "탐색기에서 보기" : "Finder에서 보기"}
         </AsyncButton>
       );
     case "delete":
@@ -558,13 +558,13 @@ function Remedy({
           className={emphasis ? "ghost-pill sm danger" : "link-btn danger"}
           onClick={() => confirm({ kind: "delete", path: issue.path as string })}
         >
-          Delete
+          삭제
         </button>
       );
     case "upgrade":
       return (
         <button type="button" className="primary sm" onClick={() => actions.openUpgrade()}>
-          Upgrade
+          업그레이드
         </button>
       );
     case "reset-history":
@@ -576,13 +576,13 @@ function Remedy({
             confirm({ kind: "reset", docId: issue.docId as string, path: issue.path })
           }
         >
-          Reset history
+          기록 초기화
         </button>
       );
     case "sign-in":
       return (
         <button type="button" className="primary sm" onClick={() => actions.requestSignIn()}>
-          Sign in
+          로그인
         </button>
       );
     case "export-copy":
@@ -591,7 +591,7 @@ function Remedy({
           className={pill}
           onClick={() => actions.exportCopy(issue.path as string)}
         >
-          Save a copy
+          사본 저장
         </AsyncButton>
       );
     case "copy-details":
@@ -604,7 +604,7 @@ function Remedy({
             window.setTimeout(() => setCopied(false), 1500);
           }}
         >
-          {copied ? "Copied ✓" : "Copy details"}
+          {copied ? "복사됨 ✓" : "상세 복사"}
         </AsyncButton>
       );
     case "reregister":
@@ -614,7 +614,7 @@ function Remedy({
           className={pill}
           onClick={() => confirm({ kind: "reregister", path: issue.path as string })}
         >
-          Re-register
+          다시 등록
         </button>
       );
     case "contact-owner":
@@ -626,12 +626,12 @@ function Remedy({
             const out = await actions.contactOwner();
             toast(
               out.owner
-                ? `Request copied. Send it to ${out.owner.name} (${out.owner.email})`
-                : "Request copied to clipboard. This vault's owner is not known on this device yet.",
+                ? `요청을 복사했어요. ${out.owner.name}(${out.owner.email})님께 보내세요`
+                : "요청을 클립보드에 복사했어요. 이 기기에서는 아직 이 볼트의 소유자를 알 수 없어요.",
             );
           }}
         >
-          Contact the owner
+          소유자에게 문의
         </AsyncButton>
       );
     default:

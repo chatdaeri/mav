@@ -1,5 +1,5 @@
 /* ============================================================
-   Baalda — Design Tokens ("Atomize PLUS")
+   마이 세컨드 브레인 — Design Tokens ("Atomize PLUS")
    Light-first layered surfaces, 4pt grid, pill radii, soft diffuse
    shadows, violet primary. The same scale is mirrored for dark.
    All UI styling MUST consume these variables — no hardcoded colors.
@@ -59,7 +59,7 @@
   --editor-selection-bg: rgba(127, 115, 255, 0.28);
   --editor-selection-bg-inactive: rgba(127, 115, 255, 0.28);
 
-  /* Brand — Baalda logo. Fixed identity colors (not themed): the
+  /* Brand — 마브 logo. Fixed identity colors (not themed): the
      bracket mark's dot + wordmark brackets are green; the mark tile is a
      dark app-icon square so the off-white brackets read in either theme. */
   --brand-green: #57bd9c;

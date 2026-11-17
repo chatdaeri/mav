@@ -25,9 +25,9 @@ const ICONS: Record<ThemeMode, ReactElement> = {
 };
 
 const LABELS: Record<ThemeMode, string> = {
-  light: "Light",
-  dark: "Dark",
-  system: "System",
+  light: "밝게",
+  dark: "어둡게",
+  system: "시스템",
 };
 
 /** Small pill that cycles the theme (light → dark → system). It shows the
@@ -40,8 +40,8 @@ export function ThemeToggle() {
       type="button"
       className="theme-toggle"
       onClick={() => setMode(CYCLE[(CYCLE.indexOf(mode) + 1) % CYCLE.length])}
-      title={`Theme: ${LABELS[mode]} (click to change)`}
-      aria-label={`Theme: ${LABELS[mode]}. Click to change.`}
+      title={`테마: ${LABELS[mode]} (클릭해서 변경)`}
+      aria-label={`테마: ${LABELS[mode]}. 클릭해서 변경해요.`}
     >
       <span className="theme-toggle-icon">{ICONS[mode]}</span>
       <span className="theme-toggle-label">{LABELS[mode]}</span>

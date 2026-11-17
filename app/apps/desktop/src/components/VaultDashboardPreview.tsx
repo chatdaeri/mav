@@ -52,11 +52,11 @@ export function VaultDashboardPreview({ path }: { path: string }) {
   const frameWidth = Math.max(720, width);
   const scale = width / frameWidth;
   return <div ref={host} className="dashboard-template-preview expanded vault-dashboard-preview">
-    {html && (lease || content !== null) && epoch != null ? <iframe key={`${path}:${epoch}:${revision}`} title={`${path} preview`} scrolling="auto" sandbox="allow-scripts" referrerPolicy="no-referrer"
+    {html && (lease || content !== null) && epoch != null ? <iframe key={`${path}:${epoch}:${revision}`} title={`${path} 미리보기`} scrolling="auto" sandbox="allow-scripts" referrerPolicy="no-referrer"
       src={lease ? `${dashboardUrl(path, epoch, document.documentElement.dataset.platform ?? "other")}?lease=${encodeURIComponent(lease)}&revision=${revision}` : undefined}
       srcDoc={lease ? undefined : content ?? undefined}
       style={{ width:frameWidth, height:height / scale, transform:`scale(${scale})` }} />
     : markdown && content !== null ? <div className="vault-dashboard-markdown">{content.slice(0, 1400)}</div>
-    : <div className="dashboard-preview-placeholder"><span>{error ? "Preview unavailable" : html || markdown ? "Loading preview…" : "Linked dashboard · Open to view"}</span></div>}
+    : <div className="dashboard-preview-placeholder"><span>{error ? "미리보기를 사용할 수 없어요" : html || markdown ? "미리보기 불러오는 중…" : "연결된 대시보드 · 열어서 보기"}</span></div>}
   </div>;
 }

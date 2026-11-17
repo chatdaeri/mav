@@ -48,13 +48,13 @@ describe("emptyVaultState", () => {
 describe("empty-state copy", () => {
   it("names the owner and vault, falling back when unknown", () => {
     expect(nothingSharedBody("Sara", "Acme")).toBe(
-      "Sara hasn't given you access to any folders or notes in Acme. Ask them to share something with you.",
+      "Sara님이 Acme의 폴더나 노트에 대한 접근 권한을 아직 주지 않았어요. 공유해 달라고 요청해 보세요.",
     );
-    expect(nothingSharedBody(null, "Acme")).toMatch(/^The owner hasn't given you access/);
+    expect(nothingSharedBody(null, "Acme")).toMatch(/^소유자님이 Acme의 폴더나 노트/);
   });
   it("drops ⌘N only when the root create is refused", () => {
-    expect(editorEmptyPrompt(false)).toBe("Select a note.");
-    expect(editorEmptyPrompt(true)).toBe("Select a note, or press ⌘N to create one.");
-    expect(editorEmptyPrompt(null)).toBe("Select a note, or press ⌘N to create one.");
+    expect(editorEmptyPrompt(false)).toBe("노트를 선택하세요.");
+    expect(editorEmptyPrompt(true)).toBe("노트를 선택하거나 ⌘N을 눌러 새로 만드세요.");
+    expect(editorEmptyPrompt(null)).toBe("노트를 선택하거나 ⌘N을 눌러 새로 만드세요.");
   });
 });

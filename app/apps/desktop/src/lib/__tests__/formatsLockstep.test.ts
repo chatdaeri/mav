@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { FORMATS, NOTE_EXTS, SURFACED_EXTS } from "../formats";
+import { FORMATS, HIDDEN_EXTS, NOTE_EXTS, SURFACED_EXTS, formatFor } from "../formats";
 import { TRANSIENT_PREFIXES, isTransientFileName } from "../pathIdentity";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -49,6 +49,14 @@ describe("format lockstep", () => {
     // Sets, not order: Rust groups by category, TS by canonical MIME.
     expect(new Set(rust)).toEqual(new Set(SURFACED_EXTS));
     expect(new Set(rust).size).toBe(rust.length); // no duplicate in the Rust list
+  });
+
+  it("agrees with Rust on the hidden temp types, and lists everything else", () => {
+    expect(new Set(literals(vaultRs, rustArray("HIDDEN_EXTS")))).toEqual(new Set(HIDDEN_EXTS));
+    for (const p of ["font.ttf", "logo.ai", "map.shp", "app.js", "f.woff2"]) {
+      expect(formatFor(p), p).toMatchObject({ surface: true, syncAs: "attachment" });
+    }
+    for (const p of ["x.tmp", "dl.crdownload", ".gitignore", "Makefile", "1.0.0"]) expect(formatFor(p), p).toBeUndefined();
   });
 
   it("agrees with Rust on the CRDT note family", () => {
@@ -88,6 +96,8 @@ describe("format lockstep", () => {
     const expected: Record<string, string> = {
       docx: "Docx",
       xlsx: "Xlsx",
+      pptx: "Pptx",
+      hwpx: "Hwpx",
       // PDF is the one format Rust declines on purpose, so a TS-side extractor
       // can fill those rows in later. `unsupported` is that hand-off.
       pdf: "Unsupported",

@@ -1132,7 +1132,15 @@ export function livePreview(
           const href = el?.getAttribute("data-href");
           if (!href) return false;
           event.preventDefault();
-          void ipc.openExternal(href);
+          // 마브: vault-relative Markdown links open inside the app (see
+          // mdLinkTarget.ts); URLs still go to the OS. Loaded lazily so this
+          // extension never imports the store.
+          void import("./openMdLink")
+            .then((m) => m.openMdLink(href))
+            .catch((e) => {
+              console.warn("[md-link] open failed", e);
+              void ipc.openExternal(href);
+            });
           return true;
         },
       },

@@ -59,8 +59,8 @@ describe("classifyLocalFolder", () => {
 describe("hiddenForeignFootnote", () => {
   it("is null for none and pluralises", () => {
     expect(hiddenForeignFootnote(0)).toBeNull();
-    expect(hiddenForeignFootnote(1)).toBe("1 more belongs to another account.");
-    expect(hiddenForeignFootnote(3)).toBe("3 more belong to other accounts.");
+    expect(hiddenForeignFootnote(1)).toBe("다른 계정에 속한 폴더가 1개 더 있어요.");
+    expect(hiddenForeignFootnote(3)).toBe("다른 계정에 속한 폴더가 3개 더 있어요.");
   });
 });
 

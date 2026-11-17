@@ -134,11 +134,11 @@ export async function importClipboardAttachments(html: string, save: SaveAttachm
     if (cached) { el.setAttribute(attr, cached); continue; }
     const match = /^data:([^;,]+);base64,([a-z0-9+/=\s]+)$/i.exec(src);
     const ext = match ? extForMime(match[1]) : null;
-    if (!match || !ext) throw new Error("This embedded clipboard file type is not supported.");
-    if (match[2].length > 45 * 1024 * 1024) throw new Error("Clipboard attachments are too large.");
+    if (!match || !ext) throw new Error("이 클립보드 파일 형식은 지원하지 않아요.");
+    if (match[2].length > 45 * 1024 * 1024) throw new Error("클립보드 첨부 파일이 너무 커요.");
     const binary = atob(match[2]);
     total += binary.length;
-    if (total > 32 * 1024 * 1024) throw new Error("Clipboard attachments exceed 32 MB. Paste a smaller selection.");
+    if (total > 32 * 1024 * 1024) throw new Error("클립보드 첨부 파일이 32MB를 넘어요. 더 작은 선택 영역을 붙여넣으세요.");
     const path = await save(Uint8Array.from(binary, c => c.charCodeAt(0)), ext);
     saved.set(src, path);
     el.setAttribute(attr, path);
@@ -161,11 +161,11 @@ export function smartPaste(save: SaveAttachment | undefined) {
         const selection = view.state.selection;
         void importClipboardAttachments(rich, save).then(insert => {
           if (!view.dom.isConnected || view.state.doc !== before || !view.state.selection.eq(selection)) {
-            toast("The note changed while preparing the paste. Paste again at the desired position.", "neutral");
+            toast("붙여넣기를 준비하는 동안 노트가 바뀌었어요. 원하는 위치에 다시 붙여넣으세요.", "neutral");
             return;
           }
           view.dispatch(view.state.replaceSelection(insert), { userEvent: "input.paste" });
-        }).catch(error => toast(`Could not paste attachments: ${error instanceof Error ? error.message : String(error)}`, "error"));
+        }).catch(error => toast(`첨부 파일을 붙여넣지 못했어요: ${error instanceof Error ? error.message : String(error)}`, "error"));
         return true;
       }
 

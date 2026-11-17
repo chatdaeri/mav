@@ -74,15 +74,15 @@ describe("create-refusal banner", () => {
       groupCreateRefusals([refused("Reports/a.md", "no_write_access"), refused("Reports/b.md", "no_write_access")]),
     );
     expect(text).toEqual({
-      lead: "2 new notes on this computer aren't syncing.",
-      detail: "You don't have permission to add notes in Reports. Ask an owner to give you edit access.",
+      lead: "이 컴퓨터의 새 노트 2개가 동기화되지 않고 있어요.",
+      detail: "Reports 안에 노트를 추가할 권한이 없어요. 소유자에게 편집 권한을 요청하세요.",
     });
   });
 
-  it("says 'at the top of this vault' for the root", () => {
+  it("says the top of the vault for the root", () => {
     const text = createRefusalBannerText(groupCreateRefusals([refused("a.md", "no_write_access")]));
-    expect(text?.lead).toBe("1 new note on this computer isn't syncing.");
-    expect(text?.detail).toContain("at the top of this vault");
+    expect(text?.lead).toBe("이 컴퓨터의 새 노트 1개가 동기화되지 않고 있어요.");
+    expect(text?.detail).toContain("이 볼트의 최상위에");
   });
 
   it("is up only while a refusal stands, and Dismiss silences this run", () => {
@@ -126,8 +126,8 @@ describe("Health — creates refused for access", () => {
     // No per-file rows on top of the groups.
     expect(report.issues.filter((i) => i.path === "Reports/a.md")).toEqual([]);
     const reports = grouped.find((i) => i.key === createRefusalIssueKey("no_write_access", "Reports"))!;
-    expect(reports.title).toBe("2 new notes not syncing: no permission to add notes in Reports");
-    expect(reports.facts.filter((f) => f.label === "Path").map((f) => f.value)).toEqual([
+    expect(reports.title).toBe("새 노트 2개 동기화 안 됨: Reports 안에 노트를 추가할 권한이 없어요");
+    expect(reports.facts.filter((f) => f.label === "경로").map((f) => f.value)).toEqual([
       "Reports/a.md",
       "Reports/b.md",
     ]);

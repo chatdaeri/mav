@@ -8,7 +8,7 @@
 import type { VaultKeyState } from "./session";
 
 /** Shown while a keyed vault's older content is still being converted. */
-export const CONVERTING_LINE = "Older content is being encrypted; new edits are already encrypted.";
+export const CONVERTING_LINE = "이전 콘텐츠를 암호화하는 중이에요. 새로 편집한 내용은 이미 암호화돼요.";
 
 /**
  * The conversion line for owners/admins of a KEYED vault: only on the server's
@@ -49,7 +49,7 @@ export function vaultKeySectionView(opts: {
 }
 
 /** Account Settings → Profile: the line under "Your security code". */
-export const SECURITY_CODE_HINT = "Teammates may ask you to read this out if your security key changes, to confirm it is really you.";
+export const SECURITY_CODE_HINT = "보안 키가 바뀌면 팀원이 본인 확인을 위해 이 코드를 읽어 달라고 요청할 수 있어요.";
 
 /**
  * The person's OWN security code (the same `shortFingerprint` teammates see in

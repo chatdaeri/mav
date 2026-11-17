@@ -22,8 +22,8 @@ describe("withTimeout", () => {
 
 describe("loadErrorText", () => {
   it("never answers empty", () => {
-    expect(loadErrorText(new Error(""))).toBe("Something went wrong.");
+    expect(loadErrorText(new Error(""))).toBe("문제가 생겼어요.");
     expect(loadErrorText("x")).toBe("x");
-    expect(loadErrorText(new LoadTimeoutError())).toMatch(/too long/);
+    expect(loadErrorText(new LoadTimeoutError())).toMatch(/오래 걸려요/);
   });
 });

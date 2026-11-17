@@ -42,9 +42,9 @@ const lastTrash = new Map<string, { listing: TrashListing; at: number }>();
 
 export function trashErrorMessage(e: unknown): string {
   if (e instanceof ApiError) {
-    if (e.status === 404) return "This note is no longer in Trash.";
-    if (e.status === 403) return "You don't have permission to restore this note.";
-    return e.message || `The server refused (${e.status}).`;
+    if (e.status === 404) return "이 노트는 더 이상 휴지통에 없어요.";
+    if (e.status === 403) return "이 노트를 복원할 권한이 없어요.";
+    return e.message || `서버가 요청을 거부했어요 (${e.status}).`;
   }
   return e instanceof Error ? e.message : String(e);
 }
@@ -439,7 +439,7 @@ export function ActivityBadge() {
   if (unread <= 0) return null;
   return (
     // The number joins the button's accessible name ("Panel 3").
-    <span className="panel-btn-badge" title={`${unread} new in Activity`}>
+    <span className="panel-btn-badge" title={`활동에 새 항목 ${unread}개`}>
       {badgeText(unread)}
     </span>
   );

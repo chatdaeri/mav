@@ -72,7 +72,7 @@ describe("password unlocks the account key (F)", () => {
     await signIn("pep@unlock.test", "password-pep-1");
 
     expect((await call(null, "POST", "/api/password-reset/request", { email: "pep@unlock.test" })).status).toBe(200);
-    const mail = [...memoryOutbox].reverse().find((m) => m.to === "pep@unlock.test" && /reset/i.test(m.subject))!;
+    const mail = [...memoryOutbox].reverse().find((m) => m.to === "pep@unlock.test" && /비밀번호 재설정/.test(m.subject))!;
     const token = mail.text.match(/\/reset-password\?token=([A-Za-z0-9._-]+)/)![1];
     const before = await storedHash(u.userId);
     expect((await call(null, "POST", "/api/auth/reset-password", { newPassword: "password-pep-2", token })).status).toBe(200);
@@ -202,14 +202,14 @@ describe("password unlocks the account key (F)", () => {
 
     // Reset by email link (revokes sessions): cleared.
     expect((await call(null, "POST", "/api/password-reset/request", { email: "stale@unlock.test" })).status).toBe(200);
-    const mail = [...memoryOutbox].reverse().find((m) => m.to === "stale@unlock.test" && /reset/i.test(m.subject))!;
+    const mail = [...memoryOutbox].reverse().find((m) => m.to === "stale@unlock.test" && /비밀번호 재설정/.test(m.subject))!;
     const token = mail.text.match(/\/reset-password\?token=([A-Za-z0-9._-]+)/)![1];
     expect((await call(null, "POST", "/api/auth/reset-password", { newPassword: "password-stale-4", token })).status).toBe(200);
     const { rows } = await pool.query("SELECT priv_wrapped_password, password_wrap_at FROM user_keys WHERE user_id = $1", [u.userId]);
     expect(rows[0]).toEqual({ priv_wrapped_password: null, password_wrap_at: null });
   });
 
-  it("a Google-only account sets a Baalda password once: peppered, then unlock and email sign-in both work", async () => {
+  it("a Google-only account sets a 마이 세컨드 브레인 password once: peppered, then unlock and email sign-in both work", async () => {
     const u = await signUp("google@unlock.test", "throwaway-pass-1");
     // Make it Google-only: no password login.
     await pool.query(`DELETE FROM account WHERE "userId" = $1 AND "providerId" = 'credential'`, [u.userId]);

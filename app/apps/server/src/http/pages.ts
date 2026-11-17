@@ -7,7 +7,7 @@ import { FONT_FACE_CSS } from "./fonts.js";
  * MCP OAuth login/consent screens (routes/oauth-connect.ts) and the account
  * pages — password reset, email verified, invitation landing
  * (routes/account-pages.ts). One light card in the baalda.com style, the official wordmark embedded as a
- * data URI so nothing depends on a static-file host. Branded with the Baalda
+ * data URI so nothing depends on a static-file host. Branded with the 마브
  * logos (see brand-assets.ts / docs/BRANDING.md).
  */
 
@@ -23,7 +23,7 @@ export function esc(s: string): string {
 /** Light, matching baalda.com: warm off-white page, white card, ink type, pill buttons. */
 export function page(opts: { title: string; body: string; head?: string; wide?: boolean }): string {
   return `<!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,12 +37,12 @@ ${FONT_FACE_CSS}
     --ink: #030302; --muted: #737373; --faint: #a3a3a3;
     --line: rgba(3,3,2,0.10); --line-strong: rgba(3,3,2,0.22);
     --violet: #7c5cff; --green: #3f8850;
-    --display: "Radio Canada Big", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --display: "Radio Canada Big", "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
-    font: 15px/1.5 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font: 15px/1.5 "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Helvetica, Arial, sans-serif;
     color: var(--ink); background: #fcf9f7;
     background-image: radial-gradient(70% 55% at 50% 0%, rgba(124,92,255,0.16), transparent 70%);
     background-repeat: no-repeat;

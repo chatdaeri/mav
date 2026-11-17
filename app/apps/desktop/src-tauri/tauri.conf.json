@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Baalda",
+  "productName": "마이 세컨드 브레인",
   "version": "0.1.112",
-  "identifier": "com.baalda.context",
+  "identifier": "com.chatdaeri.mav",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Baalda",
+        "title": "마이 세컨드 브레인",
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",
         "trafficLightPosition": { "x": 16, "y": 28 },
@@ -51,14 +51,14 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM5M0Y3Mjg4RDcwQTlGMTUKUldRVm53clhpSEkveVZqVG1Ub2RwYzBHR0toeGFRYVIrandud3VLY1BYc0ZIUTRTTGFpdHRRMnQK",
+      "pubkey": "ZFc1MGNuVnpkR1ZrSUdOdmJXMWxiblE2SUcxcGJtbHphV2R1SUhCMVlteHBZeUJyWlhrNklETXdOa0UxT0RCRk1qbEJRekU1TndwU1YxTllkMXB5YVdkTFZVZEJNRXR1VUd3MWRVaDVlakZKVGxZcmJVVjZRMnhoUTJWdmJ6Qk9TRkpIYTFOalEzSm9jbTB2YlZkMFlnbz0=",
       "endpoints": [
-        "https://github.com/naveedharri/baalda/releases/latest/download/latest.json"
+        "https://github.com/chatdaeri/mav/releases/latest/download/latest.json"
       ]
     },
     "deep-link": {
       "desktop": {
-        "schemes": ["baalda"]
+        "schemes": ["mav"]
       }
     }
   }

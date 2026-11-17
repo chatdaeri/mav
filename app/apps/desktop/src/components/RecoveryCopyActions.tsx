@@ -81,8 +81,8 @@ export function RecoveryCopyActions({
   if (avail.restoreReplace) {
     restoreActions.push({
       key: "replace",
-      label: "Replace current note",
-      title: `Put this copy's text into ${noteLabel(target)}. It syncs like an edit.`,
+      label: "현재 노트 바꾸기",
+      title: `이 사본의 텍스트를 ${noteLabel(target)}에 넣어요. 편집한 것처럼 동기화돼요.`,
       onSelect: () =>
         run(async () => {
           await restoreCopyReplace(copy, target);
@@ -95,8 +95,8 @@ export function RecoveryCopyActions({
     const sibling = siblingRecoveredPath(target, () => false);
     restoreActions.push({
       key: "sibling",
-      label: `Restore as “${noteLabel(sibling)}”`,
-      title: "Create a new note beside the original with this copy's text.",
+      label: `“${noteLabel(sibling)}”(으)로 복원`,
+      title: "이 사본의 텍스트로 원본 옆에 새 노트를 만들어요.",
       onSelect: () =>
         run(async () => {
           const created = await restoreCopyAsSibling(copy);
@@ -108,7 +108,7 @@ export function RecoveryCopyActions({
   }
   restoreActions.push({
     key: "delete",
-    label: "Delete copy",
+    label: "사본 삭제",
     danger: true,
     separated: true,
     onSelect: () => setConfirm("delete"),
@@ -125,9 +125,9 @@ export function RecoveryCopyActions({
     <>
       <span className="health-missing-actions">
         <button type="button" className="ghost-pill sm" onClick={() => openCopy(copy, modified)}>
-          {binary ? ipc.revealLabel() : "Open copy"}
+          {binary ? ipc.revealLabel() : "사본 열기"}
         </button>
-        <RowActionsMenu actions={restoreActions} ariaLabel={binary ? "Recovery copy actions" : "Restore or delete this copy"} />
+        <RowActionsMenu actions={restoreActions} ariaLabel={binary ? "복구 사본 작업" : "이 사본 복원 또는 삭제"} />
       </span>
       {error && (
         <p role="alert" className="auth-error health-missing-error">
@@ -136,28 +136,28 @@ export function RecoveryCopyActions({
       )}
       {confirm === "delete" && (
         <ConfirmDialog
-          title="Delete this copy?"
-          confirmLabel="Delete copy"
+          title="이 사본을 삭제할까요?"
+          confirmLabel="사본 삭제"
           tone="danger"
           onConfirm={doDelete}
           onCancel={() => setConfirm(null)}
         >
-          The copy in .context/trash is removed from this device. The current file is not
-          changed.
+          .context/trash에 있는 사본이 이 기기에서 삭제돼요. 현재 파일은 바뀌지
+          않아요.
         </ConfirmDialog>
       )}
       {confirm === "afterRestore" && (
         <ConfirmDialog
-          title="Restored. Delete the copy?"
-          confirmLabel="Delete copy"
-          cancelLabel="Keep copy"
+          title="복원했어요. 사본을 삭제할까요?"
+          confirmLabel="사본 삭제"
+          cancelLabel="사본 유지"
           onConfirm={doDelete}
           onCancel={() => {
             setConfirm(null);
             onChanged?.();
           }}
         >
-          {`The copy's text is now in ${restoredTo ? noteLabel(restoredTo) : "the note"}. You can delete the copy, or keep it in .context/trash.`}
+          {`사본의 텍스트가 이제 ${restoredTo ? noteLabel(restoredTo) : "노트"}에 들어 있어요. 사본을 삭제하거나 .context/trash에 그대로 둘 수 있어요.`}
         </ConfirmDialog>
       )}
     </>
@@ -176,7 +176,7 @@ export function TrashPreviewActions({
 }) {
   return (
     <AsyncButton className="ghost-pill sm" onClick={() => onPreview(docId, relPath)}>
-      Preview
+      미리보기
     </AsyncButton>
   );
 }

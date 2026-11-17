@@ -1003,7 +1003,7 @@ pub async fn get_server_url(
 /// (spec: rebrand policy) — the one place the default root folder name is set.
 const DEFAULT_ROOT_DIR_NAME: &str = crate::folder_safety::ROOT_DIR_NAME;
 
-/// Default managed root: `<home>/Documents/Baalda Vaults`. Lives under Documents
+/// Default managed root: `<home>/Documents/마브 볼트`. Lives under Documents
 /// so it's easy to find in the OS file browser (Finder/Explorer both surface
 /// Documents in their sidebar) instead of being buried at the top of home.
 fn default_vaults_root(app: &AppHandle) -> AppResult<PathBuf> {
@@ -1038,7 +1038,7 @@ fn create_and_persist_root(app: &AppHandle, state: &State<AppState>, root: &Path
 }
 
 /// Pick a root: refuse the top of the disk and folders above home, then nest
-/// a dedicated "Baalda Vaults" folder under the pick (unless it is one already
+/// a dedicated "마브 볼트" folder under the pick (unless it is one already
 /// or is the current root), create it, persist it, and return it.
 fn choose_root(app: &AppHandle, state: &State<AppState>, picked: &Path) -> AppResult<PathBuf> {
     let home = app.path().home_dir().ok();
@@ -1052,7 +1052,7 @@ fn choose_root(app: &AppHandle, state: &State<AppState>, picked: &Path) -> AppRe
 /// The effective vaults root. With none stored, or a stored one above home,
 /// the default is CREATED first and persisted only after that succeeded. A
 /// stored root that is not a dedicated folder (home, or its Desktop, Documents
-/// or Downloads itself, from an older build) gets a "Baalda Vaults" folder
+/// or Downloads itself, from an older build) gets a "마브 볼트" folder
 /// nested under it. A permission refusal under Documents comes back with the
 /// `documents_denied` prefix (see `folder_safety::root_create_error`).
 #[tauri::command]
@@ -1067,7 +1067,7 @@ pub async fn get_vaults_root(
         .filter(|r| crate::folder_safety::vaults_root_refusal(r, home.as_deref()).is_none());
     let root = match stored {
         Some(r) if crate::folder_safety::vault_folder_refusal(&r, home.as_deref()).is_none() => {
-            // `Documents\Baalda Vaults` on a default install — a redirected or
+            // `Documents\마브 볼트` on a default install — a redirected or
             // OneDrive-managed Documents is exactly where this fails (#128).
             std::fs::create_dir_all(&r)
                 .map_err(|e| crate::folder_safety::root_create_error(&e, &r, home.as_deref()))?;
@@ -1089,7 +1089,7 @@ pub async fn get_vaults_root(
 
 /// Change the managed vaults root (existing vault folders keep their location;
 /// only newly created ones land under the new root). Returns the stored root,
-/// which is `<path>/Baalda Vaults` unless `path` is already such a folder.
+/// which is `<path>/마브 볼트` unless `path` is already such a folder.
 #[tauri::command]
 pub async fn set_vaults_root(
     app: AppHandle,
@@ -1099,7 +1099,7 @@ pub async fn set_vaults_root(
     Ok(choose_root(&app, &state, Path::new(&path))?.to_string_lossy().to_string())
 }
 
-/// Put the vaults root back to `<home>/Documents/Baalda Vaults` (Account
+/// Put the vaults root back to `<home>/Documents/마브 볼트` (Account
 /// Settings → Vaults → Reset to default); returns it.
 #[tauri::command]
 pub async fn reset_vaults_root(
@@ -2915,6 +2915,32 @@ pub async fn file_stat(
     attachments::file_stat(&vault, &rel_path)
 }
 
+/// A read-only HWPX/PPTX preview model (`office_preview.rs`). The file is
+/// stat-checked against the preview cap BEFORE it is read, so a huge deck
+/// costs one `metadata()` call.
+#[tauri::command]
+pub async fn office_preview(
+    state: State<'_, AppState>,
+    rel_path: String,
+    expected_epoch: Option<u64>,
+) -> AppResult<crate::office_preview::OfficePreview> {
+    let (vault, _) = require_vault_at(&state, expected_epoch)?;
+    let ext = rel_path
+        .rsplit('.')
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    let stat = attachments::file_stat(&vault, &rel_path)?;
+    if stat.size > crate::office_preview::MAX_PREVIEW_INPUT_BYTES {
+        return Err(AppError(crate::office_preview::PreviewError::TooLarge.to_string()));
+    }
+    let bytes = attachments::read_binary_file(&vault, &rel_path)?;
+    tauri::async_runtime::spawn_blocking(move || crate::office_preview::build_preview(&ext, &bytes))
+        .await
+        .map_err(|e| AppError(format!("preview task failed: {e}")))?
+        .map_err(|e| AppError(e.to_string()))
+}
+
 /// Disk-truth for the binary delete queue — see `attachments::binary_exists`.
 #[tauri::command]
 pub async fn binary_exists(
@@ -3301,7 +3327,7 @@ mod tests {
     fn reset_target_deletes_only_the_open_vault_root() {
         let tmp = tempfile::tempdir().unwrap();
         let home = tmp.path().join("home");
-        let root = home.join("Documents").join("Baalda Vaults");
+        let root = home.join("Documents").join("mav");
         let vault = root.join("Team");
         std::fs::create_dir_all(vault.join(".context")).unwrap();
         std::fs::write(vault.join("a.md"), "x").unwrap();
@@ -3315,7 +3341,7 @@ mod tests {
     fn reset_target_refusals() {
         let tmp = tempfile::tempdir().unwrap();
         let home = tmp.path().join("home");
-        let root = home.join("Documents").join("Baalda Vaults");
+        let root = home.join("Documents").join("mav");
         let vault = root.join("Team");
         let other = root.join("Other");
         std::fs::create_dir_all(vault.join(".context")).unwrap();
@@ -3409,7 +3435,7 @@ mod tests {
     fn prepare_config_dir_accepts_a_writable_directory() {
         let tmp = tempfile::tempdir().unwrap();
         // Nested, because `app_config_dir()` on a fresh install does not exist yet.
-        let dir = tmp.path().join("com.baalda.context");
+        let dir = tmp.path().join("com.chatdaeri.mav");
         prepare_config_dir(&dir).expect("a fresh writable dir must be usable");
         assert!(dir.is_dir());
         // The probe cleans up after itself — a `.write-test` left behind would
@@ -3932,11 +3958,11 @@ mod tests {
     /// of silently falling back to the default and orphaning their vaults.
     #[test]
     fn app_config_loads_legacy_workspace_root_alias() {
-        let legacy = r#"{"workspace_root": "/home/me/Documents/Baalda Vaults"}"#;
+        let legacy = r#"{"workspace_root": "/home/me/Documents/mav"}"#;
         let cfg: AppConfig = serde_json::from_str(legacy).unwrap();
         assert_eq!(
             cfg.vaults_root.as_deref(),
-            Some("/home/me/Documents/Baalda Vaults")
+            Some("/home/me/Documents/mav")
         );
     }
 

@@ -67,7 +67,7 @@ export function folderName(path: string): string {
 }
 
 export const autoRestoredNoticeText = (vault: string) =>
-  `${vault}'s folder was missing, so Baalda restored it in Baalda Vaults and is syncing it.`;
+  `${vault} 폴더가 없어져서 mav 폴더 안에 다시 만들고 동기화하고 있어요.`;
 
 export const reboundToastText = (vault: string, newPath: string) =>
   `${vault} moved to ${folderName(newPath)}.`;

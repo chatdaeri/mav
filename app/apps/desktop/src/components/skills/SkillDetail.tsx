@@ -32,12 +32,12 @@ import { checkSkillsNow } from "../../lib/skills/syncHost";
 type Section = "draft" | "access" | "versions";
 
 /** The header's Everyone menu, in its own words (No access = only the people chosen). */
-const EVERYONE_HEADER_OPTIONS = EVERYONE_ACCESS_OPTIONS.map((o) => (o.value === "none" ? { ...o, label: "Specific people" } : o));
-const EVERYONE_HEADER_LABEL: Record<SkillAccessLevel, string> = { required: "Required", optional: "Optional", none: "Specific people" };
+const EVERYONE_HEADER_OPTIONS = EVERYONE_ACCESS_OPTIONS.map((o) => (o.value === "none" ? { ...o, label: "특정 사람" } : o));
+const EVERYONE_HEADER_LABEL: Record<SkillAccessLevel, string> = { required: "필수", optional: "선택", none: "특정 사람" };
 
 const DELIVERY_OPTIONS = [
-  { value: "required" as const, label: "Required", hint: "Installed for everyone" },
-  { value: "optional" as const, label: "Optional", hint: "Each person turns it on" },
+  { value: "required" as const, label: "필수", hint: "모두에게 설치돼요" },
+  { value: "optional" as const, label: "선택", hint: "각자 직접 켜요" },
 ];
 
 function Chevron() {
@@ -49,8 +49,8 @@ function Chevron() {
 }
 
 const REFUSAL_TEXT: Record<string, string> = {
-  nothing_to_publish: "Nothing changed since the latest version.",
-  stale_draft: "Someone else changed this draft. Try again.",
+  nothing_to_publish: "최신 버전 이후 바뀐 내용이 없어요.",
+  stale_draft: "다른 사람이 이 초안을 바꿨어요. 다시 시도해 주세요.",
   ...CAP_RULE_TEXT,
 };
 
@@ -82,7 +82,7 @@ export async function downloadSkillZip(orgId: string, skillId: string, name: str
     name,
     v.files.map((f) => ({ path: f.path, contentBase64: f.contentBase64, sha256: f.sha256, executable: f.executable })),
   );
-  toast(`Saved ${skillDisplayName(name)} v${version}.`);
+  toast(`${skillDisplayName(name)} v${version}을(를) 저장했어요.`);
 }
 
 export function SkillDetail({
@@ -124,7 +124,7 @@ export function SkillDetail({
       setSkill(await withTimeout(authManager.api.getSkill(orgId, skillId)));
       setError(null);
     } catch (e) {
-      setError(skillErrorCode(e) === "skill_not_found" ? "This skill was deleted." : loadErrorText(e));
+      setError(skillErrorCode(e) === "skill_not_found" ? "이 스킬은 삭제됐어요." : loadErrorText(e));
     }
   }, [orgId, skillId]);
 
@@ -176,7 +176,7 @@ export function SkillDetail({
       void load();
       throw e;
     }
-    toast(`${skillDisplayName(skill?.name ?? "")} is now optional. People can remove it from their computer.`);
+    toast(`${skillDisplayName(skill?.name ?? "")}을(를) 선택 사항으로 바꿨어요. 이제 각자 컴퓨터에서 제거할 수 있어요.`);
     onChanged();
     void load();
   };
@@ -205,7 +205,7 @@ export function SkillDetail({
     setPublishError(null);
     try {
       if (flushRef.current && !(await flushRef.current())) {
-        throw new Error("The draft couldn't be saved, so it wasn't published.");
+        throw new Error("초안을 저장하지 못해서 게시하지 않았어요.");
       }
       const draft = await authManager.api.getSkillDraft(orgId, skill.id);
       const previous = skill.latestVersion !== null
@@ -213,7 +213,7 @@ export function SkillDetail({
         : null;
       const notes = publishNotes(draft.files, previous);
       const v = await authManager.api.publishSkill(orgId, skill.id, draft.revision, notes);
-      toast(`Published ${skillDisplayName(skill.name)} v${v.version} · reaches everyone on their next check`);
+      toast(`${skillDisplayName(skill.name)} v${v.version}을(를) 게시했어요 · 다음 확인 때 모두에게 전달돼요`);
       await load();
       onChanged();
     } catch (e) {
@@ -227,7 +227,7 @@ export function SkillDetail({
 
   const back = (
     <button type="button" className="link-btn member-profile-back" onClick={onBack}>
-      ← Agent Skills
+      ← 에이전트 스킬
     </button>
   );
 
@@ -238,7 +238,7 @@ export function SkillDetail({
         {error ? (
           <LoadError
             message={error}
-            onRetry={error === "This skill was deleted." ? undefined : () => {
+            onRetry={error === "이 스킬은 삭제됐어요." ? undefined : () => {
               setError(null);
               void load();
             }}
@@ -256,7 +256,7 @@ export function SkillDetail({
 
   const latest = skill.latestVersion;
   const pinOptions = [
-    { value: "latest", label: latest ? `Latest (v${latest})` : "Latest" },
+    { value: "latest", label: latest ? `최신 (v${latest})` : "최신" },
     ...skill.versions.map((v) => ({ value: String(v.version), label: `v${v.version}` })),
   ];
   const nextVersion = (latest ?? 0) + 1;
@@ -268,11 +268,11 @@ export function SkillDetail({
           <span className="skills-row-name">{skillDisplayName(skill.name)}</span>
           <span className="skills-actions">
             {skill.draftDiffers ? (
-              <BusyButton className="primary skills-btn-sm" busyLabel="Publishing…" onClick={publish}>
-                Publish v{nextVersion}
+              <BusyButton className="primary skills-btn-sm" busyLabel="게시하는 중…" onClick={publish}>
+                v{nextVersion} 게시
               </BusyButton>
             ) : (
-              <span className="skills-published">Published</span>
+              <span className="skills-published">게시됨</span>
             )}
           </span>
         </div>
@@ -284,12 +284,12 @@ export function SkillDetail({
         <div className="skills-detail-title">
           <div className="skills-title-row">
             <h2 className="settings-section-title">{skillDisplayName(skill.name)}</h2>
-            <span className="skills-source-pill">{skill.source ? `From ${skill.source.repo}` : "Shared with your team"}</span>
+            <span className="skills-source-pill">{skill.source ? `${skill.source.repo}에서 가져옴` : "팀과 공유 중"}</span>
           </div>
           <SkillByline skill={skill} />
           {skill.sharedWith && (
             canManage ? (
-              <button type="button" className="link-btn skills-audience-btn" onClick={() => setSection("access")} aria-label="See who has this skill">
+              <button type="button" className="link-btn skills-audience-btn" onClick={() => setSection("access")} aria-label="이 스킬을 가진 사람 보기">
                 <AudienceStack audience={skill.sharedWith} viewerIn={myAccessOf(skill) !== "none"} />
               </button>
             ) : (
@@ -297,7 +297,7 @@ export function SkillDetail({
             )
           )}
           {skillNameNeedsWarning(skill.name) && (
-            <span className="skills-warning">claude.ai refuses names with "claude" or "anthropic".</span>
+            <span className="skills-warning">claude.ai는 "claude" 또는 "anthropic"이 들어간 이름을 허용하지 않아요.</span>
           )}
         </div>
         <div className="skills-detail-controls">
@@ -311,7 +311,7 @@ export function SkillDetail({
                   value={skill.everyone}
                   options={EVERYONE_HEADER_OPTIONS}
                   onSelect={(level) => (level === "none" ? setConfirm({ kind: "everyoneNone" }) : void setEveryone(level))}
-                  ariaLabel="Who gets this skill"
+                  ariaLabel="이 스킬을 받는 사람"
                   caret={false}
                   triggerClassName="secondary skills-hdr-btn skills-ctl"
                   triggerContent={<>{EVERYONE_HEADER_LABEL[skill.everyone]}<Chevron /></>}
@@ -321,10 +321,10 @@ export function SkillDetail({
                   value={skill.delivery}
                   options={DELIVERY_OPTIONS}
                   onSelect={(delivery) => patch({ delivery })}
-                  ariaLabel="Who gets this skill"
+                  ariaLabel="이 스킬을 받는 사람"
                   caret={false}
                   triggerClassName="secondary skills-hdr-btn skills-ctl"
-                  triggerContent={<>{skill.delivery === "required" ? "Required" : "Optional"}<Chevron /></>}
+                  triggerContent={<>{skill.delivery === "required" ? "필수" : "선택"}<Chevron /></>}
                 />
               )}
               {skill.versions.length > 0 && (
@@ -332,48 +332,48 @@ export function SkillDetail({
                   value={skill.pinnedVersion === null ? "latest" : String(skill.pinnedVersion)}
                   options={pinOptions}
                   onSelect={(v) => patch({ pinnedVersion: v === "latest" ? null : Number(v) })}
-                  ariaLabel="Version everyone gets"
+                  ariaLabel="모두가 받는 버전"
                   caret={false}
                   triggerClassName="secondary skills-hdr-btn skills-ctl"
                   triggerContent={
                     <>
-                      {skill.pinnedVersion === null ? `Latest (v${latest})` : `v${skill.pinnedVersion}`}
+                      {skill.pinnedVersion === null ? `최신 (v${latest})` : `v${skill.pinnedVersion}`}
                       <Chevron />
                     </>
                   }
                 />
               )}
               {skill.draftDiffers ? (
-                <BusyButton className="primary skills-hdr-btn skills-ctl" busyLabel="Publishing…" onClick={publish}>
-                  Publish v{nextVersion}
+                <BusyButton className="primary skills-hdr-btn skills-ctl" busyLabel="게시하는 중…" onClick={publish}>
+                  v{nextVersion} 게시
                 </BusyButton>
               ) : (
-                <span className="skills-published" title="No changes since the latest version">
+                <span className="skills-published" title="최신 버전 이후 바뀐 내용이 없어요">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
-                  Published
+                  게시됨
                 </span>
               )}
             </>
           ) : (
             <span className="skills-meta-line">
-              {skill.delivery === "required" ? "Required" : "Optional"}
-              {skill.pinnedVersion !== null ? ` · pinned to v${skill.pinnedVersion}` : ""}
+              {skill.delivery === "required" ? "필수" : "선택"}
+              {skill.pinnedVersion !== null ? ` · v${skill.pinnedVersion}로 고정` : ""}
             </span>
           )}
           <RowActionsMenu
-            ariaLabel={`More for ${skillDisplayName(skill.name)}`}
+            ariaLabel={`${skillDisplayName(skill.name)} 더 보기`}
             actions={[
               ...(skill.effectiveVersion !== null
                 ? [{
                     key: "zip",
-                    label: `Download .zip (v${skill.effectiveVersion})`,
+                    label: `.zip 다운로드 (v${skill.effectiveVersion})`,
                     onSelect: () => downloadSkillZip(orgId, skill.id, skill.name, skill.effectiveVersion!),
                   }]
                 : []),
               ...(canManage
-                ? [{ key: "delete", label: "Remove from team", danger: true, separated: skill.effectiveVersion !== null, onSelect: () => setConfirm({ kind: "delete" }) }]
+                ? [{ key: "delete", label: "팀에서 제거", danger: true, separated: skill.effectiveVersion !== null, onSelect: () => setConfirm({ kind: "delete" }) }]
                 : []),
             ]}
           />
@@ -403,7 +403,7 @@ export function SkillDetail({
       )}
 
       {canManage && (
-        <div className="member-profile-tabs" role="tablist" aria-label="Skill">
+        <div className="member-profile-tabs" role="tablist" aria-label="스킬">
           {(hasSkillAccess(skill) ? (["draft", "access", "versions"] as const) : (["draft", "versions"] as const)).map((s) => (
             <button
               key={s}
@@ -414,10 +414,10 @@ export function SkillDetail({
               onClick={() => setSection(s)}
             >
               {s === "draft"
-                ? "Overview"
+                ? "개요"
                 : s === "access"
-                  ? `Shared with${skill.sharedWith ? ` · ${skill.sharedWith.count}` : ""}`
-                  : `Versions${skill.versions.length ? ` · ${skill.versions.length}` : ""}`}
+                  ? `공유 대상${skill.sharedWith ? ` · ${skill.sharedWith.count}` : ""}`
+                  : `버전${skill.versions.length ? ` · ${skill.versions.length}` : ""}`}
             </button>
           ))}
         </div>
@@ -450,33 +450,33 @@ export function SkillDetail({
           publishError={publishError}
         />
       ) : skill.versions.length === 0 ? (
-        <div className="muted skills-quiet">Not published yet.</div>
+        <div className="muted skills-quiet">아직 게시되지 않았어요.</div>
       ) : (
         <ul className="skills-list">
           {skill.versions.map((v) => (
             <li key={v.version} className="skills-list-row is-static">
               <span className="skills-icon skills-version-badge">v{v.version}</span>
               <span className="skills-row-main">
-                <span className="skills-row-name">{v.notes || `Version ${v.version}`}</span>
+                <span className="skills-row-name">{v.notes || `버전 ${v.version}`}</span>
                 <span className="skills-row-desc">
                   {dateText(v.publishedAt)}
                   {v.publishedBy ? ` · ${v.publishedBy.name}` : ""}
-                  {` · ${v.fileCount} ${v.fileCount === 1 ? "file" : "files"}`}
+                  {` · 파일 ${v.fileCount}개`}
                 </span>
               </span>
               <span className="skills-row-side">
-                {skill.effectiveVersion === v.version && <Tag tone="good">In use</Tag>}
+                {skill.effectiveVersion === v.version && <Tag tone="good">사용 중</Tag>}
                 <BusyButton
                   className="link-btn skills-row-link"
-                  busyLabel="Preparing…"
+                  busyLabel="준비하는 중…"
                   onClick={() => downloadSkillZip(orgId, skill.id, skill.name, v.version)}
                 >
-                  Download .zip
+                  .zip 다운로드
                 </BusyButton>
                 {canManage && (
                   <RowActionsMenu
-                    ariaLabel={`More for v${v.version}`}
-                    actions={[{ key: "restore", label: "Restore to draft", onSelect: () => setConfirm({ kind: "restore", version: v }) }]}
+                    ariaLabel={`v${v.version} 더 보기`}
+                    actions={[{ key: "restore", label: "초안으로 복원", onSelect: () => setConfirm({ kind: "restore", version: v }) }]}
                   />
                 )}
               </span>
@@ -501,8 +501,8 @@ export function SkillDetail({
 
       {confirm?.kind === "everyoneNone" && (
         <ConfirmDialog
-          title={`Take ${skillDisplayName(skill.name)} away from everyone?`}
-          confirmLabel="Take away"
+          title={`모든 사람에게서 ${skillDisplayName(skill.name)}을(를) 회수할까요?`}
+          confirmLabel="회수"
           onCancel={() => setConfirm(null)}
           onConfirm={async () => {
             setConfirm(null);
@@ -510,24 +510,24 @@ export function SkillDetail({
             setSection("access");
           }}
         >
-          Only people you add in Shared with will get it. An untouched copy is removed from everyone else's computer; one
-          they edited stays as their own skill.
+          공유 대상에 추가한 사람만 이 스킬을 받아요. 수정하지 않은 복사본은 다른 사람의 컴퓨터에서 제거되고,
+          수정한 복사본은 그 사람의 개인 스킬로 남아요.
         </ConfirmDialog>
       )}
 
       {confirm?.kind === "restore" && (
         <ConfirmDialog
-          title={`Replace the draft with v${confirm.version.version}?`}
-          confirmLabel="Replace draft"
+          title={`초안을 v${confirm.version.version}(으)로 바꿀까요?`}
+          confirmLabel="초안 바꾸기"
           tone="accent"
           onCancel={() => setConfirm(null)}
           onConfirm={async () => {
             try {
               await authManager.api.resetSkillDraft(orgId, skill.id, skill.draftRevision, confirm.version.version);
-              toast(`The draft now matches v${confirm.version.version}.`);
+              toast(`이제 초안이 v${confirm.version.version}과(와) 같아요.`);
             } catch (e) {
               setError(skillErrorCode(e) === "stale_draft"
-                ? "Someone else changed the draft. Try again."
+                ? "다른 사람이 초안을 바꿨어요. 다시 시도해 주세요."
                 : e instanceof Error ? e.message : String(e));
             }
             setConfirm(null);
@@ -536,7 +536,7 @@ export function SkillDetail({
             await load();
           }}
         >
-          Unpublished draft changes are replaced. Published versions stay as they are.
+          게시하지 않은 초안의 변경 내용은 사라져요. 게시된 버전은 그대로 유지돼요.
         </ConfirmDialog>
       )}
     </section>

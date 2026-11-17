@@ -42,26 +42,26 @@ export function MemberSkillsTab({ orgId, userId, name }: { orgId: string; userId
       const now = out.people.find((p) => p.userId === userId)?.level ?? "none";
       toast(
         now === "none"
-          ? `${name} no longer gets ${skillDisplayName(s.name)}.`
-          : `${name} now gets ${skillDisplayName(s.name)} as ${ACCESS_LABEL[now].toLowerCase()}.`,
+          ? `${name}님은 이제 ${skillDisplayName(s.name)}을(를) 받지 않아요.`
+          : `${name}님이 이제 ${skillDisplayName(s.name)}을(를) ${ACCESS_LABEL[now]} 권한으로 받아요.`,
       );
       checkSkillsNow();
       await load();
     } catch (e) {
-      toast(`Couldn't change ${skillDisplayName(s.name)} for ${name}: ${e instanceof Error ? e.message : String(e)}`, "error");
+      toast(`${name}님의 ${skillDisplayName(s.name)}을(를) 바꾸지 못했어요: ${e instanceof Error ? e.message : String(e)}`, "error");
     } finally {
       setBusy(false);
     }
   };
 
-  if (error && !skills) return <LoadError message={`Couldn't load ${name}'s skills: ${error}`} onRetry={() => void load()} />;
-  if (!skills) return <div className="skills-access-skel" aria-busy="true" aria-label={`Loading ${name}'s skills`} />;
-  if (skills.length === 0) return <div className="muted skills-quiet">This vault has no team skills yet.</div>;
+  if (error && !skills) return <LoadError message={`${name}님의 스킬을 불러오지 못했어요: ${error}`} onRetry={() => void load()} />;
+  if (!skills) return <div className="skills-access-skel" aria-busy="true" aria-label={`${name}님의 스킬 불러오는 중`} />;
+  if (skills.length === 0) return <div className="muted skills-quiet">이 볼트에는 아직 팀 스킬이 없어요.</div>;
 
   return (
     <div className="skills-access">
       <p className="field-hint skills-access-note">
-        What {name}'s AI tools get from this vault. Their own setting beats the Everyone default either way.
+        이 볼트에서 {name}님의 AI 도구가 받는 스킬이에요. 개별 설정이 모든 멤버 기본값보다 우선해요.
       </p>
       <ul className="skills-access-people">
         {skills.map((s) => {
@@ -70,8 +70,8 @@ export function MemberSkillsTab({ orgId, userId, name }: { orgId: string; userId
               <span className="members-table-names">
                 <span className="members-table-name">{skillDisplayName(s.name)}</span>
                 <span className="muted">
-                  {s.latestVersion === null ? "Not published · " : ""}
-                  {s.own ? "Set for them" : "Same as everyone"}
+                  {s.latestVersion === null ? "게시 안 됨 · " : ""}
+                  {s.own ? "개별 설정" : "모든 멤버와 동일"}
                 </span>
               </span>
               <MenuSelect<PersonAccessChoice>
@@ -84,7 +84,7 @@ export function MemberSkillsTab({ orgId, userId, name }: { orgId: string; userId
                   else void apply(s, c);
                 }}
                 disabled={busy}
-                ariaLabel={`${skillDisplayName(s.name)} for ${name}`}
+                ariaLabel={`${name}님의 ${skillDisplayName(s.name)}`}
                 triggerClassName={`members-access-trigger is-level ${accessLevelClass(s.level)}`}
                 menuClassName="access-menu"
                 triggerContent={ACCESS_LABEL[s.level]}
@@ -96,8 +96,8 @@ export function MemberSkillsTab({ orgId, userId, name }: { orgId: string; userId
 
       {confirm && (
         <ConfirmDialog
-          title={`Take ${skillDisplayName(confirm.name)} away from ${name}?`}
-          confirmLabel="Take away"
+          title={`${name}님의 ${skillDisplayName(confirm.name)} 권한을 제거할까요?`}
+          confirmLabel="제거"
           onCancel={() => setConfirm(null)}
           onConfirm={async () => {
             const s = confirm;
@@ -105,8 +105,8 @@ export function MemberSkillsTab({ orgId, userId, name }: { orgId: string; userId
             await apply(s, "none");
           }}
         >
-          They won't see it anywhere, and their AI tools lose it. An untouched copy is removed from their computer; one they
-          edited stays as their own skill.
+          어디서도 이 스킬이 보이지 않고, AI 도구에서도 사라져요. 수정하지 않은 사본은 컴퓨터에서 삭제되고,
+          직접 수정한 사본은 본인의 스킬로 남아요.
         </ConfirmDialog>
       )}
     </div>

@@ -6,12 +6,12 @@ import { syncPauseRemaining, type SyncPause } from "../lib/sync/syncPause";
 /** "just now" / "1m ago" / "2h ago" — coarse on purpose; it ticks every 30s. */
 export function relativeAgo(ts: number, now: number): string {
   const s = Math.max(0, Math.floor((now - ts) / 1000));
-  if (s < 45) return "just now";
+  if (s < 45) return "방금";
   const m = Math.floor(s / 60);
-  if (m < 60) return `${Math.max(1, m)}m ago`;
+  if (m < 60) return `${Math.max(1, m)}분 전`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+  if (h < 24) return `${h}시간 전`;
+  return `${Math.floor(h / 24)}일 전`;
 }
 
 /**
@@ -144,23 +144,23 @@ export function syncBadgeLabel(args: {
   const { status, pending, lastSyncedAt, now, enabled, noteOpen, vaultStatus } = args;
   const progress = pillProgress(args.progress);
   if (progress?.phase === "removing") {
-    return `Updating access · ${Math.max(0, progress.total - progress.done).toLocaleString()} remaining`;
+    return `권한 업데이트 중 · ${Math.max(0, progress.total - progress.done).toLocaleString()}개 남음`;
   }
   // A grant fact about the open note outranks everything else: there is no point
   // reporting upload progress on a doc we are not allowed to write.
   if (noteOpen !== false) {
-    if (status === "no-access") return "No access";
-    if (status === "read-only") return "Read-only";
+    if (status === "no-access") return "접근 불가";
+    if (status === "read-only") return "읽기 전용";
   }
   // Terminal and vault-wide-relevant: this note will never reach the server on
   // its own, so it outranks run progress whether or not it is the open note.
   // Saying "Syncing…" over a doc the server has permanently refused is the lie
   // the whole badge exists to avoid.
-  if (status === "too-large") return "Too large to sync";
+  if (status === "too-large") return "동기화하기엔 너무 커요";
   // The server has no such doc any more (its row is soft-deleted, or it was
   // never registered), so no reconnect can sync it. One stable word beats the
   // Synced/Syncing strobe this state used to produce.
-  if (status === "deleted") return "Deleted";
+  if (status === "deleted") return "삭제됨";
   if (progress && isSyncRunActive(progress)) {
     // The one exception to "one verb": notes whose content the server has
     // never had (#258) — an interrupted first upload resuming, or a fresh one.
@@ -169,25 +169,25 @@ export function syncBadgeLabel(args: {
     // so an already-synced vault never reads "Uploading".
     const left = progress.notUploaded ?? 0;
     if (progress.phase === "uploading" && left > 0) {
-      return `Uploading · ${left.toLocaleString()} ${left === 1 ? "note" : "notes"} left`;
+      return `업로드 중 · 노트 ${left.toLocaleString()}개 남음`;
     }
-    if (progress.total <= 0) return "Syncing…";
+    if (progress.total <= 0) return "동기화 중…";
     // One verb for every phase. The old per-phase labels ("Uploading",
     // "Downloading") described the mechanism, not the user's situation — the
     // content pass pulls each note's server state before pushing anything, so
     // on an already-synced vault "Uploading files" read as "my synced vault is
     // being re-sent". Done is clamped so a racing denominator can never render
     // an impossible "585/164".
-    return `Syncing ${Math.min(progress.done, progress.total)}/${progress.total} updates`;
+    return `동기화 중 ${Math.min(progress.done, progress.total)}/${progress.total}`;
   }
   if (noteOpen === false) return vaultWideLabel(vaultStatus, enabled);
   if (status === "synced") {
-    if (pending) return "Syncing…";
-    return lastSyncedAt != null ? `Synced · ${relativeAgo(lastSyncedAt, now)}` : "Synced";
+    if (pending) return "동기화 중…";
+    return lastSyncedAt != null ? `동기화됨 · ${relativeAgo(lastSyncedAt, now)}` : "동기화됨";
   }
-  if (status === "connecting") return "Syncing…";
-  if (status === "error") return "Retrying…";
-  return enabled === false ? "Local only" : "Offline";
+  if (status === "connecting") return "동기화 중…";
+  if (status === "error") return "다시 시도 중…";
+  return enabled === false ? "이 기기에만" : "오프라인";
 }
 
 /**
@@ -225,15 +225,15 @@ export function syncBadgeTone(args: {
 function vaultWideLabel(vaultStatus: string | undefined, enabled: boolean | undefined): string {
   switch (vaultStatus) {
     case "synced":
-      return "Synced";
+      return "동기화됨";
     case "connecting":
-      return "Syncing…";
+      return "동기화 중…";
     case "error":
-      return "Retrying…";
+      return "다시 시도 중…";
     case "no-access":
-      return "No access";
+      return "접근 불가";
     default:
-      return enabled === false ? "Local only" : "Offline";
+      return enabled === false ? "이 기기에만" : "오프라인";
   }
 }
 
@@ -271,19 +271,19 @@ export function syncBadgeHold(args: {
   if (rootMissing) {
     return {
       tone: "offline",
-      label: "Paused",
-      title: "Sync is paused until the vault folder is back",
+      label: "일시 중지됨",
+      title: "볼트 폴더가 돌아올 때까지 동기화가 일시 중지돼요",
     };
   }
   if (enabled && pause) {
     const remaining = syncPauseRemaining(pause, now);
     return {
       tone: "connecting",
-      label: "Sync paused",
+      label: "동기화 일시 중지",
       title:
-        "Many notes were emptied at once, so the server paused your sync. Your edits are safe " +
-        `on this device and sync when the pause ends${remaining ? ` (in ${remaining})` : ""} ` +
-        "or a vault owner or admin releases it.",
+        "한꺼번에 많은 노트가 비워져서 서버가 동기화를 일시 중지했어요. 편집 내용은 이 기기에 " +
+        `안전하게 있고, 일시 중지가 끝나면${remaining ? `(남은 시간: ${remaining})` : ""} ` +
+        "또는 볼트 소유자나 관리자가 해제하면 동기화돼요.",
     };
   }
   return null;
@@ -356,7 +356,7 @@ export function SyncBadge({
   // Hover answers "how far along?" in the same shape as the folder tooltips.
   const title =
     running && progress && percent != null
-      ? `${progress.done} of ${progress.total} ${progress.phase === "removing" ? "items checked" : "updates"} · ${percent}%`
+      ? `${progress.total}개 중 ${progress.done}개 ${progress.phase === "removing" ? "확인함" : "업데이트함"} · ${percent}%`
       : undefined;
   const body = (
     <>

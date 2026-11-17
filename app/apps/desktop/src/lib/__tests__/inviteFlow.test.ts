@@ -51,8 +51,8 @@ describe("acceptInviteFailureMessage", () => {
       { inviteEmail: "ada@team.com", sessionEmail: "me@personal.com" },
     );
     expect(msg).toBe(
-      "This invitation was sent to ada@team.com, but you're signed in as me@personal.com. " +
-        "Sign out and sign in with ada@team.com, or ask your admin to invite me@personal.com instead.",
+      "이 초대는 ada@team.com(으)로 보내졌지만 me@personal.com(으)로 로그인되어 있어요. " +
+        "로그아웃한 뒤 ada@team.com(으)로 로그인하거나, 관리자에게 me@personal.com(으)로 다시 초대해 달라고 요청해 주세요.",
     );
   });
 
@@ -61,7 +61,7 @@ describe("acceptInviteFailureMessage", () => {
       new Error("You are not the recipient of the invitation"),
       { inviteEmail: null, sessionEmail: "me@personal.com" },
     );
-    expect(msg).toContain("a different email address");
+    expect(msg).toContain("다른 주소로 보내졌어요");
     expect(msg).not.toContain("null");
   });
 
@@ -101,17 +101,17 @@ describe("acceptInviteFailureMessage: people limits at acceptance", () => {
   it("a full Team vault tells the invitee whom to ask", () => {
     const e = new ApiError(402, "All 5 seats are in use.", { error: "seat_limit_reached", seats: 5, used: 5, pending: 0 });
     expect(acceptInviteFailureMessage(e, ctx)).toBe(
-      "All 5 seats are in use. Ask the person who invited you to add a seat, then accept again.",
+      "좌석 5개를 모두 사용 중이에요. 초대한 사람에게 좌석을 추가해 달라고 요청한 뒤 다시 수락해 주세요.",
     );
   });
   it("a full Free vault uses the account's own limit", () => {
     const e = new ApiError(402, "member_limit_reached", { error: "member_limit_reached", limit: 3, scope: "account" });
     expect(acceptInviteFailureMessage(e, ctx)).toBe(
-      "Free includes 3 people. This vault is full. Ask the person who invited you to upgrade to Team, then accept again.",
+      "Free에는 3명이 포함돼요. 이 볼트는 가득 찼어요. 초대한 사람에게 Team으로 업그레이드해 달라고 요청한 뒤 다시 수락해 주세요.",
     );
   });
   it("a lapsed account says it cannot take new people", () => {
     const e = new ApiError(402, "x", { error: "account_read_only" });
-    expect(acceptInviteFailureMessage(e, ctx)).toMatch(/can't take new people/);
+    expect(acceptInviteFailureMessage(e, ctx)).toMatch(/새 멤버를 받을 수 없어요/);
   });
 });

@@ -48,12 +48,12 @@ export function NewSkillDialog({
   const valid = isValidSkillName(trimmed) && !taken;
   const status: { tone: "ok" | "bad" | "hint"; text: string } =
     trimmed === ""
-      ? { tone: "hint", text: "Lowercase letters, digits and hyphens. It can't be changed later." }
+      ? { tone: "hint", text: "소문자, 숫자, 하이픈만 쓸 수 있어요. 나중에 바꿀 수 없어요." }
       : taken
-        ? { tone: "bad", text: `Your team already has /${trimmed}.` }
+        ? { tone: "bad", text: `팀에 이미 /${trimmed}이(가) 있어요.` }
         : !isValidSkillName(trimmed)
-          ? { tone: "bad", text: "Use lowercase letters, digits and single hyphens, up to 64 characters." }
-          : { tone: "ok", text: `Teammates will use it as /${trimmed}` };
+          ? { tone: "bad", text: "소문자, 숫자, 하이픈 한 개씩만 쓰고 64자까지 입력할 수 있어요." }
+          : { tone: "ok", text: `팀원은 /${trimmed}(으)로 사용해요` };
 
   const create = async () => {
     if (!valid) return;
@@ -68,18 +68,18 @@ export function NewSkillDialog({
         className="modal skills-form-dialog skills-new-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="New skill"
+        aria-label="새 스킬"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="skills-form-head">
-          <h2 className="confirm-title">New skill</h2>
-          <button type="button" className="icon-btn" aria-label="Close" onClick={onClose}>✕</button>
+          <h2 className="confirm-title">새 스킬</h2>
+          <button type="button" className="icon-btn" aria-label="닫기" onClick={onClose}>✕</button>
         </div>
         <p className="skills-form-intro">
-          Name it and say when your team's AI should use it. You'll write its instructions next.
+          이름을 짓고 팀의 AI가 언제 사용해야 하는지 적으세요. 다음 단계에서 지침을 작성해요.
         </p>
 
-        <label className="skills-field-label" htmlFor="new-skill-name">Name</label>
+        <label className="skills-field-label" htmlFor="new-skill-name">이름</label>
         <label className="skills-prefix-input">
           <span className="skills-slash" aria-hidden="true">/</span>
           <input
@@ -101,11 +101,11 @@ export function NewSkillDialog({
           {status.text}
         </div>
         {skillNameNeedsWarning(trimmed) && (
-          <div className="skills-warning">claude.ai refuses names with "claude" or "anthropic".</div>
+          <div className="skills-warning">claude.ai는 "claude"나 "anthropic"이 들어간 이름을 거부해요.</div>
         )}
 
         <label className="skills-field-label" htmlFor="new-skill-desc">
-          When should AI use it? <span className="skills-field-optional">Optional</span>
+          AI가 언제 사용해야 하나요? <span className="skills-field-optional">선택</span>
         </label>
         <textarea
           id="new-skill-desc"
@@ -113,7 +113,7 @@ export function NewSkillDialog({
           value={description}
           rows={3}
           maxLength={DESCRIPTION_MAX}
-          placeholder="e.g. Use when writing release notes or a changelog for the app."
+          placeholder="예: 앱의 릴리스 노트나 변경 내역을 작성할 때 사용"
           onChange={(e) => setDescription(e.target.value.replace(/\n/g, " "))}
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && valid) createRef.current?.click();
@@ -126,9 +126,9 @@ export function NewSkillDialog({
         {error && <div className="auth-error">{error}</div>}
 
         <div className="confirm-actions skills-form-actions">
-          <button type="button" className="ghost-pill" onClick={onClose}>Cancel</button>
-          <BusyButton ref={createRef} className="primary" busyLabel="Creating…" disabled={!valid} onClick={create}>
-            Create skill
+          <button type="button" className="ghost-pill" onClick={onClose}>취소</button>
+          <BusyButton ref={createRef} className="primary" busyLabel="만드는 중…" disabled={!valid} onClick={create}>
+            스킬 만들기
           </BusyButton>
         </div>
       </div>

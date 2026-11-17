@@ -264,24 +264,24 @@ describe("runSkillsPlan", () => {
     const r = await runSkillsPlan([installAction("claude", s, 1), installAction("agents", s, 1)], d);
     expect(r.updated).toEqual([{ skillId: "s", name: "a", from: 1, to: 2, codex: true }]);
     // It reached ~/.agents/skills: Codex needs a new chat to list it.
-    expect(runToasts(r)).toEqual(["Updated /a v1 → v2. Start a new Codex chat to see it"]);
+    expect(runToasts(r)).toEqual(["스킬 업데이트: /a v1 → v2. 새 Codex 채팅을 시작하면 보여요"]);
   });
 
   it("adds the Codex hint only when the agents folder got the skill", async () => {
     const { d } = deps();
     const viaAgents = await runSkillsPlan([installAction("agents", skill("s", "a"))], d);
-    expect(runToasts(viaAgents)).toEqual(["Added /a v1. Start a new Codex chat to see it"]);
+    expect(runToasts(viaAgents)).toEqual(["스킬 추가: /a v1. 새 Codex 채팅을 시작하면 보여요"]);
   });
 
   it("added: single and several", async () => {
     const { d } = deps();
     const one = await runSkillsPlan([installAction("claude", skill("s", "a"))], d);
-    expect(runToasts(one)).toEqual(["Added /a v1"]);
+    expect(runToasts(one)).toEqual(["스킬 추가: /a v1"]);
     const three = await runSkillsPlan(
       [installAction("claude", skill("s1", "a")), installAction("claude", skill("s2", "b")), installAction("claude", skill("s3", "c"))],
       d,
     );
-    expect(runToasts(three)).toEqual(["Added 3 team skills"]);
+    expect(runToasts(three)).toEqual(["팀 스킬 3개 추가"]);
   });
 
   it("install failure is recorded and does not stop other actions", async () => {

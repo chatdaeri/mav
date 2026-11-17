@@ -61,9 +61,9 @@ it("reports keychain save failure without treating authentication as failed", as
   signIn.mockImplementation(async () => patch({ authStatus: "signed-in" }));
   vi.mocked(saveRememberedPassword).mockRejectedValue(new Error("locked"));
   await render(); await submit();
-  expect(document.body.querySelector('[role="alert"]')?.textContent).toContain("You're signed in");
+  expect(document.body.querySelector('[role="alert"]')?.textContent).toContain("로그인했지만");
   expect(closed).not.toHaveBeenCalled();
-  const button = [...document.body.querySelectorAll("button")].find((b) => b.textContent === "Continue")!;
+  const button = [...document.body.querySelectorAll("button")].find((b) => b.textContent === "계속")!;
   await act(async () => button.click());
   expect(closed).toHaveBeenCalled();
 });

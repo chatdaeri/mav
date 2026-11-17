@@ -157,5 +157,5 @@ export function syncPauseRemaining(p: Pick<SyncPause, "until">, now: number): st
   const ms = p.until - now;
   if (ms <= 0) return null;
   const min = Math.max(1, Math.round(ms / 60_000));
-  return `about ${min} min`;
+  return `약 ${min}분`;
 }

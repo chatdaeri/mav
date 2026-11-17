@@ -23,7 +23,7 @@ describe("graph view floating controls", () => {
   });
 
   it("keeps the three controls with their labels and tooltips", () => {
-    for (const label of ["Graph settings", "Refresh graph", "Close graph"]) {
+    for (const label of ["그래프 설정", "그래프 새로고침", "그래프 닫기"]) {
       expect(view).toContain(`aria-label="${label}"`);
       expect(view).toContain(`title="${label}"`);
     }

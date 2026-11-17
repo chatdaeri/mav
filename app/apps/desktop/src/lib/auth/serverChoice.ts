@@ -37,7 +37,7 @@ export type AuthStep = "choose-server" | "confirm-link" | "form";
  *   from a deep link, not just a keyboard) is refused rather than stored;
  * - trailing slashes go, because the URL is concatenated with paths like
  *   `/health` everywhere downstream;
- * - **a path prefix is kept.** Self-hosters put Baalda behind a reverse proxy at
+ * - **a path prefix is kept.** Self-hosters put 마브 behind a reverse proxy at
  *   e.g. `https://intranet.example.com/baalda`, and stripping that would point
  *   the app at the proxy's root.
  */
@@ -100,7 +100,7 @@ export function plainHttpHint(url: string): string | null {
   if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1") {
     return null;
   }
-  return "Installed builds can only use plain http on localhost. This server needs https.";
+  return "설치된 앱은 localhost에서만 일반 http를 쓸 수 있어요. 이 서버는 https가 필요해요.";
 }
 
 /**
@@ -127,7 +127,7 @@ export function impliedServerChoice(
 /**
  * Which step the auth dialog opens on.
  *
- * Order matters: an inbound `baalda://connect` link outranks everything, because
+ * Order matters: an inbound `mav://connect` link outranks everything, because
  * it is the whole reason the dialog is on screen and it needs an explicit yes
  * before it may touch the server URL (a deep link is untrusted input — it
  * decides where a password gets posted).
@@ -152,8 +152,10 @@ export function decideAuthStep({
   // managed on the build's default server, which the form names with a
   // one-click "Use a self-hosted server" link (the #91 safeguard, lighter).
   // `choose-server` is reached only from that link.
+  // 마브 has no managed instance: with no server configured yet there is
+  // nothing for the form to post to, so ask for the team's server first.
   void choice;
-  void serverUrl;
   void defaultServerUrl;
+  if (!normalizeServerUrl(serverUrl)) return "choose-server";
   return "form";
 }

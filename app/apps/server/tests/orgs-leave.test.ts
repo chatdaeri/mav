@@ -27,7 +27,7 @@ const outbox: MailMessage[] = [];
 /** dispatchMail is fire-and-forget; let its microtask land before asserting. */
 const settle = () => new Promise((r) => setTimeout(r, 20));
 /** Sign-up verification emails ride the same mailer; only the leave mail counts. */
-const leaveMail = () => outbox.filter((m) => !m.subject.startsWith("Confirm your email"));
+const leaveMail = () => outbox.filter((m) => !m.subject.startsWith("마이 세컨드 브레인 이메일 확인"));
 
 function leave(token: string | null, orgId: string) {
   const headers: Record<string, string> = {};
@@ -189,16 +189,16 @@ describe("leave a vault", () => {
 
     expect(leaveMail().map((m) => m.to).sort()).toEqual(["member@leave6.io", "owner@leave6.io"]);
     const toOwner = leaveMail().find((m) => m.to === "owner@leave6.io")!;
-    expect(toOwner.subject).toBe("Max Member left Design Team");
+    expect(toOwner.subject).toBe("Max Member님이 Design Team 볼트를 나갔어요");
     expect(toOwner.text).toContain("member@leave6.io");
-    expect(toOwner.text).toContain("shared with them directly have been un-shared");
+    expect(toOwner.text).toContain("직접 공유했던 폴더와 파일은 공유가 해제됐어요");
     // Notification, not a call to action: no button, no link to paste.
-    expect(toOwner.html).not.toContain("paste this link");
+    expect(toOwner.html).not.toContain("붙여넣으세요");
 
     const toMember = leaveMail().find((m) => m.to === "member@leave6.io")!;
-    expect(toMember.subject).toBe("You left Design Team");
-    expect(toMember.text).toContain("removed from your devices");
-    expect(toMember.text).toContain("new invitation or join code");
+    expect(toMember.subject).toBe("Design Team 볼트에서 나갔어요");
+    expect(toMember.text).toContain("내 기기에서 볼트가 삭제됐고");
+    expect(toMember.text).toContain("새 초대나 참여 코드");
   });
 
   it("sends nothing when the server has no mailer", async () => {

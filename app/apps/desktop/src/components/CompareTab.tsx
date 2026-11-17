@@ -71,7 +71,7 @@ export function ReadOnlyText({ source, nonce = 0 }: { source: TextSource; nonce?
     const h = mountReadOnly(host.current, text, look);
     return () => h.destroy();
   }, [text, look.path, look.lineNumbers]);
-  if (loaded.state === "loading") return <p className="muted vtab-status">Loading…</p>;
+  if (loaded.state === "loading") return <p className="muted vtab-status">불러오는 중…</p>;
   if (loaded.state === "error")
     return (
       <p role="alert" className="auth-error vtab-error">
@@ -129,7 +129,7 @@ export function CompareBody({ left, right, actions, nonce = 0, onCounts }: Compa
         <div className="vtab-actions">
           {counts && <span className="muted">{formatLineChanges(counts)}</span>}
           <button type="button" className="ghost-pill sm" onClick={() => setLocalNonce((n) => n + 1)}>
-            Refresh
+            새로고침
           </button>
           {actions}
         </div>
@@ -139,7 +139,7 @@ export function CompareBody({ left, right, actions, nonce = 0, onCounts }: Compa
           {error}
         </p>
       ) : aText == null || bText == null ? (
-        <p className="muted vtab-status">Loading…</p>
+        <p className="muted vtab-status">불러오는 중…</p>
       ) : null}
       <div className="vtab-body" ref={host} />
     </div>
@@ -156,7 +156,7 @@ function TextTab({ tab }: { tab: Extract<VirtualTab, { kind: "text" }> }) {
             {tab.subtitle ? ` · ${tab.subtitle}` : ""}
           </span>
         </div>
-        <span className="muted">Read-only</span>
+        <span className="muted">읽기 전용</span>
       </div>
       <ReadOnlyText source={tab.source} />
     </div>

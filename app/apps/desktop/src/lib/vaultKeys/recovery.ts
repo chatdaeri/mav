@@ -9,19 +9,19 @@
 import { rateLimitedMessage } from "../api";
 import type { AccountKeysState } from "./session";
 
-export const LOST_DEVICES_LABEL = "I don't have my other devices";
+export const LOST_DEVICES_LABEL = "다른 기기를 쓸 수 없어요";
 export const FRESH_KEY_EXPLAINER =
-  "Create a new security key for this computer. Your teammates will be asked to confirm it with a code " +
-  "before you get access again. Your notes on the server are not affected.";
-export const RESTORE_INSTEAD_LABEL = "Or restore with your vault key";
-export const FRESH_KEY_WAITING_PREFIX = "Waiting for a teammate to confirm your new security key — share this code:";
+  "이 컴퓨터용 새 보안 키를 만들어요. 다시 접근하려면 팀원이 코드로 확인해야 해요. " +
+  "서버에 있는 노트에는 영향이 없어요.";
+export const RESTORE_INSTEAD_LABEL = "또는 볼트 키로 복원";
+export const FRESH_KEY_WAITING_PREFIX = "팀원이 새 보안 키를 확인하길 기다리는 중이에요. 이 코드를 공유하세요:";
 
 /** Offer the lost-devices path only while this computer is waiting for approval. */
 export function offersLostDevices(account: AccountKeysState | null): boolean {
   return account?.state === "awaiting-device-approval";
 }
 
-/** "Or restore with your vault key": owners, with an open vault to restore. */
+/** "또는 볼트 키로 복원": owners, with an open vault to restore. */
 export function offersRestoreInstead(opts: { isOwner: boolean; vaultId: string | null | undefined }): boolean {
   return opts.isOwner && !!opts.vaultId;
 }

@@ -344,11 +344,11 @@ export interface RowSyncMark {
 
 /** Per-note tooltips. Plain language: this is the "is my work safe?" signal. */
 export const DOC_SYNC_TITLES: Record<DocSyncState, string> = {
-  unsynced: "Not on the server yet",
-  queued: "Waiting to sync",
-  syncing: "Syncing…",
-  synced: "Synced",
-  error: "Couldn't sync. This note is only on this device",
+  unsynced: "아직 서버에 없어요",
+  queued: "동기화 대기 중",
+  syncing: "동기화 중…",
+  synced: "동기화됨",
+  error: "동기화하지 못했어요. 이 노트는 이 기기에만 있어요",
 };
 
 /**
@@ -358,16 +358,12 @@ export const DOC_SYNC_TITLES: Record<DocSyncState, string> = {
  * so the two tables stay separate rather than one being bent to cover both.
  */
 export const FILE_SYNC_TITLES: Record<DocSyncState, string> = {
-  unsynced: "Not on the server yet",
-  queued: "Waiting to upload",
-  syncing: "Uploading…",
-  synced: "Synced",
-  error: "Couldn't upload. This file is only on this device",
+  unsynced: "아직 서버에 없어요",
+  queued: "업로드 대기 중",
+  syncing: "업로드 중…",
+  synced: "동기화됨",
+  error: "업로드하지 못했어요. 이 파일은 이 기기에만 있어요",
 };
-
-function plural(n: number, word: string): string {
-  return `${n} ${word}${n === 1 ? "" : "s"}`;
-}
 
 /** A wave with nothing in it is not progress — draw the dot instead of "0/0". */
 function waveOrNull(
@@ -390,8 +386,8 @@ export function folderSyncTitle(
   s: FolderSyncSummary,
   progress: { done: number; total: number } | null = null,
 ): string {
-  if (progress) return `Syncing ${progress.done} of ${plural(progress.total, "file")}`;
-  return `All ${plural(s.total, "file")} synced`;
+  if (progress) return `파일 ${progress.total}개 중 ${progress.done}개 동기화 중`;
+  return `파일 ${s.total}개 모두 동기화됨`;
 }
 
 /** A row's state as the sidebar draws it: live only while a run is moving, and

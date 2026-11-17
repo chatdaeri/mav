@@ -249,10 +249,10 @@ export function SkillEditor({
 
   const addFile = (raw: string) => {
     const path = raw.trim().replace(/^\/+/, "");
-    if (path.endsWith("/")) return setError("Add a file name after the folder, like scripts/run.py.");
+    if (path.endsWith("/")) return setError("폴더 뒤에 파일 이름을 추가하세요. 예: scripts/run.py");
     const problem = skillPathProblem(path);
-    if (problem) return setError(`That name ${problem}.`);
-    if (caseDuplicate([...files.map((f) => f.path), path])) return setError("A file with that name already exists.");
+    if (problem) return setError(`이름이 올바르지 않아요: ${problem}`);
+    if (caseDuplicate([...files.map((f) => f.path), path])) return setError("같은 이름의 파일이 이미 있어요.");
     setError(null);
     setFiles((list) => [...list, { path, executable: false, size: 0, text: "" }]);
     setRemoved((r) => r.filter((p) => p.toLowerCase() !== path.toLowerCase()));
@@ -279,7 +279,7 @@ export function SkillEditor({
   if (!draft) {
     return error ? (
       <LoadError
-        message={`Couldn't load the draft: ${error}`}
+        message={`초안을 불러올 수 없어요: ${error}`}
         onRetry={() => {
           setError(null);
           load().catch((e) => setError(loadErrorText(e)));
@@ -295,36 +295,36 @@ export function SkillEditor({
   const header = current?.path === "SKILL.md" && current.text !== null ? readSkillHeader(current.text) : null;
   const status =
     save.kind === "saving" ? (
-      <span className="skills-save-status"><Spinner size="xs" /> Saving…</span>
+      <span className="skills-save-status"><Spinner size="xs" /> 저장하는 중…</span>
     ) : save.kind === "error" ? (
       <span className="skills-save-status is-bad" title={save.message}>
-        Couldn't save ·{" "}
-        <button className="link-btn" onClick={() => void saveNow()}>Retry</button>
+        저장할 수 없어요 ·{" "}
+        <button className="link-btn" onClick={() => void saveNow()}>다시 시도</button>
       </span>
     ) : save.kind === "stale" ? (
       <span className="skills-save-status is-bad">
-        Someone else changed this draft ·{" "}
-        <button className="link-btn" onClick={() => void load()}>Load latest</button>
+        다른 사람이 이 초안을 바꿨어요 ·{" "}
+        <button className="link-btn" onClick={() => void load()}>최신 불러오기</button>
       </span>
     ) : dirty ? (
-      <span className="skills-save-status">Unsaved</span>
+      <span className="skills-save-status">저장 안 됨</span>
     ) : save.kind === "saved" ? (
-      <span className="skills-save-status">Saved</span>
+      <span className="skills-save-status">저장됨</span>
     ) : null;
 
   const treeView = (
     <div className="skills-tree">
       <div className="skills-tree-head">
-        <span>Files</span>
+        <span>파일</span>
         <SkillsMenuButton
           label="+"
           caret={false}
           className="icon-btn skills-tree-add"
-          ariaLabel="Add"
-          title="Add a file or folder"
+          ariaLabel="추가"
+          title="파일이나 폴더 추가"
           actions={[
-            { key: "file", label: "New file", onSelect: () => setAdding("") },
-            { key: "folder", label: "New folder", onSelect: () => setAdding("new-folder/") },
+            { key: "file", label: "새 파일", onSelect: () => setAdding("") },
+            { key: "folder", label: "새 폴더", onSelect: () => setAdding("new-folder/") },
           ]}
         />
       </div>
@@ -333,7 +333,7 @@ export function SkillEditor({
           <input
             autoFocus
             className="skills-tree-input"
-            placeholder="name.md or folder/name.md"
+            placeholder="name.md 또는 folder/name.md"
             defaultValue={adding}
             onKeyDown={(e) => {
               if (e.key === "Enter") addFile(e.currentTarget.value);
@@ -374,11 +374,11 @@ export function SkillEditor({
                   </svg>
                   <span className="skills-tree-icon">{folderIcon}</span>
                   <span className="skills-tree-name">{middleTruncate(node.name)}</span>
-                  {!open && node.changed && <span className="skills-tree-dot" aria-label="Unsaved changes" />}
+                  {!open && node.changed && <span className="skills-tree-dot" aria-label="저장하지 않은 변경 사항" />}
                 </button>
                 <RowActionsMenu
-                  ariaLabel={`Actions for ${node.name}`}
-                  actions={[{ key: "del", label: `Delete folder (${under.length})`, danger: true, onSelect: () => removePaths(under) }]}
+                  ariaLabel={`${node.name} 작업`}
+                  actions={[{ key: "del", label: `폴더 삭제 (${under.length})`, danger: true, onSelect: () => removePaths(under) }]}
                 />
               </li>
             );
@@ -395,12 +395,12 @@ export function SkillEditor({
                 <span className="skills-caret-space" aria-hidden="true" />
                 <span className="skills-tree-icon">{iconForPath(node.path)}</span>
                 <span className="skills-tree-name">{middleTruncate(node.name)}</span>
-                {node.changed && <span className="skills-tree-dot" aria-label="Unsaved changes" />}
+                {node.changed && <span className="skills-tree-dot" aria-label="저장하지 않은 변경 사항" />}
               </button>
               {node.path !== "SKILL.md" && (
                 <RowActionsMenu
-                  ariaLabel={`Actions for ${node.name}`}
-                  actions={[{ key: "del", label: "Delete file", danger: true, onSelect: () => removePaths([node.path]) }]}
+                  ariaLabel={`${node.name} 작업`}
+                  actions={[{ key: "del", label: "파일 삭제", danger: true, onSelect: () => removePaths([node.path]) }]}
                 />
               )}
             </li>
@@ -411,7 +411,7 @@ export function SkillEditor({
   );
 
   const picker = (
-    <select className="skills-file-picker" value={selected} onChange={(e) => setSelected(e.target.value)} aria-label="File">
+    <select className="skills-file-picker" value={selected} onChange={(e) => setSelected(e.target.value)} aria-label="파일">
       {files
         .map((f) => f.path)
         .sort((a, b) => (a === "SKILL.md" ? -1 : b === "SKILL.md" ? 1 : a.localeCompare(b)))
@@ -437,22 +437,22 @@ export function SkillEditor({
           <span className="skills-actions">
             {status}
             <RowActionsMenu
-              ariaLabel="Draft actions"
+              ariaLabel="초안 작업"
               actions={[
-                ...(narrow ? [{ key: "add", label: "New file", onSelect: () => setAdding("") }] : []),
+                ...(narrow ? [{ key: "add", label: "새 파일", onSelect: () => setAdding("") }] : []),
                 ...(narrow && current && current.path !== "SKILL.md"
-                  ? [{ key: "del", label: "Delete this file", danger: true, onSelect: () => removePaths([current.path]) }]
+                  ? [{ key: "del", label: "이 파일 삭제", danger: true, onSelect: () => removePaths([current.path]) }]
                   : []),
-                ...(dirty ? [{ key: "discard", label: "Discard unsaved changes", danger: true, onSelect: discard }] : []),
-                { key: "save", label: "Save now (⌘S)", onSelect: () => void saveNow() },
+                ...(dirty ? [{ key: "discard", label: "저장하지 않은 변경 사항 버리기", danger: true, onSelect: discard }] : []),
+                { key: "save", label: "지금 저장 (⌘S)", onSelect: () => void saveNow() },
               ]}
             />
             <button
               type="button"
               className="icon-btn skills-expand"
               onClick={onToggleFocus}
-              aria-label={focus ? "Exit full view" : "Expand editor"}
-              title={focus ? "Exit full view (Esc)" : "Expand editor"}
+              aria-label={focus ? "전체 화면 종료" : "에디터 확대"}
+              title={focus ? "전체 화면 종료 (Esc)" : "에디터 확대"}
             >
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {focus ? (
@@ -469,7 +469,7 @@ export function SkillEditor({
             <input
               autoFocus
               className="skills-tree-input"
-              placeholder="name.md or folder/name.md"
+              placeholder="name.md 또는 folder/name.md"
               defaultValue={adding}
               onKeyDown={(e) => {
                 if (e.key === "Enter") addFile(e.currentTarget.value);
@@ -481,23 +481,23 @@ export function SkillEditor({
 
         {header && current && (
           <div className="skills-md-header">
-            <span className="skills-md-label">Name</span>
-            <span className="skills-md-name" title="A skill's name can't be changed">
+            <span className="skills-md-label">이름</span>
+            <span className="skills-md-name" title="스킬 이름은 바꿀 수 없어요">
               {header.name ?? skill.name}
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect x="5" y="11" width="14" height="10" rx="2" />
                 <path d="M8 11V7a4 4 0 0 1 8 0v4" />
               </svg>
             </span>
-            <span className="skills-md-label">Description</span>
+            <span className="skills-md-label">설명</span>
             <span className="skills-md-desc">
               <GrowingTextarea
                 className={`skills-md-input${descFocused ? "" : " is-collapsed"}`}
                 onFocus={() => setDescFocused(true)}
                 onBlur={() => setDescFocused(false)}
                 value={header.description ?? ""}
-                placeholder="When should an AI use this skill?"
-                aria-label="Description"
+                placeholder="AI가 이 스킬을 언제 사용해야 하나요?"
+                aria-label="설명"
                 onChange={(e) => {
                   const fm = setFrontmatterDescription(header.parts.frontmatter, e.target.value);
                   if (fm !== null) setText("SKILL.md", fm + header.parts.body);
@@ -516,10 +516,10 @@ export function SkillEditor({
 
         <div className="skills-pane-body">
           {!current ? (
-            <div className="skills-quiet field-hint">Pick a file.</div>
+            <div className="skills-quiet field-hint">파일을 선택하세요.</div>
           ) : current.text === null ? (
             <div className="skills-quiet field-hint">
-              {current.path} isn't a text file ({formatSize(current.size)}). Upload the skill again to change it.
+              {current.path}은(는) 텍스트 파일이 아니에요 ({formatSize(current.size)}). 변경하려면 스킬을 다시 업로드하세요.
             </div>
           ) : (
             <SkillCodeEditor

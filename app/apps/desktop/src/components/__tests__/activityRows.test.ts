@@ -47,7 +47,7 @@ describe("activity feed", () => {
 
   it("labels rows by source and kind", () => {
     const rows = buildActivity({ reconcile, trash, copies });
-    expect(rows.map((r) => r.label)).toEqual(["Deleted by a teammate", "Deleted", "Restored", "Copy"]);
+    expect(rows.map((r) => r.label)).toEqual(["팀원이 삭제함", "삭제됨", "복원됨", "사본"]);
   });
 
   it("never lists a copy twice when a reconcile row already carries it", () => {
@@ -89,11 +89,11 @@ describe("activity feed: held, shrunk, access, failed", () => {
       failures: [{ key: "fc:d7", docId: "d7", path: "x.md", reason: "boom", retryable: true, at: T + 2000 }],
     });
     expect(rows.map((r) => `${r.type}:${r.label}`)).toEqual([
-      "held:Held",
-      "access:Access",
-      "shrunk:Shrunk",
-      "trash:Deleted",
-      "failed:Failed",
+      "held:보류됨",
+      "access:권한",
+      "shrunk:줄어듦",
+      "trash:삭제됨",
+      "failed:실패",
     ]);
   });
 
@@ -103,9 +103,9 @@ describe("activity feed: held, shrunk, access, failed", () => {
   });
 
   it("words the texts", () => {
-    expect(shrinkText(shrink)).toBe("went from 12,400 to 310 characters");
-    expect(heldText(1)).toBe("1 note vanished from disk at once");
-    expect(heldText(1200)).toBe("1,200 notes vanished from disk at once");
+    expect(shrinkText(shrink)).toBe("12,400자에서 310자로 줄었어요");
+    expect(heldText(1)).toBe("노트 1개가 한꺼번에 디스크에서 사라졌어요");
+    expect(heldText(1200)).toBe("노트 1,200개가 한꺼번에 디스크에서 사라졌어요");
   });
 
   it("flattens failures, dropping held-delete entries and marking retry", () => {
@@ -134,12 +134,12 @@ describe("activity feed: grants", () => {
     const ev = { kind: "granted" as const, at: T, vaultId: "v", count: 3, paths: ["a.md", "b.md", "c.md"] };
     const rows = buildActivity({ reconcile: [], trash: [], copies: [], access: [ev] });
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ type: "access", key: `a:g:${T}`, label: "Access", path: "" });
-    expect(accessText(ev)).toBe("3 notes became available to you");
-    expect(accessText({ ...ev, count: 1 })).toBe("1 note became available to you");
+    expect(rows[0]).toMatchObject({ type: "access", key: `a:g:${T}`, label: "권한", path: "" });
+    expect(accessText(ev)).toBe("노트 3개를 이제 볼 수 있어요");
+    expect(accessText({ ...ev, count: 1 })).toBe("노트 1개를 이제 볼 수 있어요");
     const removed = { kind: "removed" as const, at: 1, vaultId: null, docId: "d", path: "A.md" };
-    expect(accessText(removed)).toBe("Access to this note was removed");
-    expect(accessText({ ...removed, self: true })).toBe("You removed your access");
+    expect(accessText(removed)).toBe("이 노트에 대한 권한이 제거됐어요");
+    expect(accessText({ ...removed, self: true })).toBe("내가 권한을 제거했어요");
   });
 });
 
@@ -156,7 +156,7 @@ describe("activity feed: expired invitations (#268)", () => {
     };
     const rows = buildActivity({ reconcile, trash, copies, invitations: [inv] });
     expect(rows.map((r) => r.type)).toEqual(["reconcile", "invitation", "trash", "reconcile", "copy"]);
-    expect(rows[1]).toMatchObject({ key: "i:inv1", label: "Expired", path: "", at: T + 4000 });
-    expect(invitationExpiredText(inv)).toBe("Invitation to late@example.com expired before it was accepted");
+    expect(rows[1]).toMatchObject({ key: "i:inv1", label: "만료됨", path: "", at: T + 4000 });
+    expect(invitationExpiredText(inv)).toBe("late@example.com님에 대한 초대가 수락되기 전에 만료됐어요");
   });
 });

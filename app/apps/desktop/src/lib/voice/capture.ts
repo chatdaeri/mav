@@ -79,8 +79,8 @@ export async function startCapture(onChunk: ChunkSink): Promise<CaptureHandle> {
     const name = err instanceof Error ? err.name : "";
     throw new MicPermissionError(
       name === "NotAllowedError"
-        ? "Microphone access was refused."
-        : "No microphone is available.",
+        ? "마이크 접근이 거부됐어요."
+        : "사용할 수 있는 마이크가 없어요.",
       name === "NotAllowedError",
     );
   }

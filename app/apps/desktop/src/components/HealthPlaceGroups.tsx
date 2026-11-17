@@ -20,7 +20,7 @@ interface PlaceRow {
 }
 
 const KIND_ICON: Record<PlaceKind, GlyphName> = { note: "note", folder: "folder", file: "file" };
-const KIND_LABEL: Record<PlaceKind, string> = { note: "Note", folder: "Folder", file: "File" };
+const KIND_LABEL: Record<PlaceKind, string> = { note: "노트", folder: "폴더", file: "파일" };
 
 /** Notes, then folders, then files; alphabetical within each. */
 export function placeRows(notes: string[], folders: string[], files: string[]): PlaceRow[] {
@@ -29,7 +29,7 @@ export function placeRows(notes: string[], folders: string[], files: string[]): 
   return [...sorted(notes, "note"), ...sorted(folders, "folder"), ...sorted(files, "file")];
 }
 
-const count = (n: number) => `${n.toLocaleString()} ${n === 1 ? "item" : "items"}`;
+const count = (n: number) => `${n.toLocaleString()}개 항목`;
 
 function RowLabel({ row }: { row: PlaceRow }) {
   return (
@@ -44,14 +44,14 @@ function RowLabel({ row }: { row: PlaceRow }) {
 
 /** One line in whichever group holds Team-blocked files. */
 export const PRO_FILES_LINE =
-  "PDFs, images and other files need Team to sync. Notes and folders sync on every plan.";
+  "PDF, 이미지 등 다른 파일은 Team 요금제에서만 동기화돼요. 노트와 폴더는 모든 요금제에서 동기화돼요.";
 
 /** "2 notes, 1 folder, 3 files" — the confirm names exactly what goes. */
 export function describeSelection(rows: PlaceRow[]): string {
   const n = (kind: PlaceKind) => rows.filter((r) => r.kind === kind).length;
-  const part = (count: number, one: string, many: string) =>
-    count > 0 ? `${count.toLocaleString()} ${count === 1 ? one : many}` : null;
-  return [part(n("note"), "note", "notes"), part(n("folder"), "folder", "folders"), part(n("file"), "file", "files")]
+  const part = (count: number, unit: string) =>
+    count > 0 ? `${unit} ${count.toLocaleString()}개` : null;
+  return [part(n("note"), "노트"), part(n("folder"), "폴더"), part(n("file"), "파일")]
     .filter(Boolean)
     .join(", ");
 }
@@ -78,7 +78,7 @@ function SelectableRow({
           className="health-issue-check"
           checked={checked}
           onChange={onToggle}
-          aria-label={`Select ${row.path}`}
+          aria-label={`${row.path} 선택`}
         />
       ) : (
         <span className="health-place-checkslot" aria-hidden="true" />
@@ -140,7 +140,7 @@ export function LocalOnlyGroup({
   return (
     <div className="health-difference-group health-place-group">
       <div className="health-difference-grouphead">
-        <h4>{`Only on this computer · ${count(rows.length)}${stale ? " (last known view)" : ""}`}</h4>
+        <h4>{`이 컴퓨터에만 있음 · ${count(rows.length)}${stale ? " (마지막으로 확인한 상태)" : ""}`}</h4>
         <div className="health-group-actions">
           {canSync && (
             <AsyncButton
@@ -150,7 +150,7 @@ export function LocalOnlyGroup({
                 await actions.syncNow();
               }}
             >
-              Check again
+              다시 확인
             </AsyncButton>
           )}
           <button
@@ -158,7 +158,7 @@ export function LocalOnlyGroup({
             className="ghost-pill sm"
             onClick={() => sel.setSelected(allPicked ? new Set() : new Set(rows.map(rowKey)))}
           >
-            {allPicked ? "Clear selection" : "Select all"}
+            {allPicked ? "선택 해제" : "모두 선택"}
           </button>
           {sel.picked.length > 0 && (
             <button
@@ -166,7 +166,7 @@ export function LocalOnlyGroup({
               className="ghost-pill sm danger"
               onClick={() => { setError(null); setConfirmDelete(sel.picked); }}
             >
-              {`Delete selected (${sel.picked.length.toLocaleString()})`}
+              {`선택 항목 삭제 (${sel.picked.length.toLocaleString()})`}
             </button>
           )}
         </div>
@@ -189,7 +189,7 @@ export function LocalOnlyGroup({
                 className="ghost-pill sm"
                 onClick={() => (row.kind === "note" ? onOpen(row.path) : onShow(row.path))}
               >
-                {row.kind === "note" ? "Open" : "Show"}
+                {row.kind === "note" ? "열기" : "보기"}
               </button>
             </span>
           </li>
@@ -197,13 +197,13 @@ export function LocalOnlyGroup({
       </ul>
       {rows.length > limit && (
         <button type="button" className="link-btn" onClick={() => setLimit(limit + PAGE)}>
-          {`Show more (${(rows.length - limit).toLocaleString()} remaining)`}
+          {`더 보기 (${(rows.length - limit).toLocaleString()}개 남음)`}
         </button>
       )}
       {confirmDelete && (
         <ConfirmDialog
-          title={`Delete ${describeSelection(confirmDelete)} from this computer?`}
-          confirmLabel="Delete"
+          title={`이 컴퓨터에서 ${describeSelection(confirmDelete)}를 삭제할까요?`}
+          confirmLabel="삭제"
           onCancel={() => { setConfirmDelete(null); setError(null); }}
           onConfirm={async () => {
             setError(null);
@@ -224,11 +224,11 @@ export function LocalOnlyGroup({
         >
           {error && <p role="alert" className="auth-error">{error}</p>}
           <p>
-            These exist only on this computer (the Remote Vault has no copy), so deleting them
-            removes them for good. Save a copy first if you need them.
+            이 항목들은 이 컴퓨터에만 있어요(원격 볼트에는 사본이 없어요). 삭제하면
+            영구히 사라지니, 필요하면 먼저 사본을 저장해 두세요.
           </p>
           {confirmDelete.some((r) => r.kind === "folder") && (
-            <p>Folders are deleted with everything inside them.</p>
+            <p>폴더는 안에 든 모든 항목과 함께 삭제돼요.</p>
           )}
         </ConfirmDialog>
       )}
@@ -265,7 +265,7 @@ export function RemoteOnlyGroup({
     setNotice(null);
     try {
       await actions.downloadFiles(paths);
-      setNotice("Download complete.");
+      setNotice("다운로드를 마쳤어요.");
       sel.drop(paths);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -275,21 +275,21 @@ export function RemoteOnlyGroup({
   return (
     <div className="health-difference-group health-place-group">
       <div className="health-difference-grouphead">
-        <h4>{`Only on the Remote Vault · ${count(rows.length)}${stale ? " (last known view)" : ""}`}</h4>
+        <h4>{`원격 볼트에만 있음 · ${count(rows.length)}${stale ? " (마지막으로 확인한 상태)" : ""}`}</h4>
         <div className="health-group-actions">
           {showCheckAgain && (
             <AsyncButton className="ghost-pill sm" onClick={() => actions.syncNow()}>
-              Check again
+              다시 확인
             </AsyncButton>
           )}
           {files.length > 0 && !downloadsBlocked && pickedFiles.length === 0 && (
             <AsyncButton className="ghost-pill sm" onClick={() => download(files)}>
-              Download all
+              모두 다운로드
             </AsyncButton>
           )}
           {pickedFiles.length > 0 && !downloadsBlocked && (
             <AsyncButton className="ghost-pill sm" onClick={() => download(pickedFiles)}>
-              {`Download selected (${pickedFiles.length.toLocaleString()})`}
+              {`선택 항목 다운로드 (${pickedFiles.length.toLocaleString()})`}
             </AsyncButton>
           )}
           {pickedFiles.length > 0 && (
@@ -298,7 +298,7 @@ export function RemoteOnlyGroup({
               className="ghost-pill sm danger"
               onClick={() => { setError(null); setRemove(pickedFiles); }}
             >
-              {`Remove from server (${pickedFiles.length.toLocaleString()})`}
+              {`서버에서 제거 (${pickedFiles.length.toLocaleString()})`}
             </button>
           )}
         </div>
@@ -321,7 +321,7 @@ export function RemoteOnlyGroup({
                   <span className="health-pro-tag">Team</span>
                 ) : (
                   <AsyncButton className="ghost-pill sm" onClick={() => download([row.path])}>
-                    Download
+                    다운로드
                   </AsyncButton>
                 )}
                 <button
@@ -329,7 +329,7 @@ export function RemoteOnlyGroup({
                   className="ghost-pill sm danger"
                   onClick={() => { setError(null); setRemove([row.path]); }}
                 >
-                  Remove from server
+                  서버에서 제거
                 </button>
               </span>
             )}
@@ -338,17 +338,17 @@ export function RemoteOnlyGroup({
       </ul>
       {rows.length > limit && (
         <button type="button" className="link-btn" onClick={() => setLimit(limit + PAGE)}>
-          {`Show more (${(rows.length - limit).toLocaleString()} remaining)`}
+          {`더 보기 (${(rows.length - limit).toLocaleString()}개 남음)`}
         </button>
       )}
       {remove && (
         <ConfirmDialog
           title={
             remove.length === 1
-              ? "Remove this file from the server?"
-              : `Remove ${remove.length.toLocaleString()} files from the server?`
+              ? "이 파일을 서버에서 제거할까요?"
+              : `파일 ${remove.length.toLocaleString()}개를 서버에서 제거할까요?`
           }
-          confirmLabel="Remove from server"
+          confirmLabel="서버에서 제거"
           onCancel={() => { setRemove(null); setError(null); }}
           onConfirm={async () => {
             setError(null);
@@ -372,10 +372,10 @@ export function RemoteOnlyGroup({
         >
           {error && <p role="alert" className="auth-error">{error}</p>}
           <p>
-            {remove.length === 1 ? <code>{remove[0]}</code> : `These ${remove.length.toLocaleString()} files`}{" "}
-            will be permanently removed from the Remote Vault. Other members lose access and synced
-            devices may remove their copies. This cannot be undone. Save a copy first if you need{" "}
-            {remove.length === 1 ? "it" : "them"}.
+            {remove.length === 1 ? <code>{remove[0]}</code> : `파일 ${remove.length.toLocaleString()}개`}
+            {remove.length === 1 ? "을(를)" : "를"} 원격 볼트에서 영구히 제거해요. 다른 멤버는 접근할 수 없게 되고,
+            동기화된 기기에서도 사본이 삭제될 수 있어요. 되돌릴 수 없으니, 필요하면 먼저
+            사본을 저장해 두세요.
           </p>
         </ConfirmDialog>
       )}

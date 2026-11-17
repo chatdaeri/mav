@@ -452,17 +452,17 @@ export function useVaultHealth(options: UseVaultHealthOptions = {}): VaultHealth
   const actions = useMemo<HealthActions>(() => {
     const api: HealthActions = {
       async downloadFiles(paths) {
-        if (vaultEpoch == null) throw new Error("No vault is open.");
+        if (vaultEpoch == null) throw new Error("열려 있는 볼트가 없어요.");
         try { await syncManager.downloadMissingFiles(paths, vaultEpoch); }
         finally { refresh(); }
       },
       async removeServerFile(path) {
-        if (vaultEpoch == null) throw new Error("No vault is open.");
+        if (vaultEpoch == null) throw new Error("열려 있는 볼트가 없어요.");
         await syncManager.removeMissingServerFile(path, vaultEpoch);
         refresh();
       },
       async retryLocalFiles(paths) {
-        if (vaultEpoch == null) throw new Error("No vault is open.");
+        if (vaultEpoch == null) throw new Error("열려 있는 볼트가 없어요.");
         try { await syncManager.retryLocalFiles(paths, vaultEpoch); }
         finally { refresh(); }
       },
@@ -534,7 +534,7 @@ export function useVaultHealth(options: UseVaultHealthOptions = {}): VaultHealth
         const dest = await ipc.saveFile(basename(path));
         if (!dest) return null;
         await ipc.exportPath(path, dest, st.vault?.epoch);
-        toast(`Saved a copy to ${dest}`);
+        toast(`${dest}에 사본을 저장했어요`);
         return dest;
       },
 
@@ -553,8 +553,8 @@ export function useVaultHealth(options: UseVaultHealthOptions = {}): VaultHealth
         const mapping = await syncManager.registry.registerNote(path, title, meta?.id);
         if (!mapping) {
           throw new Error(
-            "This note couldn't be registered: the vault isn't reconciled with the " +
-              "Remote Vault yet. Try again once the connection is back.",
+            "이 노트를 등록하지 못했어요. 볼트가 아직 원격 볼트와 맞춰지지 않았어요. " +
+              "연결이 돌아온 뒤 다시 시도하세요.",
           );
         }
         // Registering creates the row; the content still has to be pushed, and
@@ -566,14 +566,14 @@ export function useVaultHealth(options: UseVaultHealthOptions = {}): VaultHealth
       async contactOwner() {
         const st = useStore.getState();
         const owner = ownerOf(st.members);
-        const vaultName = st.vault?.name ?? "this vault";
+        const vaultName = st.vault?.name ?? "이 볼트";
         const me = st.session?.user.email;
         const message =
-          `Hi${owner ? ` ${owner.name}` : ""},\n\n` +
-          `Could you give me access to the Baalda vault "${vaultName}"? ` +
-          `Right now the Remote Vault refuses to sync it for me.` +
-          (me ? ` My account email is ${me}.` : "") +
-          `\n\nThanks!`;
+          `안녕하세요${owner ? ` ${owner.name}님` : ""},\n\n` +
+          `마이 세컨드 브레인 볼트 "${vaultName}"에 접근할 수 있게 권한을 주실 수 있을까요? ` +
+          `지금은 원격 볼트가 제 동기화를 거부하고 있어요.` +
+          (me ? ` 제 계정 이메일은 ${me}예요.` : "") +
+          `\n\n감사합니다!`;
         await copyText(message);
         return { owner, message };
       },
@@ -800,29 +800,29 @@ export async function buildIssueReport(
   }
 
   const lines: string[] = [];
-  lines.push(`Baalda: ${issue.title}`);
+  lines.push(`마이 세컨드 브레인: ${issue.title}`);
   if (issue.path) lines.push(issue.path);
   lines.push("");
   lines.push(issue.why);
   lines.push("");
-  lines.push("What this means");
+  lines.push("의미");
   lines.push(issue.explanation.meaning);
   lines.push("");
-  lines.push("What Baalda does next");
+  lines.push("마이 세컨드 브레인이 다음에 하는 일");
   lines.push(issue.explanation.next);
   lines.push("");
-  lines.push("What you can do");
+  lines.push("할 수 있는 일");
   for (const fix of issue.explanation.fixes) lines.push(`- ${fix}`);
   lines.push("");
-  lines.push("Where your content is");
+  lines.push("내 콘텐츠의 위치");
   lines.push(safetyLabel(issue.explanation.safety));
   if (issue.facts.length > 0) {
     lines.push("");
-    lines.push("Details");
+    lines.push("세부 정보");
     for (const f of issue.facts) lines.push(`${f.label}: ${f.value}`);
   }
   lines.push("");
-  lines.push(`app ${version} · Remote Vault ${serverHost ?? "(local only)"}`);
+  lines.push(`앱 ${version} · 원격 볼트 ${serverHost ?? "(이 기기에만)"}`);
   return lines.join("\n");
 }
 
@@ -851,7 +851,7 @@ export async function buildDiagnostics(
     typeof navigator === "undefined" ? "unknown" : navigator.userAgent || "unknown";
 
   const lines: string[] = [];
-  lines.push("Baalda vault health");
+  lines.push("마이 세컨드 브레인 vault health");
   lines.push(`app: ${version}`);
   lines.push(`platform: ${platform}`);
   lines.push(`Remote Vault: ${report.serverHost ?? "(local only)"}`);

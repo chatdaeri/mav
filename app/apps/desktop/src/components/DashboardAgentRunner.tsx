@@ -106,7 +106,7 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
       launchButton.current = document.activeElement instanceof HTMLButtonElement ? document.activeElement : null;
       if (runId.current) {
         if (request.agent !== selectedAgent || request.path !== sessionPath) {
-          toast("An update is already running. Finish or stop it before starting another.", "neutral");
+          toast("이미 업데이트가 실행 중이에요. 끝나거나 중지한 뒤에 새로 시작하세요.", "neutral");
         }
         setOpen(true);
         return;
@@ -132,12 +132,12 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
     if (!id) return;
     stopping.current = true;
     setPhase("stopping");
-    setStatus(`Stopping ${agentName}…`);
+    setStatus(`${agentName} 중지하는 중…`);
     try { await cancelDashboardAgent(id); }
     catch {
       if (!alive.current || runId.current !== id) return;
       stopping.current = false; setPhase("running");
-      setStatus("Could not request cancellation. The run will stop after its time limit.");
+      setStatus("취소를 요청하지 못했어요. 제한 시간이 지나면 실행이 중지돼요.");
     }
   };
   const start = async () => {
@@ -147,7 +147,7 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
     const context = previous.length ? `Previous conversation about this dashboard (context only):\n${previous.map((turn) => `User: ${turn.request}\nAssistant: ${turn.response}`).join("\n\n").slice(-16000)}\n\nCurrent request:\n${prompt}` : prompt;
     const id = crypto.randomUUID(); runId.current = id;
     lastText.current = ""; stopping.current = false; followOutput.current = true;
-    setRunning(true); setPhase("running"); setLog(""); setStatus(`Starting ${agentName}…`);
+    setRunning(true); setPhase("running"); setLog(""); setStatus(`${agentName} 시작하는 중…`);
     try {
       await runDashboardAgent({ agent: selectedAgent, prompt: context, dashboardPath: sessionPath, expectedEpoch, runId: id }, (event) => {
         if (!alive.current || runId.current !== id) {
@@ -159,10 +159,10 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
           setLog((previous) => appendAgentLog(previous, event.text.trim()));
         }
         if (event.type === "status" && !stopping.current) setStatus(event.text);
-        if (event.type === "started" && !stopping.current) setStatus(`${agentName} is updating your dashboard…`);
+        if (event.type === "started" && !stopping.current) setStatus(`${agentName}가 대시보드를 업데이트하고 있어요…`);
         if (event.type === "finished") {
           setPhase(event.cancelled ? "stopped" : event.success ? "success" : "error");
-          setStatus(event.cancelled ? "Stopped. Changes already written remain in the vault." : event.success ? "Finished. Your dashboard reloads as files change." : `${agentName} could not finish. Check the output below and its sign-in or account limits.`);
+          setStatus(event.cancelled ? "중지했어요. 이미 저장된 변경 사항은 볼트에 남아요." : event.success ? "완료했어요. 파일이 바뀌면 대시보드가 다시 불러와져요." : `${agentName}가 작업을 마치지 못했어요. 아래 출력과 로그인 상태, 계정 한도를 확인하세요.`);
         }
       });
     } catch (error) {
@@ -172,7 +172,7 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
     }
   };
 
-  const launchButtons = (["claude", "codex"] as const).filter((agent) => path || (agent === selectedAgent && sessionPath)).map((agent) => <button key={agent} type="button" data-agent={agent} className={`ghost-pill sm dashboard-agent-launch${agent === selectedAgent && phase !== "idle" ? ` agent-launch-${phase}` : ""}`} aria-label={`Update with ${agent === "claude" ? "Claude" : "Codex"}${agent === selectedAgent && phase !== "idle" ? `: ${phase === "success" ? "completed" : phase === "error" ? "failed" : phase}` : ""}`} title={agent === selectedAgent && sessionPath ? `${agent === "claude" ? "Claude" : "Codex"} · ${sessionPath}${phase !== "idle" ? ` · ${phase}` : ""}` : `Update with ${agent === "claude" ? "Claude" : "Codex"}`}
+  const launchButtons = (["claude", "codex"] as const).filter((agent) => path || (agent === selectedAgent && sessionPath)).map((agent) => <button key={agent} type="button" data-agent={agent} className={`ghost-pill sm dashboard-agent-launch${agent === selectedAgent && phase !== "idle" ? ` agent-launch-${phase}` : ""}`} aria-label={`${agent === "claude" ? "Claude" : "Codex"}로 업데이트${agent === selectedAgent && phase !== "idle" ? `: ${phase === "running" ? "작업 중" : phase === "stopping" ? "중지 중" : phase === "success" ? "완료" : phase === "stopped" ? "중지됨" : "실패"}` : ""}`} title={agent === selectedAgent && sessionPath ? `${agent === "claude" ? "Claude" : "Codex"} · ${sessionPath}${phase !== "idle" ? ` · ${phase === "running" ? "작업 중" : phase === "stopping" ? "중지 중" : phase === "success" ? "완료" : phase === "stopped" ? "중지됨" : "실패"}` : ""}` : `${agent === "claude" ? "Claude" : "Codex"}로 업데이트`}
       disabled={running && agent !== selectedAgent}
       onClick={(event) => {
         onOpen?.();
@@ -183,8 +183,8 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
         }
         setOpen(true);
       }}>
-      <AgentGlyph agent={agent} /><span className="dashboard-agent-launch-prefix">Update with </span>{agent === "claude" ? "Claude" : "Codex"}
-      {agent === selectedAgent && phase !== "idle" && <span className="dashboard-agent-launch-status"><i aria-hidden="true" />{phase === "running" ? "Working" : phase === "stopping" ? "Stopping" : phase === "success" ? "Done" : phase === "stopped" ? "Stopped" : "Failed"}</span>}
+      <AgentGlyph agent={agent} />{agent === "claude" ? "Claude" : "Codex"}<span className="dashboard-agent-launch-prefix">로 업데이트</span>
+      {agent === selectedAgent && phase !== "idle" && <span className="dashboard-agent-launch-status"><i aria-hidden="true" />{phase === "running" ? "작업 중" : phase === "stopping" ? "중지 중" : phase === "success" ? "완료" : phase === "stopped" ? "중지됨" : "실패"}</span>}
     </button>);
   return <>
     {!open && selectedAgent && phase !== "idle" && <span className="dashboard-agent-announcement" role="status">{agentName}: {status}</span>}
@@ -205,35 +205,35 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
               <h2 id="dashboard-agent-title">Update with {agentName}</h2>
               <span className="dashboard-agent-path" title={sessionPath ?? undefined}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M14 3H5v18h14V8zm0 0v5h5" /></svg>{sessionPath?.split("/").pop()}</span>
             </div>
-            <button type="button" className="icon-btn" onClick={close} aria-label="Close agent dialog" title={running ? "Hide chat (update continues)" : "Close"}>×</button>
+            <button type="button" className="icon-btn" onClick={close} aria-label="에이전트 대화상자 닫기" title={running ? "대화 숨기기 (업데이트는 계속돼요)" : "닫기"}>×</button>
           </div>
-          <section className={`dashboard-agent-progress phase-${phase}`} aria-label="Update progress">
+          <section className={`dashboard-agent-progress phase-${phase}`} aria-label="업데이트 진행 상황">
             <div className="dashboard-agent-status" role="status">
-              <span className="dashboard-agent-status-pill"><span className="dashboard-agent-status-icon" aria-hidden="true" />{phase === "running" ? "Working" : phase === "stopping" ? "Stopping" : phase === "success" ? "Complete" : phase === "stopped" ? "Stopped" : phase === "error" ? "Needs attention" : installed?.runnable ? "Ready" : agents === null && !detectionError ? "Checking" : "Setup required"}</span>
-              <span key={status} className="dashboard-agent-status-text">{status || (installed?.runnable ? "Changes appear live in your dashboard." : "Connect your installed agent to get started.")}</span>
+              <span className="dashboard-agent-status-pill"><span className="dashboard-agent-status-icon" aria-hidden="true" />{phase === "running" ? "작업 중" : phase === "stopping" ? "중지 중" : phase === "success" ? "완료" : phase === "stopped" ? "중지됨" : phase === "error" ? "확인 필요" : installed?.runnable ? "준비됨" : agents === null && !detectionError ? "확인 중" : "설정 필요"}</span>
+              <span key={status} className="dashboard-agent-status-text">{status || (installed?.runnable ? "변경 사항이 대시보드에 바로 나타나요." : "설치된 에이전트를 연결해 시작하세요.")}</span>
             </div>
-            <div ref={output} className="dashboard-agent-output" aria-label="Recent agent output"
+            <div ref={output} className="dashboard-agent-output" aria-label="최근 에이전트 출력"
               onScroll={() => { const el = output.current; if (el) followOutput.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40; }}>
               {history.map((turn, index) => <div className="dashboard-chat-turn" key={index}><div className="dashboard-chat-user">{turn.request}</div><div className="dashboard-agent-message">{turn.response.split(/\n\s*\n/).map((p, i) => <p key={i}>{p}</p>)}</div></div>)}
               {submitted && <div className="dashboard-chat-user">{submitted}</div>}
               {log ? <div className="dashboard-agent-message"><span className="dashboard-agent-message-author"><span className="dashboard-agent-mini-avatar"><AgentGlyph agent={selectedAgent} /></span>{agentName}</span><div>{log.split(/\n\s*\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div></div>
                 : <div className="dashboard-agent-output-empty">
                   <span className="dashboard-agent-empty-glyph"><AgentGlyph agent={selectedAgent} /></span>
-                  <strong>{phase === "idle" ? installed?.runnable ? "Make this dashboard yours" : `Set up ${agentName}` : running ? `${agentName} is on it` : phase === "success" ? "Your update is complete" : phase === "stopped" ? "Update stopped" : "The update couldn't finish"}</strong>
-                  <p>{phase === "idle" ? installed?.runnable ? "Describe a change below. Your agent uses your vault’s context to update this dashboard." : detectionError ? "Could not check installed agents. Restart Baalda and try again." : agents === null ? "Checking your installed agents…" : installed?.detail ?? `Install ${agentName} and sign in from your terminal, then restart Baalda.` : running ? "Its response will appear here as it works." : "No written response was returned."}</p>
+                  <strong>{phase === "idle" ? installed?.runnable ? "대시보드를 내 입맛대로 바꿔 보세요" : `${agentName} 설정` : running ? `${agentName}가 작업 중이에요` : phase === "success" ? "업데이트를 마쳤어요" : phase === "stopped" ? "업데이트가 중지됐어요" : "업데이트를 마치지 못했어요"}</strong>
+                  <p>{phase === "idle" ? installed?.runnable ? "아래에 바꾸고 싶은 내용을 적어 주세요. 에이전트가 볼트의 맥락을 활용해 이 대시보드를 업데이트해요." : detectionError ? "설치된 에이전트를 확인하지 못했어요. 마이 세컨드 브레인을 다시 시작한 뒤 시도해 주세요." : agents === null ? "설치된 에이전트를 확인하는 중…" : installed?.detail ?? `터미널에서 ${agentName}를 설치하고 로그인한 뒤 마이 세컨드 브레인을 다시 시작하세요.` : running ? "작업하는 동안 응답이 여기에 나타나요." : "텍스트 응답이 없어요."}</p>
                   {running && <span className="dashboard-agent-thinking" aria-hidden="true"><i /><i /><i /></span>}
                 </div>}
             </div>
           </section>
           {installed?.runnable && <div className={`dashboard-agent-composer${running ? " is-running" : ""}`}>
-            <label htmlFor="dashboard-agent-prompt">{running ? "Your next message" : "What would you like to change?"}</label>
+            <label htmlFor="dashboard-agent-prompt">{running ? "다음 메시지" : "무엇을 바꾸고 싶나요?"}</label>
             <textarea id="dashboard-agent-prompt" ref={promptInput} rows={3} maxLength={8000} value={prompt}
-              placeholder="Ask for a change…"
+              placeholder="바꾸고 싶은 내용을 적어 주세요…"
               onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void start(); } }}
               onChange={(event) => setPrompt(event.target.value)} />
             <div className="dashboard-agent-actions">
-              {!running && path && path !== sessionPath ? <button type="button" className="dashboard-agent-retarget" onClick={() => { setSessionPath(path); setPrompt(""); setLog(""); setHistory([]); setSubmitted(""); setStatus(""); setPhase("idle"); }}>Use current dashboard</button> : <span>{running ? "Updates continue when you close chat." : `Your ${agentName} account`}</span>}
-              {running ? <button type="button" className="dashboard-agent-stop" disabled={phase === "stopping"} onClick={() => void stop()}>{phase === "stopping" ? "Stopping…" : "Stop"}</button> : <button type="button" className="primary" disabled={!prompt.trim()} onClick={() => void start()}>Run {agentName}</button>}
+              {!running && path && path !== sessionPath ? <button type="button" className="dashboard-agent-retarget" onClick={() => { setSessionPath(path); setPrompt(""); setLog(""); setHistory([]); setSubmitted(""); setStatus(""); setPhase("idle"); }}>현재 대시보드 사용</button> : <span>{running ? "대화를 닫아도 업데이트는 계속돼요." : `내 ${agentName} 계정`}</span>}
+              {running ? <button type="button" className="dashboard-agent-stop" disabled={phase === "stopping"} onClick={() => void stop()}>{phase === "stopping" ? "중지 중…" : "중지"}</button> : <button type="button" className="primary" disabled={!prompt.trim()} onClick={() => void start()}>{agentName} 실행</button>}
             </div>
           </div>}
         </div>
@@ -242,29 +242,29 @@ export function DashboardAgentRunner({ path, expectedEpoch, launchTarget, showLa
   </>;
 }
 
-/** Account Settings → About. Detection is cached until Baalda restarts. */
+/** Account Settings → About. Detection is cached until 마브 restarts. */
 export function InstalledAgentsStatus() {
   const { agents, error } = useInstalledAgents();
   return <div className="installed-agents-status">
-    <h3>Installed agents</h3>
-    {error ? <p>Detection is unavailable in this preview.</p> : agents === null ? <p>Checking installed clients…</p> : !agents.length ? <p>No supported CLI detected. Install Claude or Codex and sign in from your terminal, then restart Baalda.</p> : agents.map((agent) =>
+    <h3>설치된 에이전트</h3>
+    {error ? <p>미리보기에서는 감지할 수 없어요.</p> : agents === null ? <p>설치된 클라이언트를 확인하는 중…</p> : !agents.length ? <p>지원하는 CLI를 찾지 못했어요. 터미널에서 Claude나 Codex를 설치하고 로그인한 뒤 마이 세컨드 브레인을 다시 시작하세요.</p> : agents.map((agent) =>
       <div key={agent.agent} className="installed-agent-row">
         <strong>{agent.agent === "codex" ? "Codex" : "Claude"}</strong>
-        <span>{agent.version} · {agent.signedIn ? "Signed in" : "Sign-in not confirmed"}</span>
+        <span>{agent.version} · {agent.signedIn ? "로그인됨" : "로그인 확인 안 됨"}</span>
         <p>{agent.detail}</p>
       </div>,
     )}
-    <p className="dashboard-agent-description">Detection refreshes when Baalda restarts. Dashboard updates use the selected CLI and its signed-in account.</p>
+    <p className="dashboard-agent-description">마이 세컨드 브레인을 다시 시작하면 감지 결과가 새로 고쳐져요. 대시보드 업데이트는 선택한 CLI와 로그인된 계정을 사용해요.</p>
   </div>;
 }
 
 /** Account Settings → About, the Installed agents row's list (profile-row style). */
 export function InstalledAgentsList() {
   const { agents, error } = useInstalledAgents();
-  if (error) return <p className="muted">Detection is unavailable in this preview.</p>;
-  if (agents === null) return <p className="muted">Checking installed clients…</p>;
+  if (error) return <p className="muted">미리보기에서는 감지할 수 없어요.</p>;
+  if (agents === null) return <p className="muted">설치된 클라이언트를 확인하는 중…</p>;
   if (!agents.length) {
-    return <p className="muted">No supported CLI found. Install Claude or Codex, sign in from your terminal, then restart Baalda.</p>;
+    return <p className="muted">지원하는 CLI를 찾지 못했어요. 터미널에서 Claude나 Codex를 설치하고 로그인한 뒤 마이 세컨드 브레인을 다시 시작하세요.</p>;
   }
   return <ul className="about-agents">
     {agents.map((agent) => <li key={agent.agent} className="about-agent">
@@ -273,7 +273,7 @@ export function InstalledAgentsList() {
         <b>{agent.agent === "codex" ? "Codex" : "Claude"} <span className="about-agent-version">{agent.version}</span></b>
         <small title={agent.detail}>{agent.detail}</small>
       </span>
-      <span className={`about-agent-tag${agent.signedIn ? "" : " is-off"}`}>{agent.signedIn ? "Signed in" : "Not signed in"}</span>
+      <span className={`about-agent-tag${agent.signedIn ? "" : " is-off"}`}>{agent.signedIn ? "로그인됨" : "로그인 안 됨"}</span>
     </li>)}
   </ul>;
 }

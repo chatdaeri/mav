@@ -23,7 +23,7 @@ import { ConfirmDialog } from "../ConfirmDialog";
 import { MenuSelect } from "../MenuSelect";
 import { LoadError } from "./parts";
 
-const ROLE_LABEL: Record<string, string> = { owner: "Owner", admin: "Admin", member: "Member" };
+const ROLE_LABEL: Record<string, string> = { owner: "소유자", admin: "관리자", member: "멤버" };
 
 function PeopleIcon() {
   return (
@@ -86,12 +86,12 @@ export function SkillSharedWith({
         const level = next.people.find((x) => x.userId === p.userId)?.level ?? "none";
         toast(
           level === "none"
-            ? `${p.name} no longer gets ${name}.`
-            : `${p.name} now gets ${name} as ${ACCESS_LABEL[level].toLowerCase()}.`,
+            ? `${p.name}님은 이제 ${name}을(를) 받지 않아요.`
+            : `${p.name}님이 이제 ${name}을(를) ${ACCESS_LABEL[level]} 권한으로 받아요.`,
         );
       }
     } catch (e) {
-      toast(`Couldn't change who gets ${name}: ${e instanceof Error ? e.message : String(e)}`, "error");
+      toast(`${name}을(를) 받는 사람을 바꾸지 못했어요: ${e instanceof Error ? e.message : String(e)}`, "error");
     } finally {
       setBusy(false);
     }
@@ -102,8 +102,8 @@ export function SkillSharedWith({
     else void apply(p);
   };
 
-  if (error && !list) return <LoadError message={`Couldn't load who gets ${name}: ${error}`} onRetry={() => void load()} />;
-  if (!list) return <div className="skills-access-skel" aria-busy="true" aria-label="Loading who gets this skill" />;
+  if (error && !list) return <LoadError message={`${name}을(를) 받는 사람을 불러오지 못했어요: ${error}`} onRetry={() => void load()} />;
+  if (!list) return <div className="skills-access-skel" aria-busy="true" aria-label="이 스킬을 받는 사람 불러오는 중" />;
 
   const having = list.people.filter((p) => p.level !== "none").length;
   const people = [...list.people].sort((a, b) => Number(b.own) - Number(a.own));
@@ -116,15 +116,15 @@ export function SkillSharedWith({
             <PeopleIcon />
           </span>
           <span className="members-access-row-copy">
-            <span className="members-access-row-title">Everyone in this vault</span>
-            <span className="muted">Anyone without their own setting below, new members included</span>
+            <span className="members-access-row-title">이 볼트의 모든 멤버</span>
+            <span className="muted">아래에 개별 설정이 없는 모든 사람(새 멤버 포함)</span>
           </span>
           <MenuSelect
             value={list.everyone}
             options={EVERYONE_ACCESS_OPTIONS}
             onSelect={(level) => choose({ kind: "everyone", level })}
             disabled={busy}
-            ariaLabel={`Who gets ${name}: everyone`}
+            ariaLabel={`${name}을(를) 받는 사람: 모든 멤버`}
             triggerClassName={`members-access-trigger is-level ${accessLevelClass(list.everyone)}`}
             menuClassName="access-menu"
           />
@@ -132,9 +132,9 @@ export function SkillSharedWith({
       </div>
 
       <div className="members-access-list-heading">
-        <h3>People</h3>
+        <h3>멤버</h3>
         <span className="members-access-count muted">
-          {having} of {list.people.length} {list.people.length === 1 ? "person has" : "people have"} it
+          {list.people.length}명 중 {having}명이 사용 중
         </span>
       </div>
       <ul className="skills-access-people">
@@ -147,10 +147,10 @@ export function SkillSharedWith({
                 <span className="members-table-names">
                   <span className="members-table-name">
                     {label}
-                    {p.userId === me && <span className="muted"> (you)</span>}
+                    {p.userId === me && <span className="muted"> (나)</span>}
                   </span>
                   <span className="muted">
-                    {ROLE_LABEL[p.role] ?? p.role} · {p.own ? "Set for them" : "Same as everyone"}
+                    {ROLE_LABEL[p.role] ?? p.role} · {p.own ? "개별 설정" : "모든 멤버와 동일"}
                   </span>
                 </span>
               </span>
@@ -163,7 +163,7 @@ export function SkillSharedWith({
                   choose({ kind: "person", userId: p.userId, name: label, level });
                 }}
                 disabled={busy}
-                ariaLabel={`${name} for ${label}`}
+                ariaLabel={`${label}님의 ${name}`}
                 triggerClassName={`members-access-trigger is-level ${accessLevelClass(p.level)}`}
                 menuClassName="access-menu"
                 triggerContent={ACCESS_LABEL[p.level]}
@@ -173,14 +173,13 @@ export function SkillSharedWith({
         })}
       </ul>
       <p className="field-hint skills-access-note">
-        Owners and admins always see every skill so they can manage it. Their own level decides whether it installs on
-        their computer.
+        소유자와 관리자는 관리를 위해 모든 스킬을 볼 수 있어요. 본인의 권한 수준에 따라 컴퓨터에 설치할지가 정해져요.
       </p>
 
       {confirm && (
         <ConfirmDialog
-          title={confirm.kind === "everyone" ? `Take ${name} away from everyone?` : `Take ${name} away from ${confirm.name}?`}
-          confirmLabel="Take away"
+          title={confirm.kind === "everyone" ? `모든 멤버에게서 ${name} 권한을 제거할까요?` : `${confirm.name}님의 ${name} 권한을 제거할까요?`}
+          confirmLabel="제거"
           onCancel={() => setConfirm(null)}
           onConfirm={async () => {
             const p = confirm;
@@ -189,9 +188,9 @@ export function SkillSharedWith({
           }}
         >
           {confirm.kind === "everyone"
-            ? "Only people with their own setting keep it. "
-            : "They won't see it anywhere, and their AI tools lose it. "}
-          An untouched copy is removed from their computer; one they edited stays as their own skill.
+            ? "개별 설정이 있는 사람만 계속 사용해요. "
+            : "어디서도 이 스킬이 보이지 않고, AI 도구에서도 사라져요. "}
+          수정하지 않은 사본은 컴퓨터에서 삭제되고, 직접 수정한 사본은 본인의 스킬로 남아요.
         </ConfirmDialog>
       )}
     </div>

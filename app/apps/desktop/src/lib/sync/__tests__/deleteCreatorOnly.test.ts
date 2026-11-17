@@ -237,7 +237,7 @@ describe("disk deletes — a refused delete is put back", () => {
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ kind: "restoredFromServer", path: THEIRS, detail: NOT_CREATOR_DETAIL });
     expect(summarizeReconcile(items)[0].text).toBe(
-      "Theirs.md was put back: only the person who created it, or an admin, can delete it.",
+      "Theirs.md을(를) 되돌려 놓았어요. 만든 사람이나 관리자만 삭제할 수 있어요.",
     );
     // A second refusal of the same note in this session does not re-announce it.
     await reg.restoreRefusedDelete(THEIRS, serverId(THEIRS));

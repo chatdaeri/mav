@@ -75,7 +75,7 @@ describe("checkActionPlans", () => {
   it("names the true count in a destructive confirm", () => {
     const p = plan("empty-notes", [{ path: "a.md" }, { path: "b.md" }]);
     expect(p.action).toBe("delete-all");
-    expect(p.confirm?.title).toBe("Delete 2 empty notes?");
+    expect(p.confirm?.title).toBe("빈 노트 2개를 삭제할까요?");
     expect(p.confirm?.tone).toBe("danger");
   });
 
@@ -102,7 +102,7 @@ describe("checkActionPlans", () => {
     )!;
     expect(p.targets.map((t) => t.path)).toEqual(["a.md"]);
     expect(p.skipped[0]!.path).toBe("b.md");
-    expect(p.confirm?.title).toBe("Reset the history of 1 notes?");
+    expect(p.confirm?.title).toBe("노트 1개의 기록을 초기화할까요?");
   });
 
   it("offers no button at all when every listed item is out of reach", () => {
@@ -175,7 +175,7 @@ describe("runCheckAction", () => {
     expect(d.deleteNotes).toHaveBeenCalledWith(["a.md", "b.md"], undefined);
     expect(out.done).toBe(2);
     expect(out.total).toBe(2);
-    expect(outcomeSummary(out, p)).toBe("Deleted 2 of 2");
+    expect(outcomeSummary(out, p)).toBe("삭제함 2/2");
   });
 
   it("reports a partial delete instead of claiming all of it", async () => {
@@ -189,7 +189,7 @@ describe("runCheckAction", () => {
     const out = await runCheckAction(p, d);
     expect(out.done).toBe(1);
     expect(out.errors).toEqual([{ path: "b.md", reason: "no permission" }]);
-    expect(outcomeSummary(out, p)).toBe("Deleted 1 of 2 · 1 failed");
+    expect(outcomeSummary(out, p)).toBe("삭제함 1/2 · 1개 실패");
   });
 
   it("does nothing at all when the export folder picker is cancelled", async () => {
@@ -204,7 +204,7 @@ describe("runCheckAction", () => {
     const out = await runCheckAction(p, d);
     expect(out.cancelled).toBe(true);
     expect(d.exportTo).not.toHaveBeenCalled();
-    expect(outcomeSummary(out, p)).toBe("Cancelled. Nothing changed");
+    expect(outcomeSummary(out, p)).toBe("취소됨. 변경 사항 없음");
   });
 
   it("exports every copy into the chosen folder without overwriting one", async () => {
@@ -231,7 +231,7 @@ describe("runCheckAction", () => {
     const out = await runCheckAction(p, d);
     expect(d.resetHistory).toHaveBeenCalledTimes(2);
     expect(out.done).toBe(2);
-    expect(out.note).toBe("2 KB freed");
+    expect(out.note).toBe("2 KB 확보");
   });
 
   it("renames an illegal FILE name and leaves a folder and a taken name alone", async () => {
@@ -250,7 +250,7 @@ describe("runCheckAction", () => {
     expect(d.rename).toHaveBeenCalledWith("what?.md", "what-.md");
     expect(out.done).toBe(1);
     expect(out.skipped.map((s) => s.reason)).toContain(
-      "this is a folder. Rename it in the sidebar",
+      "폴더예요. 사이드바에서 이름을 바꿔 주세요",
     );
   });
 
@@ -266,7 +266,7 @@ describe("runCheckAction", () => {
     const out = await runCheckAction(p, d);
     expect(d.rename).not.toHaveBeenCalled();
     expect(out.done).toBe(0);
-    expect(out.skipped[0]!.reason).toContain("is taken");
+    expect(out.skipped[0]!.reason).toContain("이름을 이미 사용 중이에요");
   });
 
   it("reports the whole-vault actions by what they freed, not by a count", async () => {
@@ -279,7 +279,7 @@ describe("runCheckAction", () => {
     )!;
     const out = await runCheckAction(reclaim, d);
     expect(out.done).toBe(3);
-    expect(outcomeSummary(out, reclaim)).toBe("Reclaimed 3 · 2 KB freed");
+    expect(outcomeSummary(out, reclaim)).toBe("확보함 3 · 2 KB 확보");
 
     const trash = planCheckAction(
       CHECK_BY_ID.get("trash")!,
@@ -288,7 +288,7 @@ describe("runCheckAction", () => {
       "bulk",
     )!;
     expect(outcomeSummary(await runCheckAction(trash, d), trash)).toBe(
-      "Removed 7 · 4 KB freed",
+      "제거함 7 · 4 KB 확보",
     );
   });
 
@@ -302,7 +302,7 @@ describe("runCheckAction", () => {
     const out = await runCheckAction(p, d);
     expect(out.done).toBe(0);
     expect(out.errors[0]!.reason).toBe("index is locked");
-    expect(outcomeSummary(out, p)).toBe("Rebuild index failed");
+    expect(outcomeSummary(out, p)).toBe("색인 다시 만들기 실패");
   });
 
   it("reports progress as it goes", async () => {

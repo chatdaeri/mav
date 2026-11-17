@@ -32,12 +32,12 @@ const FALLBACK_FONT_PX = 16;
 /** Real words, not grey bars: the miniature sets them in the editor's font
  *  scaled by the same factor as the column, so they break where a real note
  *  would and the eye can judge the line length directly. */
-const SAMPLE_TITLE = "Weekly planning";
+const SAMPLE_TITLE = "주간 계획";
 const SAMPLE_TEXT =
-  "Each Monday the team picks the three things that matter most this week and " +
-  "writes them down here, so nobody has to ask twice. Decisions get a line of " +
-  "context and a name, open questions get an owner, and anything that slips " +
-  "moves to Friday's review with a short note on why it slipped.";
+  "매주 월요일에 팀이 이번 주에 가장 중요한 세 가지를 골라 여기에 적어 두어서 " +
+  "같은 질문을 두 번 하지 않아도 돼요. 결정에는 배경 한 줄과 이름을 남기고, " +
+  "열린 질문에는 담당자를 정하고, 미뤄진 일은 미뤄진 이유를 짧게 적어 " +
+  "금요일 회고로 넘겨요.";
 
 /**
  * The width of one `0` in the editor's body font — which is exactly what the
@@ -167,8 +167,8 @@ export function ContentWidthPreview({ measure }: { measure: EditorMeasure }) {
       </div>
       <span className="field-hint width-preview-caption">
         {charsPerLine != null
-          ? `${measure === "full" ? "Full width, about" : "About"} ${charsPerLine} characters per line in this window.`
-          : "About how a note will sit in your window."}
+          ? `이 창에서 ${measure === "full" ? "전체 너비로 " : ""}한 줄에 약 ${charsPerLine}자예요.`
+          : "노트가 창에서 어떻게 보일지 대략 보여 줘요."}
       </span>
     </div>
   );

@@ -26,22 +26,22 @@ it("lists all templates as lazy images without starting dashboard scripts, then 
   expect(host.querySelectorAll("img[loading='lazy']")).toHaveLength(DASHBOARD_TEMPLATES.length);
   expect(host.querySelectorAll("iframe")).toHaveLength(0);
   expect(fetch).not.toHaveBeenCalled();
-  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Show preview of Tabler"]')!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Tabler 미리보기"]')!.click());
   expect(host.querySelectorAll("iframe")).toHaveLength(1);
-  expect(host.querySelector("iframe")?.title).toBe("Tabler preview");
-  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "← All templates")!.click());
+  expect(host.querySelector("iframe")?.title).toBe("Tabler 미리보기");
+  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "← 모든 템플릿")!.click());
   expect(host.querySelectorAll("iframe")).toHaveLength(0);
 });
 
 it("opens the saved dashboard only on click while retaining the static card and Current Home label", async () => {
   const onOpen = vi.fn(), onUnset = vi.fn();
   await act(async () => root.render(createElement(DashboardTemplateGallery, { onUse:vi.fn(), saved:{tabler:"My dashboard.html"}, currentId:"tabler", onOpen, onUnset })));
-  expect(host.textContent).toContain("Current Home");
+  expect(host.textContent).toContain("현재 홈");
   expect(host.querySelectorAll("iframe")).toHaveLength(0);
-  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Show preview of Tabler"]')!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Tabler 미리보기"]')!.click());
   expect(host.querySelector("iframe")?.title).toBe("My dashboard.html");
-  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "Open")!.click());
+  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "열기")!.click());
   expect(onOpen).toHaveBeenCalledWith("My dashboard.html");
-  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "Unset Home")!.click());
+  await act(async () => [...host.querySelectorAll("button")].find((b) => b.textContent === "홈 해제")!.click());
   expect(onUnset).toHaveBeenCalledOnce();
 });

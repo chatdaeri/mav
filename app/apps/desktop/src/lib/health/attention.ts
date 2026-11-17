@@ -10,7 +10,7 @@ import type { HealthInventory, HealthIssue, HealthIssueKind, VaultStats } from "
  * refused for lack of write access, or a file left on disk because the Remote
  * Vault dropped it before this device confirmed its content. Everything else
  * (timeouts, push failures, registry retries) heals by itself and never counts,
- * so the badge cannot nag about work Baalda is already redoing.
+ * so the badge cannot nag about work 마브 is already redoing.
  */
 export function actionNeededCount(failures: HealthFailures | null | undefined): number {
   if (!failures) return 0;
@@ -93,41 +93,40 @@ export function dedupeDifferences(
   };
 }
 
-const plural = (n: number, one: string, many: string) =>
-  `${n.toLocaleString()} ${n === 1 ? one : many}`;
+const count = (n: number) => n.toLocaleString();
 
 /** The group header for one kind of issue, in plain words. The rows under it
  *  then need nothing but their path. */
 export function issueGroupTitle(kind: HealthIssueKind, n: number): string {
   switch (kind) {
     case "too-large":
-      return `${plural(n, "note", "notes")} too large to sync`;
+      return `동기화하기엔 너무 큰 노트 ${count(n)}개`;
     case "no-write-access":
-      return `${plural(n, "edit", "edits")} blocked by read-only access`;
+      return `읽기 전용 권한으로 막힌 편집 ${count(n)}건`;
     case "upload-failed":
-      return `${plural(n, "note", "notes")} couldn't upload`;
+      return `업로드하지 못한 노트 ${count(n)}개`;
     case "register-failed":
-      return `${plural(n, "item", "items")} couldn't be added to the Remote Vault`;
+      return `원격 볼트에 추가하지 못한 항목 ${count(n)}개`;
     case "limit":
-      return "Plan limit reached";
+      return "요금제 한도에 도달했어요";
     case "unregistered":
-      return `${plural(n, "note isn't", "notes aren't")} registered`;
+      return `등록되지 않은 노트 ${count(n)}개`;
     case "no-access":
-      return "No access";
+      return "접근 불가";
     case "left-behind":
-      return `${plural(n, "note", "notes")} left on disk`;
+      return `디스크에만 남은 노트 ${count(n)}개`;
     case "materialize-failed":
-      return `${plural(n, "note", "notes")} couldn't be written to this computer`;
+      return `이 컴퓨터에 쓰지 못한 노트 ${count(n)}개`;
     case "inbound-blocked":
-      return `${plural(n, "local change", "local changes")} held for safety`;
+      return `안전을 위해 보류된 로컬 변경 ${count(n)}건`;
     case "orphan-history":
-      return "Leftover edit history";
+      return "남은 편집 기록";
     case "linked-paths":
-      return "Linked paths ignored by sync";
+      return "동기화에서 제외된 링크 경로";
     case "shared-file":
-      return `${plural(n, "file", "files")} shared by more than one note`;
+      return `여러 노트가 함께 쓰는 파일 ${count(n)}개`;
     case "sync-paused":
-      return "Sync paused";
+      return "동기화 일시 중지";
   }
 }
 
@@ -135,13 +134,13 @@ export function issueGroupTitle(kind: HealthIssueKind, n: number): string {
 export function issueRowSentence(issue: Pick<HealthIssue, "kind" | "title">): string {
   switch (issue.kind) {
     case "no-access":
-      return "You don't have access to this vault";
+      return "이 볼트에 접근할 권한이 없어요";
     case "limit":
-      return "Your plan's limit stopped new notes from syncing";
+      return "요금제 한도 때문에 새 노트가 동기화되지 않아요";
     case "orphan-history":
-      return "History kept for notes this vault no longer has";
+      return "이 볼트에 더 이상 없는 노트의 기록이 남아 있어요";
     case "sync-paused":
-      return "Many notes were emptied at once, so sync is paused for a while";
+      return "한꺼번에 많은 노트가 비워져서 동기화가 잠시 중지됐어요";
     default:
       return issue.title;
   }

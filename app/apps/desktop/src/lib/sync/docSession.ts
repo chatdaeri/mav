@@ -28,7 +28,7 @@ import {
 import * as ipc from "../ipc";
 import { runClosedAppEdits } from "./closedAppEdits";
 import { hintUpdateAvailable } from "../updateHint";
-import { isNoteExt } from "../formats";
+import { isLocalOnlyBinary, isNoteExt } from "../formats";
 import { markOnce } from "../perf";
 import { api, authManager } from "../auth/authManager";
 import {
@@ -209,7 +209,7 @@ function diskDeleteCap(mappedCount: number): number {
 const FOLDER_MOVE_MIN_RATIO = 0.8;
 /** The Health row reason for a note held by an unanswered bulk delete. */
 export const DELETE_DECISION_REASON =
-  "removed from this folder in a bulk delete. It stays for your team and will be restored here";
+  "일괄 삭제로 이 폴더에서 사라졌어요. 팀에는 그대로 남아 있으며 이 기기에 복원돼요";
 /** How long an appeared folder stays a candidate for a move's new half. */
 const FOLDER_CANDIDATE_TTL_MS = 10_000;
 
@@ -623,9 +623,9 @@ export class SyncManager implements InboundHost {
         console.warn("[sync] pause listener threw", e);
       }
       if (next) {
-        if (!prev) this.note("warn", "sync-paused", "Sync paused: many notes were emptied at once");
+        if (!prev) this.note("warn", "sync-paused", "동기화 일시 중지: 많은 노트가 한꺼번에 비워졌어요");
       } else if (prev && reason === "lifted") {
-        this.note("info", "sync-resumed", "Sync resumed");
+        this.note("info", "sync-resumed", "동기화를 다시 시작했어요");
         const scope = this.scope;
         if (scope?.isCurrent()) this.requeueShrinkHeld(scope);
       }
@@ -1136,31 +1136,31 @@ export class SyncManager implements InboundHost {
     if (!this.scope) return;
     switch (s) {
       case "synced":
-        this.note("info", "connect", `Connected to ${this.serverHost()}`);
+        this.note("info", "connect", `${this.serverHost()}에 연결됐어요`);
         return;
       case "offline":
-        this.note("warn", "offline", "Connection lost. Reconnecting");
+        this.note("warn", "offline", "연결이 끊겼어요. 다시 연결하는 중");
         return;
       case "read-only":
         this.note(
           "info",
           "read-only",
-          "You have view-only access here. Your edits stay on this device",
+          "여기서는 보기 권한만 있어요. 수정 내용은 이 기기에만 남아요",
         );
         return;
       case "no-access":
         this.note("error", "no-access", this.vaultStatus === "no-access"
-          ? "The server refused access to this vault"
-          : "The server refused access to the open note");
+          ? "서버가 이 볼트에 대한 접근을 거부했어요"
+          : "서버가 열려 있는 노트에 대한 접근을 거부했어요");
         return;
       case "deleted":
-        this.note("warn", "deleted", "The open note no longer exists on the server");
+        this.note("warn", "deleted", "열려 있는 노트가 서버에 더 이상 없어요");
         return;
       case "too-large":
-        this.note("error", "too-large", "The open note is too large for the server to accept");
+        this.note("error", "too-large", "열려 있는 노트가 너무 커서 서버가 받을 수 없어요");
         return;
       case "error":
-        this.note("warn", "error", "The server could not be reached. Retrying");
+        this.note("warn", "error", "서버에 연결할 수 없어요. 다시 시도하는 중");
         return;
       default:
         // "connecting" — a handshake in progress is not news.
@@ -1183,30 +1183,30 @@ export class SyncManager implements InboundHost {
     this.loggedPhase = phase;
     if (phase == null || phase === "idle") return;
     if (phase === "removing") {
-      this.note("info", "run-start", "Updating access: checking local copies");
+      this.note("info", "run-start", "권한 업데이트: 로컬 사본을 확인하는 중");
       return;
     }
     if (phase === "registering" || phase === "uploading" || phase === "downloading") {
       // One start per run, not one per phase: a run walks registering →
       // downloading → uploading and all three are the same wave of work.
       if (prev === "registering" || prev === "uploading" || prev === "downloading") return;
-      this.note("info", "run-start", "Checking every note against the server");
+      this.note("info", "run-start", "서버와 모든 노트를 대조하는 중");
       return;
     }
     if (phase === "done") {
       const confirmed = p ? Math.max(0, p.done - p.failed) : 0;
-      this.note("info", "run-done", `Sync finished: ${confirmed} notes confirmed`);
+      this.note("info", "run-done", `동기화 완료: 노트 ${confirmed}개 확인됨`);
       return;
     }
     // "error" — the run ended without getting everything through.
     const failed = p?.failed ?? 0;
     if (failed > 0) {
-      this.note("error", "run-failed", `Sync finished with ${failed} notes not synced`);
+      this.note("error", "run-failed", `동기화 완료: 노트 ${failed}개는 동기화되지 않았어요`);
     } else {
       this.note(
         "error",
         "run-failed",
-        "Sync could not finish. The app never reached the server",
+        "동기화를 마치지 못했어요. 앱이 서버에 연결되지 않았어요",
       );
     }
   }
@@ -1465,7 +1465,7 @@ export class SyncManager implements InboundHost {
   async downloadMissingFiles(paths: readonly string[], epoch: number): Promise<void> {
     const scope = this.scope;
     if (!scope?.isCurrent() || scope.vaultEpoch !== epoch || !this.attachments) {
-      throw new Error("Connect this vault to the server before downloading files.");
+      throw new Error("파일을 내려받으려면 먼저 이 볼트를 서버에 연결하세요.");
     }
     await this.attachments.downloadMissing(paths);
   }
@@ -1474,17 +1474,17 @@ export class SyncManager implements InboundHost {
   async retryLocalFiles(paths: readonly string[], epoch: number): Promise<void> {
     const scope = this.scope;
     if (!scope?.isCurrent() || scope.vaultEpoch !== epoch || !this.attachments) {
-      throw new Error("Connect this vault to the server before retrying files.");
+      throw new Error("파일을 다시 시도하려면 먼저 이 볼트를 서버에 연결하세요.");
     }
     await this.attachments.retryFiles(paths);
   }
 
   async removeMissingServerFile(path: string, epoch: number): Promise<void> {
     const scope = this.scope;
-    if (!scope?.isCurrent() || scope.vaultEpoch !== epoch) throw new Error("The open vault changed.");
+    if (!scope?.isCurrent() || scope.vaultEpoch !== epoch) throw new Error("열려 있는 볼트가 바뀌었어요.");
     const id = this.registry.getFileId(path);
-    if (!id) throw new Error("This file is no longer in the accessible server inventory. Check again.");
-    if (!this.attachments) throw new Error("Connect this vault before removing a server file.");
+    if (!id) throw new Error("이 파일이 접근 가능한 서버 목록에 더 이상 없어요. 다시 확인하세요.");
+    if (!this.attachments) throw new Error("서버 파일을 제거하려면 먼저 이 볼트를 연결하세요.");
     await this.attachments.removeMissingFile(path, id);
     if (!scope.isCurrent()) return;
     this.registry.forgetFileId(path);
@@ -1944,7 +1944,7 @@ export class SyncManager implements InboundHost {
       log: (message) => this.note("info", "closed-app-edits", message),
     });
     if (result && result.queued > 0) {
-      this.note("info", "closed-app-edits-done", `Queued ${result.queued} notes edited while closed`);
+      this.note("info", "closed-app-edits-done", `앱을 닫은 동안 수정된 노트 ${result.queued}개를 대기열에 넣었어요`);
     }
   }
 
@@ -2067,8 +2067,8 @@ export class SyncManager implements InboundHost {
       "warn",
       "revoked",
       trashedTo
-        ? `Access to ${path} was removed. A copy is in .context/trash`
-        : `Access to ${path} was removed. It was taken off this device`,
+        ? `${path}에 대한 접근 권한이 제거됐어요. 사본은 .context/trash에 있어요`
+        : `${path}에 대한 접근 권한이 제거됐어요. 이 기기에서 삭제됐어요`,
       { docId, path },
     );
   }
@@ -2126,7 +2126,7 @@ export class SyncManager implements InboundHost {
   handleServerReauth(scope: VaultScope): void {
     if (!scope.isCurrent()) return;
     this.aclChangedAt = Date.now();
-    this.note("info", "reauth", "Permissions changed. Re-checking access");
+    this.note("info", "reauth", "권한이 바뀌었어요. 접근 권한을 다시 확인하는 중");
     // An access change can be exactly what was failing: retry everything now.
     this.retryBackoff.clearAll();
     // Two things follow from "the ACL moved". The open note re-mints its token so
@@ -2217,7 +2217,7 @@ export class SyncManager implements InboundHost {
       "revoked",
       // "item", not "note": the list carries tree binaries too now, and a PDF
       // reported as a note is the kind of small lie that costs a support round.
-      `Access to ${docIds.length} ${docIds.length === 1 ? "item" : "items"} was removed`,
+      `항목 ${docIds.length}개에 대한 접근 권한이 제거됐어요`,
     );
     this.handleRegistryChanged("acl-revoked");
     // The cold-start ACL signal, so the binary half is re-diffed on a launch
@@ -2434,7 +2434,7 @@ export class SyncManager implements InboundHost {
       this.retryBackoff.clear(mapping.docId);
       this.invalidatedFailures.delete(mapping.docId);
       this.localChanges.set(mapping.docId, relPath);
-      this.note("info", "push-queued", "Changed on disk while closed. Checking it against the server", {
+      this.note("info", "push-queued", "앱을 닫은 동안 디스크에서 바뀌었어요. 서버와 대조하는 중", {
         docId: mapping.docId,
         path: relPath,
       });
@@ -2726,7 +2726,7 @@ export class SyncManager implements InboundHost {
         this.note(
           "info",
           "disk-delete",
-          `${d.relPath} was deleted on this device and removed from the server for everyone`,
+          `${d.relPath}을(를) 이 기기에서 삭제했고 서버에서도 모두에게서 삭제됐어요`,
           { docId: d.docId, path: d.relPath },
         );
         // The OPEN note keeps its bridge deliberately. The editor is still
@@ -2800,7 +2800,7 @@ export class SyncManager implements InboundHost {
         kind: "inbound",
         path: d.relPath,
         docId: d.docId,
-        reason: `deleted on disk, but the server refused to remove it (${reason})`,
+        reason: `디스크에서는 삭제됐지만 서버가 삭제를 거부했어요 (${reason})`,
         code,
       });
 
@@ -2877,7 +2877,7 @@ export class SyncManager implements InboundHost {
       this.note(
         "info",
         "disk-delete",
-        `${d.relPath} was put back: ${NOT_CREATOR_MESSAGE.toLowerCase()}`,
+        `${d.relPath}을(를) 되돌려 놓았어요: ${NOT_CREATOR_MESSAGE}`,
         { docId: d.docId, path: d.relPath },
       );
     }
@@ -2901,15 +2901,15 @@ export class SyncManager implements InboundHost {
       items.map((d) => d.relPath).slice(0, 10),
     );
     toast(
-      `${items.length} notes disappeared from disk at once. They were NOT removed from the server. ` +
-        `If the folder was unmounted or checked out, reopening the vault restores them.`,
+      `노트 ${items.length}개가 디스크에서 한꺼번에 사라졌어요. 서버에서는 삭제되지 않았어요. ` +
+        `폴더가 마운트 해제되었거나 체크아웃된 경우 볼트를 다시 열면 복원돼요.`,
       "error",
     );
     this.note(
       "warn",
       "bulk-delete-refused",
-      `${items.length} notes vanished from this folder at once. They were left on the server ` +
-        `in case the folder was unmounted or checked out`,
+      `노트 ${items.length}개가 이 폴더에서 한꺼번에 사라졌어요. 폴더가 마운트 해제되었거나 체크아웃된 경우를 대비해 ` +
+        `서버에는 그대로 남겨 두었어요`,
     );
     for (const d of items) {
       this.registry.recordFailure({
@@ -2917,8 +2917,8 @@ export class SyncManager implements InboundHost {
         path: d.relPath,
         docId: d.docId,
         reason:
-          `${items.length} notes vanished from disk in one window (cap ${cap}), so they were ` +
-          `left on the server deliberately`,
+          `노트 ${items.length}개가 한꺼번에 디스크에서 사라졌어요(한도 ${cap}개). ` +
+          `의도적으로 서버에 그대로 두었어요`,
         code: null,
       });
     }
@@ -3041,7 +3041,7 @@ export class SyncManager implements InboundHost {
     // The file at the new path may hold edits made in the same breath as the
     // rename, and the note's row moved, so both surfaces need telling.
     this.localChanges.set(docId, to);
-    this.note("info", "push-queued", "Renamed on disk. Re-sending it under the new name", {
+    this.note("info", "push-queued", "디스크에서 이름이 바뀌었어요. 새 이름으로 다시 보내는 중", {
       docId,
       path: to,
     });
@@ -3299,7 +3299,7 @@ export class SyncManager implements InboundHost {
       edited++;
     }
     if (edited > 0) this.armLocalChangeDrain(scope, LOCAL_CHANGE_DEBOUNCE_MS);
-    this.note("info", "folder-moved", `${from} was moved to ${to} on this device, kept as a move for everyone`, {
+    this.note("info", "folder-moved", `${from}을(를) 이 기기에서 ${to}(으)로 옮겼고, 모두에게도 이동으로 반영해요`, {
       path: to,
     });
     // The open note and the tabs are re-pointed by prefix, like an inbound move.
@@ -3360,7 +3360,7 @@ export class SyncManager implements InboundHost {
     // An unanswered bulk delete is now the unmounted case: never asked.
     this.deleteDecision = null;
     this.deleteDecisionIds = new Set();
-    this.note("warn", "vault-root-missing", "The vault folder is missing. Restore it here or locate where it moved");
+    this.note("warn", "vault-root-missing", "볼트 폴더를 찾을 수 없어요. 여기에 복원하거나 옮겨진 위치를 찾아 주세요");
     this.emitStructureNotice();
   }
 
@@ -3578,7 +3578,7 @@ export class SyncManager implements InboundHost {
     this.note(
       "warn",
       "bulk-delete-held",
-      `${this.deleteDecision.length} notes were removed from this folder at once. They stay for the team and will be restored here`,
+      `노트 ${this.deleteDecision.length}개가 이 폴더에서 한꺼번에 삭제됐어요. 팀에는 그대로 남아 있고 이 기기에 복원돼요`,
     );
     this.emitStructureNotice();
   }
@@ -3616,7 +3616,7 @@ export class SyncManager implements InboundHost {
     this.note(
       "info",
       "bulk-delete-restored",
-      `Restoring ${items.length} notes from the server (${how === "restore" ? "restore now" : "dismissed"})`,
+      `서버에서 노트 ${items.length}개를 복원하는 중 (${how === "restore" ? "지금 복원" : "닫음"})`,
     );
     this.handleRegistryChanged("delete-restore");
   }
@@ -3631,7 +3631,7 @@ export class SyncManager implements InboundHost {
     this.note(
       "info",
       "closed-app-changes",
-      `Files changed while Baalda was closed: ${drift.missingMapped} known notes were missing and ${drift.unmappedLocal} new files appeared`,
+      `마이 세컨드 브레인을 닫은 동안 파일이 바뀌었어요: 알고 있던 노트 ${drift.missingMapped}개가 없어졌고 새 파일 ${drift.unmappedLocal}개가 생겼어요`,
     );
     this.emitStructureNotice();
   }
@@ -4838,7 +4838,7 @@ export class SyncManager implements InboundHost {
       this.note(
         "info",
         "server-behind",
-        `${docIds.length} ${docIds.length === 1 ? "note has" : "notes have"} edits the server never received`,
+        `서버가 받지 못한 수정 내용이 있는 노트가 ${docIds.length}개 있어요`,
       );
     }
     this.serverBehind = new Set(docIds);
@@ -4861,7 +4861,7 @@ export class SyncManager implements InboundHost {
       this.note(
         "info",
         "server-empty",
-        `Server asked for the content of ${docIds.length} ${docIds.length === 1 ? "note" : "notes"}`,
+        `서버가 노트 ${docIds.length}개의 내용을 요청했어요`,
       );
     }
     this.serverEmptyTruncated = truncated;
@@ -5110,7 +5110,7 @@ export class SyncManager implements InboundHost {
   ): Promise<{ ok: boolean; reason?: string; seeded?: boolean; scope?: VaultScope }> {
     if (!session.activeOrganizationId) {
       this.disable();
-      return { ok: false, reason: "no active organization" };
+      return { ok: false, reason: "활성 조직이 없어요" };
     }
     // A live session is in hand again (a sign-in, a server switch, a vault
     // switch), so re-arm the 401 guard. It latches shut on a confirmed
@@ -5350,10 +5350,10 @@ export class SyncManager implements InboundHost {
   async prepareSharedHome(docId: string, relPath: string, epoch: number): Promise<void> {
     const scope = this.scope;
     if (!this.enabled || !scope?.isCurrent() || scope.vaultEpoch !== epoch) {
-      throw new Error("Connect this vault before setting its shared Home.");
+      throw new Error("공유 홈을 설정하려면 먼저 이 볼트를 연결하세요.");
     }
     const token = await api.syncToken(docId);
-    if (!scope.isCurrent()) throw new Error("The open vault changed.");
+    if (!scope.isCurrent()) throw new Error("열려 있는 볼트가 바뀌었어요.");
     // Existing read-only files already use the server's authoritative content.
     if (token.readOnly || token.permission !== "edit") return;
     if (this.currentDocId === docId && this.current) {
@@ -5364,7 +5364,7 @@ export class SyncManager implements InboundHost {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
       if (!this.registry.isPushed(docId) || !scope.isCurrent() || this.current !== current || !(await current.whenFlushed(30_000))) {
-        throw new Error("Wait for this note to finish syncing before setting the vault Home.");
+        throw new Error("볼트 홈을 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
       }
       return;
     }
@@ -5381,7 +5381,7 @@ export class SyncManager implements InboundHost {
       if (this.permanentFailures.has(docId)) break;
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
-    throw new Error("Wait for this note to finish syncing before setting the vault Home.");
+    throw new Error("볼트 홈을 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
   }
 
   /**
@@ -5411,10 +5411,10 @@ export class SyncManager implements InboundHost {
   async resetNoteHistory(docId: string): Promise<{ bytesFreed: number }> {
     const scope = this.scope;
     if (!this.enabled || !scope || !scope.isCurrent()) {
-      throw new Error("sync is not enabled for this vault");
+      throw new Error("이 볼트는 동기화가 켜져 있지 않아요");
     }
     const relPath = this.registry.pathForDocId(docId);
-    if (!relPath) throw new Error(`no note is mapped to ${docId}`);
+    if (!relPath) throw new Error(`${docId}에 연결된 노트가 없어요`);
 
     // The file is the truth we re-seed from. An unreadable file is not a reason
     // to reset to empty — bail instead, so a transient read error cannot be the
@@ -5434,7 +5434,7 @@ export class SyncManager implements InboundHost {
     this.note(
       "info",
       "reset-history",
-      `Cleared the saved edit history for ${relPath} and re-sent it from the file`,
+      `${relPath}의 저장된 편집 기록을 지우고 파일에서 다시 보냈어요`,
       { docId, path: relPath },
     );
     console.info(
@@ -5482,7 +5482,7 @@ export class SyncManager implements InboundHost {
     if (!this.enabled || !scope || !scope.isCurrent()) return;
     const relPath = this.registry.pathForDocId(docId);
     if (!relPath) return;
-    this.note("info", "retry", "Retrying this note", { docId, path: relPath });
+    this.note("info", "retry", "이 노트를 다시 시도하는 중", { docId, path: relPath });
     this.retryBackoff.clear(docId);
     this.accessRetryBackoff.clear(docId);
     this.permanentFailures.delete(docId);
@@ -5508,7 +5508,7 @@ export class SyncManager implements InboundHost {
     const scope = this.scope;
     if (!this.enabled || !scope || !scope.isCurrent()) return;
     if (this.contentRunInFlight()) return;
-    this.note("info", "retry", "Sync now requested");
+    this.note("info", "retry", "지금 동기화를 요청했어요");
     this.retryBackoff.clearAll();
     // Permission refusals are terminal only for the access/state observed by
     // that attempt. A manual check safely re-evaluates them: withdraw the local
@@ -5744,9 +5744,7 @@ export class SyncManager implements InboundHost {
       this.note(
         "info",
         "bootstrap",
-        `Downloaded ${result.applied + result.merged} ${
-          result.applied + result.merged === 1 ? "note" : "notes"
-        } from the server`,
+        `서버에서 노트 ${result.applied + result.merged}개를 내려받았어요`,
       );
     }
     return result;
@@ -5994,7 +5992,7 @@ export class SyncManager implements InboundHost {
     this.note(
       "error",
       "server-too-old",
-      "Update your Baalda server. This app needs its bulk sync routes",
+      "마이 세컨드 브레인 서버를 업데이트하세요. 이 앱은 서버의 일괄 동기화 기능이 필요해요",
     );
     this.progress?.phase("error");
     this.progress?.flush();
@@ -6911,7 +6909,7 @@ export class SyncManager implements InboundHost {
         const relPath = this.registry.pathForDocId(docId);
         if (relPath) {
           this.localChanges.set(docId, relPath);
-          this.note("info", "push-queued", "Merged an edit made outside Baalda. Sending the result", {
+          this.note("info", "push-queued", "마이 세컨드 브레인 밖에서 한 수정을 병합했어요. 결과를 보내는 중", {
             docId,
             path: relPath,
           });
@@ -7320,6 +7318,8 @@ export class SyncManager implements InboundHost {
     // own scan decided earlier (scrolled back into view, note reopened).
     this.embedWantOff = onAttachmentWanted((relPath) => void embeds.request([relPath]));
     this.attachments = new AttachmentSync({
+      // 마브: videos and files over 25MB never upload; shared as Drive links.
+      isLocalOnly: isLocalOnlyBinary,
       // A vanished vault root (#221) stops the binary mirror too: a download
       // would re-create the old folder, a missing file would read as a delete.
       isCurrent: () => scope.isCurrent() && !this.rootMissing,
@@ -7720,8 +7720,8 @@ export class SyncManager implements InboundHost {
       path: relPath,
       docId,
       reason:
-        "edit could not be sent: no write access" +
-        (dest ? `; copy saved to ${dest}` : "; the local copy could not be saved either"),
+        "쓰기 권한이 없어 수정 내용을 보내지 못했어요" +
+        (dest ? `. 사본을 ${dest}에 저장했어요` : ". 로컬 사본도 저장하지 못했어요"),
       code: null,
     });
     return dest != null;

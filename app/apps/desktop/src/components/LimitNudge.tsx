@@ -31,11 +31,11 @@ export function LimitNudge({
   const teamVault = teamMode && kind === "vault_limit";
   const message = teamVault
     ? teamVaultLimitCopy(n)
-    : kind === "note_limit" ? (teamMode ? "This vault has reached its sync limit. Upgrade to Team to lift it." : `This Free vault has reached ${n.toLocaleString()} synced notes. Upgrade to Team to sync more; additional notes stay on this device.`) : kind === "member_limit"
-      ? `Free plan limit reached: this vault allows ${n} member${n === 1 ? "" : "s"}.`
+    : kind === "note_limit" ? (teamMode ? "이 볼트가 동기화 한도에 도달했어요. 팀 플랜으로 업그레이드하면 한도가 풀려요." : `무료 볼트가 동기화 노트 ${n.toLocaleString()}개 한도에 도달했어요. 팀 플랜으로 업그레이드하면 더 동기화할 수 있어요. 추가 노트는 이 기기에만 남아요.`) : kind === "member_limit"
+      ? `무료 플랜 한도에 도달했어요. 이 볼트는 멤버 ${n}명까지 가능해요.`
       : // The cap counts FREE vaults only: a Team vault leaves the count, so
         // upgrading one of them opens a slot for another free vault.
-        `You're using all ${n} free vault${n === 1 ? "" : "s"}. Move one to a Team account ($10/seat/month, minimum 3 seats) and you can create another. Team vaults don't count toward that limit.`;
+        `무료 볼트 ${n}개를 모두 사용 중이에요. 하나를 팀 계정(좌석당 월 $10, 최소 3석)으로 옮기면 새 볼트를 만들 수 있어요. 팀 볼트는 이 한도에 포함되지 않아요.`;
   return (
     <div className="limit-nudge">
       <span>{message}</span>
@@ -44,11 +44,11 @@ export function LimitNudge({
           className="link-btn"
           onClick={() => useStore.getState().requestUpgradeDialog({ reason: vaultLimitReason(n) })}
         >
-          Upgrade to Team
+          팀 플랜으로 업그레이드
         </button>
       ) : (
         <button className="link-btn" onClick={onUpgrade}>
-          Upgrade →
+          업그레이드 →
         </button>
       )}
     </div>

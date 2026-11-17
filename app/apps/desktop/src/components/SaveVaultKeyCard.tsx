@@ -1,4 +1,4 @@
-// "Important: save your vault key" (owner decision 2026-11-01). Shown at the top
+// "중요: 볼트 키를 저장하세요" (owner decision 2026-11-01). Shown at the top
 // of Vault Settings → General, only to the OWNER of an encrypted vault who would
 // otherwise have no way back if this computer were lost: no password wrap of
 // their account key, no other computer holding it, and no teammate holding the
@@ -70,12 +70,12 @@ export function SaveVaultKeyCard({ vaultId, vaultName }: { vaultId: string; vaul
   const confirmSaved = async () => {
     await recordVaultKeySaved(vaultId, "confirmed");
     setNeeded(false);
-    toast("Got it.");
+    toast("확인했어요.");
   };
 
   const setPassword = async () => {
-    if (pw.length < 8) return toast("Use at least 8 characters.", "error");
-    if (pw !== pw2) return toast("The two passwords don't match.", "error");
+    if (pw.length < 8) return toast("8자 이상으로 입력하세요.", "error");
+    if (pw !== pw2) return toast("두 비밀번호가 일치하지 않아요.", "error");
     try {
       await api.setAccountPassword(pw);
       if (userId) await vaultKeysPasswordUnlock(userId, pw);
@@ -88,54 +88,54 @@ export function SaveVaultKeyCard({ vaultId, vaultName }: { vaultId: string; vaul
     }
     setSettingPassword(false);
     setNeeded(false);
-    toast("Password set. It now also unlocks your vaults on a new computer.");
+    toast("비밀번호를 설정했어요. 이제 새 컴퓨터에서도 이 비밀번호로 볼트를 열 수 있어요.");
   };
 
   return (
-    <section className="save-key-card" aria-label="Save your vault key">
+    <section className="save-key-card" aria-label="볼트 키 저장">
       <div className="save-key-head">
         <span className="save-key-badge" aria-hidden="true">!</span>
         <div>
-          <div className="save-key-title">Important: save your vault key</div>
+          <div className="save-key-title">중요: 볼트 키를 저장하세요</div>
           <p className="save-key-desc">
-            Only your devices hold this vault&apos;s key. If you lose this computer, you&apos;ll need it to get back
-            in. Keep a copy somewhere safe, like a password manager.
+            이 볼트의 키는 내 기기에만 있어요. 이 컴퓨터를 잃어버리면 다시 들어가기 위해 키가 필요해요.
+            비밀번호 관리자처럼 안전한 곳에 사본을 보관하세요.
           </p>
           <p className="save-key-desc">
-            To use it on a new computer, open the vault and choose Restore with vault key.
+            새 컴퓨터에서 쓰려면 볼트를 열고 '볼트 키로 복원'을 선택하세요.
           </p>
         </div>
       </div>
       <div className="save-key-actions">
         <AsyncButton className="primary sm" onClick={saveToFile}>
-          Save to file
+          파일로 저장
         </AsyncButton>
         <button type="button" className="secondary sm" onClick={() => setShown(shown ? null : words())}>
-          {shown ? "Hide key" : "Show key"}
+          {shown ? "키 숨기기" : "키 보기"}
         </button>
         {canSetPassword && (
           <button type="button" className="secondary sm" onClick={() => setSettingPassword((v) => !v)}>
-            Set a password instead
+            대신 비밀번호 설정
           </button>
         )}
       </div>
       {shown && (
         <div className="save-key-panel">
-          <CopyField value={shown} label="vault key" wrap sensitive />
+          <CopyField value={shown} label="볼트 키" wrap sensitive />
           <AsyncButton className="ghost sm" onClick={confirmSaved}>
-            I&apos;ve saved it
+            저장했어요
           </AsyncButton>
         </div>
       )}
       {settingPassword && (
         <div className="save-key-panel">
           <p className="save-key-desc">
-            A Baalda password unlocks your vaults on a new computer. You can also sign in with it, as well as with Google.
+            마이 세컨드 브레인 비밀번호가 있으면 새 컴퓨터에서 볼트를 열 수 있어요. Google 로그인과 함께 이 비밀번호로도 로그인할 수 있어요.
           </p>
-          <input type="password" placeholder="New password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
-          <input type="password" placeholder="Repeat password" value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
+          <input type="password" placeholder="새 비밀번호" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
+          <input type="password" placeholder="비밀번호 확인" value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
           <AsyncButton className="primary sm" onClick={setPassword}>
-            Set password
+            비밀번호 설정
           </AsyncButton>
         </div>
       )}

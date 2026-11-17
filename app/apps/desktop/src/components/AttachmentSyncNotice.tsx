@@ -39,17 +39,17 @@ export function AttachmentLocalOnlyNoticeView({
       </span>
       <span className="attachment-sync-copy">
         <strong className="attachment-sync-title">
-          Standalone files require Team to sync
+          독립 파일 동기화는 Team 플랜에서 쓸 수 있어요
         </strong>
         <span className="attachment-sync-body">
-          Notes and their embedded attachments still sync. Standalone files stay on
-          this device and remain available to preview locally.
+          노트와 노트에 포함된 첨부 파일은 계속 동기화돼요. 독립 파일은 이 기기에만 남고
+          이 기기에서 미리 볼 수 있어요.
         </span>
       </span>
       {showUpgrade && onUpgrade && (
         <div className="banner-actions">
           <button className="primary sm attachment-sync-cta" onClick={onUpgrade}>
-            Upgrade to Team
+            Team으로 업그레이드
           </button>
         </div>
       )}

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/http/app.js";
 import { testAppDeps } from "./helpers/app.js";
 import { pool } from "../src/db/pool.js";
@@ -71,6 +71,8 @@ afterAll(async () => {
 
 describe("storage quota", () => {
   beforeEach(async () => {
+    // These pin the Cloud free-plan quota; 마브's default is self-hosted.
+    vi.stubEnv("BAALDA_DEPLOYMENT", "cloud");
     await resetDb();
     owner = await signUp(`owner-${randomUUID().slice(0, 8)}@quota.com`);
     orgId = await seedOrg("Quota Co", `quota-${randomUUID().slice(0, 8)}`);
@@ -81,6 +83,7 @@ describe("storage quota", () => {
 
   afterEach(() => {
     delete process.env.POLAR_ACCESS_TOKEN;
+    vi.unstubAllEnvs();
   });
 
   it("enforces the free storage limit for embedded attachments", async () => {

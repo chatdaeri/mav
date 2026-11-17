@@ -25,7 +25,7 @@ function post(path: string, body: unknown, headers: Record<string, string> = {})
 
 /** The reset token from the last email sent to `to`. */
 function lastResetToken(to: string): string {
-  const mail = [...memoryOutbox].reverse().find((m) => m.to === to && /reset/i.test(m.subject));
+  const mail = [...memoryOutbox].reverse().find((m) => m.to === to && /재설정/.test(m.subject));
   if (!mail) throw new Error(`no reset email to ${to}`);
   const m = mail.text.match(/\/reset-password\?token=([A-Za-z0-9._-]+)/);
   if (!m) throw new Error("reset email carries no token link");
@@ -58,7 +58,7 @@ describe("password reset", () => {
     // The emailed page renders (and never reflects the token unescaped).
     const pageRes = await app.request(`/reset-password?token=${token}`);
     expect(pageRes.status).toBe(200);
-    expect(await pageRes.text()).toContain("Choose a new password");
+    expect(await pageRes.text()).toContain("새 비밀번호 정하기");
 
     const reset = await post("/api/auth/reset-password", { newPassword: "new-password-2", token });
     expect(reset.status).toBe(200);
@@ -151,8 +151,8 @@ describe("password reset", () => {
     const verified = await app.request("/email-verified");
     expect(verified.status).toBe(200);
     // Bounces back into the app, like the invite page does.
-    expect(await verified.text()).toContain("baalda://verified");
-    expect(await (await app.request("/reset-password?token=abc")).text()).toContain("baalda://signin");
+    expect(await verified.text()).toContain("mav://verified");
+    expect(await (await app.request("/reset-password?token=abc")).text()).toContain("mav://signin");
     expect((await app.request("/email-verified?error=invalid_token")).status).toBe(400);
     // The MCP login page links to it when email is on.
     expect(await (await app.request("/oauth/login")).text()).toContain("/forgot-password");
@@ -173,7 +173,7 @@ describe("password reset", () => {
 
   it("sends a verification email on sign-up and the link verifies the address", async () => {
     const bob = await signUp("bob@verify.io");
-    const mail = memoryOutbox.find((m) => m.to === "bob@verify.io" && /confirm/i.test(m.subject));
+    const mail = memoryOutbox.find((m) => m.to === "bob@verify.io" && /이메일 확인/.test(m.subject));
     expect(mail).toBeDefined();
     const link = mail!.text.match(/https?:\/\/\S+\/api\/auth\/verify-email\?\S+/)?.[0];
     expect(link).toBeTruthy();

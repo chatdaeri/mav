@@ -15,6 +15,10 @@ pub struct ParsedLink {
     pub raw: String,
     /// Byte offset of the link in the full file content.
     pub position: i64,
+    /// 마브: a Markdown link `[text](path.md)` rather than a `[[wikilink]]`.
+    /// `target` is then the decoded path RELATIVE to the note's folder, and the
+    /// index resolves it by exact path instead of by basename/title.
+    pub path_link: bool,
 }
 
 /// Everything we derive from a single note's bytes.
@@ -46,6 +50,56 @@ static TAG_RE: Lazy<Regex> =
 
 // `[[target]]`, `[[target|alias]]`, `[[target#heading]]`.
 static WIKILINK_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[\[([^\]\n]+)\]\]").unwrap());
+
+// Markdown link `[text](target)` / `[text](<target with spaces>)`; images
+// (`![...]`) are filtered by the caller. Only note targets become graph edges.
+static MD_LINK_RE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\[([^\]\n]*)\]\(\s*(<[^>\n]+>|[^)\s]+)").unwrap());
+
+/// `%XX` decoding for link targets (`My%20Note.md`). Invalid sequences stay as
+/// written; invalid UTF-8 falls back to the raw text.
+fn percent_decode(s: &str) -> String {
+    if !s.contains('%') {
+        return s.to_string();
+    }
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() && b[i + 1].is_ascii_hexdigit() && b[i + 2].is_ascii_hexdigit() {
+            let hex = |c: u8| (c as char).to_digit(16).unwrap_or(0) as u8;
+            out.push(hex(b[i + 1]) * 16 + hex(b[i + 2]));
+            i += 3;
+            continue;
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8(out).unwrap_or_else(|_| s.to_string())
+}
+
+/// The note path a Markdown link points at, or `None` for URLs, anchors,
+/// absolute paths and non-note files.
+fn md_link_note_target(raw: &str) -> Option<String> {
+    let t = raw.trim();
+    let t = t.strip_prefix('<').and_then(|x| x.strip_suffix('>')).unwrap_or(t).trim();
+    if t.is_empty() || t.starts_with('#') || t.starts_with('/') || t.contains("://") {
+        return None;
+    }
+    if let Some((scheme, _)) = t.split_once(':') {
+        if !scheme.is_empty() && scheme.chars().all(|c| c.is_ascii_alphanumeric() || "+.-".contains(c)) {
+            return None;
+        }
+    }
+    let path = t.split(['#', '?']).next().unwrap_or("");
+    let path = percent_decode(path);
+    let lower = path.to_lowercase();
+    if lower.ends_with(".md") || lower.ends_with(".markdown") || lower.ends_with(".mdx") {
+        Some(path)
+    } else {
+        None
+    }
+}
 
 // First ATX H1 (`# Title`) on its own line.
 static H1_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?m)^#\s+(.+?)\s*$").unwrap());
@@ -286,6 +340,25 @@ pub fn parse_note(content: &str, stem: &str) -> ParsedNote {
             target,
             raw,
             position: (offset + m.start()) as i64,
+            path_link: false,
+        });
+    }
+    for cap in MD_LINK_RE.captures_iter(body) {
+        let m = cap.get(0).unwrap();
+        if literals[m.start()..m.end()].iter().any(|literal| *literal) {
+            continue;
+        }
+        if m.start() > 0 && body.as_bytes()[m.start() - 1] == b'!' {
+            continue; // an image embed, not a link
+        }
+        let Some(target) = md_link_note_target(&cap[2]) else {
+            continue;
+        };
+        links.push(ParsedLink {
+            target,
+            raw: cap[1].trim().to_string(),
+            position: (offset + m.start()) as i64,
+            path_link: true,
         });
     }
 
@@ -410,6 +483,17 @@ mod tests {
     #[test]
     fn empty_note_titles_from_its_stem() {
         assert_eq!(parse_note("", "My Note").title, "My Note");
+    }
+
+    #[test]
+    fn extracts_relative_markdown_links_to_notes() {
+        let p = parse_note(
+            "- [콘텐츠](<콘텐츠/content.md>) — 안내\n- [원본](원본/a%20b.md#h)\n![img](a.png)\n[x](https://e.com/a.md)\n[pdf](<x.pdf>)\n`[c](code.md)`",
+            "s",
+        );
+        let md: Vec<_> = p.links.iter().filter(|l| l.path_link).map(|l| l.target.as_str()).collect();
+        assert_eq!(md, vec!["콘텐츠/content.md", "원본/a b.md"]);
+        assert_eq!(p.links.iter().find(|l| l.path_link).unwrap().raw, "콘텐츠");
     }
 
     #[test]

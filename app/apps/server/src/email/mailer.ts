@@ -108,7 +108,7 @@ export function resolveEmailConfig(env: EmailEnv): EmailConfig | null {
   }
   if (!from) {
     throw new Error(
-      "EMAIL_FROM is required to send email (e.g. 'Baalda <no-reply@example.com>').",
+      "EMAIL_FROM is required to send email (e.g. '마이 세컨드 브레인 <no-reply@example.com>').",
     );
   }
   if (transport === "smtp" && !smtpUrl) {

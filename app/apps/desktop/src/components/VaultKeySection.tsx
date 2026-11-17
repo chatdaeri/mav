@@ -28,12 +28,12 @@ import { AsyncButton } from "./AsyncButton";
 import { CopyField } from "./McpTab";
 
 const RESTORE_MESSAGES: Record<string, string> = {
-  restored: "Vault key restored on this computer.",
-  "invalid-words": "Those are not 24 valid key words. Check each word.",
-  "wrong-key": "That key does not belong to this vault. Nothing was changed.",
-  "cannot-verify": "The server could not confirm the key right now. Try again later.",
-  "security-warning": "Your security key does not match this computer. Keys are paused.",
-  disabled: "This server does not support vault keys yet.",
+  restored: "이 컴퓨터에 볼트 키를 복원했어요.",
+  "invalid-words": "유효한 키 단어 24개가 아니에요. 각 단어를 확인하세요.",
+  "wrong-key": "이 볼트의 키가 아니에요. 아무것도 바뀌지 않았어요.",
+  "cannot-verify": "서버가 지금은 키를 확인할 수 없어요. 나중에 다시 시도해 주세요.",
+  "security-warning": "보안 키가 이 컴퓨터와 맞지 않아요. 키 사용이 일시 중지됐어요.",
+  disabled: "이 서버는 아직 볼트 키를 지원하지 않아요.",
 };
 
 export function VaultKeySection({
@@ -95,7 +95,7 @@ export function VaultKeySection({
   const saveKeyFile = () => saveVaultKeyToFile(vaultId, vaultName);
   const confirmSaved = async () => {
     await recordVaultKeySaved(vaultId, "confirmed");
-    toast("Got it.");
+    toast("확인했어요.");
     setShown(null);
   };
 
@@ -104,42 +104,42 @@ export function VaultKeySection({
       <div className="encryption-key-row">
         <KeyIcon />
         <span className="encryption-key-text">
-          <b>Vault key</b>
+          <b>볼트 키</b>
           <span>
             {words
-              ? "24 words that unlock this vault on a new computer. Anyone with them can read it."
-              : "This computer doesn't have this vault's key yet. A teammate's computer usually shares it automatically."}
+              ? "새 컴퓨터에서 이 볼트를 여는 24개 단어예요. 이 단어가 있으면 누구나 볼트를 읽을 수 있어요."
+              : "이 컴퓨터에는 아직 이 볼트의 키가 없어요. 보통 팀원의 컴퓨터가 자동으로 공유해 줘요."}
           </span>
         </span>
         {words && !shown && (
           <>
             <AsyncButton className="secondary sm" onClick={saveKeyFile}>
-              Save to file
+              파일로 저장
             </AsyncButton>
             <button type="button" className="encryption-ink-btn" onClick={() => setShown(words)}>
-              Show vault key
+              볼트 키 보기
             </button>
           </>
         )}
         {!words && !restoring && (
           <button type="button" className="encryption-ink-btn" onClick={() => setRestoring(true)}>
-            Restore with vault key
+            볼트 키로 복원
           </button>
         )}
       </div>
 
       {words && shown && (
         <div className="vault-key-panel">
-          <CopyField value={shown} label="vault key" wrap sensitive />
+          <CopyField value={shown} label="볼트 키" wrap sensitive />
           <div className="row">
             <AsyncButton className="secondary sm" onClick={saveKeyFile}>
-              Save to file
+              파일로 저장
             </AsyncButton>
             <button type="button" className="secondary sm" onClick={() => setShown(null)}>
-              Hide
+              숨기기
             </button>
             <AsyncButton className="ghost sm" onClick={confirmSaved}>
-              I&apos;ve saved it
+              저장했어요
             </AsyncButton>
           </div>
         </div>
@@ -154,8 +154,8 @@ export function VaultKeySection({
             autoFocus
             autoComplete="off"
             spellCheck={false}
-            placeholder="Paste the 24 words of this vault's key"
-            aria-label="Vault key"
+            placeholder="이 볼트 키의 단어 24개를 붙여 넣으세요"
+            aria-label="볼트 키"
             onChange={(e) => setRestoreText(e.target.value)}
           />
           <div className="row">
@@ -172,7 +172,7 @@ export function VaultKeySection({
                 }
               }}
             >
-              Restore
+              복원
             </AsyncButton>
             <button
               type="button"
@@ -182,7 +182,7 @@ export function VaultKeySection({
                 setRestoreText("");
               }}
             >
-              Cancel
+              취소
             </button>
           </div>
         </div>
@@ -211,8 +211,8 @@ function EncryptionCard({ converting, children }: { converting: string | null; c
   return (
     <div data-settings-section="security">
       <div className="menu-sep" />
-      <div className="subhead">Security</div>
-      <section className="encryption-card" aria-label="Encryption">
+      <div className="subhead">보안</div>
+      <section className="encryption-card" aria-label="암호화">
         <div className="encryption-card-main">
           <span className="encryption-badge" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -223,10 +223,10 @@ function EncryptionCard({ converting, children }: { converting: string | null; c
           </span>
           <div className="encryption-card-body">
             <div className="encryption-card-title">
-              Encrypted <span className="encryption-pill">Key held by your team</span>
+              암호화됨 <span className="encryption-pill">팀이 키를 보관</span>
             </div>
             <p className="encryption-card-desc">
-              This vault is encrypted with a key that only your team&apos;s devices hold.
+              이 볼트는 팀의 기기만 가진 키로 암호화돼요.
             </p>
             {converting && <p className="encryption-card-converting">{converting}</p>}
           </div>

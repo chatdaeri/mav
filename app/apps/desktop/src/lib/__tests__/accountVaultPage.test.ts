@@ -13,10 +13,10 @@ const usage = { orgId: "o1", name: "Acme", people: 1, notes: 21, storageBytes: 5
 describe("vaultPageTiles", () => {
   it("shows people, notes, attachments and files from the usage row", () => {
     expect(vaultPageTiles(usage).map((t) => [t.key, t.value, t.sub])).toEqual([
-      ["people", "1", "person"],
-      ["notes", "21", "notes"],
+      ["people", "1", "명"],
+      ["notes", "21", "개"],
       ["attachments", "5", "MB"],
-      ["files", "3", "files"],
+      ["files", "3", "개"],
     ]);
   });
 
@@ -38,10 +38,10 @@ describe("vaultPageRole", () => {
 
 describe("vaultPagePlanLine", () => {
   it("names my account's plan or the owner's account", () => {
-    expect(vaultPagePlanLine({ onMyAccount: true, accountPlan: "team", ownerName: null })).toBe("On your Team account");
-    expect(vaultPagePlanLine({ onMyAccount: true, accountPlan: "free", ownerName: null })).toBe("On your Free account");
-    expect(vaultPagePlanLine({ onMyAccount: false, accountPlan: "team", ownerName: "Sara" })).toBe("On Sara's account");
-    expect(vaultPagePlanLine({ onMyAccount: false, accountPlan: null, ownerName: null })).toBe("On the owner's account");
+    expect(vaultPagePlanLine({ onMyAccount: true, accountPlan: "team", ownerName: null })).toBe("내 팀 계정");
+    expect(vaultPagePlanLine({ onMyAccount: true, accountPlan: "free", ownerName: null })).toBe("내 무료 계정");
+    expect(vaultPagePlanLine({ onMyAccount: false, accountPlan: "team", ownerName: "Sara" })).toBe("Sara님의 계정");
+    expect(vaultPagePlanLine({ onMyAccount: false, accountPlan: null, ownerName: null })).toBe("소유자의 계정");
   });
 });
 
@@ -49,20 +49,20 @@ describe("vaultPageDetails", () => {
   const fmt = (iso: string) => `D(${iso.slice(0, 10)})`;
   it("lists role, plan, folder and created", () => {
     expect(
-      vaultPageDetails({ role: "owner", planLine: "On your Team account", folderPath: "/v/Acme", createdAt: "2026-01-02T00:00:00Z", formatDate: fmt }),
+      vaultPageDetails({ role: "owner", planLine: "내 팀 계정", folderPath: "/v/Acme", createdAt: "2026-01-02T00:00:00Z", formatDate: fmt }),
     ).toEqual([
-      { key: "role", label: "Your role", value: "Owner" },
-      { key: "plan", label: "Plan", value: "On your Team account" },
-      { key: "folder", label: "Folder on this device", value: "/v/Acme" },
-      { key: "created", label: "Created", value: "D(2026-01-02)" },
+      { key: "role", label: "내 역할", value: "소유자" },
+      { key: "plan", label: "플랜", value: "내 팀 계정" },
+      { key: "folder", label: "이 기기의 폴더", value: "/v/Acme" },
+      { key: "created", label: "만든 날짜", value: "D(2026-01-02)" },
     ]);
   });
 
   it("drops plan without billing and created without a date", () => {
     const rows = vaultPageDetails({ role: null, planLine: null, folderPath: null, createdAt: undefined, formatDate: fmt });
     expect(rows).toEqual([
-      { key: "role", label: "Your role", value: "—" },
-      { key: "folder", label: "Folder on this device", value: "Not on this device" },
+      { key: "role", label: "내 역할", value: "—" },
+      { key: "folder", label: "이 기기의 폴더", value: "이 기기에 없음" },
     ]);
   });
 });

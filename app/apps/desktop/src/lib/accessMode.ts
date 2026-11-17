@@ -26,9 +26,9 @@ export type OrgRow = "edit" | "view" | "readonly" | "locked" | "denied";
  * state nobody could find.
  */
 export const MODE_LABEL: Record<TeamMode, string> = {
-  open: "Can edit",
-  readonly: "Can view",
-  private: "No access",
+  open: "편집 가능",
+  readonly: "보기 가능",
+  private: "접근 불가",
 };
 
 export interface EffectiveTeamModeInput {
@@ -244,9 +244,9 @@ export function buildOrgRowsByPath(
  */
 export function overrideCountPhrase(folders: number, notes: number): string {
   const parts: string[] = [];
-  if (folders > 0) parts.push(`${folders} folder setting${folders === 1 ? "" : "s"}`);
-  if (notes > 0) parts.push(`${notes} note setting${notes === 1 ? "" : "s"}`);
-  return parts.join(" and ");
+  if (folders > 0) parts.push(`폴더 설정 ${folders}개`);
+  if (notes > 0) parts.push(`노트 설정 ${notes}개`);
+  return parts.join(" 및 ");
 }
 
 /**
@@ -257,7 +257,5 @@ export function overrideCountPhrase(folders: number, notes: number): string {
  * showing: a teammate can add an override between the confirm and the write.
  */
 export function clearedCountPhrase(cleared: number): string {
-  return cleared === 1
-    ? "1 folder or note setting"
-    : `${cleared} folder and note settings`;
+  return `폴더 및 노트 설정 ${cleared}개`;
 }

@@ -42,36 +42,36 @@ interface Block {
 }
 
 const BLOCKS: Block[] = [
-  { label: "Heading 1", detail: "#", keywords: "h1 title", insert: "# ", caret: 2 },
-  { label: "Heading 2", detail: "##", keywords: "h2", insert: "## ", caret: 3 },
-  { label: "Heading 3", detail: "###", keywords: "h3", insert: "### ", caret: 4 },
-  { label: "Bullet list", detail: "-", keywords: "ul unordered", insert: "- ", caret: 2 },
-  { label: "Numbered list", detail: "1.", keywords: "ol ordered", insert: "1. ", caret: 3 },
-  { label: "Task", detail: "- [ ]", keywords: "todo checkbox", insert: "- [ ] ", caret: 6 },
-  { label: "Quote", detail: ">", keywords: "blockquote", insert: "> ", caret: 2 },
+  { label: "제목 1", detail: "#", keywords: "h1 title heading 제목", insert: "# ", caret: 2 },
+  { label: "제목 2", detail: "##", keywords: "h2 heading 제목", insert: "## ", caret: 3 },
+  { label: "제목 3", detail: "###", keywords: "h3 heading 제목", insert: "### ", caret: 4 },
+  { label: "글머리 기호 목록", detail: "-", keywords: "ul unordered bullet list 목록", insert: "- ", caret: 2 },
+  { label: "번호 목록", detail: "1.", keywords: "ol ordered numbered list 목록", insert: "1. ", caret: 3 },
+  { label: "할 일", detail: "- [ ]", keywords: "task todo checkbox 체크박스", insert: "- [ ] ", caret: 6 },
+  { label: "인용", detail: ">", keywords: "quote blockquote 인용문", insert: "> ", caret: 2 },
   {
-    label: "Code block",
+    label: "코드 블록",
     detail: "```",
-    keywords: "fence pre",
+    keywords: "code block fence pre 코드",
     insert: "```\n\n```",
     caret: 4, // inside the fences (after "```\n")
   },
   {
-    label: "Diagram",
+    label: "다이어그램",
     detail: "mermaid",
-    keywords: "mermaid flowchart chart graph sequence",
+    keywords: "diagram mermaid flowchart chart graph sequence 도표",
     insert: "```mermaid\nflowchart TD\n  A[Start] --> B[Finish]\n```",
     caret: 11, // on the first body line, just after "```mermaid\n"
   },
   {
-    label: "Table",
+    label: "표",
     detail: "columns",
-    keywords: "grid",
-    insert: "| Column | Column |\n| --- | --- |\n|  |  |",
+    keywords: "table grid 테이블",
+    insert: "| 열 | 열 |\n| --- | --- |\n|  |  |",
     caret: 2, // select the first header cell
-    selTo: 8,
+    selTo: 3,
   },
-  { label: "Divider", detail: "---", keywords: "hr rule separator", insert: "---\n", caret: 4 },
+  { label: "구분선", detail: "---", keywords: "divider hr rule separator 줄", insert: "---\n", caret: 4 },
 ];
 
 const COMPLETIONS: Completion[] = BLOCKS.map((b) => ({

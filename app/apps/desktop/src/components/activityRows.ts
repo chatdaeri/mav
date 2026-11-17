@@ -106,45 +106,45 @@ export function retryAction(docId: string, settled: (docId: string) => boolean):
 const n = (x: number) => x.toLocaleString("en-US");
 
 export function shrinkText(e: Pick<ShrinkEvent, "beforeChars" | "afterChars">): string {
-  return `went from ${n(e.beforeChars)} to ${n(e.afterChars)} characters`;
+  return `${n(e.beforeChars)}자에서 ${n(e.afterChars)}자로 줄었어요`;
 }
 
 export function heldText(count: number): string {
-  return `${n(count)} ${count === 1 ? "note" : "notes"} vanished from disk at once`;
+  return `노트 ${n(count)}개가 한꺼번에 디스크에서 사라졌어요`;
 }
 
 export function invitationExpiredText(e: Pick<InvitationExpiry, "email">): string {
-  return `Invitation to ${e.email} expired before it was accepted`;
+  return `${e.email}님에 대한 초대가 수락되기 전에 만료됐어요`;
 }
 
 /** "Sync paused for Sam · 12 notes emptied at once" ("Your sync was paused"
  *  when it is the viewer's own). */
 export function pausedText(e: Pick<ShrinkBrakeEvent, "userName" | "noteCount">, own: boolean): string {
-  const notes = `${n(e.noteCount)} ${e.noteCount === 1 ? "note" : "notes"} emptied at once`;
-  if (own) return `Your sync was paused · ${notes}`;
-  const who = e.userName?.trim() ? e.userName.trim() : "a member";
-  return `Sync paused for ${who} · ${notes}`;
+  const notes = `노트 ${n(e.noteCount)}개가 한꺼번에 비워짐`;
+  if (own) return `내 동기화가 일시 중지됨 · ${notes}`;
+  const who = e.userName?.trim() ? `${e.userName.trim()}님` : "한 멤버";
+  return `${who}의 동기화가 일시 중지됨 · ${notes}`;
 }
 
 export function accessText(e: AccessEvent): string {
-  if (e.kind === "removed") return e.self ? "You removed your access" : "Access to this note was removed";
-  return `${n(e.count)} ${e.count === 1 ? "note" : "notes"} became available to you`;
+  if (e.kind === "removed") return e.self ? "내가 권한을 제거했어요" : "이 노트에 대한 권한이 제거됐어요";
+  return `노트 ${n(e.count)}개를 이제 볼 수 있어요`;
 }
 
 /** Row tooltips: the short explanations the old section descriptions gave. */
 export const ACTIVITY_HINT = {
-  reconcile: "What sync changed for you after being offline, since Baalda launched.",
-  trash: "Deleted on the server. It stays in Trash until purged; Restore brings it back for everyone.",
-  copy: "A local recovery copy in .context/trash. It never syncs.",
-  held: "Many notes disappeared from the vault folder at once. Nothing was deleted for your team, and they are being restored here.",
-  shrunk: "An edit left at most a fifth of this note. The server kept the text from before it.",
+  reconcile: "오프라인이던 동안 마이 세컨드 브레인을 켠 이후 동기화가 나를 위해 바꾼 내용이에요.",
+  trash: "서버에서 삭제됐어요. 영구 삭제되기 전까지 휴지통에 남아 있고, 복원하면 모든 멤버에게 다시 보여요.",
+  copy: ".context/trash에 있는 로컬 복구 사본이에요. 동기화되지 않아요.",
+  held: "많은 노트가 볼트 폴더에서 한꺼번에 사라졌어요. 팀에서는 아무것도 삭제되지 않았고, 여기서 복원하는 중이에요.",
+  shrunk: "편집 후 이 노트에 원래의 5분의 1 이하만 남았어요. 서버에는 그 이전 텍스트가 보관돼 있어요.",
   paused:
-    "Many notes were emptied at once from one account, so the server paused that account's sync. " +
-    "Every emptied note was saved as a version first. Their edits stay on their device and sync " +
-    "when the pause ends or an owner or admin releases it.",
-  access: "Someone changed who can see this. Only this app session's changes are listed.",
-  failed: "Sync could not finish this item.",
-  invitation: "Nobody accepted this invitation before it expired. Resend sends a new link with a fresh expiry.",
+    "한 계정에서 많은 노트가 한꺼번에 비워져서 서버가 그 계정의 동기화를 일시 중지했어요. " +
+    "비워진 노트는 먼저 모두 버전으로 저장됐어요. 해당 편집은 상대방 기기에 남아 있다가 " +
+    "일시 중지가 끝나거나 소유자 또는 관리자가 해제하면 동기화돼요.",
+  access: "누군가 이 항목을 볼 수 있는 사람을 바꿨어요. 이번 앱 실행 중의 변경만 표시돼요.",
+  failed: "이 항목의 동기화를 끝내지 못했어요.",
+  invitation: "만료되기 전에 아무도 이 초대를 수락하지 않았어요. 다시 보내면 만료 기한이 새로운 링크를 보내요.",
 } as const;
 
 const copyId = (stamp: string, relPath: string) => `${stamp}/${relPath}`;
@@ -183,7 +183,7 @@ export function buildActivity(input: {
       type: "trash",
       key: `t:${t.docId}`,
       at: Number.isFinite(at) ? at : 0,
-      label: "Deleted",
+      label: "삭제됨",
       path: t.relPath,
       item: t,
     });
@@ -194,7 +194,7 @@ export function buildActivity(input: {
       type: "copy",
       key: `c:${copyId(c.stamp, c.relPath)}`,
       at: stampTime(c.stamp) ?? c.modified,
-      label: "Copy",
+      label: "사본",
       path: c.relPath,
       copy: c,
     });
@@ -204,7 +204,7 @@ export function buildActivity(input: {
       type: "held",
       key: "h:bulk-delete",
       at: input.held.at,
-      label: "Held",
+      label: "보류됨",
       path: "",
       count: input.held.count,
       text: heldText(input.held.count),
@@ -216,7 +216,7 @@ export function buildActivity(input: {
       type: "shrunk",
       key: `s:${e.versionId}`,
       at: Number.isFinite(at) ? at : 0,
-      label: "Shrunk",
+      label: "줄어듦",
       path: e.relPath,
       event: e,
       text: shrinkText(e),
@@ -229,7 +229,7 @@ export function buildActivity(input: {
       type: "paused",
       key: `p:${e.id}`,
       at: Number.isFinite(at) ? at : 0,
-      label: e.held ? "Paused" : "Resumed",
+      label: e.held ? "일시 중지됨" : "재개됨",
       path: "",
       event: e,
       text: pausedText(e, own),
@@ -242,7 +242,7 @@ export function buildActivity(input: {
       type: "access",
       key: e.kind === "removed" ? `a:r:${e.docId}:${e.at}` : `a:g:${e.at}`,
       at: e.at,
-      label: "Access",
+      label: "권한",
       path: e.kind === "removed" ? e.path : "",
       event: e,
       text: accessText(e),
@@ -253,7 +253,7 @@ export function buildActivity(input: {
       type: "failed",
       key: f.key,
       at: f.at,
-      label: "Failed",
+      label: "실패",
       path: f.path,
       failure: f,
       text: f.reason,
@@ -265,7 +265,7 @@ export function buildActivity(input: {
       type: "invitation",
       key: `i:${inv.invitationId}`,
       at: Number.isFinite(at) ? at : 0,
-      label: "Expired",
+      label: "만료됨",
       path: "",
       invitation: inv,
       text: invitationExpiredText(inv),

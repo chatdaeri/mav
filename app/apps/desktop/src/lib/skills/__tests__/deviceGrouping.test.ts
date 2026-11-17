@@ -11,7 +11,7 @@ const marker = (skillId: string) => ({
 });
 
 describe("deviceItems: one card per skill", () => {
-  it("merges Baalda copies of one team skill across folders by skillId", () => {
+  it("merges 마이 세컨드 브레인 copies of one team skill across folders by skillId", () => {
     const items = deviceItems([
       entry("team-one", "claudePersonal", "/h/.claude/skills/team-one", { managed: marker("s1") }),
       entry("team-one", "agentsPersonal", "/h/.agents/skills/team-one", { managed: marker("s1") }),
@@ -93,11 +93,11 @@ describe("groupDeviceSkills", () => {
 
   it("groups in a fixed order, leaving team copies to the Team tab", () => {
     expect(groupDeviceSkills(entries).map((g) => [g.label, g.items.map((i) => i.name)])).toEqual([
-      ["Your skills", ["alpha", "mine"]],
+      ["내 스킬", ["alpha", "mine"]],
       ["docs · acme", ["pdf"]],
       ["dev", ["lint"]],
-      ["Claude org (claude.ai)", ["org-skill"]],
-      ["Codex built-in", ["builtin"]],
+      ["Claude 조직 (claude.ai)", ["org-skill"]],
+      ["Codex 기본 제공", ["builtin"]],
     ]);
   });
 
@@ -131,10 +131,10 @@ describe("deviceAvailability", () => {
     const [item] = deviceItems([entry("a", "agentsPersonal", "/h/.agents/skills/a")]);
     const a = deviceAvailability(item, { claude: true, codex: true, cursor: true, gemini: false });
     expect(a.map((x) => [x.tool, x.on, x.reason])).toEqual([
-      ["claude", false, "Not in a folder Claude reads"],
+      ["claude", false, "Claude가 읽는 폴더에 없어요"],
       ["codex", true, null],
       ["cursor", true, null],
-      ["gemini", false, "Gemini isn't installed"],
+      ["gemini", false, "Gemini가 설치되어 있지 않아요"],
     ]);
   });
 });

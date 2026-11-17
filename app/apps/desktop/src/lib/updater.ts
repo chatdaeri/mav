@@ -453,7 +453,7 @@ let launchHoldExpired = false;
  *   before. A check that answers after the bound is not wasted — it carries on
  *   in the background exactly like the poll (quiet-moment restart and all).
  * - An update found inside the bound: `onUpdating` fires (the caller shows
- *   "Updating Baalda…") and the install runs WITHOUT the quiet-moment wait —
+ *   "Updating 마브…") and the install runs WITHOUT the quiet-moment wait —
  *   nobody is typing yet and nothing has synced — then the app restarts into
  *   the new build, so on success this promise never resolves. A failed install
  *   resolves it (the one silent retry is already scheduled, and an app that
@@ -523,7 +523,7 @@ export async function launchUpdateGate(
  * its own rolling prerelease, which `releases/latest` never points at.
  */
 export const RELEASES_PAGE_URL =
-  APP_SCHEME === "baalda-staging"
+  APP_SCHEME === "mav-staging"
     ? "https://github.com/naveedharri/baalda/releases/tag/staging"
     : "https://github.com/naveedharri/baalda/releases/latest";
 
@@ -558,7 +558,7 @@ export async function serverRequiresUpdate(): Promise<void> {
   setState({
     phase: "failed",
     version: "",
-    message: "this server needs a newer version of the app to sync",
+    message: "이 서버와 동기화하려면 앱을 최신 버전으로 업데이트해야 해요",
   });
 }
 

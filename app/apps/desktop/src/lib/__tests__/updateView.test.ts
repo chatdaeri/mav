@@ -4,7 +4,7 @@ import { showsSidebarUpdateLine, updateView } from "../updateView";
 describe("updateView", () => {
   it("reads progress as a whole percent and hides the sidebar line when up to date", () => {
     const v = updateView({ phase: "downloading", version: "0.1.99", downloaded: 41, total: 66 }, "0.1.98");
-    expect(v).toMatchObject({ tone: "busy", title: "Updating to 0.1.99", percent: 62, action: null });
+    expect(v).toMatchObject({ tone: "busy", title: "0.1.99(으)로 업데이트 중", percent: 62, action: null });
     expect(showsSidebarUpdateLine(v)).toBe(true);
     expect(showsSidebarUpdateLine(updateView({ phase: "uptodate" }, "0.1.98"))).toBe(false);
   });
@@ -14,7 +14,7 @@ describe("updateView", () => {
     expect(updateView({ phase: "failed", version: "0.1.99", message: "" }, "0.1.98")).toMatchObject({
       tone: "error",
       action: "retry",
-      sub: "The download was interrupted",
+      sub: "다운로드가 중단됐어요",
     });
   });
 });

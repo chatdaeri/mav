@@ -67,16 +67,16 @@ export function SkillsShortcut() {
       <button
         type="button"
         className="skills-shortcut-row"
-        title={chip ? "New: your team's Agent Skills, in Claude, Codex, Cursor and Gemini" : attention ?? "Your team's Agent Skills"}
+        title={chip ? "새 기능: 팀의 에이전트 스킬을 Claude, Codex, Cursor, Gemini에서 사용하세요" : attention ?? "팀의 에이전트 스킬"}
         onClick={open}
       >
         <AgentSkillsGlyph size={18} />
         <span className="skills-shortcut-name">
-          <span className="skills-shortcut-label">Agent Skills</span>
+          <span className="skills-shortcut-label">에이전트 스킬</span>
           {chip && (
             <>
               <span className="skills-shortcut-new">
-                <span className="skills-shortcut-new-text">New</span>
+                <span className="skills-shortcut-new-text">새 기능</span>
               </span>
               <span className="skills-sparkles" aria-hidden="true">
                 {SPARKLES.map((sp, i) => (

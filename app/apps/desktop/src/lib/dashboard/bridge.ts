@@ -24,16 +24,16 @@ export function createDashboardBridge(options: {
       const request = data as DashboardRequest;
       if (request.channel !== DASHBOARD_PROTOCOL || typeof request.id !== "string" || !request.id || request.id.length > 100 || typeof request.method !== "string" || request.method.length > 100) return;
       const reply: DashboardReply = { channel: DASHBOARD_PROTOCOL, id: request.id };
-      if (active >= 20) reply.error = "Too many pending requests";
+      if (active >= 20) reply.error = "대기 중인 요청이 너무 많아요";
       else {
         active++;
         try {
-          if (JSON.stringify(request.params ?? null).length > 64 * 1024) throw new Error("Request is too large");
-          if (!Object.prototype.hasOwnProperty.call(options.methods, request.method)) throw new Error("Unknown dashboard method");
+          if (JSON.stringify(request.params ?? null).length > 64 * 1024) throw new Error("요청이 너무 커요");
+          if (!Object.prototype.hasOwnProperty.call(options.methods, request.method)) throw new Error("알 수 없는 대시보드 메서드예요");
           reply.result = await options.methods[request.method](request.params);
-          if (JSON.stringify(reply.result ?? null).length > 10 * 1024 * 1024) throw new Error("Response is too large");
+          if (JSON.stringify(reply.result ?? null).length > 10 * 1024 * 1024) throw new Error("응답이 너무 커요");
         } catch (error) {
-          reply.error = error instanceof Error ? error.message : "Dashboard request failed";
+          reply.error = error instanceof Error ? error.message : "대시보드 요청에 실패했어요";
           delete reply.result;
         } finally { active--; }
       }
@@ -43,17 +43,17 @@ export function createDashboardBridge(options: {
 }
 
 export function dashboardPath(value: unknown): string {
-  if (typeof value !== "string" || !value || value.length > 4096 || value.includes("\\") || value.includes(":") || /[\u0000-\u001f\u007f]/.test(value)) throw new Error("Invalid note path");
+  if (typeof value !== "string" || !value || value.length > 4096 || value.includes("\\") || value.includes(":") || /[\u0000-\u001f\u007f]/.test(value)) throw new Error("노트 경로가 올바르지 않아요");
   const denied = ["node_modules", "dist", "build", "target", "vendor", "__pycache__", "venv"];
-  if (value.startsWith("/") || value.split("/").some((part) => !part || part.startsWith(".") || denied.includes(part))) throw new Error("Invalid note path");
-  if (!/\.(md|markdown|mdx|txt|html|htm|canvas|url|webloc)$/i.test(value)) throw new Error("Expected a note path");
+  if (value.startsWith("/") || value.split("/").some((part) => !part || part.startsWith(".") || denied.includes(part))) throw new Error("노트 경로가 올바르지 않아요");
+  if (!/\.(md|markdown|mdx|txt|html|htm|canvas|url|webloc)$/i.test(value)) throw new Error("노트 경로가 필요해요");
   return value;
 }
 
 export function dashboardExternalUrl(value: unknown): string {
-  if (typeof value !== "string" || value.length > 4096) throw new Error("Invalid external URL");
+  if (typeof value !== "string" || value.length > 4096) throw new Error("외부 URL이 올바르지 않아요");
   const url = new URL(value);
-  if (!["https:", "mailto:"].includes(url.protocol) || url.username || url.password) throw new Error("Only HTTPS and mailto links are allowed");
+  if (!["https:", "mailto:"].includes(url.protocol) || url.username || url.password) throw new Error("HTTPS와 mailto 링크만 사용할 수 있어요");
   return url.href;
 }
 

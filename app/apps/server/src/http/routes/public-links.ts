@@ -290,14 +290,14 @@ const PAGE_CSS = `
     --bg-page: #fcf9f7; --bg-sheet: #ffffff; --bg-soft: #f7f4f1;
     --ink: #030302; --ink-soft: #404040; --ink-muted: #737373; --ink-faint: #a3a3a3;
     --border: rgba(3, 3, 2, 0.08); --violet: #7c5cff; --violet-tint: rgba(124, 92, 255, 0.08);
-    --display: "Radio Canada Big", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --display: "Radio Canada Big", "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
   }
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: var(--bg-page); color: var(--ink-soft);
          background-image: radial-gradient(70% 520px at 50% 0%, rgba(124, 92, 255, 0.14), transparent 70%);
          background-repeat: no-repeat;
-         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Helvetica, Arial, sans-serif;
          font-size: 16.5px; line-height: 1.75; -webkit-font-smoothing: antialiased; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 20px 24px 48px; }
   .site-top { display: flex; align-items: center; justify-content: space-between;
@@ -366,14 +366,14 @@ const PAGE_CSS = `
   footer a:hover { color: var(--ink); }
 `;
 
-/** The page frame: brand bar (with "Open in Baalda" when there is a note to
+/** The page frame: brand bar (with "Open in 마브" when there is a note to
  *  open), the white sheet, and a quiet footer under it. */
 export function pageShell(title: string, inner: string, openHref?: string): string {
   const open = openHref
-    ? `<a class="open-app" href="${esc(openHref)}">Open in ${esc(BRAND_NAME)}</a>`
+    ? `<a class="open-app" href="${esc(openHref)}">${esc(BRAND_NAME)}에서 열기</a>`
     : "";
   return `<!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -384,11 +384,11 @@ ${PAGE_CSS}</style>
 </head>
 <body>
 <div class="wrap">
-<header class="site-top"><a class="brand" href="https://baalda.com" rel="noopener noreferrer"><img src="${WORDMARK_INK_DATA_URI}" alt="${esc(BRAND_NAME)}" /></a>${open}</header>
+<header class="site-top"><a class="brand" href="https://github.com/chatdaeri/mav" rel="noopener noreferrer"><img src="${WORDMARK_INK_DATA_URI}" alt="${esc(BRAND_NAME)}" /></a>${open}</header>
 <main>
 ${inner}
 </main>
-<footer>Shared with ${esc(BRAND_NAME)} · <a href="https://baalda.com" rel="noopener noreferrer">Get ${esc(BRAND_NAME)} →</a></footer>
+<footer>${esc(BRAND_NAME)}으로 공유됨 · <a href="https://github.com/chatdaeri/mav" rel="noopener noreferrer">${esc(BRAND_NAME)} 받기 →</a></footer>
 </div>
 </body>
 </html>`;
@@ -436,9 +436,9 @@ const PAGE_HEADERS: Record<string, string> = {
 /** One generic page for malformed/unknown/revoked/deleted — byte-identical on
  *  purpose, so the response can't confirm that a link ever existed. */
 const NOT_FOUND_HTML = pageShell(
-  "Link not found",
-  `<h1 class="doc-title">This link doesn&#39;t exist or has been turned off</h1>
-<p>The person who shared it can create a new one from ${esc(BRAND_NAME)}.</p>`,
+  "링크를 찾을 수 없음",
+  `<h1 class="doc-title">없는 링크이거나 공유가 중단됐어요</h1>
+<p>공유한 사람이 ${esc(BRAND_NAME)}에서 새 링크를 만들 수 있어요.</p>`,
 );
 
 interface PublicNoteRow {

@@ -2290,11 +2290,11 @@ export function GraphView({ onClose }: { onClose: () => void }) {
           sits above the webview). The three controls float top-right, clear of
           both, on their own translucent pill so they read on the dark canvas. */}
       <div className="graph-drag-strip" data-tauri-drag-region />
-      <div className="graph-floating-controls" role="toolbar" aria-label="Graph controls">
+      <div className="graph-floating-controls" role="toolbar" aria-label="그래프 컨트롤">
         <button
           className={`graph-icon-btn${showControls ? " is-active" : ""}`}
-          title="Graph settings"
-          aria-label="Graph settings"
+          title="그래프 설정"
+          aria-label="그래프 설정"
           aria-pressed={showControls}
           onClick={() => setShowControls((v) => !v)}
         >
@@ -2302,16 +2302,16 @@ export function GraphView({ onClose }: { onClose: () => void }) {
         </button>
         <button
           className={`graph-icon-btn${refreshSpin ? " is-spinning" : ""}`}
-          title="Refresh graph"
-          aria-label="Refresh graph"
+          title="그래프 새로고침"
+          aria-label="그래프 새로고침"
           onClick={handleRefresh}
         >
           ↻
         </button>
         <button
           className="graph-icon-btn"
-          title="Close graph"
-          aria-label="Close graph"
+          title="그래프 닫기"
+          aria-label="그래프 닫기"
           onClick={onClose}
         >
           ✕
@@ -2444,14 +2444,14 @@ export function GraphView({ onClose }: { onClose: () => void }) {
                 motion, which is the thing this change exists to remove. */}
             <div className="graph-state-card graph-settling">
               <Spinner size="sm" tone="accent" />
-              Arranging {counts.nodes.toLocaleString()} notes…
+              노트 {counts.nodes.toLocaleString()}개를 배치하는 중…
             </div>
           </div>
         )}
         {error && !loading && (
           <div className="graph-state">
             <div className="graph-state-card">
-              <strong>Couldn't load the graph</strong>
+              <strong>그래프를 불러오지 못했어요</strong>
               {error}
             </div>
           </div>
@@ -2470,10 +2470,9 @@ export function GraphView({ onClose }: { onClose: () => void }) {
                   <circle cx="36" cy="36" r="7" className="ge-node ge-node-hub" />
                 </svg>
               </div>
-              <strong>Your graph is empty</strong>
+              <strong>그래프가 비어 있어요</strong>
               <span>
-                Write a note, then link notes with{" "}
-                <code>[[wikilinks]]</code> to grow a living map of your ideas.
+                노트를 쓰고 <code>[[위키링크]]</code>로 노트를 연결하면 아이디어 지도가 자라나요.
               </span>
             </div>
           </div>

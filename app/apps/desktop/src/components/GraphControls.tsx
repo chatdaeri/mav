@@ -19,14 +19,14 @@ export interface GraphControlsProps {
 type SliderKey = keyof typeof SETTING_RANGES;
 
 const SLIDER_LABELS: Record<SliderKey, string> = {
-  charge: "Repulsion",
-  linkDistance: "Link distance",
-  linkStrength: "Link force",
-  gravity: "Gravity",
-  nodeSize: "Node size",
-  edgeThickness: "Edge width",
-  labelScale: "Labels",
-  minDegree: "Min links",
+  charge: "척력",
+  linkDistance: "링크 거리",
+  linkStrength: "링크 세기",
+  gravity: "중력",
+  nodeSize: "노드 크기",
+  edgeThickness: "선 굵기",
+  labelScale: "라벨",
+  minDegree: "최소 링크 수",
 };
 
 // Small pictures of each shape, drawn in currentColor so they follow the theme.
@@ -69,16 +69,16 @@ const SHAPE_ICONS: Record<GraphShape, React.JSX.Element> = {
 };
 
 const SHAPES: { shape: GraphShape; label: string }[] = [
-  { shape: "globe", label: "Globe" },
-  { shape: "flat", label: "Flat" },
-  { shape: "radial", label: "Radial" },
-  { shape: "ring", label: "Ring" },
+  { shape: "globe", label: "구형" },
+  { shape: "flat", label: "평면" },
+  { shape: "radial", label: "방사형" },
+  { shape: "ring", label: "원형" },
 ];
 
 const COLOR_MODES: { mode: ColorMode; label: string }[] = [
-  { mode: "folder", label: "Folder" },
-  { mode: "degree", label: "Degree" },
-  { mode: "uniform", label: "Uniform" },
+  { mode: "folder", label: "폴더" },
+  { mode: "degree", label: "연결 수" },
+  { mode: "uniform", label: "단일 색" },
 ];
 
 /** Round a slider value for display: integers stay whole, fractional steps
@@ -125,7 +125,7 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
           toggle meant this panel could be showing one of two different graphs
           under one name, and the whole-vault view is the one that was wanted. */}
       <div className="graph-control-group">
-        <div className="graph-control-group-title">Forces</div>
+        <div className="graph-control-group-title">힘</div>
         {fixedShape && (
           <p className="graph-control-note">
             Radial and Ring are fixed shapes, so forces don&apos;t move them. A dragged note springs back to its place.
@@ -138,8 +138,8 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
       </div>
 
       <div className="graph-control-group">
-        <div className="graph-control-group-title">Appearance</div>
-        <div className="graph-shape-grid" role="group" aria-label="Graph shape">
+        <div className="graph-control-group-title">화면</div>
+        <div className="graph-shape-grid" role="group" aria-label="그래프 모양">
           {SHAPES.map(({ shape, label }) => (
             <button
               key={shape}
@@ -157,8 +157,8 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
         {slider("edgeThickness")}
         {slider("labelScale")}
         <div className="graph-control-row is-stacked">
-          <label>Color by</label>
-          <div className="graph-seg" role="group" aria-label="Color mode">
+          <label>색상 기준</label>
+          <div className="graph-seg" role="group" aria-label="색상 모드">
             {COLOR_MODES.map(({ mode, label }) => (
               <button
                 key={mode}
@@ -177,19 +177,19 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
       </div>
 
       <div className="graph-control-group">
-        <div className="graph-control-group-title">Filter</div>
+        <div className="graph-control-group-title">필터</div>
         <div className="graph-control-row">
           <input
             type="text"
             className="graph-control-search"
-            placeholder="Filter by title…"
+            placeholder="제목으로 필터…"
             value={settings.search}
             onChange={(e) => onChange({ search: e.target.value })}
           />
         </div>
         {slider("minDegree")}
         <div className="graph-control-row">
-          <label htmlFor="graph-hideOrphans">Hide unlinked</label>
+          <label htmlFor="graph-hideOrphans">링크 없는 노트 숨기기</label>
           <input
             id="graph-hideOrphans"
             type="checkbox"
@@ -201,7 +201,7 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
 
       {legend.length > 0 && (
         <div className="graph-control-group">
-          <div className="graph-control-group-title">Legend</div>
+          <div className="graph-control-group-title">범례</div>
           <div className="graph-legend">
             {legend.map((entry) => (
               <div className="graph-legend-row" key={entry.label}>
@@ -219,7 +219,7 @@ export function GraphControls(props: GraphControlsProps): React.JSX.Element {
 
       <div className="graph-control-footer">
         <button type="button" className="graph-control-reset" onClick={onReset}>
-          Reset
+          초기화
         </button>
       </div>
     </div>

@@ -44,17 +44,17 @@ export function formatBytes(n: number): string {
 export function relativeTime(ms: number, now: number): string {
   if (!Number.isFinite(ms)) return "—";
   const secs = Math.floor((now - ms) / 1000);
-  if (secs < 45) return "just now";
+  if (secs < 45) return "방금 전";
   const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${Math.max(1, mins)} min ago`;
+  if (mins < 60) return `${Math.max(1, mins)}분 전`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  if (hours < 24) return `${hours}시간 전`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} ${days === 1 ? "day" : "days"} ago`;
+  if (days < 30) return `${days}일 전`;
   const months = Math.floor(days / 30);
-  if (months < 12) return `${months} ${months === 1 ? "month" : "months"} ago`;
+  if (months < 12) return `${months}개월 전`;
   const years = Math.floor(days / 365);
-  return `${years} ${years === 1 ? "year" : "years"} ago`;
+  return `${years}년 전`;
 }
 
 /**
@@ -82,21 +82,21 @@ export function middleTruncate(path: string, max: number): string {
 export function verdictLabel(v: HealthVerdict): string {
   switch (v) {
     case "local":
-      return "Local only";
+      return "이 기기에만";
     case "signed-out":
-      return "Signed out";
+      return "로그아웃됨";
     case "no-access":
-      return "No access";
+      return "접근 불가";
     case "offline":
-      return "Offline";
+      return "오프라인";
     case "connecting":
-      return "Connecting";
+      return "연결 중";
     case "syncing":
-      return "Syncing";
+      return "동기화 중";
     case "attention":
-      return "Needs attention";
+      return "확인 필요";
     case "healthy":
-      return "Healthy";
+      return "정상";
   }
 }
 
@@ -131,33 +131,33 @@ export function verdictTone(
 export function kindLabel(kind: HealthIssueKind): string {
   switch (kind) {
     case "too-large":
-      return "Too large";
+      return "파일이 너무 커요";
     case "no-write-access":
-      return "Read-only edit";
+      return "읽기 전용 편집";
     case "upload-failed":
-      return "Upload failed";
+      return "업로드 실패";
     case "register-failed":
-      return "Not registered";
+      return "등록 안 됨";
     case "limit":
-      return "Plan limit";
+      return "요금제 한도";
     case "unregistered":
-      return "Not uploaded yet";
+      return "아직 업로드 안 됨";
     case "no-access":
-      return "No access";
+      return "접근 불가";
     case "left-behind":
-      return "Left on disk";
+      return "디스크에 남음";
     case "inbound-blocked":
-      return "Safety check";
+      return "안전 점검";
     case "materialize-failed":
-      return "Couldn't write";
+      return "쓸 수 없음";
     case "orphan-history":
-      return "Leftover history";
+      return "남은 기록";
     case "linked-paths":
-      return "Linked path";
+      return "연결된 경로";
     case "shared-file":
-      return "Shared file";
+      return "공유 파일";
     case "sync-paused":
-      return "Sync paused";
+      return "동기화 일시 중지";
   }
 }
 
@@ -198,15 +198,15 @@ export function dayKey(ms: number): string {
 }
 
 const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "1월", "2월", "3월", "4월", "5월", "6월",
+  "7월", "8월", "9월", "10월", "11월", "12월",
 ];
 
 /** "19:34, 8 Oct 2026": an exact local time and day for a detail line. */
 export function clockDate(ms: number): string {
   const d = new Date(ms);
   if (Number.isNaN(d.getTime())) return "—";
-  return `${clockTime(ms)}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getFullYear()}년 ${MONTHS[d.getMonth()]} ${d.getDate()}일 ${clockTime(ms)}`;
 }
 
 /**
@@ -223,10 +223,10 @@ export function splitPath(path: string): { dir: string; name: string } {
 /** The heading over one day of the timeline: "Today", "Yesterday", "12 Sep". */
 export function dayLabel(ms: number, now: number): string {
   const d = new Date(ms);
-  if (Number.isNaN(d.getTime())) return "Unknown";
-  if (dayKey(ms) === dayKey(now)) return "Today";
-  if (dayKey(ms) === dayKey(now - 86_400_000)) return "Yesterday";
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  if (Number.isNaN(d.getTime())) return "알 수 없음";
+  if (dayKey(ms) === dayKey(now)) return "오늘";
+  if (dayKey(ms) === dayKey(now - 86_400_000)) return "어제";
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}일`;
 }
 
 // ── Activity strip cells (laid out by `heatmapRange.ts`) ─────────────────────
@@ -247,7 +247,7 @@ export interface ActivityCell {
 /** "Tue 3 Sep · 2 notes" — the cell tooltip. */
 export function activityCellTitle(cell: ActivityCell): string {
   const d = new Date(cell.date);
-  const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
-  const when = cell.today ? "Today" : `${day} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
-  return `${when} · ${cell.count.toLocaleString()} ${cell.count === 1 ? "note" : "notes"}`;
+  const day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+  const when = cell.today ? "오늘" : `${MONTHS[d.getMonth()]} ${d.getDate()}일 (${day})`;
+  return `${when} · 노트 ${cell.count.toLocaleString()}개`;
 }

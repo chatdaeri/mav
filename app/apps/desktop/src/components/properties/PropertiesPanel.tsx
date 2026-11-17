@@ -204,7 +204,7 @@ export function PropertiesPanel({
       <div
         className="prop-panel is-readonly"
         role="table"
-        aria-label="Note properties"
+        aria-label="노트 속성"
         aria-readonly="true"
         onClick={viewOnlyNotice}
       >
@@ -216,7 +216,7 @@ export function PropertiesPanel({
   }
 
   return (
-    <div className="prop-panel" role="table" aria-label="Note properties">
+    <div className="prop-panel" role="table" aria-label="노트 속성">
       {entries.map((entry, index) => (
         <PropertyRow
           key={entry.key}
@@ -249,7 +249,7 @@ export function viewOnlyNotice(): void {
   const now = Date.now();
   if (now - lastNotice < 2000) return;
   lastNotice = now;
-  toast("This note is view-only", "neutral");
+  toast("이 노트는 보기만 가능해요", "neutral");
 }
 
 function StaticRow({ entry }: { entry: PropEntry }) {
@@ -258,7 +258,7 @@ function StaticRow({ entry }: { entry: PropEntry }) {
   if (type === "checkbox") {
     const on = entry.value.kind === "checkbox" ? entry.value.value : false;
     value = (
-      <span className="prop-static-checkbox" role="img" aria-label={on ? "checked" : "unchecked"}>
+      <span className="prop-static-checkbox" role="img" aria-label={on ? "선택됨" : "선택 안 됨"}>
         {on ? "\u2611" : "\u2610"}
       </span>
     );
@@ -276,14 +276,14 @@ function StaticRow({ entry }: { entry: PropEntry }) {
             {item}
           </span>
         ))}
-        {items.length === 0 && <span className="prop-static-empty">Empty</span>}
+        {items.length === 0 && <span className="prop-static-empty">비어 있음</span>}
       </div>
     );
   } else {
     const text = valueToText(entry.value);
     value =
       text === "" ? (
-        <span className="prop-static-empty">Empty</span>
+        <span className="prop-static-empty">비어 있음</span>
       ) : (
         <span className="prop-static-text">{text}</span>
       );
@@ -352,14 +352,14 @@ function PropertyRow({
         : undefined;
       if (!current) {
         setValueDraft(null);
-        setNote("This property was removed.");
+        setNote("이 속성이 삭제됐어요.");
         return;
       }
       const moved = current.raw !== rawAtStart.current;
       dispatch(view, planSetValue(current, next));
       setValueDraft(null);
       rawAtStart.current = current.raw;
-      if (moved) setNote("Changed by someone else while you were typing.");
+      if (moved) setNote("입력하는 동안 다른 사람이 내용을 바꿨어요.");
     },
     [view, entry.key],
   );
@@ -383,11 +383,11 @@ function PropertyRow({
       ? parsed.entries.find((e) => e.key === entry.key)
       : undefined;
     if (!current) {
-      setNote("This property was removed.");
+      setNote("이 속성이 삭제됐어요.");
       return;
     }
     if (parsed?.ok && parsed.entries.some((e) => e.key === next)) {
-      setNote(`There is already a property called "${next}".`);
+      setNote(`"${next}"라는 속성이 이미 있어요.`);
       return;
     }
     dispatch(view, planRenameKey(current, next));
@@ -443,7 +443,7 @@ function PropertyRow({
           commitValue(coerceValue(entry.value, next));
         }}
         disabled={readOnly || isFixedType(entry.key)}
-        ariaLabel={`Type of ${entry.key}`}
+        ariaLabel={`${entry.key}의 유형`}
         triggerClassName="prop-type-trigger"
         triggerContent={<PropertyIcon type={type} />}
         caret={false}
@@ -455,7 +455,7 @@ function PropertyRow({
         className="prop-name"
         value={nameDraft ?? entry.key}
         readOnly={readOnly}
-        aria-label="Property name"
+        aria-label="속성 이름"
         aria-autocomplete="list"
         onFocus={() => !readOnly && nameSg.setOpen(true)}
         onChange={(e) => {
@@ -518,7 +518,7 @@ function PropertyRow({
         <button
           type="button"
           className="prop-remove"
-          aria-label={`Remove ${entry.key}`}
+          aria-label={`${entry.key} 삭제`}
           onClick={remove}
         >
           ×
@@ -657,8 +657,8 @@ function TextValue({
         className="prop-input"
         value={shown}
         readOnly={readOnly}
-        // An empty value says it takes typing, like the tag row's "Add a tag…".
-        placeholder={readOnly ? undefined : "Add a value…"}
+        // An empty value says it takes typing, like the tag row's "태그 추가…".
+        placeholder={readOnly ? undefined : "값 추가…"}
         aria-label={entry.key}
         aria-autocomplete={suggestable ? "list" : undefined}
         onFocus={() => suggestable && valueSg.setOpen(true)}
@@ -733,7 +733,7 @@ function Chips({
           {!readOnly && (
             <button
               type="button"
-              aria-label={`Remove ${item}`}
+              aria-label={`${item} 삭제`}
               onClick={() => setItems(items.filter((_, n) => n !== i))}
             >
               ×
@@ -746,9 +746,9 @@ function Chips({
         className="prop-chip-input"
         value={draft ?? ""}
         readOnly={readOnly}
-        aria-label={`Add to ${entry.key}`}
+        aria-label={`${entry.key}에 추가`}
         aria-autocomplete="list"
-        placeholder={items.length === 0 ? "Add a tag…" : ""}
+        placeholder={items.length === 0 ? "태그 추가…" : ""}
         onFocus={() => !readOnly && sg.setOpen(true)}
         onChange={(e) => {
           setDraft(e.target.value);
@@ -870,7 +870,7 @@ function SuggestPopover({
             {isCreate ? (
               <>
                 <span className="prop-suggest-plus" aria-hidden="true">+</span>
-                Create <b>{item}</b>
+                <b>{item}</b> 만들기
               </>
             ) : chips ? (
               <span

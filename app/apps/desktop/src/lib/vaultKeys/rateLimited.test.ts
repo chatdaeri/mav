@@ -8,7 +8,7 @@ describe("rateLimitedMessage (account-key churn brake)", () => {
   });
 
   it("falls back to a plain sentence when the body has no message", () => {
-    expect(rateLimitedMessage(new ApiError(429, "x", { code: "rate_limited" }))).toMatch(/Try again later/);
+    expect(rateLimitedMessage(new ApiError(429, "x", { code: "rate_limited" }))).toMatch(/잠시 후 다시 시도/);
   });
 
   it("is null for anything else (other 429s, other errors)", () => {

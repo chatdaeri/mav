@@ -120,19 +120,19 @@ export function HtmlView({ path }: { path: string }) {
     <div className="html-view dashboard-view" ref={host} tabIndex={-1}>
       {headerActions && active && !isHome && createPortal(<>
           <details className="dashboard-header-menu" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.removeAttribute("open"); }}>
-            <summary className="icon-btn" aria-label="Dashboard options" title="Dashboard options" onMouseDown={(event) => event.stopPropagation()}>···</summary>
+            <summary className="icon-btn" aria-label="대시보드 옵션" title="대시보드 옵션" onMouseDown={(event) => event.stopPropagation()}>···</summary>
             <div className="dashboard-header-menu-items">
-              <button type="button" onClick={(event) => { setMode(mode === "preview" ? "source" : "preview"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{mode === "preview" ? "View source" : "View dashboard"}</button>
-              {!isHome && <button type="button" onClick={(event) => { window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } })); event.currentTarget.closest("details")?.removeAttribute("open"); }}>Set as my home</button>}
+              <button type="button" onClick={(event) => { setMode(mode === "preview" ? "source" : "preview"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{mode === "preview" ? "소스 보기" : "대시보드 보기"}</button>
+              {!isHome && <button type="button" onClick={(event) => { window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } })); event.currentTarget.closest("details")?.removeAttribute("open"); }}>내 홈으로 설정</button>}
             </div>
           </details>
       </>, headerActions)}
       {mode === "source" && <div className="html-toolbar dashboard-toolbar">
-        <button type="button" className="ghost-pill sm" onClick={() => setMode("preview")}>Back to dashboard</button>
-        <div className="dashboard-toolbar-actions"><button type="button" className="primary sm" disabled={!dirty || readOnly} onClick={() => void save()}>{readOnly ? "View only" : dirty ? "Save" : "Saved"}</button></div>
+        <button type="button" className="ghost-pill sm" onClick={() => setMode("preview")}>대시보드로 돌아가기</button>
+        <div className="dashboard-toolbar-actions"><button type="button" className="primary sm" disabled={!dirty || readOnly} onClick={() => void save()}>{readOnly ? "보기 전용" : dirty ? "저장" : "저장됨"}</button></div>
       </div>}
       {error && <div className="dashboard-error" role="alert">{error}</div>}
-      {mode === "preview" ? content === null || lease === null ? <div className="editor-empty">{error ? "Couldn’t load this dashboard." : "Loading…"}</div> : (
+      {mode === "preview" ? content === null || lease === null ? <div className="editor-empty">{error ? "이 대시보드를 불러올 수 없어요." : "불러오는 중…"}</div> : (
         <iframe ref={frame} key={`${path}:${epoch}:${revision}`} className="html-frame" title={path}
           sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
           src={import.meta.env.MODE === "simulator" ? undefined : `${url}?lease=${encodeURIComponent(lease)}&revision=${revision}`}

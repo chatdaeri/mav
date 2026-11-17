@@ -118,16 +118,16 @@ describe("dedupeDifferences", () => {
 
 describe("issue group wording", () => {
   it("reads as a sentence with the right plural", () => {
-    expect(issueGroupTitle("upload-failed", 2)).toBe("2 notes couldn't upload");
-    expect(issueGroupTitle("left-behind", 3)).toBe("3 notes left on disk");
-    expect(issueGroupTitle("too-large", 1)).toBe("1 note too large to sync");
-    expect(issueGroupTitle("unregistered", 2)).toBe("2 notes aren't registered");
-    expect(issueGroupTitle("unregistered", 1)).toBe("1 note isn't registered");
-    expect(issueGroupTitle("inbound-blocked", 1)).toBe("1 local change held for safety");
+    expect(issueGroupTitle("upload-failed", 2)).toBe("업로드하지 못한 노트 2개");
+    expect(issueGroupTitle("left-behind", 3)).toBe("디스크에만 남은 노트 3개");
+    expect(issueGroupTitle("too-large", 1)).toBe("동기화하기엔 너무 큰 노트 1개");
+    expect(issueGroupTitle("unregistered", 2)).toBe("등록되지 않은 노트 2개");
+    expect(issueGroupTitle("unregistered", 1)).toBe("등록되지 않은 노트 1개");
+    expect(issueGroupTitle("inbound-blocked", 1)).toBe("안전을 위해 보류된 로컬 변경 1건");
   });
 
   it("gives path-less rows one short sentence", () => {
-    expect(issueRowSentence({ kind: "no-access", title: "x" })).toBe("You don't have access to this vault");
-    expect(issueRowSentence({ kind: "limit", title: "x" })).toMatch(/plan/);
+    expect(issueRowSentence({ kind: "no-access", title: "x" })).toBe("이 볼트에 접근할 권한이 없어요");
+    expect(issueRowSentence({ kind: "limit", title: "x" })).toMatch(/요금제/);
   });
 });

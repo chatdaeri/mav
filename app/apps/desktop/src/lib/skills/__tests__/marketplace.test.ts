@@ -275,7 +275,7 @@ describe("originOf / importNotes", () => {
     expect(originOf({ ...skill, pluginName: "p" })).toMatchObject({ pluginName: "p" });
   });
   it("writes the notes", () => {
-    expect(importNotes(skill)).toBe("Imported from o/r@abcdef1");
+    expect(importNotes(skill)).toBe("o/r@abcdef1에서 가져옴");
   });
 });
 
@@ -285,14 +285,14 @@ describe("githubError", () => {
     const a = githubError(404, h({}), "o/r", false);
     const b = githubError(404, h({}), "o/r", true);
     expect(a.code).toBe("not_found");
-    expect(a.message).toContain("add a GitHub token");
-    expect(b.message).toContain("your GitHub token can't see it");
+    expect(a.message).toContain("GitHub 토큰을 추가하세요");
+    expect(b.message).toContain("GitHub 토큰으로 볼 수 없어요");
   });
   it("rate limit", () => {
     const e = githubError(403, h({ "x-ratelimit-remaining": "0", "x-ratelimit-reset": "1800000000" }), "o/r", false);
     expect(e.code).toBe("rate_limited");
-    expect(e.message).toContain("without a token");
-    expect(githubError(429, h({ "x-ratelimit-remaining": "0" }), "o/r", true).message).toContain("your token");
+    expect(e.message).toContain("토큰 없이");
+    expect(githubError(429, h({ "x-ratelimit-remaining": "0" }), "o/r", true).message).toContain("내 토큰");
   });
   it("401, plain 403 and others", () => {
     expect(githubError(401, h({}), "o/r", true).code).toBe("unauthorized");

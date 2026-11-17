@@ -302,7 +302,7 @@ describe("MCP tokens and public links with vault keys", () => {
     noDesktops();
     const missed = await tool(token, "read_note", { docId: s.docId });
     expect(missed.isError).toBe(true);
-    expect(missed.text).toContain("reconnect Baalda");
+    expect(missed.text).toContain("reconnect 마이 세컨드 브레인");
 
     // A teammate's app connects (key held): the next call upgrades it for good.
     const release = vaultKeyCache.acquire(s.vaultId, Buffer.from(s.vk), 1);

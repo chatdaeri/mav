@@ -41,18 +41,18 @@ export function WindowsControls() {
   return (
     <>
       <div className="windows-boot-drag" data-tauri-drag-region="deep" />
-      <div className="windows-controls" aria-label="Window controls">
-        <button type="button" aria-label="Minimize" title="Minimize" onClick={() => run("minimize")}>
+      <div className="windows-controls" aria-label="창 컨트롤">
+        <button type="button" aria-label="최소화" title="최소화" onClick={() => run("minimize")}>
           <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1 6h10" /></svg>
         </button>
-        <button type="button" aria-label={maximized ? "Restore" : "Maximize"}
-          title={maximized ? "Restore" : "Maximize"} onClick={() => run("toggleMaximize")}>
+        <button type="button" aria-label={maximized ? "이전 크기로" : "최대화"}
+          title={maximized ? "이전 크기로" : "최대화"} onClick={() => run("toggleMaximize")}>
           <svg viewBox="0 0 12 12" aria-hidden="true">
             {maximized ? <><path d="M3.5 3.5v-2h7v7h-2" /><rect x="1.5" y="3.5" width="7" height="7" /></>
               : <rect x="1.5" y="1.5" width="9" height="9" />}
           </svg>
         </button>
-        <button type="button" className="windows-close" aria-label="Close window" title="Close"
+        <button type="button" className="windows-close" aria-label="창 닫기" title="닫기"
           onClick={() => run("close")}>
           <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m1.5 1.5 9 9m0-9-9 9" /></svg>
         </button>

@@ -26,13 +26,13 @@ export function StatusPicker() {
     status !== "online" && until == null ? null : 60,
   );
   const items: Array<{ id: ActivityStatus; label: string }> = [
-    { id: "online", label: "Online" },
+    { id: "online", label: "온라인" },
     ...STATUS_MOMENTS.map((m) => ({ id: m.id, label: m.label })),
   ];
   const set = (id: ActivityStatus, minutes: number | null) =>
     useStore.getState().setActivityStatus(id, id === "online" ? null : statusUntilFrom(minutes));
   // Away / Busy / Invisible are set from Account Settings, not this row, but
-  // the picker must still name them rather than offer "Update your status"
+  // the picker must still name them rather than offer "상태 업데이트"
   // (one tap on a quick moment there used to drop Invisible without a word).
   const current =
     items.find((i) => i.id === status) ?? ACTIVITY_STATUSES.find((i) => i.id === status);
@@ -47,7 +47,7 @@ export function StatusPicker() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="9" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9.5h.01M15 9.5h.01" />
             </svg>
-            Update your status
+            상태 업데이트
           </button>
           {(["smoke", "coffee", "focus"] as const).map((id) => (
             <button key={id} type="button" className={`rd-status-quick s-${id}`} title={items.find((i) => i.id === id)?.label} onClick={() => set(id, clearAfter)}>
@@ -61,16 +61,16 @@ export function StatusPicker() {
             <svg className={`rd-status-set-icon s-${status}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS[status] ?? ICONS.online }} />
             <span className="rd-status-set-text">
               <b>{current!.label}</b>
-              {left !== null && <small> · {left >= 60 ? `${Math.round(left / 60)} h` : `${left} min`}</small>}
+              {left !== null && <small> · {left >= 60 ? `${Math.round(left / 60)}시간` : `${left}분`}</small>}
             </span>
           </button>
-          <button type="button" className="rd-status-quick" title="Clear status" onClick={() => { set("online", null); setOpen(false); }}>
+          <button type="button" className="rd-status-quick" title="상태 지우기" onClick={() => { set("online", null); setOpen(false); }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
       )}
       {open && (<>
-      <div className="rd-status-row" role="radiogroup" aria-label="Status">
+      <div className="rd-status-row" role="radiogroup" aria-label="상태">
         {items.map((i) => (
           <button
             key={i.id}

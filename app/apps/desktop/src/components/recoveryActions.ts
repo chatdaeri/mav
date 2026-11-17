@@ -37,7 +37,7 @@ export function openCopy(ref: CopyRef, modified?: number): void {
     const path = ipcTrashPath(ref);
     if (!vault || !parseTrashPath(path)) return;
     void ipc.revealInFileManager(`${vault.path}/${path}`)
-      .catch(() => toast("Couldn't show the recovery copy.", "error"));
+      .catch(() => toast("복구 사본을 표시할 수 없어요.", "error"));
     return;
   }
   const source = copySource(ref);
@@ -56,8 +56,8 @@ export function openTrashPreview(docId: string, relPath: string): void {
   useStore.getState().openVirtualTab({
     kind: "text",
     id: textTabId(source),
-    title: `${noteLabel(relPath)} (deleted)`,
-    subtitle: "In Trash",
+    title: `${noteLabel(relPath)} (삭제됨)`,
+    subtitle: "휴지통",
     source,
   });
   show();
@@ -80,7 +80,7 @@ async function liveViewFor(path: string) {
   }
   await useStore.getState().openNoteByPath(path);
   const view = await waitForLiveView(path, LIVE_VIEW_WAIT_MS);
-  if (!view) throw new Error("The note did not open in time. Open it and try again.");
+  if (!view) throw new Error("노트가 제때 열리지 않았어요. 노트를 열고 다시 시도하세요.");
   return view;
 }
 
@@ -91,14 +91,14 @@ async function liveViewFor(path: string) {
  */
 export async function replaceNoteText(notePath: string, text: string): Promise<void> {
   if (!(await ipc.noteExists(notePath, epoch()))) {
-    throw new Error("There is no current note at that path. Restore it as a new note instead.");
+    throw new Error("해당 경로에 현재 노트가 없어요. 대신 새 노트로 복원하세요.");
   }
   const view = await liveViewFor(notePath);
   replaceWholeDoc(view, text);
 }
 
 export async function restoreCopyReplace(ref: CopyRef, notePath = originalPathOf(ref.relPath)): Promise<void> {
-  if (!isNoteExt(ref.relPath)) throw new Error("Recover this file from its copy in the file manager.");
+  if (!isNoteExt(ref.relPath)) throw new Error("파일 관리자에서 이 파일의 사본으로 복구하세요.");
   const text = await ipc.readTrashCopy(ref.stamp, ref.relPath, epoch());
   await replaceNoteText(notePath, text);
 }
@@ -111,7 +111,7 @@ export async function freeSiblingPath(path: string): Promise<string> {
     if (!(await ipc.noteExists(candidate, epoch()))) return candidate;
     taken.add(candidate.toLowerCase());
   }
-  throw new Error("Could not find a free name for the recovered note.");
+  throw new Error("복구한 노트에 쓸 수 있는 이름을 찾지 못했어요.");
 }
 
 /**
@@ -125,16 +125,16 @@ export async function restoreTextAsSibling(originalPath: string, text: string): 
   const dir = slash === -1 ? "" : target.slice(0, slash);
   const name = target.slice(slash + 1);
   const created = await useStore.getState().createNoteAt(dir, name);
-  if (!created) throw new Error("This folder does not accept new notes right now.");
+  if (!created) throw new Error("이 폴더에는 지금 새 노트를 만들 수 없어요.");
   const view = await waitForLiveView(created, LIVE_VIEW_WAIT_MS);
-  if (!view) throw new Error("The recovered note was created but did not open. Its copy is still in trash.");
+  if (!view) throw new Error("복구한 노트를 만들었지만 열리지 않았어요. 사본은 휴지통에 그대로 있어요.");
   useStore.getState().activateVirtualTab(null);
   replaceWholeDoc(view, text);
   return created;
 }
 
 export async function restoreCopyAsSibling(ref: CopyRef): Promise<string> {
-  if (!isNoteExt(ref.relPath)) throw new Error("Recover this file from its copy in the file manager.");
+  if (!isNoteExt(ref.relPath)) throw new Error("파일 관리자에서 이 파일의 사본으로 복구하세요.");
   const text = await ipc.readTrashCopy(ref.stamp, ref.relPath, epoch());
   return restoreTextAsSibling(originalPathOf(ref.relPath), text);
 }
@@ -151,5 +151,5 @@ export async function deleteCopy(ref: CopyRef): Promise<void> {
 
 /** Open (or focus) the single "Review changes" tab. */
 export function openReviewTab(): void {
-  useStore.getState().openVirtualTab({ kind: "review", id: REVIEW_TAB_ID, title: "Review changes" });
+  useStore.getState().openVirtualTab({ kind: "review", id: REVIEW_TAB_ID, title: "변경 사항 검토" });
 }

@@ -56,10 +56,10 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="error-boundary" role="alert">
         <div className="error-boundary-card">
-          <strong>{this.props.label ?? "Something"} hit an error</strong>
+          <strong>{this.props.label ?? "일부 화면"}에서 오류가 발생했어요</strong>
           <p className="muted">{error.message}</p>
           <button className="primary sm" onClick={this.reset}>
-            Try again
+            다시 시도
           </button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { formatLineChanges, lineChanges } from "../lineChanges";
 describe("lineChanges", () => {
   it("is zero for equal text", () => {
     expect(lineChanges("a\nb\n", "a\nb\n")).toEqual({ added: 0, removed: 0 });
-    expect(formatLineChanges({ added: 0, removed: 0 })).toBe("No differences");
+    expect(formatLineChanges({ added: 0, removed: 0 })).toBe("차이 없음");
   });
 
   it("counts whole added and removed lines", () => {
@@ -21,6 +21,6 @@ describe("lineChanges", () => {
   });
 
   it("formats with a real minus sign", () => {
-    expect(formatLineChanges({ added: 12, removed: 4 })).toBe("+12 \u22124 lines");
+    expect(formatLineChanges({ added: 12, removed: 4 })).toBe("+12 \u22124줄");
   });
 });

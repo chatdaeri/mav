@@ -93,7 +93,7 @@ export function TabBar() {
   const menuLabel = menu ? noteLabel(menu.path) : "";
 
   return (
-    <div className="tab-strip" role="tablist" aria-label="Open files">
+    <div className="tab-strip" role="tablist" aria-label="열린 파일">
       <LayoutGroup>
         {tabs.map((path) => {
           const active = path === activePath;
@@ -142,8 +142,8 @@ export function TabBar() {
               </button>
               <button
                 className="tab-close"
-                title="Close tab"
-                aria-label={`Close ${label}`}
+                title="탭 닫기"
+                aria-label={`${label} 닫기`}
                 onClick={(e) => {
                   e.stopPropagation();
                   useStore.getState().closeTab(path);
@@ -198,8 +198,8 @@ export function TabBar() {
               </button>
               <button
                 className="tab-close"
-                title="Close tab"
-                aria-label={`Close ${tab.title}`}
+                title="탭 닫기"
+                aria-label={`${tab.title} 닫기`}
                 onClick={(e) => {
                   e.stopPropagation();
                   useStore.getState().closeVirtualTab(tab.id);
@@ -225,8 +225,8 @@ export function TabBar() {
           root-freeze latch and arms the sidebar's rename box. */}
       <button
         className="tab-new"
-        title="New note (⌘N)"
-        aria-label="New note"
+        title="새 노트 (⌘N)"
+        aria-label="새 노트"
         onClick={() => {
           void useStore.getState().createNoteIn("");
         }}
@@ -248,7 +248,7 @@ export function TabBar() {
         <ul
           className="context-menu menu-portal"
           role="menu"
-          aria-label={`Tab actions for ${menuLabel}`}
+          aria-label={`${menuLabel} 탭 작업`}
           ref={menuRef}
           style={
             menuPos
@@ -276,7 +276,7 @@ export function TabBar() {
               setMenu(null);
             }}
           >
-            Close others
+            다른 탭 닫기
           </li>
           <li
             role="menuitem"
@@ -289,7 +289,7 @@ export function TabBar() {
               setMenu(null);
             }}
           >
-            Close tabs to the right
+            오른쪽 탭 닫기
           </li>
           <li
             role="menuitem"
@@ -299,7 +299,7 @@ export function TabBar() {
               setMenu(null);
             }}
           >
-            Close all
+            모두 닫기
           </li>
         </ul>,
         document.body,

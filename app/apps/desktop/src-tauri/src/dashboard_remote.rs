@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-//! Remote pages use an inline native child webview, with no Baalda capabilities.
+//! Remote pages use an inline native child webview, with no 마브 capabilities.
 //! This respects frame-ancestors instead of proxying or modifying provider HTML.
 use crate::error::{AppError, AppResult};
 use tauri::{Manager, WebviewUrl, Webview, webview::WebviewBuilder, LogicalPosition, LogicalSize};

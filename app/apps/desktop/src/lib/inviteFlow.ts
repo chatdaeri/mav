@@ -46,7 +46,7 @@ export function clearPendingInvite(): void {
  *  before any accept is attempted — the two must read identically, because to
  *  the person holding the link they are the same situation. */
 export const INVITE_GONE_MESSAGE =
-  "This invitation has expired or was already used. Ask your admin to send a new one.";
+  "초대가 만료됐거나 이미 사용됐어요. 관리자에게 새 초대를 요청해 주세요.";
 
 export interface AcceptInviteContext {
   /** The address the invitation was sent to, when we know it (from the
@@ -75,22 +75,22 @@ export function acceptInviteFailureMessage(err: unknown, ctx: AcceptInviteContex
   // they cannot buy seats, so the sentence says whom to ask.
   const limit = classifyLimitError(err);
   if (limit === "seat_limit") {
-    return `${seatsFullCopy(seatLimitFromError(err)?.seats ?? null)} Ask the person who invited you to add a seat, then accept again.`;
+    return `${seatsFullCopy(seatLimitFromError(err)?.seats ?? null)} 초대한 사람에게 좌석을 추가해 달라고 요청한 뒤 다시 수락해 주세요.`;
   }
   if (limit === "member_limit") {
-    return `${freePeopleIncluded(limitFromError(err) ?? 2)} This vault is full. Ask the person who invited you to upgrade to Team, then accept again.`;
+    return `${freePeopleIncluded(limitFromError(err) ?? 2)} 이 볼트는 가득 찼어요. 초대한 사람에게 Team으로 업그레이드해 달라고 요청한 뒤 다시 수락해 주세요.`;
   }
   if (limit === "read_only") {
-    return "This vault's subscription ended, so it can't take new people right now. Ask the person who invited you to resume it.";
+    return "이 볼트의 구독이 끝나서 지금은 새 멤버를 받을 수 없어요. 초대한 사람에게 구독을 재개해 달라고 요청해 주세요.";
   }
   const raw = err instanceof Error ? err.message : String(err ?? "");
   if (/not the recipient of the invitation/i.test(raw)) {
     const invited = ctx.inviteEmail;
     const current = ctx.sessionEmail;
     if (!invited || !current) {
-      return "This invitation was sent to a different email address than the one you're signed in with. Sign out and sign in with the invited address, or ask your admin to invite this one instead.";
+      return "이 초대는 현재 로그인한 이메일과 다른 주소로 보내졌어요. 로그아웃한 뒤 초대받은 주소로 로그인하거나, 관리자에게 이 주소로 다시 초대해 달라고 요청해 주세요.";
     }
-    return `This invitation was sent to ${invited}, but you're signed in as ${current}. Sign out and sign in with ${invited}, or ask your admin to invite ${current} instead.`;
+    return `이 초대는 ${invited}(으)로 보내졌지만 ${current}(으)로 로그인되어 있어요. 로그아웃한 뒤 ${invited}(으)로 로그인하거나, 관리자에게 ${current}(으)로 다시 초대해 달라고 요청해 주세요.`;
   }
   if (/invitation not found/i.test(raw)) return INVITE_GONE_MESSAGE;
   return raw || INVITE_GONE_MESSAGE;

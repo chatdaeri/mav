@@ -43,8 +43,8 @@ export function HealthActivity({
   const days = activity.days ?? [];
   const grid = buildHeatmap(days, now);
   const caption =
-    `${activity.modifiedLast7d.toLocaleString()} ${activity.modifiedLast7d === 1 ? "note" : "notes"} ` +
-    `edited in the last 7 days · ${activity.modifiedLast30d.toLocaleString()} in 30 days`;
+    `최근 7일간 노트 ${activity.modifiedLast7d.toLocaleString()}개 편집 · ` +
+    `30일간 ${activity.modifiedLast30d.toLocaleString()}개`;
   // Counted over the DRAWN days, not the whole census: the label describes the
   // strip a reader is looking at.
   const active = grid.cells.filter((c) => !c.future && c.count > 0).length;
@@ -53,12 +53,12 @@ export function HealthActivity({
     <div className="health-activity">
       <p className="health-activity-lead">{caption}</p>
       {grid.columns === 0 ? (
-        <p className="muted">No per-day activity is available for this vault.</p>
+        <p className="muted">이 볼트에는 일별 활동 기록이 없어요.</p>
       ) : (
         <div
           className="health-heatmap"
           role="img"
-          aria-label={`Notes edited per day, ${heatmapRangeLabel(grid.range)}: ${active} active ${active === 1 ? "day" : "days"}. ${caption}`}
+          aria-label={`일별 노트 편집, ${heatmapRangeLabel(grid.range)}: 활동한 날 ${active}일. ${caption}`}
           style={{ ["--heat-cols" as string]: grid.columns }}
         >
           {grid.months.map((m) => (
@@ -72,13 +72,13 @@ export function HealthActivity({
             </span>
           ))}
           <span className="health-heat-day" style={{ gridRow: 3 }} aria-hidden="true">
-            Mon
+            월
           </span>
           <span className="health-heat-day" style={{ gridRow: 5 }} aria-hidden="true">
-            Wed
+            수
           </span>
           <span className="health-heat-day" style={{ gridRow: 7 }} aria-hidden="true">
-            Fri
+            금
           </span>
           {grid.cells.map((c) => (
             <span
@@ -94,11 +94,11 @@ export function HealthActivity({
             />
           ))}
           <div className="health-heatmap-legend" aria-hidden="true">
-            <span>Less</span>
+            <span>적음</span>
             {[0, 1, 2, 3, 4].map((l) => (
               <span key={l} className="health-heatcell" data-level={l} />
             ))}
-            <span>More</span>
+            <span>많음</span>
           </div>
         </div>
       )}
@@ -130,14 +130,14 @@ export function HealthLargest({
 }) {
   const [pane, setPane] = useState<Pane>("notes");
   const panes: Array<[Pane, string, number]> = [
-    ["notes", "Notes", stats.largestNotes.length],
-    ["files", "Files", stats.largestFiles.length],
-    ["history", "History", stats.heaviestHistory.length],
+    ["notes", "노트", stats.largestNotes.length],
+    ["files", "파일", stats.largestFiles.length],
+    ["history", "기록", stats.heaviestHistory.length],
   ];
 
   return (
     <div className="health-largest">
-      <div className="segmented health-segmented" role="tablist" aria-label="Largest by kind">
+      <div className="segmented health-segmented" role="tablist" aria-label="종류별 가장 큰 항목">
         {panes.map(([id, label]) => (
           <button
             key={id}
@@ -157,7 +157,7 @@ export function HealthLargest({
       ) : (
         <FileTable
           rows={pane === "notes" ? stats.largestNotes : stats.largestFiles}
-          empty={pane === "notes" ? "No notes yet." : "No attachments or other files."}
+          empty={pane === "notes" ? "아직 노트가 없어요." : "첨부 파일이나 다른 파일이 없어요."}
           openable={pane === "notes"}
           handlers={handlers}
         />
@@ -182,14 +182,14 @@ function FileTable({
     <table className="health-table">
       <thead>
         <tr>
-          <th scope="col">Name</th>
+          <th scope="col">이름</th>
           <th scope="col" className="health-num">
-            Size
+            크기
           </th>
           <th scope="col" className="health-num health-modified">
-            Modified
+            수정함
           </th>
-          <th scope="col" aria-label="Actions" />
+          <th scope="col" aria-label="작업" />
         </tr>
       </thead>
       <tbody>
@@ -205,7 +205,7 @@ function FileTable({
                 {formatBytes(row.bytes)}
                 {badge && (
                   <span className="health-size-badge">
-                    {badge === "bad" ? "over the limit" : "near the limit"}
+                    {badge === "bad" ? "한도 초과" : "한도 근접"}
                   </span>
                 )}
               </td>
@@ -219,14 +219,14 @@ function FileTable({
                     className="link-btn"
                     onClick={() => handlers.openNote(row.path)}
                   >
-                    Open
+                    열기
                   </button>
                 )}
                 <AsyncButton
                   className="link-btn"
                   onClick={() => handlers.actions.reveal(row.path)}
                 >
-                  Reveal
+                  위치 보기
                 </AsyncButton>
               </td>
             </tr>
@@ -245,20 +245,20 @@ function HistoryTable({
   handlers: HealthHandlers;
 }) {
   if (stats.heaviestHistory.length === 0) {
-    return <p className="muted">No local edit history yet.</p>;
+    return <p className="muted">아직 로컬 편집 기록이 없어요.</p>;
   }
   return (
     <table className="health-table">
       <thead>
         <tr>
-          <th scope="col">Note</th>
+          <th scope="col">노트</th>
           <th scope="col" className="health-num">
-            Updates
+            업데이트
           </th>
           <th scope="col" className="health-num">
-            Size
+            크기
           </th>
-          <th scope="col" aria-label="Actions" />
+          <th scope="col" aria-label="작업" />
         </tr>
       </thead>
       <tbody>
@@ -268,7 +268,7 @@ function HistoryTable({
               {row.path ? (
                 <PathText path={row.path} />
               ) : (
-                <span className="muted">orphan · {row.docId.slice(0, 8)}</span>
+                <span className="muted">고아 항목 · {row.docId.slice(0, 8)}</span>
               )}
             </td>
             <td className="health-num">{row.updates.toLocaleString()}</td>
@@ -282,7 +282,7 @@ function HistoryTable({
                     handlers.confirm({ kind: "reset", docId: row.docId, path: row.path })
                   }
                 >
-                  Reset history
+                  기록 초기화
                 </button>
               )}
             </td>

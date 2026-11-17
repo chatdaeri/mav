@@ -3,7 +3,7 @@
 // Connector consent finished by the desktop (W3, security rule 2). For a vault
 // that is keyed, the browser consent page cannot complete on
 // its own: the server must never wrap a key from its cache for a user flow.
-// It opens an `oauth_consents` row and shows "Open Baalda on your computer to
+// It opens an `oauth_consents` row and shows "Open 마브 on your computer to
 // finish connecting" with a `<scheme>://oauth-consent?id=…` deep link. The
 // desktop, signed in as the SAME user, presents VK for the vault; the server
 // verifies it against the vault's check and holds it in process memory only

@@ -9,8 +9,8 @@ import type { Share } from "../lib/api";
 import { useStore } from "../store";
 
 export const ACCOUNT_LAPSED_COPY =
-  "Your Team subscription ended. This vault syncs read-only; your files still edit locally.";
-export const ACCOUNT_LAPSED_MEMBER_COPY = "Ask the vault owner to resume the plan.";
+  "Team 구독이 종료되었어요. 이 볼트는 읽기 전용으로만 동기화되고, 파일은 이 기기에서 계속 편집할 수 있어요.";
+export const ACCOUNT_LAPSED_MEMBER_COPY = "볼트 소유자에게 플랜을 다시 시작해 달라고 요청하세요.";
 
 /**
  * Should the lapsed-Team notice be up? Either signal is enough: the server's
@@ -55,14 +55,14 @@ export function AccountLapsedNoticeView({
         {canManage ? (
           <>
             <button className="primary" disabled={busy} onClick={onResume}>
-              Resume plan
+              플랜 다시 시작
             </button>
             <button disabled={busy} onClick={onManage}>
-              Manage plan
+              플랜 관리
             </button>
           </>
         ) : (
-          <button onClick={onDismiss}>Dismiss</button>
+          <button onClick={onDismiss}>닫기</button>
         )}
       </div>
     </Banner>
@@ -121,9 +121,9 @@ export function AccountLapsedNotice() {
     try {
       await authManager.api.accountResume();
       await useStore.getState().refreshLocks();
-      toast("Team plan resumed");
+      toast("Team 플랜을 다시 시작했어요.");
     } catch (e) {
-      toast(`Couldn't resume the plan: ${e instanceof Error ? e.message : String(e)}`, "error");
+      toast(`플랜을 다시 시작하지 못했어요: ${e instanceof Error ? e.message : String(e)}`, "error");
     } finally {
       setBusy(false);
     }

@@ -65,7 +65,7 @@ it("confirms and cancels without the click reaching the host's handlers", async 
   await render();
   await act(async () => button("Restore version").click());
   expect(onConfirm).toHaveBeenCalledTimes(1);
-  await act(async () => button("Cancel").click());
+  await act(async () => button("취소").click());
   expect(onCancel).toHaveBeenCalledTimes(1);
   await act(async () => (dialog().parentElement as HTMLElement).click());
   expect(onCancel).toHaveBeenCalledTimes(2);

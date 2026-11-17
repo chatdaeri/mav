@@ -143,8 +143,8 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
     <button
       type="button"
       className="icon-btn health-copy"
-      title={copied ? "Copied" : label}
-      aria-label={copied ? "Copied" : label}
+      title={copied ? "복사됨" : label}
+      aria-label={copied ? "복사됨" : label}
       onClick={() => {
         void copyText(value).then(() => {
           setCopied(true);

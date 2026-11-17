@@ -12,13 +12,13 @@ export async function imageFileToSquareDataUrl(
   try {
     bitmap = await createImageBitmap(file);
   } catch {
-    throw new Error("That file isn't an image we can read.");
+    throw new Error("읽을 수 없는 이미지 파일이에요.");
   }
   const canvas = document.createElement("canvas");
   canvas.width = px;
   canvas.height = px;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Couldn't process the image.");
+  if (!ctx) throw new Error("이미지를 처리하지 못했어요.");
   const side = Math.min(bitmap.width, bitmap.height);
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, px, px);
@@ -27,5 +27,5 @@ export async function imageFileToSquareDataUrl(
   if (png.length <= maxChars) return png;
   const jpeg = canvas.toDataURL("image/jpeg", 0.85);
   if (jpeg.length <= maxChars) return jpeg;
-  throw new Error("That image is too detailed to use here. Try a simpler one.");
+  throw new Error("이미지가 너무 복잡해서 사용할 수 없어요. 더 단순한 이미지를 써 보세요.");
 }

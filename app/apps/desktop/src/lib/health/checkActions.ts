@@ -3,7 +3,7 @@
 //
 // Two kinds, and the difference is the point:
 //
-//   • a HEAL is Baalda fixing the finding itself — rebuild the index or reclaim
+//   • a HEAL is 마브 fixing the finding itself — rebuild the index or reclaim
 //     orphan history. Mechanical, defined for every item, and safe to run
 //     without reading the list first.
 //   • a BULK action is the per-item button applied to everything listed —
@@ -155,11 +155,11 @@ function judge(action: CheckAction, item: VaultCheckItem): string | null {
     case "reset-history-all":
       return item.docId
         ? null
-        : "no edit history is recorded for this file, so there is nothing to reset";
+        : "이 파일에는 기록된 편집 기록이 없어서 초기화할 것이 없어요";
     case "rename-legal": {
       const to = suggestLegalPath(item.path);
       if (to === null) {
-        return "the offending name is a folder, or nothing legal is left of it. Rename it yourself";
+        return "문제가 된 이름이 폴더이거나 사용할 수 있는 이름이 남지 않았어요. 직접 이름을 바꿔 주세요";
       }
       return null;
     }
@@ -332,7 +332,7 @@ export async function runCheckAction(
         out.done = docsRemoved;
         out.total = docsRemoved;
         out.note =
-          docsRemoved === 0 ? "Nothing to reclaim" : `${formatBytes(bytesReclaimed)} freed`;
+          docsRemoved === 0 ? "회수할 항목 없음" : `${formatBytes(bytesReclaimed)} 확보`;
       } catch (e) {
         out.errors.push({ path: "", reason: reason(e) });
       }
@@ -343,7 +343,7 @@ export async function runCheckAction(
         const { filesRemoved, bytesFreed } = await deps.emptyTrash();
         out.done = filesRemoved;
         out.total = filesRemoved;
-        out.note = filesRemoved === 0 ? "Nothing to empty" : `${formatBytes(bytesFreed)} freed`;
+        out.note = filesRemoved === 0 ? "비울 항목 없음" : `${formatBytes(bytesFreed)} 확보`;
       } catch (e) {
         out.errors.push({ path: "", reason: reason(e) });
       }
@@ -383,7 +383,7 @@ export async function runCheckAction(
         }
         onProgress?.(++done, plan.targets.length);
       }
-      out.note = out.done > 0 ? `in ${dir}` : null;
+      out.note = out.done > 0 ? `${dir}에 저장` : null;
       return out;
     }
 
@@ -393,7 +393,7 @@ export async function runCheckAction(
       let done = 0;
       for (const target of plan.targets) {
         if (!target.docId) {
-          out.skipped.push({ path: target.path, reason: "no doc id" });
+          out.skipped.push({ path: target.path, reason: "문서 ID 없음" });
           onProgress?.(++done, plan.targets.length);
           continue;
         }
@@ -406,7 +406,7 @@ export async function runCheckAction(
         }
         onProgress?.(++done, plan.targets.length);
       }
-      out.note = freed > 0 ? `${formatBytes(freed)} freed` : null;
+      out.note = freed > 0 ? `${formatBytes(freed)} 확보` : null;
       return out;
     }
 
@@ -416,7 +416,7 @@ export async function runCheckAction(
       for (const target of plan.targets) {
         const to = suggestLegalPath(target.path);
         if (to == null) {
-          out.skipped.push({ path: target.path, reason: "nothing legal to rename it to" });
+          out.skipped.push({ path: target.path, reason: "바꿀 수 있는 올바른 이름이 없어요" });
           onProgress?.(++done, plan.targets.length);
           continue;
         }
@@ -427,12 +427,12 @@ export async function runCheckAction(
           if (!(await deps.isFile(target.path))) {
             out.skipped.push({
               path: target.path,
-              reason: "this is a folder. Rename it in the sidebar",
+              reason: "폴더예요. 사이드바에서 이름을 바꿔 주세요",
             });
           } else if (await deps.isFile(to)) {
             out.skipped.push({
               path: target.path,
-              reason: `\`${basename(to)}\` is taken. Rename it yourself`,
+              reason: `\`${basename(to)}\` 이름을 이미 사용 중이에요. 직접 이름을 바꿔 주세요`,
             });
           } else {
             await deps.rename(target.path, to);
@@ -463,13 +463,13 @@ export function outcomeSummary(
   outcome: CheckActionOutcome,
   plan: CheckActionPlan,
 ): string {
-  if (outcome.cancelled) return "Cancelled. Nothing changed";
+  if (outcome.cancelled) return "취소됨. 변경 사항 없음";
   const failed = outcome.errors.length;
   const parts: string[] = [];
   let note = outcome.note;
 
   if (plan.wholeVault) {
-    if (outcome.done === 0 && failed > 0) return `${plan.label} failed`;
+    if (outcome.done === 0 && failed > 0) return `${plan.label} 실패`;
     if (plan.action === "rebuild-index" || plan.action === "sync-now") {
       parts.push(plan.verb);
     } else if (outcome.done === 0 && note) {
@@ -484,14 +484,14 @@ export function outcomeSummary(
     note = null;
   } else {
     parts.push(
-      `${plan.verb} ${outcome.done.toLocaleString()} of ${outcome.total.toLocaleString()}`,
+      `${plan.verb} ${outcome.done.toLocaleString()}/${outcome.total.toLocaleString()}`,
     );
   }
 
   if (note) parts.push(note);
-  if (failed > 0) parts.push(`${failed.toLocaleString()} failed`);
+  if (failed > 0) parts.push(`${failed.toLocaleString()}개 실패`);
   if (outcome.skipped.length > 0) {
-    parts.push(`${outcome.skipped.length.toLocaleString()} left alone`);
+    parts.push(`${outcome.skipped.length.toLocaleString()}개 건너뜀`);
   }
   return parts.join(" · ");
 }

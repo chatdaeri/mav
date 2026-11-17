@@ -82,18 +82,18 @@ function GitHubTokenRow({ serverUrl, orgId }: { serverUrl: string; orgId: string
     await ipc.keychainSet(key, t);
     setToken("");
     setSaved(true);
-    toast("GitHub token saved on this computer.");
+    toast("GitHub 토큰을 이 컴퓨터에 저장했어요.");
   };
 
   return (
     <div className="menu-row skills-setting-row skills-token-row">
       <span className="menu-row-label">
-        GitHub token
-        <span className="field-hint">For private repositories. Kept in this computer's keychain only.</span>
+        GitHub 토큰
+        <span className="field-hint">비공개 저장소용이에요. 이 컴퓨터의 키체인에만 보관돼요.</span>
       </span>
       {saved === null ? null : saved ? (
         <span className="skills-inline">
-          <Tag tone="good">Saved</Tag>
+          <Tag tone="good">저장됨</Tag>
           <AsyncButton
             className="link-btn danger"
             onClick={async () => {
@@ -101,7 +101,7 @@ function GitHubTokenRow({ serverUrl, orgId }: { serverUrl: string; orgId: string
               setSaved(false);
             }}
           >
-            Remove
+            제거
           </AsyncButton>
         </span>
       ) : (
@@ -111,7 +111,7 @@ function GitHubTokenRow({ serverUrl, orgId }: { serverUrl: string; orgId: string
             className="skills-compact-input"
             type="password"
             placeholder="github_pat_…"
-            aria-label="GitHub token"
+            aria-label="GitHub 토큰"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             onKeyDown={(e) => {
@@ -119,7 +119,7 @@ function GitHubTokenRow({ serverUrl, orgId }: { serverUrl: string; orgId: string
             }}
           />
           </span>
-          <BusyButton className="secondary skills-btn-sm" busyLabel="Saving…" disabled={!token.trim()} onClick={save}>Save</BusyButton>
+          <BusyButton className="secondary skills-btn-sm" busyLabel="저장하는 중…" disabled={!token.trim()} onClick={save}>저장</BusyButton>
         </span>
       )}
     </div>
@@ -136,20 +136,20 @@ const BUILT_INS: readonly { repo: string; title: string; logo: ToolId | null; de
     repo: "anthropics/skills",
     title: "Anthropic",
     logo: "claude",
-    description: "Official skills from Anthropic: Word, Excel, PowerPoint and PDF files, design, testing, building MCP servers and more.",
+    description: "Anthropic의 공식 스킬: Word, Excel, PowerPoint, PDF 파일, 디자인, 테스트, MCP 서버 구축 등.",
   },
   {
     repo: "openai/skills",
     title: "OpenAI",
     logo: "codex",
-    description: "The official skills catalog for Codex from OpenAI, curated and experimental.",
+    description: "OpenAI가 제공하는 Codex용 공식 스킬 카탈로그예요. 엄선된 스킬과 실험적인 스킬이 있어요.",
   },
   {
     // No brand mark of ours: its tile shows the repo's logo file or the org's picture.
     repo: "BenAIOS/skills",
     title: "BenAI",
     logo: null,
-    description: "Expert plugins that turn your AI into a specialist, by department: marketing, sales, operations, creative, product and more.",
+    description: "AI를 전문가로 만들어 주는 부서별 플러그인: 마케팅, 영업, 운영, 크리에이티브, 제품 등.",
   },
 ];
 
@@ -300,7 +300,7 @@ export function MarketplaceBrowser({
             setBrowse((b) => ({ ...b, [market.key]: { status: "ready", listing: partial } })),
           ),
           120_000,
-          "GitHub is taking too long to answer. Try again in a moment.",
+          "GitHub 응답이 너무 오래 걸려요. 잠시 후 다시 시도하세요.",
         );
       })();
       listings.current.set(market.key, p);
@@ -412,7 +412,7 @@ export function MarketplaceBrowser({
         if (existing) void open(existing);
         return null;
       }
-      return skillErrorCode(e) === "skill_source_limit_reached" ? "This vault has the most marketplaces it can hold (100)." : message(e);
+      return skillErrorCode(e) === "skill_source_limit_reached" ? "이 볼트에는 마켓플레이스를 최대 100개까지 둘 수 있어요." : message(e);
     }
   }
 
@@ -422,7 +422,7 @@ export function MarketplaceBrowser({
     setSources((list) => (list ?? []).filter((s) => s.id !== market.source!.id));
     setBrowse(({ [market.key]: _gone, ...rest }) => rest);
     setSelected(null);
-    toast(`Removed ${market.repo}. Skills you imported stay.`, "neutral");
+    toast(`${market.repo}을(를) 제거했어요. 가져온 스킬은 그대로 남아요.`, "neutral");
   };
 
   /** Create and publish one skill as v1. Throws when it couldn't be created. */
@@ -448,15 +448,15 @@ export function MarketplaceBrowser({
     try {
       const out = await importOne({ ...skill, name }, await readerFor(serverUrl, orgId));
       onImported?.(out.id);
-      if (out.version !== null) toast(`Imported ${skillDisplayName(name)} v${out.version}.`);
-      else toast(`Imported ${skillDisplayName(name)} as a draft: ${out.draftError}`, "neutral");
+      if (out.version !== null) toast(`${skillDisplayName(name)} v${out.version}을(를) 가져왔어요.`);
+      else toast(`${skillDisplayName(name)}을(를) 초안으로 가져왔어요: ${out.draftError}`, "neutral");
       await onCatalogChanged();
     } catch (e) {
       const code = skillErrorCode(e);
       toast(
         code === "skill_name_taken"
-          ? `A skill named ${skillDisplayName(name)} already exists in this vault.`
-          : `Couldn't import ${name}: ${message(e)}`,
+          ? `${skillDisplayName(name)}이라는 스킬이 이 볼트에 이미 있어요.`
+          : `${name}을(를) 가져오지 못했어요: ${message(e)}`,
         "error",
       );
     }
@@ -485,12 +485,12 @@ export function MarketplaceBrowser({
       const listing = await loadListing(market);
       const list = importable(listing);
       if (list.length === 0) {
-        toast(`Everything from ${market.title} is already in this vault.`, "neutral");
+        toast(`${market.title}의 모든 스킬이 이미 이 볼트에 있어요.`, "neutral");
       } else {
         setConfirmAll({ market, skills: list });
       }
     } catch (e) {
-      toast(`Couldn't read ${market.repo}: ${message(e)}`, "error");
+      toast(`${market.repo}을(를) 읽지 못했어요: ${message(e)}`, "error");
     } finally {
       setBulk(({ [market.key]: _done, ...rest }) => rest);
     }
@@ -527,12 +527,12 @@ export function MarketplaceBrowser({
     setBulk(({ [market.key]: _done, ...rest }) => rest);
     await onCatalogChanged();
     const parts = [
-      drafts > 0 ? `${drafts} as drafts` : null,
-      skipped > 0 ? `${skipped} skipped (name already used)` : null,
-      failed > 0 ? `${failed} couldn't be imported` : null,
+      drafts > 0 ? `${drafts}개는 초안` : null,
+      skipped > 0 ? `${skipped}개는 건너뜀(이미 쓰는 이름)` : null,
+      failed > 0 ? `${failed}개는 가져오지 못함` : null,
     ].filter(Boolean);
     toast(
-      `Imported ${added} ${added === 1 ? "skill" : "skills"} from ${market.title}${parts.length ? `. ${parts.join(", ")}.` : "."}`,
+      `${market.title}에서 스킬 ${added}개를 가져왔어요${parts.length ? ` (${parts.join(", ")})` : ""}.`,
       failed > 0 ? "error" : undefined,
     );
   };
@@ -543,14 +543,14 @@ export function MarketplaceBrowser({
       const files = await fetchSkillFolder(reader, skill);
       const detail = await authManager.api.getSkill(orgId, skillId);
       await authManager.api.putSkillDraft(orgId, skillId, detail.draftRevision, files, originOf(skill));
-      toast(`Pulled ${skillDisplayName(skill.name ?? "")} into its draft. Review, then publish.`);
+      toast(`${skillDisplayName(skill.name ?? "")}을(를) 초안으로 불러왔어요. 검토한 뒤 게시하세요.`);
       await onCatalogChanged();
       onOpenSkill(skillId);
     } catch (e) {
       toast(
         skillErrorCode(e) === "stale_draft"
-          ? `Someone changed the draft of ${skill.name}. Try again.`
-          : `Couldn't pull ${skill.name}: ${message(e)}`,
+          ? `누군가 ${skill.name}의 초안을 바꿨어요. 다시 시도하세요.`
+          : `${skill.name}을(를) 불러오지 못했어요: ${message(e)}`,
         "error",
       );
     }
@@ -603,7 +603,7 @@ export function MarketplaceBrowser({
     await onCatalogChanged();
     const removed = total - failed;
     toast(
-      `Removed ${removed} ${removed === 1 ? "skill" : "skills"} from the team${failed > 0 ? `. ${failed} couldn't be removed; try again.` : "."}`,
+      `팀에서 스킬 ${removed}개를 제거했어요${failed > 0 ? `. ${failed}개는 제거하지 못했어요. 다시 시도하세요.` : "."}`,
       failed > 0 ? "error" : undefined,
     );
   };
@@ -613,11 +613,11 @@ export function MarketplaceBrowser({
     const b = browse[m.key];
     if (b?.status === "ready") {
       const n = b.listing.groups.reduce((x, g) => x + g.skills.length, 0);
-      return `${n} ${n === 1 ? "skill" : "skills"}`;
+      return `스킬 ${n}개`;
     }
     const p = peeks[m.key];
     if (!p || p === "error") return null;
-    return p.skills > 0 ? `${p.skills} ${p.skills === 1 ? "skill" : "skills"}` : formatLabel(p.format);
+    return p.skills > 0 ? `스킬 ${p.skills}개` : formatLabel(p.format);
   };
 
   const card = (skill: MarketplaceSkill) => {
@@ -625,32 +625,32 @@ export function MarketplaceBrowser({
     const busy = importing.has(skill.key);
     let side: React.ReactNode;
     if (busy) {
-      side = <InstallButton kind="busy" title="Working…" />;
+      side = <InstallButton kind="busy" title="처리 중…" />;
     } else if (status.kind === "imported") {
-      side = <InstallButton kind="imported" title="In this vault · open" onClick={() => onOpenSkill(status.skillId)} />;
+      side = <InstallButton kind="imported" title="이 볼트에 있음 · 열기" onClick={() => onOpenSkill(status.skillId)} />;
     } else if (status.kind === "update") {
       side = (
         <InstallButton
           kind="update"
-          title="Update available · pull"
+          title="업데이트 있음 · 불러오기"
           onClick={() => void track(skill.key, () => pullUpdate(skill, status.skillId))}
         />
       );
     } else if (status.kind === "nameTaken") {
-      side = <InstallButton kind="blocked" title={`A skill named ${skillDisplayName(skill.name ?? "")} already exists in this vault.`} />;
+      side = <InstallButton kind="blocked" title={`${skillDisplayName(skill.name ?? "")}이라는 스킬이 이 볼트에 이미 있어요.`} />;
     } else if (skill.problem || !skill.name) {
-      side = <InstallButton kind="blocked" title={skill.problem ?? "Its name can't be used for a skill."} />;
+      side = <InstallButton kind="blocked" title={skill.problem ?? "이 이름은 스킬 이름으로 쓸 수 없어요."} />;
     } else if (skill.pending) {
-      side = <InstallButton kind="busy" title="Reading…" />;
+      side = <InstallButton kind="busy" title="읽는 중…" />;
     } else {
-      side = <InstallButton kind="add" title="Import to this vault" onClick={() => void track(skill.key, () => importSkill(skill))} />;
+      side = <InstallButton kind="add" title="이 볼트로 가져오기" onClick={() => void track(skill.key, () => importSkill(skill))} />;
     }
-    const meta = `${skill.files.length} ${skill.files.length === 1 ? "file" : "files"} · ${sizeText(skill.totalBytes)}`;
+    const meta = `파일 ${skill.files.length}개 · ${sizeText(skill.totalBytes)}`;
     const description = skill.pending
-      ? "Reading…"
+      ? "읽는 중…"
       : skill.problem && status.kind === "new"
         ? skill.problem
-        : skill.description || "No description.";
+        : skill.description || "설명이 없어요.";
     return (
       <SkillCard
         key={skill.key}
@@ -675,7 +675,7 @@ export function MarketplaceBrowser({
           <div className="skills-detail-title">
             <div className="skills-title-row">
               <h2 className="settings-section-title">{current.title}</h2>
-              <span className="skills-source-pill">{current.builtIn ? "Built in" : "Added by your team"}</span>
+              <span className="skills-source-pill">{current.builtIn ? "기본 제공" : "팀에서 추가함"}</span>
             </div>
             <span className="skills-market-sub">
               <GitHubGlyph />
@@ -683,49 +683,49 @@ export function MarketplaceBrowser({
               {listing && (
                 <>
                   <span aria-hidden="true">·</span>
-                  {formatLabel(listing.format)} · {total} {total === 1 ? "skill" : "skills"}
-                  {describing && " · loading details…"}
+                  {formatLabel(listing.format)} · 스킬 {total}개
+                  {describing && " · 세부 정보 불러오는 중…"}
                 </>
               )}
             </span>
           </div>
           <div className="skills-detail-controls">
             {listing && total > 0 && (
-              <SearchToggle value={filter} onChange={setFilter} placeholder={`Search ${total} skills`} />
+              <SearchToggle value={filter} onChange={setFilter} placeholder={`스킬 ${total}개 검색`} />
             )}
             <button
               type="button"
               className={`icon-btn skills-icon-btn${state?.status === "loading" || describing ? " is-spinning" : ""}`}
               disabled={state?.status === "loading" || describing}
               onClick={() => void open(current, true)}
-              aria-label="Refresh"
-              title="Refresh"
+              aria-label="새로고침"
+              title="새로고침"
             >
               <RefreshIcon />
             </button>
             {current.source && !current.builtIn && (
               <RowActionsMenu
-                ariaLabel={`More for ${current.repo}`}
-                actions={[{ key: "remove", label: "Remove marketplace", danger: true, onSelect: () => setRemoving(current) }]}
+                ariaLabel={`${current.repo} 더 보기`}
+                actions={[{ key: "remove", label: "마켓플레이스 제거", danger: true, onSelect: () => setRemoving(current) }]}
               />
             )}
           </div>
         </div>
 
         {!state || state.status === "loading" ? (
-          <SkeletonCards count={6} label="Loading skills" />
+          <SkeletonCards count={6} label="스킬을 불러오는 중" />
         ) : state.status === "error" ? (
           <EmptyState
-            title="Couldn't read this repository"
-            actions={<button className="secondary" onClick={() => void open(current, true)}>Try again</button>}
+            title="이 저장소를 읽을 수 없어요"
+            actions={<button className="secondary" onClick={() => void open(current, true)}>다시 시도</button>}
           >
             {state.message}
           </EmptyState>
         ) : total === 0 && groups.every((g) => !g.unsupported) ? (
-          <EmptyState title="No skills found">{current.repo} has no SKILL.md folders.</EmptyState>
+          <EmptyState title="스킬을 찾을 수 없어요">{current.repo}에 SKILL.md 폴더가 없어요.</EmptyState>
         ) : (
           <div className="skills-grid-host">
-            {groups.length === 0 && <div className="muted">No skills match.</div>}
+            {groups.length === 0 && <div className="muted">일치하는 스킬이 없어요.</div>}
             {groups.map((g) => (
               <div key={g.pluginName ?? "root"} className="skills-group">
                 {g.pluginName && (
@@ -746,15 +746,15 @@ export function MarketplaceBrowser({
 
         {removing && (
           <ConfirmDialog
-            title={`Remove ${removing.repo}?`}
-            confirmLabel="Remove"
+            title={`${removing.repo}을(를) 제거할까요?`}
+            confirmLabel="제거"
             onCancel={() => setRemoving(null)}
             onConfirm={async () => {
               await remove(removing);
               setRemoving(null);
             }}
           >
-            Skills you already imported from it stay in the vault.
+            이미 가져온 스킬은 볼트에 그대로 남아요.
           </ConfirmDialog>
         )}
       </section>
@@ -762,23 +762,23 @@ export function MarketplaceBrowser({
   }
 
   return (
-    <section className="member-profile skills-market skills-view-in" aria-label="Marketplaces">
+    <section className="member-profile skills-market skills-view-in" aria-label="마켓플레이스">
       {/* The Agent Skills header's exact shape, so the title, subtitle and
           content don't move on the way in; "Agent Skills" is the way back. */}
       <div className="members-access-header skills-page-head">
         <div>
           <h2 className="settings-section-title skills-crumbs">
             <button type="button" className="skills-crumb-link" onClick={onBack}>
-              Agent Skills
+              에이전트 스킬
             </button>
             <span className="skills-crumb-sep" aria-hidden="true">/</span>
-            Marketplaces
+            마켓플레이스
           </h2>
-          <p className="skills-intro">Import skills from GitHub. Anything you import installs on everyone's computer.</p>
+          <p className="skills-intro">GitHub에서 스킬을 가져오세요. 가져온 스킬은 모든 멤버의 컴퓨터에 설치돼요.</p>
         </div>
         <div className="skills-actions">
           <button type="button" className="primary skills-hdr-btn" onClick={() => setAdding(true)}>
-            Add marketplace
+            마켓플레이스 추가
           </button>
         </div>
       </div>
@@ -787,7 +787,7 @@ export function MarketplaceBrowser({
 
       <div className="skills-grid-host">
         {sources === null ? (
-          <SkeletonCards count={3} label="Loading marketplaces" />
+          <SkeletonCards count={3} label="마켓플레이스를 불러오는 중" />
         ) : (
           <ul className="skills-grid skills-market-grid">
             {markets.map((m) => {
@@ -824,10 +824,10 @@ export function MarketplaceBrowser({
                     <span className="skills-card-byline">
                       <span className="skills-meta-line">
                         {job && job.phase !== "reading"
-                          ? `${job.phase === "importing" ? "Importing" : "Removing"} ${job.done} of ${job.total}…`
+                          ? `${job.total}개 중 ${job.done}개 ${job.phase === "importing" ? "가져오는" : "제거하는"} 중…`
                           : job?.phase === "reading"
-                            ? "Reading every skill…"
-                            : `${m.builtIn ? "Built in" : m.source?.addedBy ? `Added by ${m.source.addedBy.name}` : "Added by your team"}${count ? ` · ${count}` : ""}`}
+                            ? "모든 스킬을 읽는 중…"
+                            : `${m.builtIn ? "기본 제공" : m.source?.addedBy ? `${m.source.addedBy.name}님이 추가함` : "팀에서 추가함"}${count ? ` · ${count}` : ""}`}
                       </span>
                     </span>
                     <CardDescription text={m.description} />
@@ -838,20 +838,20 @@ export function MarketplaceBrowser({
                         kind="busy"
                         title={
                           job.phase === "reading"
-                            ? "Reading every skill…"
-                            : `${job.phase === "importing" ? "Importing" : "Removing"} ${job.done} of ${job.total}…`
+                            ? "모든 스킬을 읽는 중…"
+                            : `${job.total}개 중 ${job.done}개 ${job.phase === "importing" ? "가져오는" : "제거하는"} 중…`
                         }
                       />
                     ) : checking ? (
-                      <InstallButton kind="busy" title="Checking what's already in this vault…" />
+                      <InstallButton kind="busy" title="이 볼트에 이미 있는 항목을 확인하는 중…" />
                     ) : allIn ? (
                       <InstallButton
                         kind="imported"
-                        title={`Everything from ${m.title} is in this vault\nClick to remove them all`}
+                        title={`${m.title}의 모든 스킬이 이 볼트에 있어요\n클릭하면 모두 제거해요`}
                         onClick={() => setConfirmRemoveAll({ market: m, skills: mine })}
                       />
                     ) : (
-                      <InstallButton kind="add" title={`Import every skill from ${m.title}`} onClick={() => void askImportAll(m)} />
+                      <InstallButton kind="add" title={`${m.title}의 모든 스킬 가져오기`} onClick={() => void askImportAll(m)} />
                     )}
                   </span>
                 </li>
@@ -867,8 +867,8 @@ export function MarketplaceBrowser({
 
       {confirmAll && (
         <ConfirmDialog
-          title={`Import ${confirmAll.skills.length} ${confirmAll.skills.length === 1 ? "skill" : "skills"} from ${confirmAll.market.title}?`}
-          confirmLabel="Import all"
+          title={`${confirmAll.market.title}에서 스킬 ${confirmAll.skills.length}개를 가져올까요?`}
+          confirmLabel="모두 가져오기"
           tone="accent"
           onCancel={() => setConfirmAll(null)}
           onConfirm={async () => {
@@ -877,15 +877,15 @@ export function MarketplaceBrowser({
             void importAll(market, skills);
           }}
         >
-          They install on everyone's computer, in Claude, Codex and their other AI tools. You can make any of
-          them optional on its page. Skills already in this vault are left as they are.
+          모든 멤버의 컴퓨터에서 Claude, Codex 등 AI 도구에 설치돼요. 각 스킬 페이지에서 선택 설치로
+          바꿀 수 있어요. 이 볼트에 이미 있는 스킬은 그대로 두어요.
         </ConfirmDialog>
       )}
 
       {confirmRemoveAll && (
         <ConfirmDialog
-          title={`Remove ${confirmRemoveAll.skills.length} ${confirmRemoveAll.skills.length === 1 ? "skill" : "skills"} from the team?`}
-          confirmLabel="Remove all"
+          title={`팀에서 스킬 ${confirmRemoveAll.skills.length}개를 제거할까요?`}
+          confirmLabel="모두 제거"
           onCancel={() => setConfirmRemoveAll(null)}
           onConfirm={async () => {
             const { market, skills } = confirmRemoveAll;
@@ -893,8 +893,8 @@ export function MarketplaceBrowser({
             void removeAll(market, skills);
           }}
         >
-          Everything imported from {confirmRemoveAll.market.title} leaves the team and everyone's AI tools. A copy
-          someone edited stays on their computer. You can import them again any time.
+          {confirmRemoveAll.market.title}에서 가져온 모든 스킬이 팀과 모든 멤버의 AI 도구에서 빠져요. 누군가
+          편집한 사본은 그 사람의 컴퓨터에 남아요. 언제든 다시 가져올 수 있어요.
         </ConfirmDialog>
       )}
 

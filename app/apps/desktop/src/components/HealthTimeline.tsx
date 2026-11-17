@@ -54,7 +54,7 @@ export function HealthTimeline({
   }, [log, filter]);
 
   if (log.length === 0) {
-    return <p className="muted">Nothing yet this session.</p>;
+    return <p className="muted">이번 세션에는 아직 기록이 없어요.</p>;
   }
 
   const page = shown.slice(0, expanded ? limit : COLLAPSED);
@@ -69,24 +69,24 @@ export function HealthTimeline({
 
   return (
     <>
-      <div className="health-chips" role="group" aria-label="Filter the timeline">
+      <div className="health-chips" role="group" aria-label="기록 필터">
         <Chip active={filter === "all"} onClick={() => setFilter("all")} count={log.length}>
-          All
+          전체
         </Chip>
         <Chip
           active={filter === "warn"}
           onClick={() => setFilter("warn")}
           count={counts.warn + counts.error}
         >
-          Warnings
+          경고
         </Chip>
         <Chip active={filter === "error"} onClick={() => setFilter("error")} count={counts.error}>
-          Errors
+          오류
         </Chip>
       </div>
 
       {page.length === 0 ? (
-        <p className="muted">Nothing at this level.</p>
+        <p className="muted">이 수준에는 기록이 없어요.</p>
       ) : (
         <div className={`health-timeline${expanded ? " is-expanded" : ""}`}>
           {days.map((day) => (
@@ -106,7 +106,7 @@ export function HealthTimeline({
                       {(e.count ?? 1) > 1 && (
                         <span
                           className="health-log-count"
-                          title={`Happened ${e.count} times within a minute`}
+                          title={`1분 안에 ${e.count}번 발생했어요`}
                         >
                           ×{e.count}
                         </span>
@@ -116,7 +116,7 @@ export function HealthTimeline({
                           type="button"
                           className="health-log-path"
                           onClick={() => onInspect(e.path as string)}
-                          title={`Check ${e.path}`}
+                          title={`${e.path} 점검`}
                         >
                           <PathText path={e.path} chars={44} />
                         </button>
@@ -133,7 +133,7 @@ export function HealthTimeline({
       <div className="health-timeline-actions">
         {!expanded && hidden > 0 && (
           <button type="button" className="ghost-pill sm" onClick={() => setExpanded(true)}>
-            Show all {shown.length.toLocaleString()}
+            전체 {shown.length.toLocaleString()}개 보기
           </button>
         )}
         {expanded && shown.length > limit && (
@@ -142,7 +142,7 @@ export function HealthTimeline({
             className="ghost-pill sm"
             onClick={() => setLimit((n) => n + PAGE)}
           >
-            Show older
+            이전 기록 보기
           </button>
         )}
         {expanded && (
@@ -154,7 +154,7 @@ export function HealthTimeline({
               setLimit(PAGE);
             }}
           >
-            Show less
+            줄이기
           </button>
         )}
       </div>
@@ -163,5 +163,5 @@ export function HealthTimeline({
 }
 
 function levelWord(level: SyncLogLevel): string {
-  return level === "error" ? "Error" : level === "warn" ? "Warning" : "Info";
+  return level === "error" ? "오류" : level === "warn" ? "경고" : "정보";
 }

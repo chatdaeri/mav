@@ -23,10 +23,10 @@ export async function loadSource(source: TextSource, epoch?: ipc.VaultEpoch): Pr
 
 export function sourceErrorMessage(e: unknown): string {
   if (e instanceof ApiError) {
-    if (e.status === 404) return "This note is no longer in Trash.";
-    if (e.status === 410) return "This note was purged from Trash.";
-    if (e.status === 403) return "You don't have access to this note.";
-    return e.message || `The server refused (${e.status}).`;
+    if (e.status === 404) return "이 노트는 더 이상 휴지통에 없어요.";
+    if (e.status === 410) return "이 노트는 휴지통에서 영구 삭제됐어요.";
+    if (e.status === 403) return "이 노트에 접근할 권한이 없어요.";
+    return e.message || `서버가 요청을 거부했어요 (${e.status}).`;
   }
   return e instanceof Error ? e.message : String(e);
 }

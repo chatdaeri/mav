@@ -154,9 +154,9 @@ describe("openTabs ordering", () => {
 
 describe("createNoteIn / createNoteAt", () => {
   it("names the note Untitled, then Untitled 1 when that is taken", async () => {
-    expect(await useStore.getState().createNoteIn("")).toBe("Untitled.md");
-    expect(await useStore.getState().createNoteIn("")).toBe("Untitled 1.md");
-    expect(await useStore.getState().createNoteIn("Work")).toBe("Work/Untitled.md");
+    expect(await useStore.getState().createNoteIn("")).toBe("제목 없음.md");
+    expect(await useStore.getState().createNoteIn("")).toBe("제목 없음 1.md");
+    expect(await useStore.getState().createNoteIn("Work")).toBe("Work/제목 없음.md");
   });
 
   it("opens the new note, reveals its row, and arms its inline title", async () => {

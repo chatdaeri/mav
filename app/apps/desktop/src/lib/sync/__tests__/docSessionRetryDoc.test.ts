@@ -440,7 +440,7 @@ describe("SyncManager.syncLog", () => {
 
     // A terminal run with failures says so, in a whole sentence.
     const ended = sm.syncLog().find((e) => e.event === "run-failed");
-    expect(ended?.message).toMatch(/not synced$/);
+    expect(ended?.message).toMatch(/동기화되지 않았어요$/);
 
     // No jargon reaches the page.
     for (const e of sm.syncLog()) {
@@ -456,7 +456,7 @@ describe("SyncManager.syncLog", () => {
 
     await sm.retryDoc(DOC);
     const retry = sm.syncLog().find((e) => e.event === "retry");
-    expect(retry?.message).toBe("Retrying this note");
+    expect(retry?.message).toBe("이 노트를 다시 시도하는 중");
     expect(retry?.path).toBe(REL);
     expect(seen.length).toBeGreaterThan(0);
 
@@ -490,7 +490,7 @@ describe("SyncManager.prepareSharedHome", () => {
   it("does not publish a Home whose initial content cannot be uploaded", async () => {
     const sm = manager();
     await enable(sm);
-    await expect(sm.prepareSharedHome(DOC, REL, 1)).rejects.toThrow("finish syncing");
+    await expect(sm.prepareSharedHome(DOC, REL, 1)).rejects.toThrow("동기화가 끝날 때까지");
     expect(fakeRegistry.isPushed(DOC)).toBe(false);
   });
 

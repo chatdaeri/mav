@@ -45,11 +45,11 @@ describe("secret wraps (crypto)", () => {
 });
 
 describe("links and codes carry the secret", () => {
-  it("baalda://invite/<id>?server=…&k=<S>", () => {
+  it("mav://invite/<id>?server=…&k=<S>", () => {
     const s = newSecret();
-    expect(parseInviteDeepLink(`baalda://invite/inv1?server=https%3A%2F%2Fapi.test&k=${s}`)?.secret).toBe(s);
-    expect(parseInviteDeepLink("baalda://invite/inv1?server=https%3A%2F%2Fapi.test")?.secret).toBeUndefined();
-    expect(parseInviteDeepLink("baalda://invite/inv1?k=not-a-secret")?.secret).toBeUndefined();
+    expect(parseInviteDeepLink(`mav://invite/inv1?server=https%3A%2F%2Fapi.test&k=${s}`)?.secret).toBe(s);
+    expect(parseInviteDeepLink("mav://invite/inv1?server=https%3A%2F%2Fapi.test")?.secret).toBeUndefined();
+    expect(parseInviteDeepLink("mav://invite/inv1?k=not-a-secret")?.secret).toBeUndefined();
   });
   it("`<code>-<J>` yields J; a plain 8-char code yields nothing", () => {
     const j = newSecret();

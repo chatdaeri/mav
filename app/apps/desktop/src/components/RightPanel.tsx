@@ -52,7 +52,7 @@ const TAB_ICON: Record<RightPanelStripTab, React.ReactNode> = {
 
 /** Same titles/labels the header buttons carried. */
 const TAB_TITLE: Record<RightPanelStripTab, string> = {
-  activity: "Activity",
+  activity: "활동",
 };
 
 /** The old buttons' classes, so their active styling carries over. */
@@ -93,7 +93,7 @@ function PanelBody({ tab }: { tab: RightPanelTab }) {
       className="version-panel right-panel"
       tabIndex={-1}
       role="dialog"
-      aria-label="Panel"
+      aria-label="패널"
       onKeyDown={(e) => {
         if (e.key === "Escape" && !e.defaultPrevented) {
           close();
@@ -107,7 +107,7 @@ function PanelBody({ tab }: { tab: RightPanelTab }) {
     >
       <header className="right-panel-head">
         <div className="right-panel-tabs">
-          <div className="right-panel-tablist" role="tablist" aria-label="Panel">
+          <div className="right-panel-tablist" role="tablist" aria-label="패널">
             {RIGHT_PANEL_STRIP_TABS.map((t) => (
               <button
                 key={t}
@@ -116,7 +116,7 @@ function PanelBody({ tab }: { tab: RightPanelTab }) {
                 aria-selected={t === tab}
                 aria-pressed={t === tab}
                 aria-label={
-                  t === "activity" && pending > 0 ? `${TAB_TITLE[t]}, ${pending} to review` : TAB_TITLE[t]
+                  t === "activity" && pending > 0 ? `${TAB_TITLE[t]}, 검토할 항목 ${pending}개` : TAB_TITLE[t]
                 }
                 title={TAB_TITLE[t]}
                 className={`icon-btn right-panel-tab ${TAB_CLASS[t]}${t === tab ? " active" : ""}`}
@@ -138,7 +138,7 @@ function PanelBody({ tab }: { tab: RightPanelTab }) {
           <TalkButton />
           <span className="right-panel-tab-name">{RIGHT_PANEL_TAB_LABEL[tab]}</span>
         </div>
-        <button className="icon-btn" onClick={close} aria-label="Close panel" title="Close (Esc)">
+        <button className="icon-btn" onClick={close} aria-label="패널 닫기" title="닫기 (Esc)">
           ✕
         </button>
       </header>

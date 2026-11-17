@@ -290,9 +290,9 @@ describe("effectiveVaultMode — the bug this function exists to fix", () => {
 describe("MODE_LABEL", () => {
   it("uses the Members and access page words for every mode", () => {
     expect(MODE_LABEL).toEqual({
-      open: "Can edit",
-      readonly: "Can view",
-      private: "No access",
+      open: "편집 가능",
+      readonly: "보기 가능",
+      private: "접근 불가",
     });
   });
 });
@@ -303,27 +303,27 @@ describe("overrideCountPhrase", () => {
   });
 
   it("singularises each half independently", () => {
-    expect(overrideCountPhrase(1, 0)).toBe("1 folder setting");
-    expect(overrideCountPhrase(0, 1)).toBe("1 note setting");
-    expect(overrideCountPhrase(1, 1)).toBe("1 folder setting and 1 note setting");
+    expect(overrideCountPhrase(1, 0)).toBe("폴더 설정 1개");
+    expect(overrideCountPhrase(0, 1)).toBe("노트 설정 1개");
+    expect(overrideCountPhrase(1, 1)).toBe("폴더 설정 1개 및 노트 설정 1개");
   });
 
   it("pluralises and joins", () => {
-    expect(overrideCountPhrase(3, 12)).toBe("3 folder settings and 12 note settings");
-    expect(overrideCountPhrase(0, 4)).toBe("4 note settings");
-    expect(overrideCountPhrase(2, 0)).toBe("2 folder settings");
+    expect(overrideCountPhrase(3, 12)).toBe("폴더 설정 3개 및 노트 설정 12개");
+    expect(overrideCountPhrase(0, 4)).toBe("노트 설정 4개");
+    expect(overrideCountPhrase(2, 0)).toBe("폴더 설정 2개");
   });
 });
 
 describe("clearedCountPhrase", () => {
   it("pluralises the server's single total", () => {
-    expect(clearedCountPhrase(4)).toBe("4 folder and note settings");
-    expect(clearedCountPhrase(200)).toBe("200 folder and note settings");
+    expect(clearedCountPhrase(4)).toBe("폴더 및 노트 설정 4개");
+    expect(clearedCountPhrase(200)).toBe("폴더 및 노트 설정 200개");
   });
 
   it("reads naturally for exactly one, which the plural wording cannot", () => {
     // "1 folder and note setting" would describe one impossible thing.
-    expect(clearedCountPhrase(1)).toBe("1 folder or note setting");
+    expect(clearedCountPhrase(1)).toBe("폴더 및 노트 설정 1개");
   });
 });
 

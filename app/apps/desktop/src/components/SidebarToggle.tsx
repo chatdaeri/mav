@@ -21,10 +21,10 @@ export function SidebarToggle({
       <button
         type="button"
         className="titlebar-tool sidebar-toggle"
-        aria-label={hidden ? "Show sidebar" : "Hide sidebar"}
+        aria-label={hidden ? "사이드바 보기" : "사이드바 숨기기"}
         aria-controls="vault-sidebar"
         aria-expanded={!hidden}
-        title={hidden ? "Show sidebar" : "Hide sidebar"}
+        title={hidden ? "사이드바 보기" : "사이드바 숨기기"}
         onClick={onToggle}
       >
         <svg
@@ -43,8 +43,8 @@ export function SidebarToggle({
       <button
         type="button"
         className="titlebar-tool titlebar-search"
-        title={document.documentElement.dataset.platform === "windows" ? "Search notes (Ctrl+F)" : "Search notes (⌘F)"}
-        aria-label="Search notes"
+        title={document.documentElement.dataset.platform === "windows" ? "노트 검색 (Ctrl+F)" : "노트 검색 (⌘F)"}
+        aria-label="노트 검색"
         aria-pressed={searchOpen}
         onClick={onSearch}
       >

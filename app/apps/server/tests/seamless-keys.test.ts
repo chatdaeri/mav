@@ -381,7 +381,7 @@ describe("seamless vault keys", () => {
       );
       return { href: loc.href, button: anchor.href, replaced };
     };
-    const base = `baalda://invite/${invitationId}?server=${encodeURIComponent("http://notes.example.com")}`;
+    const base = `mav://invite/${invitationId}?server=${encodeURIComponent("http://notes.example.com")}`;
     const S = secret();
     expect(run(`#k=${S}`)).toEqual({ href: `${base}&k=${S}`, button: `${base}&k=${S}`, replaced: `/invite/${invitationId}` });
     // No or malformed secret: the plain link, nothing rewritten.

@@ -63,9 +63,9 @@ export const revealInFileManager = async (path: string): Promise<void> => {
 /** What to call "reveal in the file manager" on this platform. */
 export function revealLabel(): string {
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
-  if (/Mac|iPhone|iPad/i.test(ua)) return "Reveal in Finder";
-  if (/Win/i.test(ua)) return "Show in Explorer";
-  return "Show in file manager";
+  if (/Mac|iPhone|iPad/i.test(ua)) return "Finder에서 보기";
+  if (/Win/i.test(ua)) return "탐색기에서 보기";
+  return "파일 관리자에서 보기";
 }
 
 /**
@@ -78,9 +78,9 @@ export function revealLabel(): string {
  */
 export function openVaultLabel(): string {
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
-  if (/Mac|iPhone|iPad/i.test(ua)) return "Open vault in Finder";
-  if (/Win/i.test(ua)) return "Open vault in Explorer";
-  return "Open vault in file manager";
+  if (/Mac|iPhone|iPad/i.test(ua)) return "Finder에서 볼트 열기";
+  if (/Win/i.test(ua)) return "탐색기에서 볼트 열기";
+  return "파일 관리자에서 볼트 열기";
 }
 
 // ---- Types (mirror the Rust structs, serialized camelCase) ---------------
@@ -359,15 +359,15 @@ export const isVault = (path: string) => invoke<boolean>("is_vault", { path });
 // The app manages one root dir under which each vault gets a subfolder, and the
 // active vault's folder is mirrored to `<root>/current` for external tools.
 
-/** Effective managed vaults root (auto-initialized to ~/Baalda on first call). */
+/** Effective managed vaults root (auto-initialized to ~/마브 on first call). */
 export const getVaultsRoot = () => invoke<string>("get_vaults_root");
-/** Sets the root to `<path>/Baalda Vaults` (or `path` when already so named); returns it. */
+/** Sets the root to `<path>/마브 볼트` (or `path` when already so named); returns it. */
 export const setVaultsRoot = (path: string) =>
   invoke<string>("set_vaults_root", { path });
-/** Native folder picker for the managed vaults root. A "Baalda Vaults" folder
+/** Native folder picker for the managed vaults root. A "마브 볼트" folder
  *  is nested under the pick unless it is one already; persists + returns that. */
 export const pickVaultsRoot = () => invoke<string | null>("pick_vaults_root");
-/** Put the vaults root back to Documents/Baalda Vaults (created first); returns it. */
+/** Put the vaults root back to Documents/마브 볼트 (created first); returns it. */
 export const resetVaultsRoot = () => invoke<string>("reset_vaults_root");
 /** Native folder picker that only returns the path (does not open it). */
 export const pickFolder = () => invoke<string | null>("pick_folder");
@@ -915,6 +915,43 @@ export const readBinaryFile = (relPath: string, expectedEpoch?: VaultEpoch) =>
  */
 export const fileStat = (relPath: string, expectedEpoch?: VaultEpoch) =>
   invoke<FileStat>("file_stat", { relPath, expectedEpoch: expectedEpoch ?? null });
+
+// ---- HWPX / PPTX preview model (`office_preview.rs`) -----------------------
+
+export type OfficeBlock =
+  | { type: "para"; text: string; bold: boolean; size: number | null; align: string | null }
+  | { type: "table"; rows: OfficeCell[][] }
+  | { type: "image"; src: string };
+
+export interface OfficeCell {
+  blocks: OfficeBlock[];
+  colspan: number;
+  rowspan: number;
+}
+
+export interface OfficeShape {
+  /** Fractions of the slide (0..1); null when the box sits on a layout frame. */
+  x: number | null;
+  y: number | null;
+  w: number | null;
+  h: number | null;
+  blocks: OfficeBlock[];
+}
+
+export interface OfficePreview {
+  kind: "document" | "slides";
+  blocks: OfficeBlock[];
+  slides: { shapes: OfficeShape[] }[];
+  slideWidthPt: number | null;
+  aspect: number | null;
+  skippedImages: number;
+  truncated: boolean;
+}
+
+/** Epoch-pinned like every vault read. Rejects with `preview_too_large`,
+ *  `preview_unreadable` or `preview_unsupported`. */
+export const officePreview = (relPath: string, expectedEpoch?: VaultEpoch) =>
+  invoke<OfficePreview>("office_preview", { relPath, expectedEpoch: expectedEpoch ?? null });
 
 /** Is there a file at this path? `false` only for a definite not-found; any
  *  other failure rejects (see `attachments.rs binary_exists`). */

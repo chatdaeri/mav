@@ -20,7 +20,7 @@ import { acceptInvite, InvitationRows, type Invitation } from "./InvitationRows"
 const PANEL_CLOSE_DELAY_MS = 220;
 
 export function invitationCountLabel(n: number): string {
-  return `${n} invitation${n === 1 ? "" : "s"}`;
+  return `초대 ${n}개`;
 }
 
 export function InvitationsTab({
@@ -71,7 +71,7 @@ export function InvitationsTab({
           <rect x="3" y="5" width="18" height="14" rx="2" />
           <path d="m3 7 9 6 9-6" />
         </MenuIcon>
-        <span className="menu-item-label">Invitations</span>
+        <span className="menu-item-label">초대</span>
         <span className="invites-count" aria-label={invitationCountLabel(n)}>
           {n}
         </span>
@@ -89,10 +89,10 @@ export function InvitationsTab({
         </svg>
       </button>
       {open && (
-        <div className="invites-flyout" role="menu" aria-label="Invitations">
+        <div className="invites-flyout" role="menu" aria-label="초대">
           <div className="invites-flyout-head">
-            <b>Invitations</b>
-            <span>{n} waiting</span>
+            <b>초대</b>
+            <span>{n}개 대기 중</span>
           </div>
           <InvitationRows invitations={invitations} freshIds={freshIds} variant="flyout" />
         </div>
@@ -117,10 +117,10 @@ export function InviteArrivalNote({
   if (hidden || unseen.length === 0) return null;
   // The newest arrival leads; the rest are one tap away in the panel.
   const inv = unseen[unseen.length - 1];
-  const name = inv.organizationName ?? "a vault";
-  const role = inv.role ? inv.role.charAt(0).toUpperCase() + inv.role.slice(1) : "";
+  const name = inv.organizationName ?? "볼트";
+  const role = inv.role ? ({ owner: "소유자", admin: "관리자", member: "멤버" } as Record<string, string>)[inv.role] ?? inv.role : "";
   const others = unseen.length - 1;
-  const detail = [role, others > 0 ? `+${others} more` : ""].filter(Boolean).join(" · ");
+  const detail = [role, others > 0 ? `외 ${others}개` : ""].filter(Boolean).join(" · ");
   return (
     <div className="invite-arrival" role="status">
       <div className="invite-arrival-top">
@@ -130,11 +130,11 @@ export function InviteArrivalNote({
         <span className="invite-arrival-text">
           {inv.inviterName ? (
             <>
-              <b>{inv.inviterName}</b> invited you to <b>{name}</b>
+              <b>{inv.inviterName}</b>님이 <b>{name}</b>에 초대했어요
             </>
           ) : (
             <>
-              You're invited to <b>{name}</b>
+              <b>{name}</b>에 초대받았어요
             </>
           )}
           {detail && <small>{detail}</small>}
@@ -142,8 +142,8 @@ export function InviteArrivalNote({
         <button
           type="button"
           className="invite-arrival-close"
-          aria-label="Dismiss"
-          title="Dismiss"
+          aria-label="닫기"
+          title="닫기"
           onClick={() => saveSeenInvitations(invitations)}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -153,10 +153,10 @@ export function InviteArrivalNote({
       </div>
       <div className="invite-arrival-actions">
         <AsyncButton className="invite-btn accept" spinnerTone="on-accent" replaceLabel onClick={() => acceptInvite(inv)}>
-          Accept
+          수락
         </AsyncButton>
         <button type="button" className="invite-btn decline" onClick={onViewAll}>
-          View all
+          모두 보기
         </button>
       </div>
     </div>

@@ -5,23 +5,23 @@ import { passwordResetFailureMessage } from "../resetFlow";
 
 describe("parseAccountLink", () => {
   it("accepts both foldings of the two links", () => {
-    expect(parseAccountLink("baalda://verified")).toBe("verified");
-    expect(parseAccountLink("baalda:///verified")).toBe("verified");
-    expect(parseAccountLink("baalda://signin")).toBe("signin");
-    expect(parseAccountLink("baalda:///signin/")).toBe("signin");
+    expect(parseAccountLink("mav://verified")).toBe("verified");
+    expect(parseAccountLink("mav:///verified")).toBe("verified");
+    expect(parseAccountLink("mav://signin")).toBe("signin");
+    expect(parseAccountLink("mav:///signin/")).toBe("signin");
   });
 
   it("accepts the Staging app's scheme too", () => {
-    expect(parseAccountLink("baalda-staging://verified")).toBe("verified");
+    expect(parseAccountLink("mav-staging://verified")).toBe("verified");
   });
 
   it("refuses anything else", () => {
     for (const bad of [
-      "baalda://verified/extra",
-      "baalda://invite/abc",
+      "mav://verified/extra",
+      "mav://invite/abc",
       "https://example.com/verified",
       "not a url",
-      "baalda://",
+      "mav://",
     ]) {
       expect(parseAccountLink(bad)).toBeNull();
     }
@@ -42,7 +42,7 @@ describe("passwordResetFailureMessage", () => {
       new ApiError(502, "send_failed", { error: "send_failed", message: "The mail provider refused the message: 550" }),
       ctx,
     );
-    expect(msg).toContain("couldn't be sent");
+    expect(msg).toContain("재설정 이메일을 보내지 못했어요");
     expect(msg).toContain("550");
   });
 

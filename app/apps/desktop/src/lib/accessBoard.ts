@@ -11,9 +11,9 @@ export type SummaryMode = TeamAccessMode | "mixed";
 
 /** Left to right, widest first: the arrows move one step along this. */
 export const BOARD_COLUMNS: ReadonlyArray<{ mode: TeamAccessMode; title: string }> = [
-  { mode: "open", title: "Can edit" },
-  { mode: "readonly", title: "Can view" },
-  { mode: "private", title: "No access" },
+  { mode: "open", title: "편집 가능" },
+  { mode: "readonly", title: "보기 가능" },
+  { mode: "private", title: "접근 불가" },
 ];
 
 /** Indent levels drawn; deeper rows flatten at the last one. */
@@ -227,7 +227,7 @@ export function topLevelRows(column: readonly BoardRow[]): AccessRow[] {
 export const BULK_WRITE_TIMEOUT_MS = 30_000;
 
 /** The toast when a write never reached the server or its answer was lost. */
-export const ACCESS_WRITE_FAILED = "Couldn't update access, check your connection";
+export const ACCESS_WRITE_FAILED = "권한을 바꾸지 못했어요. 연결을 확인해 주세요.";
 
 /**
  * What to tell the owner when a bulk write fails. A refusal the server
@@ -270,15 +270,15 @@ export function firstName(member: Pick<MemberOverview, "name" | "email" | "userI
 
 /** Said when the server's answer after a move disagrees with it. */
 export function notAppliedMessage(what: string, actual: SummaryMode): string {
-  if (actual === "mixed") return `Couldn't apply everywhere: part of ${what} kept its level`;
+  if (actual === "mixed") return `모든 곳에 적용하지 못했어요: ${what}의 일부는 기존 권한을 유지했어요`;
   const label = BOARD_COLUMNS.find((c) => c.mode === actual)?.title ?? actual;
-  return `Couldn't apply: ${what} is still ${label}`;
+  return `적용하지 못했어요: ${what}의 권한이 아직 "${label}" 상태예요`;
 }
 
-/** The toast's sentence: "Lee can now view Hiring loop." */
+/** The toast's sentence: "Lee님의 Hiring loop 권한이 보기 가능으로 바뀌었어요." */
 export function moveMessage(who: string, self: boolean, what: string, mode: TeamAccessMode): string {
-  const subject = self ? "You" : who;
-  if (mode === "open") return `${subject} can now edit ${what}.`;
-  if (mode === "readonly") return `${subject} can now view ${what}.`;
-  return `${subject} can no longer open ${what}.`;
+  const subject = self ? "내" : `${who}님의`;
+  if (mode === "open") return `${subject} ${what} 권한이 편집 가능으로 바뀌었어요.`;
+  if (mode === "readonly") return `${subject} ${what} 권한이 보기 가능으로 바뀌었어요.`;
+  return `${subject} ${what} 권한이 접근 불가로 바뀌었어요.`;
 }

@@ -19,12 +19,12 @@ function render(overrides: Partial<Parameters<typeof SeatUsageBreakdown>[0]> = {
 }
 
 describe("SeatUsageBreakdown", () => {
-  it("shows Seats, Claimed, Invited and Available without a caption", () => {
+  it("shows 좌석, 사용 중, 초대됨 and 남은 좌석 without a caption", () => {
     const html = render();
-    for (const h of ["Seats", "Claimed", "Invited", "Available"]) expect(html).toContain(`<th>${h}</th>`);
+    for (const h of ["좌석", "사용 중", "초대됨", "남은 좌석"]) expect(html).toContain(`<th>${h}</th>`);
     expect(cells(html)).toEqual([10, 4, 2, 4]);
     expect(html).not.toContain("Seats are what you pay for");
-    expect(html).toContain("Add or change seats");
+    expect(html).toContain("좌석 추가·변경");
     expect(html).not.toContain("Planned seat change");
   });
 
@@ -43,7 +43,7 @@ describe("SeatUsageBreakdown", () => {
 
   it("is read-only for non-owners", () => {
     const html = render({ canManage: false });
-    expect(html).not.toContain("Add or change seats");
+    expect(html).not.toContain("좌석 추가·변경");
   });
 
   it("keeps the Invited number plain when nothing says where the invitations are", () => {
@@ -71,7 +71,7 @@ describe("SeatUsageBreakdown", () => {
     });
     expect(html).not.toContain("plan-page-vault-chip");
     expect(html).toContain('class="seat-invited-trigger"');
-    expect(html).toContain('aria-label="2 invited across 2 vaults"');
+    expect(html).toContain('aria-label="볼트 2개에 초대 2명"');
     expect(html).toContain('aria-haspopup="menu"');
     expect(html).toContain('aria-expanded="false"');
     expect(html).toMatch(/<button[^>]*seat-invited-trigger[^>]*>2<\/button>/);
@@ -90,18 +90,18 @@ describe("InvitedSeatsMenuItems", () => {
   );
 
   it("heads the list with the total", () => {
-    expect(html).toContain("<span>Invited</span>");
-    expect(html).toContain("3 invited");
+    expect(html).toContain("<span>초대됨</span>");
+    expect(html).toContain("초대 3명");
   });
 
   it("lists one row per vault in the order given, each opening that vault", () => {
     const names = [...html.matchAll(/seat-invited-name">([^<]+)</g)].map((m) => m[1]);
     expect(names).toEqual(["Hello 4", "Design"]);
     expect(html.match(/role="menuitem"/g)).toHaveLength(2);
-    expect(html).toContain("Open Hello 4&#x27;s members and invitations");
+    expect(html).toContain("Hello 4의 멤버와 초대 열기");
   });
 
   it("ends with the seat-hold hint", () => {
-    expect(html).toContain("Pending invitations hold a seat until they&#x27;re accepted or expire.");
+    expect(html).toContain("대기 중인 초대는 수락하거나 만료될 때까지 좌석을 차지해요.");
   });
 });

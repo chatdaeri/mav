@@ -59,7 +59,7 @@ describe("Home navigation", () => {
     expect(readPersonalHome(vault.path)).toBeNull();
     useStore.getState().setHomeSectionHidden(false);
     expect(readHomeSectionHidden()).toBe(false);
-    expect(renderHome()).toContain("Set a home");
+    expect(renderHome()).toContain("홈 설정");
   });
   it("retires an older saved personal Home when loading a vault with Home hidden", () => {
     writePersonalHome(vault.path, home.id);
@@ -143,7 +143,7 @@ describe("Home navigation", () => {
     expect(useStore.getState().homeActivation).toBeNull();
   });
 
-  it.each(["Change Home…", "Unset Home"])("keeps %s actionable through WebKit's null-target blur", async (label) => {
+  it.each(["홈 변경…", "홈 해제"])("keeps %s actionable through WebKit's null-target blur", async (label) => {
     const host = document.createElement("div");
     document.body.append(host);
     const root = createRoot(host);
@@ -159,7 +159,7 @@ describe("Home navigation", () => {
     expect(menu.open).toBe(true);
     await act(async () => button.click());
     expect(menu.open).toBe(false);
-    if (label === "Change Home…") expect(useStore.getState().homePickerOpen).toBe(true);
+    if (label === "홈 변경…") expect(useStore.getState().homePickerOpen).toBe(true);
     else {
       expect(useStore.getState().personalHomeDocId).toBeNull();
       expect(useStore.getState().titles).toEqual([home]);
@@ -184,7 +184,7 @@ describe("Home navigation", () => {
   it("shows the effective Home name and current-page marker for a Home visit", async () => {
     await useStore.getState().openHome(true, true);
     const html = renderHome();
-    expect(html).toContain('aria-label="Home"');
+    expect(html).toContain('aria-label="홈"');
     expect(html).toContain("Start here");
     expect(html).toContain('aria-current="page"');
   });
@@ -204,7 +204,7 @@ describe("Home navigation", () => {
     const root = createRoot(host);
     try {
       act(() => root.render(createElement(HomeSection)));
-      const button = [...host.querySelectorAll("button")].find((el) => el.textContent === "Unset Home");
+      const button = [...host.querySelectorAll("button")].find((el) => el.textContent === "홈 해제");
       expect(button).toBeDefined();
       act(() => button!.click());
       expect(clear).toHaveBeenCalledWith(null, "personal");
@@ -215,10 +215,10 @@ describe("Home navigation", () => {
       session: { user: { id: "me", name: "Me", email: "me@example.com" }, activeOrganizationId: "org" },
       vaultAppearance: { org: { homeDocId: home.id } }, members: [],
     });
-    expect(renderHome()).toContain("Use vault Home instead");
-    expect(renderHome()).not.toContain("Unset vault Home for everyone");
+    expect(renderHome()).toContain("볼트 홈 사용");
+    expect(renderHome()).not.toContain("모든 멤버의 볼트 홈 해제");
     useStore.setState({ members: [{ id: "membership", userId: "me", organizationId: "org", role: "admin" }] });
-    expect(renderHome()).toContain("Unset vault Home for everyone");
+    expect(renderHome()).toContain("모든 멤버의 볼트 홈 해제");
   });
 
   it("follows a live shared Home change while visiting Home, without interrupting an ordinary file", async () => {
@@ -254,7 +254,7 @@ describe("Home navigation", () => {
 
   it("offers templates without overwriting an unavailable Home preference", async () => {
     useStore.setState({ titles: [] });
-    expect(renderHome()).toContain("Set a home");
+    expect(renderHome()).toContain("홈 설정");
     const requested = vi.fn();
     window.addEventListener("baalda:new-dashboard", requested);
     const host = document.createElement("div");
@@ -318,7 +318,7 @@ describe("Pinned options", () => {
       if (role === "member") { expect(options).toBeNull(); return; }
       await act(async () => options!.click());
       const action = document.querySelector<HTMLElement>('[role="menuitemradio"]')!;
-      expect(action.textContent).toContain("Unpin for everyone");
+      expect(action.textContent).toContain("모든 멤버에게서 고정 해제");
       await act(async () => action.click());
       expect(togglePin).toHaveBeenCalledWith(home.path, false, "vault");
       expect(useStore.getState().openNoteByPath).not.toHaveBeenCalled();
@@ -335,7 +335,7 @@ describe("Pinned options", () => {
       act(() => root.render(createElement(PinnedSection)));
       await act(async () => host.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!.click());
       const action = document.querySelector<HTMLElement>('[role="menuitemradio"]')!;
-      expect(action.textContent).toContain("Unpin");
+      expect(action.textContent).toContain("고정 해제");
       await act(async () => action.click());
       expect(togglePin).toHaveBeenCalledWith(home.path, false, "personal");
       expect(useStore.getState().openNoteByPath).not.toHaveBeenCalled();

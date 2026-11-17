@@ -11,8 +11,8 @@ describe("message body", () => {
   });
 
   it("renders bold and https links", () => {
-    expect(html("Be **careful**. See https://baalda.com/help.")).toBe(
-      '<p>Be <b>careful</b>. See <a href="https://baalda.com/help">https://baalda.com/help</a>.</p>',
+    expect(html("Be **careful**. See https://github.com/chatdaeri/mav.")).toBe(
+      '<p>Be <b>careful</b>. See <a href="https://github.com/chatdaeri/mav">https://github.com/chatdaeri/mav</a>.</p>',
     );
   });
 

@@ -38,8 +38,8 @@ export function CsvView({ path, abs }: ViewerProps) {
         if (cancelled) return;
         if (stat.size > MAX_CSV_BYTES) {
           setError(
-            `This file is larger than ${Math.round(MAX_CSV_BYTES / (1024 * 1024))} MB, ` +
-              `too big to open as a table here.`,
+            `이 파일은 ${Math.round(MAX_CSV_BYTES / (1024 * 1024))}MB보다 커서 ` +
+              `여기서 표로 열 수 없어요.`,
           );
           return;
         }
@@ -58,7 +58,7 @@ export function CsvView({ path, abs }: ViewerProps) {
       } catch (e) {
         if (!cancelled) {
           console.error("csv preview failed", e);
-          setError("Couldn't read this file.");
+          setError("이 파일을 읽을 수 없어요.");
         }
       }
     })();
@@ -69,7 +69,7 @@ export function CsvView({ path, abs }: ViewerProps) {
   }, [path]);
 
   if (error) return <FileCard path={path} abs={abs} reason={error} />;
-  if (!table) return <div className="editor-empty">Loading…</div>;
+  if (!table) return <div className="editor-empty">불러오는 중…</div>;
 
   return (
     <div className="file-preview file-preview-csv" data-viewer="csv">

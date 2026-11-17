@@ -23,7 +23,7 @@ it("picks a recent server from its chip and keeps the active one marked", async 
   try {
     await act(async () => root.render(createElement(ConnectionTab)));
     expect(host.querySelector("select")).toBeNull();
-    const chips = [...host.querySelectorAll<HTMLButtonElement>('[aria-label="Recent connections"] button')];
+    const chips = [...host.querySelectorAll<HTMLButtonElement>('[aria-label="최근 연결"] button')];
     expect(chips.map((c) => c.textContent)).toEqual(["a.example.com", "b.example.com"]);
     expect(chips[0].classList.contains("is-active")).toBe(true);
     expect(chips[0].getAttribute("aria-pressed")).toBe("true");
@@ -31,11 +31,11 @@ it("picks a recent server from its chip and keeps the active one marked", async 
     expect(recents.switchServer).not.toHaveBeenCalled();
 
     await act(async () => chips[1].click());
-    const input = host.querySelector('input[aria-label="Server address"]') as HTMLInputElement;
+    const input = host.querySelector('input[aria-label="서버 주소"]') as HTMLInputElement;
     expect(input.value).toBe("https://b.example.com");
     expect(chips[1].getAttribute("aria-pressed")).toBe("true");
     expect(chips[1].classList.contains("is-active")).toBe(false);
-    expect(host.textContent).not.toContain("Reconnected.");
+    expect(host.textContent).not.toContain("다시 연결했어요.");
     expect(recents.switchServer).not.toHaveBeenCalled();
   } finally {
     await act(async () => root.unmount());

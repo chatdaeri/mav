@@ -99,8 +99,8 @@ describe("restored-file notice wording", () => {
     const files = summarizeReconcile([
       { kind: "restoredFromServer", path: "Team/report.pdf", docId: "f1", at },
     ]);
-    expect(files[0].text).toMatch(/^1 file you deleted didn't reach the server, so it was put back\./);
+    expect(files[0].text).toMatch(/^삭제한 파일 1개가 서버에 반영되지 않아 되돌려 놓았어요\./);
     const notes = summarizeReconcile([{ kind: "restoredFromServer", path: "a.md", docId: "n1", at }]);
-    expect(notes[0].text).toMatch(/^1 note you deleted/);
+    expect(notes[0].text).toMatch(/^삭제한 노트 1개/);
   });
 });

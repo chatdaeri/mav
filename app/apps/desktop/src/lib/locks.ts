@@ -24,10 +24,10 @@ import { syncManager } from "./sync/docSession";
 export type LockScope = "all" | "vault" | "you" | "member";
 
 export const LOCK_TITLES: Record<LockScope, string> = {
-  all: "Locked for everyone. Changes won't sync",
-  vault: "Everyone can only view this vault. Changes won't sync",
-  you: "Locked for you. Changes won't sync",
-  member: "Locked for a member",
+  all: "모든 멤버에게 잠겨 있어요. 변경 사항이 동기화되지 않아요",
+  vault: "모든 멤버가 이 볼트를 볼 수만 있어요. 변경 사항이 동기화되지 않아요",
+  you: "나에게 잠겨 있어요. 변경 사항이 동기화되지 않아요",
+  member: "멤버에게 잠겨 있어요",
 };
 
 /**

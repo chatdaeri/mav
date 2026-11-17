@@ -44,9 +44,9 @@ export function BacklinksPanel() {
   return (
     <div className="backlinks-float" ref={rootRef}>
       {open && (
-        <div className="account-popover backlinks-popover" role="menu" aria-label="Backlinks">
+        <div className="account-popover backlinks-popover" role="menu" aria-label="백링크">
           <div className="backlinks-popover-head">
-            <span className="subhead">Linked from</span>
+            <span className="subhead">이 노트를 링크한 노트</span>
             <span className="backlinks-popover-count">{count.toLocaleString()}</span>
           </div>
           <ul className="backlinks-list">
@@ -82,7 +82,7 @@ export function BacklinksPanel() {
                       <span className="backlink-meta">
                         {folder}
                         {folder && alias && " · "}
-                        {alias && <>as “{alias}”</>}
+                        {alias && <>“{alias}”(으)로 링크</>}
                       </span>
                     )}
                   </span>
@@ -114,7 +114,7 @@ export function BacklinksPanel() {
           <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
           <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
         </svg>
-        {count === 1 ? "1 backlink" : `${count.toLocaleString()} backlinks`}
+        {count === 1 ? "백링크 1개" : `백링크 ${count.toLocaleString()}개`}
       </button>
     </div>
   );

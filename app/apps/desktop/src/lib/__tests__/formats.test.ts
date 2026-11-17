@@ -9,12 +9,14 @@ import {
   extForMime,
   FORMATS,
   formatFor,
+  isLocalOnlyBinary,
   isNoteExt,
   isOpenable,
   maxBytesFor,
   mimeForPath,
   NOTE_EXTS,
   OCTET_STREAM,
+  openAppLabel,
   SURFACED_EXTS,
   viewerFor,
 } from "../formats";
@@ -39,18 +41,27 @@ describe("formatFor", () => {
     expect(formatFor("a.md/c")).toBeUndefined();
   });
 
-  it("has no answer for a path with no extension, a dotfile, or a trailing dot", () => {
+  it("has no answer for a name with no real extension (it may be a folder), a dotfile or an empty name", () => {
     expect(formatFor("Makefile")).toBeUndefined();
-    expect(formatFor("LICENSE")).toBeUndefined();
+    expect(formatFor("브랜드에셋/hero/1.0.0")).toBeUndefined();
+    expect(formatFor("Pretendard-1.3.9")).toBeUndefined();
     expect(formatFor(".gitignore")).toBeUndefined();
     expect(formatFor("dir/.env")).toBeUndefined();
     expect(formatFor("weird.")).toBeUndefined();
     expect(formatFor("")).toBeUndefined();
   });
 
-  it("does not know file types we never registered", () => {
-    expect(formatFor("archive.rar")).toBeUndefined();
-    expect(formatFor("app.exe")).toBeUndefined();
+  it("lists types we never registered as generic synced files (마이 세컨드 브레인), hides temp types", () => {
+    expect(formatFor("archive.rar")).toMatchObject({ category: "other", viewer: "card", syncAs: "attachment" });
+    expect(formatFor("logo.ai")?.openable).toBe(true);
+    expect(formatFor("x.tmp")).toBeUndefined();
+  });
+
+  it("keeps videos and files over 25MB on the device", () => {
+    expect(isLocalOnlyBinary("clip.mp4", 1000)).toBe(true);
+    expect(isLocalOnlyBinary("deck.pptx", 25 * 1024 * 1024 + 1)).toBe(true);
+    expect(isLocalOnlyBinary("deck.pptx", 25 * 1024 * 1024)).toBe(false);
+    expect(isLocalOnlyBinary("note.md", 99 * 1024 * 1024)).toBe(false);
   });
 });
 
@@ -138,8 +149,18 @@ describe("viewerFor", () => {
   it("gives an unknown type the card rather than a dead click", () => {
     expect(viewerFor("a.rar")).toBe("card");
     expect(viewerFor("Makefile")).toBe("card");
-    expect(viewerFor("a.pptx")).toBe("card");
+    expect(viewerFor("a.hwp")).toBe("card");
     expect(viewerFor("a.zip")).toBe("card");
+  });
+
+  it("previews hwpx/pptx and cards the legacy office binaries", () => {
+    expect(viewerFor("공문.hwpx")).toBe("hwpx");
+    expect(viewerFor("deck.PPTX")).toBe("pptx");
+    for (const ext of ["hwp", "doc", "ppt", "xls"]) expect(viewerFor(`a.${ext}`), ext).toBe("card");
+    expect(openAppLabel("a.hwp")).toBe("한글에서 열기");
+    expect(openAppLabel("a.hwpx")).toBe("한글에서 열기");
+    expect(openAppLabel("a.ppt")).toBe("기본 앱에서 열기");
+    expect(openAppLabel("a.zip")).toBe("Open externally");
   });
 });
 

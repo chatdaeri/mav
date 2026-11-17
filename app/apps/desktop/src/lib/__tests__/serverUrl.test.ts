@@ -17,11 +17,12 @@ describe("resolveServerUrl (dev build)", () => {
     expect(resolveServerUrl("   ")).toBe(LOCAL_SERVER_URL);
   });
 
-  it("ignores a persisted production URL", () => {
-    // The reported state: config.json held api.baalda.com, so every launch of
-    // `pnpm dev:desktop` was reading and writing real vaults.
+  it("has no production URL to guard, so an empty one falls back to local", () => {
+    // 마브 ships no managed instance (PRODUCTION_SERVER_URL is empty); a
+    // persisted team server is honoured like any other URL.
+    expect(PRODUCTION_SERVER_URL).toBe("");
     expect(resolveServerUrl(PRODUCTION_SERVER_URL)).toBe(LOCAL_SERVER_URL);
-    expect(resolveServerUrl("https://api.baalda.com/")).toBe(LOCAL_SERVER_URL);
+    expect(resolveServerUrl("https://mav.up.railway.app/")).toBe("https://mav.up.railway.app");
   });
 
   it("honours any other persisted server", () => {

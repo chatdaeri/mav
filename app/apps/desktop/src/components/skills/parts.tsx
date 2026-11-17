@@ -43,7 +43,7 @@ export function SkillByline({ skill }: { skill: SkillDetail }) {
   if (author) {
     parts.push(
       <span key="by">
-        by{" "}
+        작성자{" "}
         {author.url ? (
           <button type="button" className="link-btn skills-byline-link" onClick={() => void ipc.openExternal(author.url!)} title={author.url}>
             {author.name}
@@ -54,12 +54,12 @@ export function SkillByline({ skill }: { skill: SkillDetail }) {
       </span>,
     );
   }
-  parts.push(<span key="v">{skill.effectiveVersion !== null ? `v${skill.effectiveVersion}` : "Draft"}</span>);
-  if (files !== null) parts.push(<span key="f">{files} {files === 1 ? "file" : "files"}</span>);
+  parts.push(<span key="v">{skill.effectiveVersion !== null ? `v${skill.effectiveVersion}` : "초안"}</span>);
+  if (files !== null) parts.push(<span key="f">파일 {files}개</span>);
   if (date && !Number.isNaN(date.getTime())) {
     parts.push(
       <span key="d" title={date.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}>
-        {skill.latestPublishedAt || skill.versions[0] ? "updated" : "edited"} {shortDate(date)}
+        {shortDate(date)}{skill.latestPublishedAt || skill.versions[0] ? " 업데이트" : " 수정"}
       </span>,
     );
   }
@@ -265,7 +265,7 @@ export function Tag({ children, tone, title }: { children: ReactNode; tone?: "go
   );
 }
 
-export const TARGET_SHORT: Record<SkillTarget, string> = { claude: "Claude", agents: "Other tools" };
+export const TARGET_SHORT: Record<SkillTarget, string> = { claude: "Claude", agents: "기타 도구" };
 
 /**
  * A card's description: at most three lines, clipped without "…". Only when it
@@ -358,10 +358,10 @@ export function AudienceStack({ audience, viewerIn }: { audience: SkillAudience;
   const names = audience.people.map((p) => p.name).filter(Boolean);
   const more = audience.count - names.length;
   const title = audience.everyone
-    ? `Everyone in this vault has it (${audience.total})`
+    ? `이 볼트의 모든 멤버가 사용해요 (${audience.total}명)`
     : names.length
-      ? `Shared with ${names.join(", ")}${more > 0 ? ` and ${more} more` : ""}`
-      : "Not shared with anyone yet";
+      ? `공유 대상: ${names.join(", ")}${more > 0 ? ` 외 ${more}명` : ""}`
+      : "아직 아무에게도 공유하지 않았어요";
   return (
     <span className="skills-audience" title={title}>
       {audience.everyone ? (
@@ -387,7 +387,7 @@ export function AudienceStack({ audience, viewerIn }: { audience: SkillAudience;
 }
 
 /** Placeholder cards matching `.skills-grid` cards (neutral, no tile colour): title, byline, three description lines. */
-export function SkeletonCards({ count = 3, label = "Loading" }: { count?: number; label?: string }) {
+export function SkeletonCards({ count = 3, label = "불러오는 중" }: { count?: number; label?: string }) {
   return (
     <ul className="skills-grid" role="status" aria-busy="true" aria-label={label}>
       {Array.from({ length: count }, (_, i) => (
@@ -493,7 +493,7 @@ export function SearchToggle({
   if (!expanded) {
     return (
       <span className="member-access-view">
-        <button type="button" className="member-access-view-btn" aria-label="Search" title="Search (⌘F)" onClick={() => setOpen(true)}>
+        <button type="button" className="member-access-view-btn" aria-label="검색" title="검색 (⌘F)" onClick={() => setOpen(true)}>
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
@@ -532,7 +532,7 @@ export function SearchToggle({
         <button
           type="button"
           className="member-access-view-btn skills-search-clear"
-          aria-label="Clear search"
+          aria-label="검색어 지우기"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             onChange("");
@@ -594,7 +594,7 @@ export function Skeleton({ w, h, className, style }: { w?: number | string; h?: 
 }
 
 /** A group header and a grid of card skeletons (the Skills tab's first load). */
-export function SkillGridSkeleton({ count = 6, label = "Loading skills" }: { count?: number; label?: string }) {
+export function SkillGridSkeleton({ count = 6, label = "스킬을 불러오는 중" }: { count?: number; label?: string }) {
   return (
     <div role="status" aria-busy="true" aria-label={label}>
       <div className="skills-group-head" aria-hidden="true">
@@ -608,7 +608,7 @@ export function SkillGridSkeleton({ count = 6, label = "Loading skills" }: { cou
 /** A skill page's header row: tile, name + pill, byline, control group. */
 export function SkillHeaderSkeleton() {
   return (
-    <div className="skills-detail-head" role="status" aria-busy="true" aria-label="Loading skill">
+    <div className="skills-detail-head" role="status" aria-busy="true" aria-label="스킬을 불러오는 중">
       <Skeleton className="skills-skel-icon is-lg" />
       <div className="skills-detail-title">
         <div className="skills-title-row">
@@ -641,7 +641,7 @@ export function AvailableSkeleton() {
 /** Body lines only, for a file that is loading inside a ready editor. */
 export function EditorBodySkeleton() {
   return (
-    <div className="skills-editor-body-skel" role="status" aria-busy="true" aria-label="Loading file">
+    <div className="skills-editor-body-skel" role="status" aria-busy="true" aria-label="파일을 불러오는 중">
       {[72, 88, 64, 92, 40, 80, 56].map((w, i) => (
         <Skeleton key={i} w={`${w}%`} h={10} />
       ))}
@@ -652,7 +652,7 @@ export function EditorBodySkeleton() {
 /** The whole editor frame: tree rows, pane header, Name/Description, body. */
 export function EditorSkeleton() {
   return (
-    <div className="skills-editor" role="status" aria-busy="true" aria-label="Loading files">
+    <div className="skills-editor" role="status" aria-busy="true" aria-label="파일을 불러오는 중">
       <div className="skills-tree">
         <div className="skills-tree-head"><Skeleton w={40} h={9} /></div>
         <div className="skills-tree-skel">
@@ -679,7 +679,7 @@ export function EditorSkeleton() {
 }
 
 /** Row placeholders with a square on the right (marketplace and versions). */
-export function RowSkeletons({ count = 4, label = "Loading", square = true }: { count?: number; label?: string; square?: boolean }) {
+export function RowSkeletons({ count = 4, label = "불러오는 중", square = true }: { count?: number; label?: string; square?: boolean }) {
   return (
     <ul className="skills-list" role="status" aria-busy="true" aria-label={label}>
       {Array.from({ length: count }, (_, i) => (
@@ -702,7 +702,7 @@ export function ToolRowSkeleton() {
   return (
     <>
       {[0, 1].map((i) => (
-        <div key={i} className="menu-row toggle-row" role="status" aria-busy="true" aria-label="Loading">
+        <div key={i} className="menu-row toggle-row" role="status" aria-busy="true" aria-label="불러오는 중">
           <span className="menu-row-label">
             <Skeleton w={150} h={12} />
             <Skeleton w={220} h={9} style={{ display: "block", marginTop: 6 }} />
@@ -732,7 +732,7 @@ export function LoadError({ message, onRetry }: { message: string; onRetry?: () 
       <span>{message}</span>
       {onRetry && (
         <button type="button" className="secondary skills-btn-sm" onClick={onRetry}>
-          Try again
+          다시 시도
         </button>
       )}
     </div>

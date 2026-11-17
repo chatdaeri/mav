@@ -41,7 +41,7 @@ export function useResetLocalCopy(): {
         try {
           await useStore.getState().resetLocalVaultCopy();
           setUnsynced(null);
-          toast("Vault reset on this device. Downloading a fresh copy.", "neutral");
+          toast("이 기기의 볼트를 초기화했어요. 새 사본을 내려받는 중이에요.", "neutral");
         } catch (e) {
           setError(e instanceof Error ? e.message : String(e));
         }

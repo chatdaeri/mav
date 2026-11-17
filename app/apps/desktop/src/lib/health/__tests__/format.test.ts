@@ -59,27 +59,27 @@ describe("relativeTime", () => {
   const ago = (ms: number) => relativeTime(now - ms, now);
 
   it("calls anything inside 45 seconds just now", () => {
-    expect(ago(0)).toBe("just now");
-    expect(ago(44_000)).toBe("just now");
+    expect(ago(0)).toBe("방금 전");
+    expect(ago(44_000)).toBe("방금 전");
   });
 
   it("spells the units out", () => {
-    expect(ago(3 * 60_000)).toBe("3 min ago");
-    expect(ago(59 * 60_000)).toBe("59 min ago");
-    expect(ago(60 * 60_000)).toBe("1 hour ago");
-    expect(ago(5 * 3_600_000)).toBe("5 hours ago");
-    expect(ago(24 * 3_600_000)).toBe("1 day ago");
-    expect(ago(2 * 86_400_000)).toBe("2 days ago");
-    expect(ago(45 * 86_400_000)).toBe("1 month ago");
-    expect(ago(400 * 86_400_000)).toBe("1 year ago");
+    expect(ago(3 * 60_000)).toBe("3분 전");
+    expect(ago(59 * 60_000)).toBe("59분 전");
+    expect(ago(60 * 60_000)).toBe("1시간 전");
+    expect(ago(5 * 3_600_000)).toBe("5시간 전");
+    expect(ago(24 * 3_600_000)).toBe("1일 전");
+    expect(ago(2 * 86_400_000)).toBe("2일 전");
+    expect(ago(45 * 86_400_000)).toBe("1개월 전");
+    expect(ago(400 * 86_400_000)).toBe("1년 전");
   });
 
   it("rounds a sub-minute-but-not-just-now gap up to one minute", () => {
-    expect(ago(50_000)).toBe("1 min ago");
+    expect(ago(50_000)).toBe("1분 전");
   });
 
   it("reads a future timestamp as just now", () => {
-    expect(relativeTime(now + 600_000, now)).toBe("just now");
+    expect(relativeTime(now + 600_000, now)).toBe("방금 전");
   });
 
   it("returns a dash for a timestamp it cannot use", () => {
@@ -249,17 +249,17 @@ describe("dayKey / dayLabel", () => {
   });
 
   it("names today and yesterday rather than dating them", () => {
-    expect(dayLabel(noon, noon)).toBe("Today");
-    expect(dayLabel(noon - 86_400_000, noon)).toBe("Yesterday");
+    expect(dayLabel(noon, noon)).toBe("오늘");
+    expect(dayLabel(noon - 86_400_000, noon)).toBe("어제");
   });
 
   it("dates anything older", () => {
-    expect(dayLabel(new Date(2026, 8, 12, 9, 0, 0).getTime(), noon)).toBe("12 Sep");
+    expect(dayLabel(new Date(2026, 8, 12, 9, 0, 0).getTime(), noon)).toBe("9월 12일");
   });
 
   it("does not throw on a broken timestamp", () => {
     expect(dayKey(Number.NaN)).toBe("unknown");
-    expect(dayLabel(Number.NaN, noon)).toBe("Unknown");
+    expect(dayLabel(Number.NaN, noon)).toBe("알 수 없음");
   });
 });
 
@@ -273,7 +273,7 @@ describe("activityCellTitle", () => {
       level: 1 as const,
       today: false,
     };
-    expect(activityCellTitle(cell)).toBe("Wed 16 Sep · 1 note");
-    expect(activityCellTitle({ ...cell, today: true, count: 3 })).toBe("Today · 3 notes");
+    expect(activityCellTitle(cell)).toBe("9월 16일 (수) · 노트 1개");
+    expect(activityCellTitle({ ...cell, today: true, count: 3 })).toBe("오늘 · 노트 3개");
   });
 });

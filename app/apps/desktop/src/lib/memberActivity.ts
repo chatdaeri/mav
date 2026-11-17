@@ -29,8 +29,8 @@ const startOfDay = (t: number) => {
 /** "Today", "Yesterday", else the short date ("Oct 2"). */
 export function dayLabel(dayStart: number, now: number): string {
   const today = startOfDay(now);
-  if (dayStart >= today) return "Today";
-  if (dayStart >= startOfDay(today - 1)) return "Yesterday";
+  if (dayStart >= today) return "오늘";
+  if (dayStart >= startOfDay(today - 1)) return "어제";
   return shortDate(new Date(dayStart).toISOString());
 }
 
@@ -96,9 +96,9 @@ function collapseRuns(entries: TimelineEntry[]): TimelineEntry[] {
 export function runNames(events: readonly NoteEvent[], shown = 3): string {
   const names = [...new Set(events.map((e) => splitNotePath(e.path).name))];
   if (names.length <= shown) {
-    return names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    return names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} 외 ${names[names.length - 1]}`;
   }
-  return `${names.slice(0, shown).join(", ")} and ${names.length - shown} more`;
+  return `${names.slice(0, shown).join(", ")} 외 ${names.length - shown}개`;
 }
 
 /** The folder every note in the run lives in ("Getting Started"), or null when they differ. */
@@ -108,8 +108,6 @@ export function commonFolder(events: readonly NoteEvent[]): string | null {
   const only = [...parents][0];
   return only || null;
 }
-
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 /**
  * "Active for 23 days · 42 edits · 3 notes created", counting only the loaded
@@ -126,12 +124,12 @@ export function activitySummary(
   const joined = joinedIso ? Date.parse(joinedIso) : NaN;
   if (Number.isFinite(joined)) {
     const days = Math.max(0, Math.round((startOfDay(now) - startOfDay(joined)) / 86_400_000));
-    parts.push(days === 0 ? "Joined today" : `Active for ${plural(days, "day", "days")}`);
+    parts.push(days === 0 ? "오늘 가입" : `${days}일째 활동 중`);
   }
   const edits = events.filter((e) => e.kind === "edited").length;
   const created = events.filter((e) => e.kind === "created").length;
-  if (edits) parts.push(plural(edits, "edit", "edits"));
-  if (created) parts.push(`${plural(created, "note", "notes")} created`);
+  if (edits) parts.push(`수정 ${edits}회`);
+  if (created) parts.push(`노트 ${created}개 생성`);
   const line = parts.join(" · ");
-  return line && events.length >= limit ? `${line} in the last ${limit} events` : line;
+  return line && events.length >= limit ? `최근 활동 ${limit}건 기준 ${line}` : line;
 }

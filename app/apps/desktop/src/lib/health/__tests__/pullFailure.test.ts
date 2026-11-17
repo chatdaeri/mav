@@ -44,10 +44,10 @@ describe("Health — a failing registry pull", () => {
     const [issue] = issues;
     expect(issue.severity).toBe("error");
     expect(issue.path).toBeNull();
-    expect(issue.title).toBe("New notes and folder changes aren't syncing");
-    expect(issue.why).toContain("can't load the vault's file list (last error: HTTP 502)");
-    expect(issue.why).toContain("Edits to existing notes still sync.");
-    expect(issue.facts.some((f) => f.label === "Last error" && f.value === "HTTP 502")).toBe(true);
+    expect(issue.title).toBe("새 노트와 폴더 변경이 동기화되지 않아요");
+    expect(issue.why).toContain("볼트의 파일 목록을 불러올 수 없어요 (마지막 오류: HTTP 502)");
+    expect(issue.why).toContain("기존 노트의 편집은 계속 동기화돼요.");
+    expect(issue.facts.some((f) => f.label === "마지막 오류" && f.value === "HTTP 502")).toBe(true);
   });
 
   it("is absent when no pull is failing", () => {

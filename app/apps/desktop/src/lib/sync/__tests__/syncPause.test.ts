@@ -146,7 +146,7 @@ describe("SyncPauseTracker", () => {
   it("says the count when known, and the time left", () => {
     expect(syncPauseText({ count: 12 })).toBe("Sync paused: 12 notes were emptied at once");
     expect(syncPauseText({ count: null })).toBe("Sync paused: many notes were emptied at once");
-    expect(syncPauseRemaining({ until: 10 * 60_000 }, 0)).toBe("about 10 min");
+    expect(syncPauseRemaining({ until: 10 * 60_000 }, 0)).toBe("약 10분");
     expect(syncPauseRemaining({ until: null }, 0)).toBeNull();
     expect(syncPauseRemaining({ until: 5 }, 10)).toBeNull();
   });

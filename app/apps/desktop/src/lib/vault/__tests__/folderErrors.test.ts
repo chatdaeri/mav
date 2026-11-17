@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 describe("folderErrors", () => {
-  const denied = `${DOCUMENTS_DENIED_PREFIX}macOS blocked Baalda from using your Documents folder, so it couldn't create /Users/x/Documents/Baalda Vaults.`;
+  const denied = `${DOCUMENTS_DENIED_PREFIX}macOS blocked 마이 세컨드 브레인 from using your Documents folder, so it couldn't create /Users/x/Documents/mav.`;
 
   it("recognises the documents_denied prefix on a string or an Error", () => {
     expect(isDocumentsDenied(denied)).toBe(true);
@@ -14,8 +14,8 @@ describe("folderErrors", () => {
   });
 
   it("strips the code prefix and leaves other messages alone", () => {
-    expect(folderErrorText(denied)).toMatch(/^macOS blocked Baalda/);
-    const refusal = "Baalda cannot use your home folder as a vault. Choose a folder inside it, or let Baalda create one in Documents/Baalda Vaults.";
+    expect(folderErrorText(denied)).toMatch(/^macOS blocked 마이 세컨드 브레인/);
+    const refusal = "홈 폴더 자체는 볼트로 쓸 수 없어요. 그 안의 폴더를 고르거나, Documents/mav 폴더를 자동으로 만들게 해 주세요.";
     expect(folderErrorText(new Error(refusal))).toBe(refusal);
   });
 

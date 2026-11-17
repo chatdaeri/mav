@@ -266,7 +266,7 @@ describe("OAuth connector tokens: hashed storage + vault keys", () => {
       headers: { authorization: `Bearer ${s.owner.token}`, "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ consent_code: "cc", client_id: CLIENT, organization_id: s.orgId, decision: "allow" }).toString(),
     });
-    expect(await allow.text()).not.toContain("Open Baalda on your computer to finish connecting");
+    expect(await allow.text()).not.toContain("컴퓨터의 마이 세컨드 브레인을 열어 연결을 마무리하세요");
     expect((await pool.query("SELECT 1 FROM mcp_oauth_vault")).rowCount).toBe(1);
   });
 
@@ -306,7 +306,7 @@ describe("OAuth connector tokens: hashed storage + vault keys", () => {
     });
     expect(allow.status).toBe(200);
     const html = await allow.text();
-    expect(html).toContain("Open Baalda on your computer to finish connecting");
+    expect(html).toContain("컴퓨터의 마이 세컨드 브레인을 열어 연결을 마무리하세요");
     const id = decodeURIComponent(/oauth-consent\?id=([^&"]+)/.exec(html)![1]);
     expect((await pool.query("SELECT 1 FROM mcp_oauth_vault")).rowCount).toBe(0);
 
@@ -397,7 +397,7 @@ describe("OAuth connector tokens: hashed storage + vault keys", () => {
       { root_grant_id: "g1" },
     ]);
 
-    // Someone opens Baalda; the next refresh upgrades.
+    // Someone opens 마브; the next refresh upgrades.
     vaultKeyCache.holdForRequest(s.vaultId, s.vk, 1); // a member's app connects
     const r3 = await refresh(r2.body.refresh_token!);
     expect(r3.status).toBe(200);

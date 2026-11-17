@@ -38,14 +38,14 @@ export function VaultUnsyncedBannerView({
   return (
     <Banner show={show} className="not-syncing-banner" role="alert">
       <span>
-        <strong>This folder&apos;s synced vault wasn&apos;t found on this server</strong>. Your
-        notes are still here, but they no longer sync.
+        <strong>이 폴더의 동기화 볼트를 이 서버에서 찾을 수 없어요</strong>. 노트는 그대로
+        남아 있지만 더 이상 동기화되지 않아요.
       </span>
       <div className="banner-actions">
         <AsyncButton className="primary" onClick={onTurnOnSync}>
-          Turn sync back on
+          동기화 다시 켜기
         </AsyncButton>
-        <AsyncButton onClick={onKeepLocal}>Keep as local vault</AsyncButton>
+        <AsyncButton onClick={onKeepLocal}>이 기기에만 두기</AsyncButton>
       </div>
     </Banner>
   );

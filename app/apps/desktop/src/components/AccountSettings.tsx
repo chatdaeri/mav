@@ -1,3 +1,4 @@
+import { BILLING_UI } from "../lib/brand";
 import { useEffect, useRef, useState } from "react";
 import { DEFAULT_SERVER_URL } from "../lib/api";
 import type { AccountSettingsTab } from "../lib/settingsTabs";
@@ -64,7 +65,7 @@ type AccountTab = AccountSettingsTab;
 const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode }> = [
   {
     id: "profile",
-    label: "Profile",
+    label: "프로필",
     icon: (
       <Icon>
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -74,7 +75,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "status",
-    label: "Activity status",
+    label: "활동 상태",
     icon: (
       <Icon>
         <circle cx="12" cy="12" r="9" />
@@ -84,7 +85,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "plan",
-    label: "Plan & Billing",
+    label: "요금제 및 결제",
     icon: (
       <Icon>
         <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -94,7 +95,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "vaults",
-    label: "Vaults",
+    label: "볼트",
     icon: (
       <Icon>
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -106,7 +107,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "appearance",
-    label: "Appearance",
+    label: "화면",
     icon: (
       <Icon>
         <circle cx="12" cy="12" r="10" />
@@ -116,7 +117,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "notifications",
-    label: "Notifications",
+    label: "알림",
     icon: (
       <Icon>
         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -126,7 +127,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "ai-tools",
-    label: "AI tools",
+    label: "AI 도구",
     icon: (
       <Icon>
         <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" />
@@ -135,7 +136,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "connection",
-    label: "Connection",
+    label: "연결",
     icon: (
       <Icon>
         <rect x="2" y="2" width="20" height="8" rx="2" />
@@ -146,7 +147,7 @@ const ACCOUNT_TABS: Array<{ id: AccountTab; label: string; icon: React.ReactNode
   },
   {
     id: "about",
-    label: "About",
+    label: "정보",
     icon: (
       <Icon>
         <circle cx="12" cy="12" r="10" />
@@ -173,20 +174,20 @@ export function AccountSettings({
   const userLabel = session.user.name || session.user.email;
 
   return (
-    <SettingsModal label="Account settings" onClose={onClose}>
+    <SettingsModal label="계정 설정" onClose={onClose}>
       <header className="settings-page-header">
         <div className="settings-title">
-          <span className="settings-eyebrow">Account settings</span>
+          <span className="settings-eyebrow">계정 설정</span>
           <h1>{userLabel}</h1>
         </div>
-        <button className="icon-btn" onClick={onClose} aria-label="Close settings" title="Close (Esc)">
+        <button className="icon-btn" onClick={onClose} aria-label="설정 닫기" title="닫기 (Esc)">
           ✕
         </button>
       </header>
 
       <div className="settings-body">
-        <nav className="settings-nav" aria-label="Account sections">
-          {ACCOUNT_TABS.map((t) => (
+        <nav className="settings-nav" aria-label="계정 설정 구역">
+          {ACCOUNT_TABS.filter((t) => BILLING_UI || t.id !== "plan").map((t) => (
             <button
               key={t.id}
               type="button"
@@ -199,7 +200,7 @@ export function AccountSettings({
           ))}
           {vaultOpen && (
             <SettingsCrossLink
-              label="Vault settings"
+              label="볼트 설정"
               onOpen={() => useStore.getState().requestSettings("general")}
             />
           )}
@@ -281,7 +282,7 @@ function ProfileTab() {
   useEffect(() => {
     if (nameDraft === savedName) return;
     if (!nameDraft) {
-      setError("Name can't be empty.");
+      setError("이름은 비워 둘 수 없어요.");
       return;
     }
     const timer = window.setTimeout(() => void persist({ name: nameDraft }), 700);
@@ -323,9 +324,9 @@ function ProfileTab() {
       <div className="profile-rows">
         <div className="profile-row">
           <div className="profile-row-label">
-            <span className="profile-row-title">Photo</span>
+            <span className="profile-row-title">사진</span>
             <span className="profile-row-hint">
-              A picture or a character. Teammates see it in the sidebar and on your cursor.
+              사진이나 캐릭터를 고르세요. 팀원에게 사이드바와 내 커서에 표시돼요.
             </span>
           </div>
           <div className="profile-row-control profile-photo-control">
@@ -340,8 +341,8 @@ function ProfileTab() {
 
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Character</span>
-            <span className="profile-row-hint">Pick one instead of a photo.</span>
+            <span className="profile-row-title">캐릭터</span>
+            <span className="profile-row-hint">사진 대신 캐릭터를 고를 수 있어요.</span>
           </div>
           <div className="profile-row-control">
             <ProfileCharacterGrid
@@ -355,8 +356,8 @@ function ProfileTab() {
 
         <div className="profile-row">
           <label className="profile-row-label" htmlFor="profile-display-name">
-            <span className="profile-row-title">Display name</span>
-            <span className="profile-row-hint">Shown next to your notes and cursor.</span>
+            <span className="profile-row-title">표시 이름</span>
+            <span className="profile-row-hint">노트와 커서 옆에 표시돼요.</span>
           </label>
           <div className="profile-row-control">
             <input
@@ -371,7 +372,7 @@ function ProfileTab() {
                 // Leaving the field saves now rather than after the pause.
                 if (nameDraft && nameDraft !== savedName) void persist({ name: nameDraft });
               }}
-              placeholder="Your name"
+              placeholder="이름"
               autoComplete="name"
             />
           </div>
@@ -379,33 +380,33 @@ function ProfileTab() {
 
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Email</span>
-            <span className="profile-row-hint">Used to sign in and for invitations.</span>
+            <span className="profile-row-title">이메일</span>
+            <span className="profile-row-hint">로그인과 초대에 사용해요.</span>
           </div>
           <div className="profile-row-control">
             <div className="profile-email">
               <span className="profile-email-value">{session.user.email}</span>
               {/* Verification state, live: the confirmation link bounces back
-                  into the app (`baalda://verified`), which re-reads the session,
+                  into the app (`mav://verified`), which re-reads the session,
                   so this flips without a reload. `emailVerified` is absent on
                   very old servers: say nothing rather than "not confirmed". */}
               {session.user.emailVerified === true && (
-                <span className="profile-pill ok">Confirmed</span>
+                <span className="profile-pill ok">확인됨</span>
               )}
               {session.user.emailVerified === false && (
-                <span className="profile-pill warn">Not confirmed</span>
+                <span className="profile-pill warn">확인 안 됨</span>
               )}
             </div>
             {session.user.emailVerified === false && (
               <span className="profile-row-hint profile-email-hint">
-                Check your inbox for the confirmation email.{" "}
+                받은편지함에서 확인 메일을 확인하세요.{" "}
                 <button
                   type="button"
                   className="linkish"
                   disabled={resendBusy}
                   onClick={() => void resendConfirmation()}
                 >
-                  {resendBusy ? "Sending…" : resendState === "sent" ? "Sent ✓" : "Resend it"}
+                  {resendBusy ? "보내는 중…" : resendState === "sent" ? "보냄 ✓" : "다시 보내기"}
                 </button>
                 {resendState && resendState !== "sent" && (
                   <span className="update-status error"> {resendState}</span>
@@ -420,7 +421,7 @@ function ProfileTab() {
       {error && <div className="auth-error">{error}</div>}
 
       <span className="update-status profile-save-status" role="status" aria-live="polite">
-        {saving ? "Saving…" : saved ? "Saved" : ""}
+        {saving ? "저장 중…" : saved ? "저장됨" : ""}
       </span>
     </div>
   );
@@ -454,11 +455,11 @@ function ProfilePictureActions({
     <div className="profile-hero-actions">
       {image && (
         <button type="button" className="link-btn" onClick={() => onChange("")}>
-          Use default
+          기본값 사용
         </button>
       )}
       <button type="button" className="secondary sm" onClick={() => fileRef.current?.click()}>
-        Upload image
+        이미지 올리기
       </button>
       <input
         ref={fileRef}
@@ -488,13 +489,13 @@ function ProfileCharacterGrid({
 }) {
   return (
     <div className="profile-characters">
-      <div className="profile-character-grid" role="radiogroup" aria-label="Character">
+      <div className="profile-character-grid" role="radiogroup" aria-label="캐릭터">
         <button
           type="button"
           className={`profile-character-option${image === "" ? " active" : ""}`}
           role="radio"
           aria-checked={image === ""}
-          title="Your default character"
+          title="내 기본 캐릭터"
           onClick={() => onChange("")}
         >
           <Avatar label={label} userId={userId} image={null} />
@@ -528,11 +529,11 @@ function StatusTab() {
   return (
     <div className="status-tab">
       <p className="muted">
-        Your status shows next to your cursor for teammates working in the same note.
+        같은 노트에서 작업하는 팀원에게 내 커서 옆에 상태가 표시돼요.
       </p>
       {moment && (
         <p className="field-hint">
-          Right now: {moment.label}, set from the account menu. Pick a status below to replace it.
+          현재: {moment.label} (계정 메뉴에서 설정). 아래에서 상태를 고르면 바뀌어요.
         </p>
       )}
       <div className="status-options">
@@ -608,10 +609,10 @@ function AppearanceTab() {
   return (
     <>
     <label className="menu-row toggle-row">
-      <span className="menu-row-label">Show Home section
-        <span className="field-hint">Turning this off unsets your Home and stops it opening at startup on this device.</span>
+      <span className="menu-row-label">홈 섹션 표시
+        <span className="field-hint">끄면 홈 설정이 해제되고 이 기기에서 시작할 때 홈이 열리지 않아요.</span>
       </span>
-      <Switch checked={!homeSectionHidden} ariaLabel="Show Home section"
+      <Switch checked={!homeSectionHidden} ariaLabel="홈 섹션 표시"
         onChange={(show) => useStore.getState().setHomeSectionHidden(!show)} />
     </label>
     <AppearanceRows
@@ -620,7 +621,7 @@ function AppearanceTab() {
       onChange={set}
       trailing={(key) => {
         const source = appearanceSource(key, overrides, vault);
-        if (source === "vault") return <span className="appearance-tag">Vault default</span>;
+        if (source === "vault") return <span className="appearance-tag">볼트 기본값</span>;
         if (source === "personal" && vault) {
           return (
             <button
@@ -631,7 +632,7 @@ function AppearanceTab() {
                 useStore.getState().setAppearanceOverride(key, undefined);
               }}
             >
-              Reset to vault default
+              볼트 기본값으로 되돌리기
             </button>
           );
         }
@@ -640,14 +641,14 @@ function AppearanceTab() {
     />
     <div className="menu-row">
       <span className="menu-row-label">
-        Note font
-        <span className="field-hint">The typeface notes are written in, on this device.</span>
+        노트 글꼴
+        <span className="field-hint">이 기기에서 노트를 쓸 때 사용하는 글꼴이에요.</span>
       </span>
       <MenuSelect<EditorFont>
         value={editorFont}
         options={EDITOR_FONTS.map((f) => ({ value: f.id, label: f.label, hint: f.hint }))}
         onSelect={(f) => useStore.getState().setEditorFont(f)}
-        ariaLabel="Note font"
+        ariaLabel="노트 글꼴"
         triggerClassName="role-field-trigger"
       />
     </div>
@@ -660,12 +661,12 @@ function NotificationsTab() {
   return (
     <label className="menu-row toggle-row">
       <span className="menu-row-label">
-        Mention chime
-        <span className="field-hint">Play a sound when a teammate pings you.</span>
+        멘션 알림음
+        <span className="field-hint">팀원이 나를 멘션하면 소리를 재생해요.</span>
       </span>
       <Switch
         checked={mentionSound}
-        ariaLabel="Mention chime"
+        ariaLabel="멘션 알림음"
         onChange={(next) => useStore.getState().setMentionSound(next)}
       />
     </label>
@@ -703,7 +704,7 @@ export function ConnectionTab() {
   const save = async () => {
     const url = normalizeServerUrl(draft);
     if (!url) {
-      setError("That doesn't look like a server address. Try https://notes.example.com");
+      setError("서버 주소가 올바르지 않아요. https://notes.example.com 형식으로 입력해 보세요.");
       return;
     }
     setBusy(true);
@@ -731,7 +732,7 @@ export function ConnectionTab() {
     }
   };
 
-  // Redesign: two clear choices. Baalda Cloud is the managed server; anything
+  // Redesign: two clear choices. 마브 Cloud is the managed server; anything
   // else is "your own", which is the only case that needs an address typed.
   const cloudUrl = normalizeServerUrl(DEFAULT_SERVER_URL);
   const isCloud = draftUrl === cloudUrl;
@@ -743,8 +744,8 @@ export function ConnectionTab() {
 
   return (
     <div className="connection-tab conn-b">
-      <p className="field-hint">Choose where your notes sync. You sign in separately on each server.</p>
-      <div className="conn-options" role="radiogroup" aria-label="Server">
+      <p className="field-hint">노트를 동기화할 위치를 선택하세요. 서버마다 따로 로그인해요.</p>
+      <div className="conn-options" role="radiogroup" aria-label="서버">
         <button
           type="button"
           role="radio"
@@ -757,8 +758,8 @@ export function ConnectionTab() {
           <span className="conn-tile is-cloud" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 18a5 5 0 0 0-1-9.9 7 7 0 0 0-13 3.4A4 4 0 0 0 4 18h13z" /></svg>
           </span>
-          <b>Baalda Cloud</b>
-          <span className="conn-option-hint">Managed by us. Nothing to set up.</span>
+          <b>마이 세컨드 브레인 Cloud</b>
+          <span className="conn-option-hint">마이 세컨드 브레인이 관리해요. 따로 설정할 게 없어요.</span>
         </button>
         <div
           role="radio"
@@ -781,8 +782,8 @@ export function ConnectionTab() {
           <span className="conn-tile is-own" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.01M7 16.5h.01" /></svg>
           </span>
-          <b>Your own server</b>
-          <span className="conn-option-hint">Self-hosted Baalda. Your data, your machine.</span>
+          <b>내 서버</b>
+          <span className="conn-option-hint">직접 설치한 마이 세컨드 브레인이에요. 데이터는 내 기기에 있어요.</span>
         </div>
       </div>
       {/* Below the two cards, not inside one: growing a card made both
@@ -802,15 +803,15 @@ export function ConnectionTab() {
             if (e.key === "Enter") void save();
           }}
           placeholder="https://notes.example.com"
-          aria-label="Server address"
+          aria-label="서버 주소"
           spellCheck={false}
           autoCapitalize="off"
         />
       )}
       {recent.length > 0 && (
         <div className="conn-recent">
-          <span className="conn-recent-label">Recent</span>
-          <div className="conn-chips" role="group" aria-label="Recent connections">
+          <span className="conn-recent-label">최근 연결</span>
+          <div className="conn-chips" role="group" aria-label="최근 연결">
             {recent.map((url) => (
               <button
                 key={url}
@@ -818,7 +819,7 @@ export function ConnectionTab() {
                 className={`conn-chip${url === draftUrl ? " is-picked" : ""}${url === activeUrl ? " is-active" : ""}`}
                 disabled={busy}
                 aria-pressed={url === draftUrl}
-                title={url === activeUrl ? `${url} (active)` : url}
+                title={url === activeUrl ? `${url} (사용 중)` : url}
                 onClick={() => pick(url)}
               >
                 {serverHost(url)}
@@ -829,7 +830,7 @@ export function ConnectionTab() {
       )}
       <div className="conn-foot">
         <span className="conn-status" role="status">
-          {saved ? "Reconnected." : `Connected to ${serverHost(serverUrl)}`}
+          {saved ? "다시 연결했어요." : `${serverHost(serverUrl)}에 연결됨`}
         </span>
         <button
           type="button"
@@ -838,7 +839,7 @@ export function ConnectionTab() {
           onClick={() => void save()}
         >
           {busy && <span className="btn-spinner" aria-hidden="true" />}
-          <span>Connect</span>
+          <span>연결</span>
         </button>
       </div>
       {error && <div className="auth-error">{error}</div>}
@@ -868,36 +869,36 @@ function AboutTab({ onClose }: { onClose: () => void }) {
   let statusText: string | null = null;
   switch (update.phase) {
     case "checking":
-      statusText = "Checking for updates…";
+      statusText = "업데이트를 확인하는 중…";
       break;
     case "uptodate":
-      statusText = "You're on the latest version.";
+      statusText = "최신 버전을 사용 중이에요.";
       break;
     case "available":
-      statusText = `Version ${update.version} found. Starting the download…`;
+      statusText = `${update.version} 버전을 찾았어요. 다운로드를 시작하는 중…`;
       break;
     case "downloading":
       statusText =
         update.total > 0
-          ? `Downloading ${update.version}: ${Math.round((update.downloaded / update.total) * 100)}%`
-          : `Downloading ${update.version}…`;
+          ? `${update.version} 다운로드 중: ${Math.round((update.downloaded / update.total) * 100)}%`
+          : `${update.version} 다운로드 중…`;
       break;
     case "installing":
-      statusText = `Installing ${update.version}…`;
+      statusText = `${update.version} 설치 중…`;
       break;
     case "ready":
-      statusText = `Version ${update.version} is installed. Restarting shortly.`;
+      statusText = `${update.version} 버전을 설치했어요. 곧 다시 시작해요.`;
       break;
     case "pending":
       // The server already runs a newer release than the feed can serve yet;
       // the check retries on its own. Quiet on purpose — nothing is wrong.
-      statusText = "An update is on its way.";
+      statusText = "업데이트가 곧 도착해요.";
       break;
     case "error":
-      statusText = `Couldn't check for updates: ${update.message}`;
+      statusText = `업데이트를 확인하지 못했어요: ${update.message}`;
       break;
     case "failed":
-      statusText = `Couldn't install version ${update.version}${update.message ? `: ${update.message}` : ""}`;
+      statusText = `${update.version} 버전을 설치하지 못했어요${update.message ? `: ${update.message}` : ""}`;
       break;
   }
 
@@ -915,8 +916,8 @@ function AboutTab({ onClose }: { onClose: () => void }) {
       <div className="profile-rows about-rows">
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Installed agents</span>
-            <span className="profile-row-hint">Used to update dashboards. Found when Baalda starts.</span>
+            <span className="profile-row-title">설치된 에이전트</span>
+            <span className="profile-row-hint">대시보드를 업데이트할 때 사용해요. 마이 세컨드 브레인을 시작할 때 찾아요.</span>
           </div>
           <div className="profile-row-control">
             <InstalledAgentsList />
@@ -924,8 +925,8 @@ function AboutTab({ onClose }: { onClose: () => void }) {
         </div>
         <div className="profile-row">
           <div className="profile-row-label">
-            <span className="profile-row-title">Server</span>
-            <span className="profile-row-hint">Where your notes sync.</span>
+            <span className="profile-row-title">서버</span>
+            <span className="profile-row-hint">노트를 동기화하는 곳이에요.</span>
           </div>
           <div className="profile-row-control about-inline">
             <span className="about-value">
@@ -936,8 +937,8 @@ function AboutTab({ onClose }: { onClose: () => void }) {
         </div>
         <div className="profile-row">
           <div className="profile-row-label">
-            <span className="profile-row-title">Account</span>
-            <span className="profile-row-hint">Signing out keeps your notes on this computer.</span>
+            <span className="profile-row-title">계정</span>
+            <span className="profile-row-hint">로그아웃해도 노트는 이 컴퓨터에 남아 있어요.</span>
           </div>
           <div className="profile-row-control about-inline">
             <span className="about-value">{email}</span>
@@ -949,7 +950,7 @@ function AboutTab({ onClose }: { onClose: () => void }) {
                 void useStore.getState().signOut();
               }}
             >
-              Sign out
+              로그아웃
             </button>
           </div>
         </div>
@@ -986,11 +987,11 @@ function UpdateCard({
         {view.tone === "busy" && view.percent === null && <span className="btn-spinner update-card-spin" aria-hidden="true" />}
         {view.action === "restart" ? (
           <button type="button" className="update-card-btn is-ink" onClick={onRestart}>
-            Restart now
+            지금 다시 시작
           </button>
         ) : view.action ? (
           <button type="button" className="update-card-btn" disabled={busy} onClick={onCheck}>
-            {view.action === "retry" ? "Try again" : "Check for updates"}
+            {view.action === "retry" ? "다시 시도" : "업데이트 확인"}
           </button>
         ) : null}
       </div>

@@ -29,6 +29,7 @@ import { viewerFor, type ViewerKind } from "../lib/formats";
 import { HtmlView } from "./HtmlView";
 import { RemoteDashboardView } from "./RemoteDashboardView";
 import { FileCard } from "./viewers/FileCard";
+import { LocalOnlyBar } from "./viewers/DriveLinkPaste";
 import { ViewerErrorBoundary } from "./viewers/ErrorBoundary";
 import type { ViewerProps } from "./viewers/types";
 
@@ -42,6 +43,9 @@ const CsvView = lazy(() => import("./viewers/CsvView").then((m) => ({ default: m
 const CodeView = lazy(() => import("./viewers/CodeView").then((m) => ({ default: m.CodeView })));
 const DocxView = lazy(() => import("./viewers/DocxView").then((m) => ({ default: m.DocxView })));
 const XlsxView = lazy(() => import("./viewers/XlsxView").then((m) => ({ default: m.XlsxView })));
+const OfficeView = lazy(() =>
+  import("./viewers/OfficeView").then((m) => ({ default: m.OfficeView })),
+);
 
 const LAZY_LEAVES: Partial<Record<ViewerKind, React.ComponentType<ViewerProps>>> = {
   video: VideoView,
@@ -50,6 +54,8 @@ const LAZY_LEAVES: Partial<Record<ViewerKind, React.ComponentType<ViewerProps>>>
   code: CodeView,
   docx: DocxView,
   xlsx: XlsxView,
+  hwpx: OfficeView,
+  pptx: OfficeView,
 };
 
 /** Image and PDF: streamed straight off the asset protocol, no chunk. */
@@ -61,7 +67,7 @@ function NativeView({ path, abs, src, kind }: ViewerProps & { kind: "image" | "p
   const name = path.split("/").pop() ?? path;
 
   if (failed) {
-    return <FileCard path={path} abs={abs} reason={`Couldn't load ${name}.`} />;
+    return <FileCard path={path} abs={abs} reason={`${name}을(를) 불러올 수 없어요.`} />;
   }
   if (kind === "pdf") {
     return (
@@ -96,7 +102,7 @@ function NativeView({ path, abs, src, kind }: ViewerProps & { kind: "image" | "p
           className="ghost-pill sm"
           onClick={() => void ipc.openInFileManager(abs)}
         >
-          Open externally
+          기본 앱에서 열기
         </button>
         <button
           type="button"
@@ -111,7 +117,7 @@ function NativeView({ path, abs, src, kind }: ViewerProps & { kind: "image" | "p
           className="file-preview-img"
           src={src}
           alt={name}
-          title="Click to view full screen"
+          title="클릭하면 전체 화면으로 봐요"
           style={
             zoom === 1
               ? undefined
@@ -134,7 +140,7 @@ export function FilePreview({ path }: { path: string }) {
   if (!vaultPath) {
     return (
       <div className="editor-empty">
-        <p>Can't preview this file.</p>
+        <p>이 파일을 미리 볼 수 없어요.</p>
       </div>
     );
   }
@@ -148,22 +154,31 @@ export function FilePreview({ path }: { path: string }) {
   const src = convertFileSrc(abs);
   const props: ViewerProps = { path, abs, src };
 
+  // 마브: a video or a 25MB+ file never uploads; offer the Drive link above
+  // whatever viewer opens it (the file card shows the same box itself).
+  const withLocalOnly = (node: React.ReactNode) => (
+    <div className="file-preview-stack">
+      <LocalOnlyBar path={path} />
+      {node}
+    </div>
+  );
+
   if (viewer === "image" || viewer === "pdf") {
-    return <NativeView key={path} {...props} kind={viewer} />;
+    return withLocalOnly(<NativeView key={path} {...props} kind={viewer} />);
   }
 
   const Leaf = LAZY_LEAVES[viewer];
   if (!Leaf) return <FileCard key={path} {...props} />;
 
-  return (
+  return withLocalOnly(
     // Keyed by path so a boundary that caught one file does not swallow the
     // next, and so a leaf's per-file state (a codec verdict, a sheet tab)
     // starts clean.
     <ViewerErrorBoundary
       key={path}
-      fallback={() => <FileCard {...props} reason="Couldn't open this file." />}
+      fallback={() => <FileCard {...props} reason="이 파일을 열 수 없어요." />}
     >
-      <Suspense fallback={<div className="editor-empty">Loading…</div>}>
+      <Suspense fallback={<div className="editor-empty">불러오는 중…</div>}>
         <Leaf {...props} />
       </Suspense>
     </ViewerErrorBoundary>

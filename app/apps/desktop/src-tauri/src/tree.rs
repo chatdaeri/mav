@@ -229,11 +229,10 @@ mod tests {
 
         let tree = list_tree(root).unwrap();
         let children = tree.children.unwrap();
-        // ".context"/".git"/"node_modules" hidden; "script.js" filtered out by the
-        // extension allowlist (source code is never surfaced, however openable);
-        // "Notes" dir + allowed "clip.mp4"/"diagram.png" surface.
+        // ".context"/".git"/"node_modules" hidden; 마브 surfaces every other
+        // file, source code included.
         let names: Vec<&str> = children.iter().map(|n| n.name.as_str()).collect();
-        assert_eq!(names, vec!["Notes", "clip.mp4", "diagram.png"]);
+        assert_eq!(names, vec!["Notes", "clip.mp4", "diagram.png", "script.js"]);
 
         let notes = children[0].children.as_ref().unwrap();
         let inner: Vec<&str> = notes.iter().map(|n| n.name.as_str()).collect();

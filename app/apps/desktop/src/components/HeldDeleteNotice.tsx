@@ -7,9 +7,9 @@ import { useNoticeSlot } from "./useNoticeSlot";
  * Many notes were removed from the vault folder at once with the app open
  * (#221). Past the blast-radius cap a disk delete is NEVER sent to the team:
  * deleting for everyone happens inside the app, where the creator-only rule
- * applies. So this only informs. "Restore now" brings them back at once;
+ * applies. So this only informs. "지금 복원" brings them back at once;
  * Dismiss, or the fade, releases the hold and the next pull restores them.
- * The fade waits while Restore now is in flight.
+ * The fade waits while 지금 복원 is in flight.
  */
 export function HeldDeleteNotice() {
   const pending = useStore((s) => s.structureNotice.pendingDelete);
@@ -30,15 +30,15 @@ export function HeldDeleteNotice() {
   return (
     <Banner show={visible} role="status">
       <span>
-        You removed {n.toLocaleString()} {n === 1 ? "note" : "notes"} on this device. They stay for
-        your team and will be restored here.
+        이 기기에서 노트 {n.toLocaleString()}개를 삭제했어요. 팀에는 그대로 남아 있고 여기에도 다시
+        복원돼요.
       </span>
       <div className="banner-actions">
         <button className="primary" disabled={busy} onClick={() => release("restore")}>
-          Restore now
+          지금 복원
         </button>
         <button className="secondary" disabled={busy} onClick={() => release("dismiss")}>
-          Dismiss
+          닫기
         </button>
       </div>
     </Banner>

@@ -160,7 +160,7 @@ export function keyRequiredResponse(c: Context, vaultId: string | null): Respons
   if (!isVaultKeyCapableVersion(reportedClientVersion(c))) return c.json(vaultKeysOutdatedBody(), 426);
   return c.json(
     {
-      error: "This vault needs its key. Open Baalda on a device that has it.",
+      error: "This vault needs its key. Open 마이 세컨드 브레인 on a device that has it.",
       code: KEY_REQUIRED_CODE,
       ...(vaultId ? { vaultId } : {}),
     },

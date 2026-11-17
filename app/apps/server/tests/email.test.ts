@@ -22,8 +22,8 @@ describe("resolveEmailConfig", () => {
 
   it("picks Resend from its key, SMTP from its URL", () => {
     expect(
-      resolveEmailConfig({ ...off, emailFrom: "Baalda <no-reply@x.io>", resendApiKey: "re_1" }),
-    ).toMatchObject({ transport: "resend", from: "Baalda <no-reply@x.io>" });
+      resolveEmailConfig({ ...off, emailFrom: "마이 세컨드 브레인 <no-reply@x.io>", resendApiKey: "re_1" }),
+    ).toMatchObject({ transport: "resend", from: "마이 세컨드 브레인 <no-reply@x.io>" });
     expect(
       resolveEmailConfig({ ...off, emailFrom: "a@x.io", smtpUrl: "smtp://u:p@mail.x.io:587" }),
     ).toMatchObject({ transport: "smtp", smtpUrl: "smtp://u:p@mail.x.io:587" });
@@ -86,12 +86,12 @@ describe("transports", () => {
       calls.push({ url: String(url), init: init! });
       return new Response('{"id":"x"}', { status: 200 });
     }) as unknown as typeof fetch;
-    const m = resendMailer("Baalda <no-reply@x.io>", "re_key", okFetch);
+    const m = resendMailer("마이 세컨드 브레인 <no-reply@x.io>", "re_key", okFetch);
     await m.send({ to: "b@x.io", subject: "Hi", text: "t", html: "<p>t</p>" });
     expect(calls[0].url).toBe("https://api.resend.com/emails");
     expect((calls[0].init.headers as Record<string, string>).Authorization).toBe("Bearer re_key");
     expect(JSON.parse(calls[0].init.body as string)).toEqual({
-      from: "Baalda <no-reply@x.io>",
+      from: "마이 세컨드 브레인 <no-reply@x.io>",
       to: ["b@x.io"],
       subject: "Hi",
       text: "t",
@@ -110,7 +110,7 @@ describe("templates", () => {
     const reset = resetPasswordEmail({ to: "a@x.io", url: "https://s/reset-password?token=T", validMinutes: 60 });
     expect(reset.text).toContain("https://s/reset-password?token=T");
     expect(reset.html).toContain("https://s/reset-password?token=T");
-    expect(reset.subject).toMatch(/reset/i);
+    expect(reset.subject).toContain("비밀번호 재설정");
 
     const verify = verifyEmailEmail({ to: "a@x.io", url: "https://s/v?token=T" });
     expect(verify.text).toContain("https://s/v?token=T");
@@ -127,7 +127,7 @@ describe("templates", () => {
     expect(inv.html).toContain("&lt;script&gt;Acme");
     expect(inv.html).toContain("Bob &amp; Co");
     expect(inv.text).toContain("https://s/invite/I");
-    expect(inv.text).toContain("as an admin");
+    expect(inv.text).toContain("관리자로");
     expect(inv.subject).toContain("Bob & Co");
   });
 });

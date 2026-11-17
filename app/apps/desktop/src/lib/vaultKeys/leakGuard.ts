@@ -42,4 +42,4 @@ export function containsVaultKey(text: string): boolean {
 }
 
 export const VAULT_KEY_LEAK_MESSAGE =
-  "This looks like a vault key. Never send your vault key to anyone, including Baalda support. Remove it and try again.";
+  "This looks like a vault key. Never send your vault key to anyone, including 마이 세컨드 브레인 support. Remove it and try again.";

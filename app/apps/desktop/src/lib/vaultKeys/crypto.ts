@@ -292,11 +292,11 @@ export function wordsToVaultKey(words: string): Uint8Array | null {
  *  the whole key copies cleanly into "Restore with vault key". */
 export function vaultKeyFileText(vaultName: string, vaultId: string, vk: Uint8Array): string {
   return [
-    `Baalda vault key for "${vaultName}"`,
-    `Vault id: ${vaultId}`,
+    `마이 세컨드 브레인 볼트 키: "${vaultName}"`,
+    `볼트 ID: ${vaultId}`,
     "",
-    "Anyone with this key can read this vault. Keep it somewhere safe.",
-    "To use it: Vault Settings > General > Restore with vault key, then paste the line below.",
+    "이 키가 있으면 누구나 이 볼트를 읽을 수 있어요. 안전한 곳에 보관하세요.",
+    "사용 방법: 볼트 설정 > 일반 > 볼트 키로 복원을 선택한 뒤 아래 줄을 붙여 넣으세요.",
     "",
     vaultKeyToWords(vk),
     "",

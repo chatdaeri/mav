@@ -50,14 +50,14 @@ describe("vaultCardLabels", () => {
   it("builds name and counts, never a slug line", () => {
     expect(vaultCardLabels({ name: "Acme Team" }, { people: 1, notes: 21 })).toEqual({
       name: "Acme Team",
-      counts: "1 person · 21 notes",
-      meta: "1 person · 21 notes",
+      counts: "멤버 1명 · 노트 21개",
+      meta: "멤버 1명 · 노트 21개",
       metaDanger: false,
     });
   });
 
   it("pluralises and handles one note", () => {
-    expect(vaultCardLabels({ name: "X" }, { people: 3, notes: 1 }).counts).toBe("3 people · 1 note");
+    expect(vaultCardLabels({ name: "X" }, { people: 3, notes: 1 }).counts).toBe("멤버 3명 · 노트 1개");
   });
 
   it("leaves unknown counts empty", () => {
@@ -84,19 +84,19 @@ describe("vaultSlugLabel", () => {
 
 describe("localCardLabels", () => {
   it("says Local alone when the folder is named like the vault", () => {
-    expect(localCardLabels({ name: "Notes", path: "/Users/a/Baalda/notes" })).toEqual({
+    expect(localCardLabels({ name: "Notes", path: "/Users/a/마이 세컨드 브레인/notes" })).toEqual({
       name: "Notes",
-      meta: "Local",
+      meta: "이 기기",
       letter: "N",
     });
   });
 
   it("adds the folder's last segment when it differs", () => {
     expect(localCardLabels({ name: "Work", path: "/Users/a/Documents/work-vault/" }).meta).toBe(
-      "Local · work-vault",
+      "이 기기 · work-vault",
     );
     expect(localCardLabels({ name: "Work", path: "C:\\Users\\a\\Vaults\\Jobs" }).meta).toBe(
-      "Local · Jobs",
+      "이 기기 · Jobs",
     );
   });
 
@@ -108,13 +108,13 @@ describe("localCardLabels", () => {
 describe("folder-missing card", () => {
   it("keeps the counts as the details line when they are known", () => {
     const labels = vaultCardLabels({ name: "X" }, { people: 2, notes: 5 }, { folderMissing: true });
-    expect(labels.meta).toBe("2 people · 5 notes");
+    expect(labels.meta).toBe("멤버 2명 · 노트 5개");
     expect(labels.metaDanger).toBe(false);
   });
 
-  it("says Folder missing in the danger colour when the counts are unknown", () => {
+  it("says folder missing in the danger colour when the counts are unknown", () => {
     const labels = vaultCardLabels({ name: "X" }, null, { folderMissing: true });
-    expect(labels.meta).toBe("Folder missing");
+    expect(labels.meta).toBe("폴더를 찾을 수 없음");
     expect(labels.metaDanger).toBe(true);
   });
 

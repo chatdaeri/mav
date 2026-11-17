@@ -91,7 +91,7 @@
      top centres "New" in the pill, which itself centres on the label. */
   padding: 1px 7px 0;
   border-radius: 999px;
-  /* Baalda's logo green (the mark's dot), not the accent: the row's own
+  /* 마브's logo green (the mark's dot), not the accent: the row's own
      hover and selection are already the accent tint. */
   border: 1px solid color-mix(in srgb, var(--brand-green) 40%, transparent);
   background: color-mix(in srgb, var(--brand-green) 16%, transparent);

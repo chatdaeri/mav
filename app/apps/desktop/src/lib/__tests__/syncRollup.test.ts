@@ -285,7 +285,7 @@ describe("rowSyncMark", () => {
     expect(rowSyncMark(file("a.md"), index, true)).toEqual({
       state: "syncing",
       progress: null,
-      title: "Syncing…",
+      title: "동기화 중…",
     });
   });
 
@@ -303,14 +303,14 @@ describe("rowSyncMark", () => {
     expect(rowSyncMark(file("Team/report.docx"), index, true)).toEqual({
       state: "syncing",
       progress: null,
-      title: "Uploading…",
+      title: "업로드 중…",
     });
     // A failed upload is the Health page's to explain; the sidebar never shows
     // an error, mid-run or after.
     for (const runActive of [true, false]) {
       expect(
         rowSyncMark(file("Media/clip.mp4"), withFiles({}, { "Media/clip.mp4": "error" }), runActive),
-      ).toMatchObject({ state: "synced", title: "Synced" });
+      ).toMatchObject({ state: "synced", title: "동기화됨" });
     }
   });
 
@@ -346,7 +346,7 @@ describe("rowSyncMark", () => {
     for (const row of [dir("A"), dir(""), file("A/b.md"), file("A/c.md"), file("A/d.md")]) {
       expect(rowSyncMark(row, index, false)).toMatchObject({ state: "synced", progress: null });
     }
-    expect(rowSyncMark(dir("A"), index, false)!.title).toBe("All 4 files synced");
+    expect(rowSyncMark(dir("A"), index, false)!.title).toBe("파일 4개 모두 동기화됨");
   });
 
   it("reads the run flag off the index when the caller does not pass one", () => {
@@ -438,7 +438,7 @@ describe("FolderWaveTracker", () => {
     const mark = rowSyncMark(dir("A"), busy, true)!;
     expect(mark.progress).toEqual({ done: 0, total: 1 }); // not 3/4
     // The tooltip counts the same wave the badge does.
-    expect(mark.title).toBe("Syncing 0 of 1 file");
+    expect(mark.title).toBe("파일 1개 중 0개 동기화 중");
   });
 
   it("grows the wave when more work arrives mid-flight", () => {
@@ -479,18 +479,18 @@ describe("folderSyncTitle", () => {
     waves.apply(half);
     const mark = rowSyncMark(dir("A"), half, true)!;
     expect(mark.progress).toEqual({ done: 1, total: 2 });
-    expect(mark.title).toBe("Syncing 1 of 2 files");
+    expect(mark.title).toBe("파일 2개 중 1개 동기화 중");
     expect(folderSyncTitle(half.folders.get("A")!, mark.progress)).toBe(mark.title);
   });
 
   it("does not name failures — that is the Health page's job", () => {
     const index = indexOf({ "A/a.md": "error", "A/b.md": "synced" });
-    expect(folderSyncTitle(index.folders.get("A")!)).toBe("All 2 files synced");
+    expect(folderSyncTitle(index.folders.get("A")!)).toBe("파일 2개 모두 동기화됨");
   });
 
   it("says so plainly when everything is synced", () => {
     expect(folderSyncTitle(indexOf({ "A/a.md": "synced" }).folders.get("A")!)).toBe(
-      "All 1 file synced",
+      "파일 1개 모두 동기화됨",
     );
   });
 });

@@ -43,7 +43,7 @@ pub fn read_note(vault: &Path, rel: &str) -> AppResult<String> {
 /// matches on "symbolic link" to raise an `inbound-blocked` Health issue.
 pub fn symlink_refusal(rel: &str) -> AppError {
     AppError::new(format!(
-        "This path is a symbolic link. Baalda does not sync through links. ({rel})"
+        "This path is a symbolic link. 마이 세컨드 브레인 does not sync through links. ({rel})"
     ))
 }
 

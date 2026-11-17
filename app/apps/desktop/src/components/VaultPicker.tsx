@@ -80,20 +80,20 @@ function auroraDrift(dx: number, dy: number, duration: number) {
   };
 }
 
-/** Compact "time since" label for a recent vault, e.g. "just now", "3h ago". */
+/** Compact "time since" label for a recent vault, e.g. "방금", "3h ago". */
 function relativeTime(ms: number): string {
   if (!ms) return "";
   const sec = Math.max(0, Math.floor((Date.now() - ms) / 1000));
-  if (sec < 45) return "just now";
+  if (sec < 45) return "방금";
   const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
+  if (min < 60) return `${min}분 전`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr}시간 전`;
   const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}d ago`;
+  if (day < 30) return `${day}일 전`;
   const mo = Math.floor(day / 30);
-  if (mo < 12) return `${mo}mo ago`;
-  return `${Math.floor(mo / 12)}y ago`;
+  if (mo < 12) return `${mo}개월 전`;
+  return `${Math.floor(mo / 12)}년 전`;
 }
 
 /** Collapse a home-prefixed path for display: /Users/x/Notes → ~/Notes. */
@@ -409,7 +409,7 @@ export function VaultPicker() {
             // the post-auth landing opens exactly it. (The dialog needs the
             // sign-out — it dismisses itself while a session exists.)
             setError(
-              `"${e.name}" was synced under a different account. Sign in with that account to open it.`,
+              `"${e.name}"은(는) 다른 계정으로 동기화된 볼트예요. 해당 계정으로 로그인해야 열 수 있어요.`,
             );
             await useStore.getState().signOut();
             requestOpenVault(orgId);
@@ -514,7 +514,7 @@ export function VaultPicker() {
   // so signing out can't demote a synced vault to an untagged "recent".
   const renderEntry = (e: PickerEntry) => {
     const synced = isSyncedEntry(e);
-    const tag = e.kind === "remote" && !e.path ? "Remote" : synced ? "Synced" : "Local";
+    const tag = e.kind === "remote" && !e.path ? "원격" : synced ? "동기화됨" : "이 기기에만";
     return (
       <div
         className={`recent-card${e.kind === "local" ? " removable" : ""}${
@@ -546,10 +546,10 @@ export function VaultPicker() {
           )}
           <span className="recent-path">
             {opening === e.key
-              ? "Opening…"
+              ? "여는 중…"
               : e.path
                 ? tidyPath(e.path)
-                : "Not on this device yet"}
+                : "이 기기에는 아직 없음"}
           </span>
         </button>
         {/* The remove × overlays the row's top-right corner on hover (the tag
@@ -559,8 +559,8 @@ export function VaultPicker() {
         {e.kind === "local" && (
           <button
             className="recent-remove"
-            aria-label={`Remove ${e.name} from recents`}
-            title="Remove from recents"
+            aria-label={`최근 목록에서 ${e.name} 제거`}
+            title="최근 목록에서 제거"
             disabled={busy}
             onClick={() => forget(e.path)}
           >
@@ -620,7 +620,7 @@ export function VaultPicker() {
               >
                 <Spinner size="sm" tone="accent" />
                 <p className="picker-landing-label" role="status">
-                  Opening your vault…
+                  볼트를 여는 중…
                 </p>
               </motion.div>
             ) : joining ? (
@@ -640,7 +640,7 @@ export function VaultPicker() {
                   void confirmJoin();
                 }}
               >
-                <label className="new-vault-label">Enter your team's join code</label>
+                <label className="new-vault-label">팀의 참여 코드를 입력하세요</label>
                 {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
                 <input
                   className="new-vault-input join-code-input"
@@ -658,7 +658,7 @@ export function VaultPicker() {
                   autoComplete="off"
                 />
                 <p className="new-vault-loc">
-                  Ask a teammate for it. It is in Vault settings → Members and access.
+                  팀원에게 코드를 요청하세요. 볼트 설정 → 멤버 및 권한에서 확인할 수 있어요.
                 </p>
                 {joinError && <p className="error join-error">{joinError}</p>}
                 <div className="new-vault-buttons">
@@ -668,7 +668,7 @@ export function VaultPicker() {
                     disabled={busy}
                     onClick={cancelJoin}
                   >
-                    Cancel
+                    취소
                   </button>
                   <button
                     type="submit"
@@ -679,7 +679,7 @@ export function VaultPicker() {
                     {/* Joining is a round trip plus a full vault switch — folder,
                         registry reconcile, first pull. Seconds, not a blink. */}
                     <span className="async-btn-label">
-                      {busy ? "Joining…" : "Join team"}
+                      {busy ? "참여 중…" : "팀 참여"}
                     </span>
                     {busy && <Spinner size="xs" tone="on-accent" />}
                   </button>
@@ -702,7 +702,7 @@ export function VaultPicker() {
                   void confirmNewVault();
                 }}
               >
-                <label className="new-vault-label">Name your vault</label>
+                <label className="new-vault-label">볼트 이름을 정하세요</label>
                 {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
                 <input
                   className="new-vault-input"
@@ -713,12 +713,12 @@ export function VaultPicker() {
                   onKeyDown={(e) => {
                     if (e.key === "Escape") cancelNewVault();
                   }}
-                  placeholder="Untitled Vault"
+                  placeholder="제목 없는 볼트"
                   spellCheck={false}
                 />
                 <p className="new-vault-loc" title={newParent ?? undefined}>
-                  in <code>{tidyPath(newParent ?? "")}</code>
-                  {syncNewVault && ", synced to your account"}
+                  <code>{tidyPath(newParent ?? "")}</code>에 만들어요
+                  {syncNewVault && ", 내 계정에 동기화돼요"}
                 </p>
                 <div className="new-vault-buttons">
                   <button
@@ -727,7 +727,7 @@ export function VaultPicker() {
                     disabled={busy}
                     onClick={cancelNewVault}
                   >
-                    Cancel
+                    취소
                   </button>
                   <button
                     type="submit"
@@ -739,7 +739,7 @@ export function VaultPicker() {
                         ~20 starter notes — comfortably past the point where a
                         static label reads as a stuck button. */}
                     <span className="async-btn-label">
-                      {busy ? "Creating…" : "Create vault"}
+                      {busy ? "만드는 중…" : "볼트 만들기"}
                     </span>
                     {busy && <Spinner size="xs" tone="on-accent" />}
                   </button>
@@ -763,7 +763,7 @@ export function VaultPicker() {
                   whileTap={reduceMotion ? undefined : { scale: 0.96 }}
                   transition={SPRING}
                 >
-                  New vault
+                  새 볼트
                 </motion.button>
                 <motion.button
                   className={`ghost-pill lg${busy && !opening ? " is-busy" : ""}`}
@@ -777,7 +777,7 @@ export function VaultPicker() {
                   {/* A recent card opening shows its own spinner; this button
                       only reports a folder it picked itself. */}
                   <span className="async-btn-label">
-                    {busy && !opening ? "Opening…" : "Open existing"}
+                    {busy && !opening ? "여는 중…" : "기존 폴더 열기"}
                   </span>
                   {busy && !opening && <Spinner size="xs" tone="neutral" />}
                 </motion.button>
@@ -798,7 +798,7 @@ export function VaultPicker() {
                   whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                   transition={SPRING}
                 >
-                  Join a team
+                  팀 참여
                 </motion.button>
               </motion.div>
             )}
@@ -816,7 +816,7 @@ export function VaultPicker() {
               reduceMotion ? undefined : revealTransition(REVEAL_DELAY + 0.15)
             }
           >
-            <p className="recent-heading">Recent vaults</p>
+            <p className="recent-heading">최근 볼트</p>
             <div className="recent-scroll">{shownRecents.map(renderEntry)}</div>
             {hiddenRecents > 0 && (
               <button
@@ -824,7 +824,7 @@ export function VaultPicker() {
                 disabled={busy}
                 onClick={() => setShowAllVaults(true)}
               >
-                {`Show all (${entries.length})`}
+                {`모두 보기 (${entries.length})`}
               </button>
             )}
           </motion.div>
@@ -839,7 +839,7 @@ export function VaultPicker() {
               reduceMotion ? undefined : revealTransition(REVEAL_DELAY + 0.3)
             }
           >
-            A vault is any folder of <code>.md</code> files.{" "}
+            볼트는 <code>.md</code> 파일이 들어 있는 폴더예요.{" "}
             <button
               type="button"
               className="linkish"
@@ -847,7 +847,7 @@ export function VaultPicker() {
               aria-expanded={pathOpen}
               onClick={() => setPathOpen((v) => !v)}
             >
-              Open by path
+              경로로 열기
             </button>
           </motion.p>
         )}
@@ -877,7 +877,7 @@ export function VaultPicker() {
               reduceMotion ? undefined : revealTransition(REVEAL_DELAY + 0.36)
             }
           >
-            Have an account?{" "}
+            계정이 있나요?{" "}
             <button
               type="button"
               className="linkish"
@@ -890,9 +890,9 @@ export function VaultPicker() {
                 setSignInOpen(true);
               }}
             >
-              Sign in
+              로그인
             </button>{" "}
-            to sync and collaborate.
+            하면 동기화하고 협업할 수 있어요.
           </motion.p>
         )}
       </div>
@@ -915,8 +915,8 @@ export function VaultPicker() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <span>Open by path</span>
-              <button className="icon-btn" aria-label="Close" onClick={closePathOpen}>
+              <span>경로로 열기</span>
+              <button className="icon-btn" aria-label="닫기" onClick={closePathOpen}>
                 ✕
               </button>
             </div>
@@ -928,9 +928,9 @@ export function VaultPicker() {
               }}
             >
               <p className="open-by-path-hint">
-                Type the full path of a folder of <code>.md</code> files. This
-                also works for a drive root or mounted volume the folder picker
-                can't select, like <code>D:\</code> or <code>/Volumes/Notes</code>.
+                <code>.md</code> 파일이 들어 있는 폴더의 전체 경로를 입력하세요. 폴더 선택기로
+                고를 수 없는 드라이브 루트나 마운트된 볼륨(예: <code>D:\</code>,
+                <code>/Volumes/Notes</code>)에도 쓸 수 있어요.
               </p>
               {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
               <input
@@ -941,7 +941,7 @@ export function VaultPicker() {
                 onKeyDown={(e) => {
                   if (e.key === "Escape") closePathOpen();
                 }}
-                placeholder="Folder path"
+                placeholder="폴더 경로"
                 spellCheck={false}
                 autoComplete="off"
               />
@@ -953,7 +953,7 @@ export function VaultPicker() {
                   disabled={busy}
                   onClick={closePathOpen}
                 >
-                  Cancel
+                  취소
                 </button>
                 <button
                   type="submit"
@@ -961,7 +961,7 @@ export function VaultPicker() {
                   disabled={busy || !manualPath.trim()}
                   aria-busy={busy || undefined}
                 >
-                  <span className="async-btn-label">{busy ? "Opening…" : "Open"}</span>
+                  <span className="async-btn-label">{busy ? "여는 중…" : "열기"}</span>
                   {busy && <Spinner size="xs" tone="on-accent" />}
                 </button>
               </div>
@@ -977,11 +977,11 @@ export function VaultPicker() {
           >
             <div className="modal-header">
               <span>
-                All vaults <span className="muted">({entries.length})</span>
+                모든 볼트 <span className="muted">({entries.length})</span>
               </span>
               <button
                 className="icon-btn"
-                aria-label="Close"
+                aria-label="닫기"
                 onClick={() => setShowAllVaults(false)}
               >
                 ✕
@@ -990,13 +990,13 @@ export function VaultPicker() {
             <div className="vault-list-scroll">
               {entries.some(isSyncedEntry) && (
                 <>
-                  <p className="vault-list-section">Synced vaults</p>
+                  <p className="vault-list-section">동기화된 볼트</p>
                   {entries.filter(isSyncedEntry).map(renderEntry)}
                 </>
               )}
               {entries.some((e) => !isSyncedEntry(e)) && (
                 <>
-                  <p className="vault-list-section">On this device only</p>
+                  <p className="vault-list-section">이 기기에만</p>
                   {entries.filter((e) => !isSyncedEntry(e)).map(renderEntry)}
                 </>
               )}

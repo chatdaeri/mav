@@ -2567,7 +2567,7 @@ html:not(.rd-off) .banner-slot > .banner .banner-actions button:not(.primary):no
 html:not(.rd-off) .banner-slot > .banner .banner-actions button.primary { border-radius: 10px; }
 
 /* What's new, "glow badge" (chosen 2026-10-30): a sparkle in a ring of the
-   sidebar's folder colours, "Baalda v0.1.98" with the version in ink-to-violet,
+   sidebar's folder colours, "마이 세컨드 브레인 v0.1.98" with the version in ink-to-violet,
    and each change as a soft row with a folder-colour tile, title and detail. */
 html:not(.rd-off) .modal.whats-new { width: 460px; padding: 26px 24px 22px; border-radius: 24px; text-align: center; }
 html:not(.rd-off) .whats-new-badge {

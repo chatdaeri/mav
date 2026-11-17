@@ -38,19 +38,19 @@ export const LIMIT_CODES: ReadonlyArray<readonly [string, LimitKind]> = [
  * not drift. Note sync and local previews are deliberately absent: both are
  * Free features. */
 export const TEAM_BENEFITS = [
-  "Unlimited people, one seat each",
-  "Unlimited synced vaults",
-  "Standalone file sync",
-  "Priority support",
+  "인원 무제한, 1인당 1좌석",
+  "동기화 볼트 무제한",
+  "독립 파일 동기화",
+  "우선 지원",
 ] as const;
 
 /** What the Free plan includes, as the Upgrade dialog's Free card lists it. */
 export const FREE_PLAN_INCLUDES = [
-  "2 people",
-  "1 synced vault",
-  "Unlimited notes and attachments",
-  "MCP for your AI tools",
-  "Real-time collaboration",
+  "2명",
+  "동기화 볼트 1개",
+  "노트와 첨부 파일 무제한",
+  "AI 도구용 MCP",
+  "실시간 협업",
 ] as const;
 
 /** @deprecated Use {@link TEAM_BENEFITS}. Kept for older imports. */
@@ -60,9 +60,9 @@ export const PRO_BENEFITS = TEAM_BENEFITS;
  *  `vault`). Only vault-mode branches use it; Team-model screens keep
  *  {@link TEAM_BENEFITS}. */
 export const LEGACY_PRO_BENEFITS = [
-  "Unlimited team members",
-  "Standalone file sync",
-  "Doesn't count toward your free vaults",
+  "팀 멤버 무제한",
+  "독립 파일 동기화",
+  "무료 볼트 개수에 포함되지 않음",
 ] as const;
 
 /** The per-vault model's Free explanation, built from the server's own
@@ -73,7 +73,7 @@ export function legacyFreePlanExplanation(
 ): string {
   const members = limits?.membersPerVault ?? 3;
   const vaults = limits?.vaultsPerUser ?? 2;
-  return `Free includes ${members} member${members === 1 ? "" : "s"} per vault, ${vaults} free vault${vaults === 1 ? "" : "s"}, note sync, embedded attachments and MCP. Pro adds unlimited members and standalone file sync.`;
+  return `Free에는 볼트당 멤버 ${members}명, 무료 볼트 ${vaults}개, 노트 동기화, 포함된 첨부 파일, MCP가 들어 있어요. Pro는 멤버 무제한과 독립 파일 동기화를 더해요.`;
 }
 
 /** {@link legacyFreePlanExplanation} with the default limits. */
@@ -81,50 +81,50 @@ export const LEGACY_FREE_PLAN_EXPLANATION = legacyFreePlanExplanation();
 
 /** What a Free account does not get, listed beside the upgrade. */
 export const FREE_PLAN_LACKS = [
-  "More than 2 people",
-  "More than 1 synced vault",
-  "Standalone file sync",
+  "3명 이상",
+  "동기화 볼트 2개 이상",
+  "독립 파일 동기화",
 ] as const;
 
 export const FREE_PLAN_EXPLANATION =
-  "Free includes 2 people, 1 synced vault, note sync, embedded attachments and MCP. Team adds more people, unlimited vaults and standalone file sync.";
+  "Free에는 2명, 동기화 볼트 1개, 노트 동기화, 포함된 첨부 파일, MCP가 들어 있어요. Team은 더 많은 인원, 볼트 무제한, 독립 파일 동기화를 더해요.";
 
 /** "Free includes N people": N is the account's own Free limit (grandfathered
  *  accounts hold more than the default 2). */
-export const freePeopleIncluded = (n: number): string => `Free includes ${n} ${n === 1 ? "person" : "people"}.`;
+export const freePeopleIncluded = (n: number): string => `Free에는 ${n}명이 포함돼요.`;
 export function freePeopleCopy(n: number | null = null): string {
-  return `${freePeopleIncluded(n ?? 2)} Upgrade to Team to add more.`;
+  return `${freePeopleIncluded(n ?? 2)} 더 추가하려면 Team으로 업그레이드하세요.`;
 }
 export const FREE_PEOPLE_COPY = freePeopleCopy(2);
 /** The Upgrade dialog's reason line when a people limit sent the user there. */
 export function peopleLimitReason(n: number | null = null): string {
-  return `${freePeopleIncluded(n ?? 2)} Team has no limit.`;
+  return `${freePeopleIncluded(n ?? 2)} Team은 제한이 없어요.`;
 }
 export const PEOPLE_LIMIT_REASON = peopleLimitReason(2);
 /** An admin's line: whom to ask to add seats (or upgrade). */
 export function askOwnerTo(ownerName: string | null | undefined, what: string): string {
-  return `${ownerName ? `Ask ${ownerName}` : "Ask the vault owner"} to ${what}.`;
+  return `${ownerName ? ownerName : "볼트 소유자"}에게 ${what} 요청하세요.`;
 }
 
-const syncedVaults = (n: number) => `${n} synced vault${n === 1 ? "" : "s"}`;
+const syncedVaults = (n: number) => `동기화 볼트 ${n}개`;
 
 /**
  * Team-model nudge for a refused vault (`vault_limit_reached`). `n` is the
  * server's `limit`, which is above the default for a grandfathered account.
  */
 export function teamVaultLimitCopy(n: number): string {
-  return `Free includes ${syncedVaults(n)} on your account. Upgrade to Team for unlimited synced vaults.`;
+  return `Free 계정에는 ${syncedVaults(n)}가 포함돼요. 동기화 볼트를 무제한으로 쓰려면 Team으로 업그레이드하세요.`;
 }
 
 /** The Upgrade dialog's reason line for a refused vault. */
 export function vaultLimitReason(n: number): string {
-  return `Free includes ${syncedVaults(n)}. Team has no limit.`;
+  return `Free에는 ${syncedVaults(n)}가 포함돼요. Team은 제한이 없어요.`;
 }
-export const ASK_OWNER_SEATS_COPY = "Ask the vault owner to add seats.";
+export const ASK_OWNER_SEATS_COPY = "볼트 소유자에게 좌석을 추가해 달라고 요청하세요.";
 
 /** "All 5 seats are in use." — or the count-free form when the server sent none. */
 export function seatsFullCopy(seats: number | null): string {
-  return seats != null ? `All ${seats} seats are in use.` : "All seats are in use.";
+  return seats != null ? `좌석 ${seats}개를 모두 사용 중이에요.` : "좌석을 모두 사용 중이에요.";
 }
 
 /** Every place the contract token might surface on a rejected request. */
@@ -191,7 +191,7 @@ export function yearlySavingsLabel(cfg: Pick<BillingConfig, "team"> | null | und
   const year = prices.find((p) => p.interval === "year")?.perSeat;
   if (month == null || year == null || month <= 0) return null;
   const pct = Math.round((1 - year / (month * 12)) * 100);
-  return pct > 0 ? `Save ${pct}%` : null;
+  return pct > 0 ? `${pct}% 절약` : null;
 }
 
 /** "$10" / "$10.50" / "€110". Fixed `en-US` grouping so it is testable. */
@@ -217,8 +217,8 @@ export function seatTotalLine(
   currency: string,
   interval: "month" | "year",
 ): string {
-  const per = interval === "year" ? "/yr" : "/mo";
-  return `${seats} ${seats === 1 ? "seat" : "seats"} × ${formatMoney(perSeat, currency)} = ${formatMoney(seatTotalCents(seats, perSeat), currency)}${per}`;
+  const per = interval === "year" ? "/년" : "/월";
+  return `좌석 ${seats}개 × ${formatMoney(perSeat, currency)} = ${formatMoney(seatTotalCents(seats, perSeat), currency)}${per}`;
 }
 
 /** True for the forever discount `move-legacy-subs.ts` creates (`legacy-<accountId>`). */
@@ -235,28 +235,28 @@ export function discountLine(
 ): string | null {
   const p = account.price;
   if (!p || p.charged >= p.list) return null;
-  const per = account.interval === "year" ? "/yr" : "/mo";
+  const per = account.interval === "year" ? "/년" : "/월";
   const currency = account.currency ?? "usd";
-  const saving = `saving ${formatMoney(p.list - p.charged, currency)}${per}`;
+  const saving = `${formatMoney(p.list - p.charged, currency)}${per} 절약`;
   const label = p.discountName?.trim() && !isLegacyDiscount(p.discountName)
-    ? `Discount ${p.discountName.trim()}`
-    : "Discount";
+    ? `할인 ${p.discountName.trim()}`
+    : "할인";
   const renews = `${formatMoney(p.renewalAmount ?? p.list, currency)}${per}`;
   // A promo code often lasts one payment or a few months: say when it ends
   // instead of promising the saving every renewal. Forever and an unknown
   // duration (an older server) keep the saving wording.
   if (p.discountDuration === "once") {
-    return `${label} applied to your first payment · renews at ${renews}`;
+    return `첫 결제에 ${label} 적용 · 이후 ${renews}`;
   }
   if (p.discountDuration === "repeating" && p.discountDurationMonths) {
-    const months = p.discountDurationMonths === 1 ? "1 month" : `${p.discountDurationMonths} months`;
-    return `${label} for ${months} · then ${renews}`;
+    const months = `${p.discountDurationMonths}개월`;
+    return `${label} ${months} · 이후 ${renews}`;
   }
   if (isLegacyDiscount(p.discountName)) {
-    return `Legacy price ${formatMoney(p.charged, currency)}${per} · ${saving}`;
+    return `기존 가격 ${formatMoney(p.charged, currency)}${per} · ${saving}`;
   }
   const name = p.discountName?.trim();
-  return `${name ? `Discount ${name}` : "Discounted"} · ${saving}`;
+  return `${name ? `할인 ${name}` : "할인 적용"} · ${saving}`;
 }
 
 /** Manage seats is locked while the subscription is set to cancel at the
@@ -265,19 +265,19 @@ export function seatChangeLocked(account: Pick<MyBillingAccount, "cancelAtPeriod
   return account.cancelAtPeriodEnd === true;
 }
 
-export const RESUME_TO_CHANGE_SEATS = "Resume your plan to change seats.";
+export const RESUME_TO_CHANGE_SEATS = "좌석을 변경하려면 요금제를 재개하세요.";
 
 /** Manage seats on a legacy plan (it has unlimited people, nothing to buy). */
-export const LEGACY_NO_SEATS_COPY = "Your plan includes unlimited people, so there are no seats to change.";
+export const LEGACY_NO_SEATS_COPY = "요금제에 인원이 무제한으로 포함돼 있어 변경할 좌석이 없어요.";
 
 /** The Manage seats dialog's subtitle: "19 seats · 1 person on your account".
  *  `seats` is null before a first purchase and then reads as people only. */
 export function seatsDialogSubtitle(seats: number | null, people: number): string {
-  const who = `${people} ${people === 1 ? "person" : "people"} on your account`;
-  return seats == null ? who : `${seats} ${seats === 1 ? "seat" : "seats"} · ${who}`;
+  const who = `내 계정에 ${people}명`;
+  return seats == null ? who : `좌석 ${seats}개 · ${who}`;
 }
 const BILLING_FALLBACK =
-  "Billing couldn't make that change right now. Try again, or open Manage billing.";
+  "지금은 결제 변경을 처리할 수 없어요. 다시 시도하거나 결제 관리를 열어 주세요.";
 
 /**
  * A billing error as a sentence for people: the server's own `message` for
@@ -344,7 +344,7 @@ export interface SubscriptionLineFormat {
 
 /**
  * The secondary line under a vault in the Subscriptions list — "Renews 3 Oct
- * 2026 · $10/mo", "Ends 3 Oct 2026", "Past due" — or null when there is
+ * 2026 · $10/mo", "Ends 3 Oct 2026", "결제 지연" — or null when there is
  * nothing to say (a free vault).
  *
  * Order matters: `past_due` outranks everything (the money is the problem, not
@@ -357,17 +357,17 @@ export function subscriptionStatusLine(
   fmt: SubscriptionLineFormat,
 ): string | null {
   if (row.status === "none") return null;
-  if (row.status === "past_due") return "Past due";
+  if (row.status === "past_due") return "결제 지연";
   if (row.status === "canceled") {
-    return row.currentPeriodEnd ? `Ended ${fmt.date(row.currentPeriodEnd)}` : "Canceled";
+    return row.currentPeriodEnd ? `${fmt.date(row.currentPeriodEnd)} 종료` : "해지됨";
   }
   if (row.cancelAtPeriodEnd) {
     return row.currentPeriodEnd
-      ? `Ends ${fmt.date(row.currentPeriodEnd)}`
-      : "Ends at the end of the current period";
+      ? `${fmt.date(row.currentPeriodEnd)} 종료 예정`
+      : "현재 기간이 끝나면 종료돼요";
   }
   const parts: string[] = [];
-  if (row.currentPeriodEnd) parts.push(`Renews ${fmt.date(row.currentPeriodEnd)}`);
+  if (row.currentPeriodEnd) parts.push(`${fmt.date(row.currentPeriodEnd)} 갱신`);
   if (row.amount != null && row.currency) {
     parts.push(fmt.price(row.amount, row.currency, row.interval));
   }
@@ -386,11 +386,11 @@ export function planPillLabel(row: {
   complimentary?: boolean;
   lapsed?: boolean;
 }): string {
-  if (row.readOnly || row.lapsed) return "Read-only";
+  if (row.readOnly || row.lapsed) return "읽기 전용";
   if (row.plan === "free") return "Free";
-  if (row.status === "past_due") return "Past due";
-  if (row.status === "canceled") return "Canceled";
-  if (row.complimentary) return "Team (complimentary)";
+  if (row.status === "past_due") return "결제 지연";
+  if (row.status === "canceled") return "해지됨";
+  if (row.complimentary) return "Team (무료 제공)";
   return "Team";
 }
 
@@ -410,17 +410,17 @@ export function planStatusPill(
   account: Pick<MyBillingAccount, "plan" | "status" | "cancelAtPeriodEnd" | "currentPeriodEnd" | "lapsed">,
   fmtDate: (iso: string) => string,
 ): PlanStatusPill | null {
-  if (account.lapsed) return { label: "Read-only", tone: "canceled" };
+  if (account.lapsed) return { label: "읽기 전용", tone: "canceled" };
   if (account.plan === "free") return null;
-  if (account.status === "past_due") return { label: "Past due", tone: "past_due" };
+  if (account.status === "past_due") return { label: "결제 지연", tone: "past_due" };
   if (account.cancelAtPeriodEnd) {
     return {
-      label: account.currentPeriodEnd ? `Cancels on ${fmtDate(account.currentPeriodEnd)}` : "Cancels at period end",
+      label: account.currentPeriodEnd ? `${fmtDate(account.currentPeriodEnd)} 해지 예정` : "기간 종료 시 해지",
       tone: "past_due",
     };
   }
-  if (account.status === "canceled") return { label: "Canceled", tone: "canceled" };
-  return { label: "Active", tone: "active" };
+  if (account.status === "canceled") return { label: "해지됨", tone: "canceled" };
+  return { label: "사용 중", tone: "active" };
 }
 
 /**
@@ -451,12 +451,12 @@ export function vaultPlanLine(input: {
   }
   const isFree = input.fallbackPlan === "free";
   const plan = isFree ? "Free" : "Team";
-  const status: PlanStatusPill | null = isFree ? null : { label: "Active", tone: "active" };
+  const status: PlanStatusPill | null = isFree ? null : { label: "사용 중", tone: "active" };
   if (!input.isOwner) {
     const name = input.ownerName?.trim();
-    return { plan, status, billedOn: name ? `Billed on ${name}'s account` : "Billed on the owner's account" };
+    return { plan, status, billedOn: name ? `${name}님의 계정으로 결제돼요` : "소유자의 계정으로 결제돼요" };
   }
-  return { plan, status, billedOn: input.vaultAccountId && a ? "Billed on another account" : null };
+  return { plan, status, billedOn: input.vaultAccountId && a ? "다른 계정으로 결제돼요" : null };
 }
 
 /** The shape {@link transferTargets} filters on — a `MyBillingVault`, loosened
@@ -514,14 +514,14 @@ export function seatChangeSummary(input: {
   const { seats, current, floor, used, minSeats, preview, currency, interval } = input;
   if (seats < floor) {
     return {
-      text: `You can't go below the people already on your account (${used}) or the ${minSeats}-seat minimum.`,
+      text: `계정에 이미 있는 인원(${used}명)이나 최소 ${minSeats}좌석보다 적게 줄일 수 없어요.`,
       canConfirm: false,
     };
   }
   if (current != null && seats === current) return { text: null, canConfirm: false };
   if (input.scheduled != null && seats === input.scheduled) return { text: null, canConfirm: false };
   if (!preview) return { text: null, canConfirm: false };
-  const per = interval === "year" ? "year" : "month";
+  const per = interval === "year" ? "연" : "월";
   const money = (v: number | null | undefined): string | null =>
     typeof v === "number" && Number.isFinite(v) ? formatMoney(v, currency) : null;
   if (current == null || seats > current) {
@@ -529,9 +529,9 @@ export function seatChangeSummary(input: {
     const next = money(preview.newAmount);
     let text: string;
     if (now !== null && next !== null) {
-      text = `You'll be charged about ${now} today (prorated); then ${next} per ${per}.`;
+      text = `오늘 약 ${now}이 일할 계산으로 청구되고, 이후 ${per} ${next}이 청구돼요.`;
     } else if (next !== null) {
-      text = `Then ${next} per ${per}. Your next invoice will show the exact amount.`;
+      text = `이후 ${per} ${next}이 청구돼요. 정확한 금액은 다음 청구서에 표시돼요.`;
     } else {
       text = SEAT_PRICE_UNKNOWN;
     }
@@ -540,8 +540,8 @@ export function seatChangeSummary(input: {
   const end = preview.currentPeriodEnd;
   return {
     text: end
-      ? `Goes down to ${seats} ${seats === 1 ? "seat" : "seats"} on ${input.formatDate(end)}.`
-      : `Goes down to ${seats} ${seats === 1 ? "seat" : "seats"} at the end of this billing period.`,
+      ? `${input.formatDate(end)}에 ${seats}좌석으로 줄어들어요.`
+      : `이번 결제 기간이 끝나면 ${seats}좌석으로 줄어들어요.`,
     canConfirm: true,
   };
 }
@@ -555,14 +555,14 @@ export function seatsUpdatedToast(
   effectiveAt: string | null | undefined,
   formatDate: (iso: string) => string,
 ): string {
-  if (previous == null || seats >= previous) return `Seats updated to ${seats}.`;
+  if (previous == null || seats >= previous) return `좌석을 ${seats}개로 변경했어요.`;
   return effectiveAt
-    ? `Seats drop to ${seats} on ${formatDate(effectiveAt)}.`
-    : `Seats drop to ${seats} at the end of this billing period.`;
+    ? `${formatDate(effectiveAt)}에 좌석이 ${seats}개로 줄어들어요.`
+    : `이번 결제 기간이 끝나면 좌석이 ${seats}개로 줄어들어요.`;
 }
 
 /** Shown when the seat preview has no usable prices. */
-export const SEAT_PRICE_UNKNOWN = "Your next invoice will show the exact amount.";
+export const SEAT_PRICE_UNKNOWN = "정확한 금액은 다음 청구서에 표시돼요.";
 
 /** "1.2 MB" style byte counts for the Usage table. */
 export function formatBytes(bytes: number): string {
@@ -586,8 +586,8 @@ export function usageAgainstLimit(
   plural: string,
 ): string {
   const noun = (n: number) => (n === 1 ? singular : plural);
-  if (limit == null) return `${count} ${noun(count)}`;
-  return `${count} of ${limit} ${noun(limit)}`;
+  if (limit == null) return `${count}${noun(count)}`;
+  return `${limit}${noun(limit)} 중 ${count}${noun(count)}`;
 }
 
 /** The price line on the Plan card: "Free" or "$10 per seat / month". */
@@ -600,7 +600,7 @@ export function planPriceLine(
   const iv = interval ?? "month";
   const price = team?.prices.find((p) => p.interval === iv);
   if (!price || !team) return "Team";
-  return `${formatMoney(price.perSeat, team.currency)} per seat / ${iv}`;
+  return `좌석당 ${iv === "year" ? "연" : "월"} ${formatMoney(price.perSeat, team.currency)}`;
 }
 
 /** The account fields the legacy-plan checks read. */
@@ -639,7 +639,7 @@ export function legacyPlanLine(
   currency: string,
   formatDate: (iso: string) => string,
 ): string {
-  const parts = ["Legacy plan", "unlimited people at your original price"];
+  const parts = ["기존 요금제", "기존 가격으로 인원 무제한"];
   const charges = account.legacyCharges;
   if (charges && charges.length > 0) {
     // Several old Pro vaults each bill on their own: sum per interval,
@@ -650,13 +650,13 @@ export function legacyPlanLine(
         rows: charges.filter((c) => c.interval === interval),
       }))
       .filter((g) => g.rows.length > 0)
-      .map((g) => `${formatMoney(g.rows.reduce((t, c) => t + c.amount, 0), currency)}/${g.interval === "year" ? "yr" : "mo"}`);
+      .map((g) => `${formatMoney(g.rows.reduce((t, c) => t + c.amount, 0), currency)}/${g.interval === "year" ? "년" : "월"}`);
     parts.push(sums.join(" + "));
   } else if (account.price && Number.isFinite(account.price.charged)) {
-    parts.push(`${formatMoney(account.price.charged, currency)}/${account.interval === "year" ? "yr" : "mo"}`);
+    parts.push(`${formatMoney(account.price.charged, currency)}/${account.interval === "year" ? "년" : "월"}`);
   }
   if (account.currentPeriodEnd) {
-    parts.push(`${account.cancelAtPeriodEnd ? "cancels on" : "renews"} ${formatDate(account.currentPeriodEnd)}`);
+    parts.push(`${formatDate(account.currentPeriodEnd)} ${account.cancelAtPeriodEnd ? "해지 예정" : "갱신"}`);
   }
   return parts.join(" · ");
 }
@@ -673,9 +673,9 @@ export function peopleTableCopy(account: {
 }): { note: string | null; seatColumn: boolean } {
   if (account.plan !== "team") return { note: null, seatColumn: false };
   if (account.legacyPlan || account.seats.purchased == null) {
-    return { note: "Everyone on your account, across all your vaults.", seatColumn: false };
+    return { note: "내 계정의 모든 볼트에 있는 모든 사람이에요.", seatColumn: false };
   }
-  return { note: "Each person uses one seat, whichever vaults they're in.", seatColumn: true };
+  return { note: "어느 볼트에 있든 한 사람이 좌석 하나를 사용해요.", seatColumn: true };
 }
 
 /** "N of M seats used" plus invited and pending-decrease lines. */
@@ -684,17 +684,17 @@ export function seatUsageLines(
   formatDate: (iso: string) => string,
 ): string[] {
   const lines: string[] = [];
-  if (seats.purchased != null) lines.push(`${seats.used} of ${seats.purchased} seats used`);
-  else lines.push(`${seats.used} ${seats.used === 1 ? "person" : "people"}`);
-  if (seats.reserved > 0) lines.push(`${seats.reserved} invited`);
+  if (seats.purchased != null) lines.push(`좌석 ${seats.purchased}개 중 ${seats.used}개 사용`);
+  else lines.push(`${seats.used}명`);
+  if (seats.reserved > 0) lines.push(`초대 ${seats.reserved}명`);
   if (seats.pendingDecrease) {
-    lines.push(`Goes down to ${seats.pendingDecrease.to} on ${formatDate(seats.pendingDecrease.effectiveAt)}`);
+    lines.push(`${formatDate(seats.pendingDecrease.effectiveAt)}에 ${seats.pendingDecrease.to}좌석으로 줄어들어요`);
   }
   return lines;
 }
 
 export const LAPSED_COPY =
-  "Subscription ended. Sync is read-only until you resume or reduce to 2 people.";
+  "구독이 종료됐어요. 구독을 재개하거나 인원을 2명으로 줄일 때까지 동기화는 읽기 전용이에요.";
 
 /** The Plan card's seat breakdown: Seats · Claimed · Invited · Available. */
 export interface SeatBreakdown {
@@ -746,17 +746,17 @@ export function membersSeatLine(
 ): string {
   if (account.plan === "team" && account.seats.purchased != null) {
     const b = seatBreakdown(account.seats);
-    const owner = viewerIsOwner ? "your" : ownerName ? `${ownerName}'s` : "the owner's";
-    return `Uses ${b.claimed} of ${b.purchased} seats on ${owner} account · ${b.reserved} invited`;
+    const owner = viewerIsOwner ? "내" : ownerName ? `${ownerName}님의` : "소유자의";
+    return `${owner} 계정의 좌석 ${b.purchased}개 중 ${b.claimed}개 사용 · 초대 ${b.reserved}명`;
   }
   if (account.plan === "team") {
     // Legacy or complimentary Team: no seats bought, no people limit.
-    const owner = viewerIsOwner ? "your" : ownerName ? `${ownerName}'s` : "the owner's";
+    const owner = viewerIsOwner ? "내" : ownerName ? `${ownerName}님의` : "소유자의";
     const n = account.seats.used;
-    return `Team · unlimited people on ${owner} account (${n} ${n === 1 ? "person" : "people"})`;
+    return `Team · ${owner} 계정에서 인원 무제한 (${n}명)`;
   }
   const cap = freeLimitOf(account);
-  return `Free includes ${cap} ${cap === 1 ? "person" : "people"} on this account (${account.seats.used} of ${cap} used)`;
+  return `이 계정의 Free에는 ${cap}명이 포함돼요 (${cap}명 중 ${account.seats.used}명 사용)`;
 }
 
 /**
@@ -774,16 +774,16 @@ export function invitePrewarning(
     const b = seatBreakdown(account.seats);
     if (b.available > 0) return null;
     const full = seatsFullCopy(b.purchased);
-    const tail = b.reserved > 0 ? ` ${b.reserved} reserved by pending invitations.` : "";
+    const tail = b.reserved > 0 ? ` 대기 중인 초대로 ${b.reserved}좌석이 예약돼 있어요.` : "";
     return viewerIsOwner
-      ? { text: `${full}${tail} New people need a seat; people already on your account don't.`, action: "add-seats" }
-      : { text: `${full}${tail} ${askOwnerTo(ownerName, "add seats")}`, action: null };
+      ? { text: `${full}${tail} 새로 들어오는 사람은 좌석이 필요하고, 이미 계정에 있는 사람은 필요 없어요.`, action: "add-seats" }
+      : { text: `${full}${tail} ${askOwnerTo(ownerName, "좌석 추가")}`, action: null };
   }
   const cap = freeLimitOf(account);
   if (account.plan === "free" && account.seats.used + account.seats.reserved >= cap) {
     return viewerIsOwner
       ? { text: freePeopleCopy(cap), action: "upgrade" }
-      : { text: `${freePeopleIncluded(cap)} ${askOwnerTo(ownerName, "upgrade to Team")}`, action: null };
+      : { text: `${freePeopleIncluded(cap)} ${askOwnerTo(ownerName, "Team 업그레이드")}`, action: null };
   }
   return null;
 }
@@ -808,10 +808,10 @@ export function classifyBillingConfigResult(result: unknown): BillingConfigState
 }
 
 /** The Plan tab's one sentence for a fetch that failed (after its retry). */
-export const PLAN_LOAD_ERROR_COPY = "Couldn't load your plan. Check your connection and try again.";
+export const PLAN_LOAD_ERROR_COPY = "요금제를 불러올 수 없어요. 연결을 확인하고 다시 시도해 주세요.";
 
 /** The plan line on a server with billing off (self-hosted without a provider). */
-export const SELF_HOSTED_PLAN_COPY = "Everything is included on this server. There are no plan limits.";
+export const SELF_HOSTED_PLAN_COPY = "이 서버에서는 모든 기능이 포함돼 있어요. 요금제 제한이 없어요.";
 
 /**
  * Has a Team checkout we are waiting on been paid? True once the account is
@@ -851,13 +851,13 @@ export function invitedVaults(list: InvitedVault[] | null | undefined): InvitedV
 
 /** The popover's total: "2 invited". */
 export function invitedTotalLabel(total: number): string {
-  return `${total} invited`;
+  return `초대 ${total}명`;
 }
 
 /** The Invited count's accessible name, which also says where the invitations are. */
 export function invitedCountAriaLabel(total: number, vaults: InvitedVault[]): string {
-  if (vaults.length === 1) return `${invitedTotalLabel(total)} in ${vaults[0].name}`;
-  return `${invitedTotalLabel(total)} across ${vaults.length} vaults`;
+  if (vaults.length === 1) return `${vaults[0].name}에 ${invitedTotalLabel(total)}`;
+  return `볼트 ${vaults.length}개에 ${invitedTotalLabel(total)}`;
 }
 
 /**
@@ -882,5 +882,5 @@ export function invitedVaultAction(input: {
 
 /** The toast for the Vaults-tab fallback. */
 export function invitedVaultFallbackToast(name: string): string {
-  return `Open ${name} to manage its invitations.`;
+  return `${name}을(를) 열어 초대를 관리하세요.`;
 }

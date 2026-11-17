@@ -76,9 +76,9 @@ function LocalVaultSyncRow({ onTurnOnSync }: { onTurnOnSync: () => void }) {
         <rect x="5" y="5" width="14" height="10" rx="1.5" />
         <path d="M3 19h18" />
       </svg>
-      <span className="local-sync-label" title="This vault lives only on this computer">
-        <b>On this device only</b>
-        <small>Sync to back up and share</small>
+      <span className="local-sync-label" title="이 볼트는 이 컴퓨터에만 있어요">
+        <b>이 기기에만</b>
+        <small>동기화하면 백업하고 공유할 수 있어요</small>
       </span>
       <button
         type="button"
@@ -86,7 +86,7 @@ function LocalVaultSyncRow({ onTurnOnSync }: { onTurnOnSync: () => void }) {
         disabled={turningOnSync}
         onClick={onTurnOnSync}
       >
-        {turningOnSync ? "Turning on…" : "Turn on sync"}
+        {turningOnSync ? "켜는 중…" : "동기화 켜기"}
       </button>
     </div>
   );
@@ -155,7 +155,7 @@ export function AccountMenu() {
   const accountSettingsTab: AccountSettingsTab | undefined = accountSettingsRequest?.tab;
   // Signed out with a folder open: is that folder actually a SYNCED vault
   // (its `.context/config.json` is stamped with a vault id)? Labeling it
-  // "Local · not synced" is factually wrong — the edits made here will merge
+  // "이 기기에만 · 동기화 안 됨" is factually wrong — the edits made here will merge
   // into the vault on the next sign-in — and it hides that signing in is the
   // way to bring it back online. Peeked from disk because the localStorage
   // caches may be gone while the folder still knows whose it is.
@@ -204,7 +204,7 @@ export function AccountMenu() {
 
   // "unknown" is a state the user can now SEE: the sidebar paints before the
   // session restore finishes, so for its first moments we do not yet know
-  // whether anyone is signed in. Claiming "Local · not synced" then is a lie
+  // whether anyone is signed in. Claiming "이 기기에만 · 동기화 안 됨" then is a lie
   // about a synced vault, so pending renders the vault's name and nothing else.
   const authPending = authStatus === "unknown";
   const signedOut = !authPending && (authStatus !== "signed-in" || !session);
@@ -320,11 +320,11 @@ export function AccountMenu() {
               ? authPending
                 ? vault.name
                 : openFolderSynced
-                  ? `${vault.name} · Synced vault, signed out`
-                  : `${vault.name} · Local`
+                  ? `${vault.name} · 동기화된 볼트, 로그아웃됨`
+                  : `${vault.name} · 이 기기에만`
               : authPending
                 ? ""
-                : "Sign in to sync & collaborate"
+                : "로그인하고 동기화·협업하기"
           }
         >
           <span className="identity-avatar signed-out" aria-hidden="true">
@@ -342,12 +342,12 @@ export function AccountMenu() {
           </span>
           <span className="identity-meta">
             <span className="identity-line1">
-              {vault?.name ?? (authPending ? "" : "Sign in")}
+              {vault?.name ?? (authPending ? "" : "로그인")}
             </span>
             <span className="identity-line2">
               {authPending
                 ? // The restore is still deciding. Anything here would be a
-                  // guess, and the wrong guess ("Local · not synced" on a synced
+                  // guess, and the wrong guess ("이 기기에만 · 동기화 안 됨" on a synced
                   // vault) is the one that alarms people.
                   ""
                 : vault
@@ -355,9 +355,9 @@ export function AccountMenu() {
                     ? // A synced vault whose session is gone, not a local one —
                       // edits still merge on the next sign-in, and sign-in (not
                       // "turn on sync") is how it comes back online.
-                      "Synced · signed out"
-                    : "Local · not synced"
-                  : "Sync & collaborate"}
+                      "동기화됨 · 로그아웃됨"
+                    : "이 기기에만 · 동기화 안 됨"
+                  : "동기화 및 협업"}
             </span>
           </span>
         </button>
@@ -413,18 +413,18 @@ export function AccountMenu() {
           : "offline";
   const presenceLabel =
     presence === "active"
-      ? "Active"
+      ? "활동 중"
       : presence === "away"
-        ? "Away"
+        ? "자리 비움"
         : presence === "busy"
-          ? "Busy"
+          ? "바쁨"
           : presence === "idle"
-            ? "Idle"
+            ? "대기 중"
             : presence === "blocked"
-              ? "No access"
+              ? "접근 불가"
               : syncEnabled
-                ? "Offline"
-                : "Local only";
+                ? "오프라인"
+                : "이 기기에만";
 
   return (
     <div className="account-menu" ref={rootRef}>
@@ -503,8 +503,8 @@ export function AccountMenu() {
           <button
             type="button"
             className="icon-btn identity-bug"
-            title="Report a bug"
-            aria-label="Report a bug"
+            title="버그 신고"
+            aria-label="버그 신고"
             aria-haspopup="dialog"
             onClick={() => {
               closeMenu();
@@ -625,7 +625,7 @@ function UpdateMenuRow({ onClose }: { onClose: () => void }) {
         <path d="M21 3v6h-6" />
       </MenuIcon>
       <span className="menu-item-label update-row-text">
-        <span>{view.tone === "ok" || view.tone === "idle" ? "Check for updates" : view.tone === "busy" && view.percent === null ? "Checking…" : view.title}</span>
+        <span>{view.tone === "ok" || view.tone === "idle" ? "업데이트 확인" : view.tone === "busy" && view.percent === null ? "확인 중…" : view.title}</span>
         {view.percent !== null && (
           <span className="update-row-bar" aria-hidden="true">
             <b style={{ width: `${view.percent}%` }} />
@@ -637,9 +637,9 @@ function UpdateMenuRow({ onClose }: { onClose: () => void }) {
       </span>
       <span className="menu-hint update-row-end">
         {view.tone === "ready" ? (
-          <span className="update-row-btn is-ink">Restart</span>
+          <span className="update-row-btn is-ink">다시 시작</span>
         ) : view.tone === "error" ? (
-          <span className="update-row-btn">Retry</span>
+          <span className="update-row-btn">다시 시도</span>
         ) : view.percent !== null ? (
           `${view.percent}%`
         ) : view.tone === "busy" ? (
@@ -687,7 +687,7 @@ function SidebarUpdateLine() {
       </span>
       {act && (
         <button type="button" className="sidebar-update-btn" onClick={act}>
-          {view.action === "restart" ? "Restart" : "Retry"}
+          {view.action === "restart" ? "다시 시작" : "다시 시도"}
         </button>
       )}
     </div>
@@ -768,8 +768,8 @@ function AccountPopover({
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
         </MenuIcon>
-        <span className="menu-item-label">Account settings</span>
-        <span className="menu-hint">Profile, status, theme</span>
+        <span className="menu-item-label">계정 설정</span>
+        <span className="menu-hint">프로필, 상태, 테마</span>
       </button>
       {/* Shortcuts straight to a page of Account settings, through the same
           request the rest of the app uses (it closes this popover too). */}
@@ -781,8 +781,8 @@ function AccountPopover({
           <circle cx="12" cy="12" r="9" />
           <path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor" stroke="none" />
         </MenuIcon>
-        <span className="menu-item-label">Appearance</span>
-        <span className="menu-hint">Theme, colours</span>
+        <span className="menu-item-label">화면</span>
+        <span className="menu-hint">테마, 색상</span>
       </button>
       <button
         className="menu-item"
@@ -792,8 +792,8 @@ function AccountPopover({
           <circle cx="12" cy="12" r="9" />
           <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
         </MenuIcon>
-        <span className="menu-item-label">Connection</span>
-        <span className="menu-hint">Server URL</span>
+        <span className="menu-item-label">연결</span>
+        <span className="menu-hint">서버 URL</span>
       </button>
       <UpdateMenuRow onClose={onClose} />
 
@@ -809,7 +809,7 @@ function AccountPopover({
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
           <path d="M16 17l5-5-5-5M21 12H9" />
         </MenuIcon>
-        <span className="menu-item-label">Sign out</span>
+        <span className="menu-item-label">로그아웃</span>
       </button>
     </div>
   );

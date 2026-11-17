@@ -37,11 +37,7 @@ import "./editor.css";
 function formatDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-}
-
-function plural(n: number, singular: string, pluralNoun: string): string {
-  return `${n} ${n === 1 ? singular : pluralNoun}`;
+  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "short", day: "numeric" });
 }
 
 type Loaded = {
@@ -146,7 +142,7 @@ export function AccountPlanTab() {
       <>
         <div className="auth-error">{error}</div>
         <AsyncButton className="secondary" onClick={load}>
-          Try again
+          다시 시도
         </AsyncButton>
       </>
     );
@@ -162,7 +158,7 @@ export function AccountPlanTab() {
   if (data.state === "vault" || !account) {
     return (
       <div className="muted perm-empty">
-        Billing is per vault on this server; manage it in each vault's settings.
+        이 서버는 볼트별로 결제해요. 각 볼트 설정에서 관리하세요.
       </div>
     );
   }
@@ -244,14 +240,14 @@ export function AccountPlanTab() {
     : isTeam
     ? [
         planPriceLine(account.plan, account.interval, config.team),
-        seatsBought != null ? plural(seatsBought, "seat", "seats") : null,
+        seatsBought != null ? `좌석 ${seatsBought}개` : null,
         account.currentPeriodEnd
-          ? `${account.cancelAtPeriodEnd ? "cancels on" : "renews"} ${formatDate(account.currentPeriodEnd)}`
+          ? `${formatDate(account.currentPeriodEnd)} ${account.cancelAtPeriodEnd ? "해지 예정" : "갱신"}`
           : null,
       ]
         .filter(Boolean)
         .join(" · ")
-    : "For you and one teammate · $0";
+    : "나와 팀원 1명 · $0";
 
   // ---- Usage tiles: meters against the Free ceilings, plain counts on Team ----
   const syncedVaults = usage ? (usage.totals.vaults ?? usage.vaults.length) : 0;
@@ -269,36 +265,36 @@ export function AccountPlanTab() {
     ? [
         {
           key: "vaults",
-          caption: "Synced vaults",
+          caption: "동기화 볼트",
           value: String(syncedVaults),
           sub:
             vaultLimit != null
               ? freeBase != null && vaultLimit > freeBase
-                ? `of ${vaultLimit} · includes vaults you had before`
-                : `of ${vaultLimit}`
-              : syncedVaults === 1 ? "vault" : "vaults",
+                ? `${vaultLimit}개 중 · 이전에 쓰던 볼트 포함`
+                : `${vaultLimit}개 중`
+              : "개",
           meter: vaultLimit != null ? { used: syncedVaults, limit: vaultLimit } : null,
         },
         {
           key: "people",
-          caption: "People",
+          caption: "인원",
           value: String(usage.totals.people),
           sub:
             peopleLimit != null
-              ? `of ${peopleLimit} on this account`
-              : usage.totals.people === 1 ? "person" : "people",
+              ? `이 계정에서 ${peopleLimit}명 중`
+              : "명",
           meter: peopleLimit != null ? { used: usage.totals.people, limit: peopleLimit } : null,
         },
         {
           key: "notes",
-          caption: "Notes",
+          caption: "노트",
           value: String(usage.totals.notes),
-          sub: "across your vaults",
+          sub: "내 모든 볼트 합계",
           meter: null,
         },
         {
           key: "attachments",
-          caption: "Attachments",
+          caption: "첨부 파일",
           value: bytesValue ?? "0",
           sub: bytesUnit ?? "B",
           meter: null,
@@ -314,10 +310,10 @@ export function AccountPlanTab() {
   const total = perSeat != null && seatsBought != null ? formatMoney(perSeat * seatsBought, currency) : null;
   const totalSub = [
     perSeat != null && seatsBought != null
-      ? `${plural(seatsBought, "seat", "seats")} × ${formatMoney(perSeat, currency)}`
+      ? `좌석 ${seatsBought}개 × ${formatMoney(perSeat, currency)}`
       : null,
     account.currentPeriodEnd
-      ? `${account.cancelAtPeriodEnd ? "cancels on" : "renews"} ${formatDate(account.currentPeriodEnd)}`
+      ? `${formatDate(account.currentPeriodEnd)} ${account.cancelAtPeriodEnd ? "해지 예정" : "갱신"}`
       : null,
   ]
     .filter(Boolean)
@@ -326,9 +322,9 @@ export function AccountPlanTab() {
     account.cancelAtPeriodEnd || account.lapsed ? (
       <AsyncButton
         className="secondary"
-        onClick={() => run(() => authManager.api.accountResume(), "Plan resumed.")}
+        onClick={() => run(() => authManager.api.accountResume(), "요금제를 재개했어요.")}
       >
-        Resume plan
+        요금제 재개
       </AsyncButton>
     ) : (
       <AsyncButton
@@ -339,7 +335,7 @@ export function AccountPlanTab() {
           setConfirmCancel(true);
         }}
       >
-        Cancel plan
+        요금제 해지
       </AsyncButton>
     );
 
@@ -356,7 +352,7 @@ export function AccountPlanTab() {
               <>
                 <div className="plan-total">
                   {total}
-                  <span> / {iv}</span>
+                  <span> / {iv === "year" ? "연" : "월"}</span>
                 </div>
                 {totalSub && <div className="billing-section-note muted">{totalSub}</div>}
               </>
@@ -369,24 +365,24 @@ export function AccountPlanTab() {
             {account.canManage ? (
               <div className="plan-card-actions">
                 <AsyncButton className="secondary" onClick={openPortal}>
-                  Manage billing
+                  결제 관리
                 </AsyncButton>
                 {cancelOrResume}
               </div>
             ) : (
               <div className="billing-section-note">
                 {ownsVaults
-                  ? "Billing is handled by the vault owner."
-                  : "You don't own any vaults; billing is handled by each vault's owner."}
+                  ? "결제는 볼트 소유자가 관리해요."
+                  : "소유한 볼트가 없어요. 결제는 각 볼트의 소유자가 관리해요."}
               </div>
             )}
           </div>
           <div className="billing-card seats-card">
             <div className="seats-card-head">
-              <span className="seats-card-title">Seats</span>
+              <span className="seats-card-title">좌석</span>
               {account.canManage && (
                 <AsyncButton className="plan-ink-btn" onClick={() => setManagingSeats(true)}>
-                  Add seats
+                  좌석 추가
                 </AsyncButton>
               )}
             </div>
@@ -410,7 +406,7 @@ export function AccountPlanTab() {
             {discount && <div className="billing-section-note muted">{discount}</div>}
             {account.complimentaryUntil && (
               <div className="billing-section-note">
-                Complimentary Team until {formatDate(account.complimentaryUntil)}
+                Team 무료 제공 · {formatDate(account.complimentaryUntil)}까지
               </div>
             )}
           </div>
@@ -418,19 +414,19 @@ export function AccountPlanTab() {
             <div className="plan-page-actions">
               {!isTeam ? (
                 <button className="primary" onClick={() => setUpgrading(true)}>
-                  Upgrade to Team
+                  Team으로 업그레이드
                 </button>
               ) : (
                 <>
                   <AsyncButton className="secondary" onClick={openPortal}>
-                    Manage billing
+                    결제 관리
                   </AsyncButton>
                   {account.cancelAtPeriodEnd || account.lapsed ? (
                     <AsyncButton
                       className="secondary"
-                      onClick={() => run(() => authManager.api.accountResume(), "Plan resumed.")}
+                      onClick={() => run(() => authManager.api.accountResume(), "요금제를 재개했어요.")}
                     >
-                      Resume plan
+                      요금제 재개
                     </AsyncButton>
                   ) : (
                     <AsyncButton
@@ -441,12 +437,12 @@ export function AccountPlanTab() {
                         setConfirmCancel(true);
                       }}
                     >
-                      Cancel plan
+                      요금제 해지
                     </AsyncButton>
                   )}
                   {!legacy && (
                     <AsyncButton className="primary" onClick={() => setManagingSeats(true)}>
-                      Add or change seats
+                      좌석 추가·변경
                     </AsyncButton>
                   )}
                 </>
@@ -476,8 +472,8 @@ export function AccountPlanTab() {
         {!account.canManage && (
           <div className="billing-section-note">
             {ownsVaults
-              ? "Billing is handled by the vault owner."
-              : "You don't own any vaults; billing is handled by each vault's owner."}
+              ? "결제는 볼트 소유자가 관리해요."
+              : "소유한 볼트가 없어요. 결제는 각 볼트의 소유자가 관리해요."}
           </div>
         )}
       </div>
@@ -487,7 +483,7 @@ export function AccountPlanTab() {
       {/* ---- Usage on this account ---- */}
       {ownsVaults && tiles.length > 0 && (
         <>
-          <div className="subhead">Usage on this account</div>
+          <div className="subhead">이 계정의 사용량</div>
           <div className="vault-usage-tiles">
             {tiles.map((t) => {
               const full = !!t.meter && t.meter.limit > 0 && t.meter.used >= t.meter.limit;
@@ -524,7 +520,7 @@ export function AccountPlanTab() {
       {/* ---- People on this account (owners only) ---- */}
       {account.canManage && account.people.length > 0 && (
         <>
-          <div className="subhead">People on this account</div>
+          <div className="subhead">이 계정의 인원</div>
           {peopleCopy.note && <div className="billing-section-note muted">{peopleCopy.note}</div>}
           <AccountPeopleGrid people={account.people} seatTag={!!peopleCopy.seatColumn} />
         </>
@@ -548,33 +544,33 @@ export function AccountPlanTab() {
             void load();
             refreshShared();
           }}
-          onResume={() => run(() => authManager.api.accountResume(), "Plan resumed.")}
+          onResume={() => run(() => authManager.api.accountResume(), "요금제를 재개했어요.")}
           onKeepSeats={() =>
             run(
               () => authManager.api.setSeats(account.seats.purchased ?? 0),
-              "Seat change cancelled.",
+              "좌석 변경을 취소했어요.",
             )
           }
         />
       )}
       {confirmCancel && (
         <ConfirmDialog
-          title="Cancel the Team plan?"
-          confirmLabel="Cancel plan"
-          cancelLabel="Keep it"
+          title="Team 요금제를 해지할까요?"
+          confirmLabel="요금제 해지"
+          cancelLabel="유지"
           onCancel={() => setConfirmCancel(false)}
           onConfirm={async () => {
             const ok = await run(
               () => authManager.api.accountCancel(),
-              "Plan will cancel at the end of the period.",
+              "기간이 끝나면 요금제가 해지돼요.",
             );
             if (ok) setConfirmCancel(false);
           }}
         >
           <p>
             {account.currentPeriodEnd
-              ? `Team stays on until ${formatDate(account.currentPeriodEnd)}. After that, sync becomes read-only for vaults with more than 2 people until you resume.`
-              : "Team stays on until the end of the current period. After that, sync becomes read-only for vaults with more than 2 people until you resume."}
+              ? `${formatDate(account.currentPeriodEnd)}까지 Team이 유지돼요. 그 후에는 구독을 재개할 때까지 3명 이상이 있는 볼트의 동기화가 읽기 전용이 돼요.`
+              : "현재 기간이 끝날 때까지 Team이 유지돼요. 그 후에는 구독을 재개할 때까지 3명 이상이 있는 볼트의 동기화가 읽기 전용이 돼요."}
           </p>
           {actionError && <div className="auth-error">{actionError}</div>}
         </ConfirmDialog>
@@ -600,19 +596,19 @@ function SelfHostedPlan({
 }) {
   const vaults = usage ? (usage.totals.vaults ?? usage.vaults.length) : fallbackVaults;
   const tiles: { key: string; caption: string; value: string; sub: string }[] = [
-    { key: "vaults", caption: "Synced vaults", value: String(vaults), sub: vaults === 1 ? "vault" : "vaults" },
+    { key: "vaults", caption: "동기화 볼트", value: String(vaults), sub: "개" },
   ];
   if (usage) {
     const [bytesValue, bytesUnit] = formatBytes(usage.totals.storageBytes ?? 0).split(" ");
     tiles.push(
       {
         key: "people",
-        caption: "People",
+        caption: "인원",
         value: String(usage.totals.people),
-        sub: usage.totals.people === 1 ? "person" : "people",
+        sub: "명",
       },
-      { key: "notes", caption: "Notes", value: String(usage.totals.notes), sub: "across your vaults" },
-      { key: "attachments", caption: "Attachments", value: bytesValue ?? "0", sub: bytesUnit ?? "B" },
+      { key: "notes", caption: "노트", value: String(usage.totals.notes), sub: "내 모든 볼트 합계" },
+      { key: "attachments", caption: "첨부 파일", value: bytesValue ?? "0", sub: bytesUnit ?? "B" },
     );
   }
   const people = account?.canManage ? account.people : [];
@@ -622,8 +618,8 @@ function SelfHostedPlan({
         <div className="plan-page-head">
           <div className="plan-page-summary">
             <div className="billing-plan-head">
-              <span className="billing-plan-name">Self-hosted</span>
-              <span className="billing-status none">No limits</span>
+              <span className="billing-plan-name">자체 호스팅</span>
+              <span className="billing-status none">제한 없음</span>
             </div>
             <div className="billing-section-note">{SELF_HOSTED_PLAN_COPY}</div>
           </div>
@@ -632,7 +628,7 @@ function SelfHostedPlan({
 
       {(usage || vaults > 0) && (
         <>
-          <div className="subhead">Usage on this account</div>
+          <div className="subhead">이 계정의 사용량</div>
           <div className="vault-usage-tiles">
             {tiles.map((t) => (
               <div key={t.key} className="vault-usage-tile">
@@ -649,7 +645,7 @@ function SelfHostedPlan({
 
       {account && people.length > 0 && (
         <>
-          <div className="subhead">People on this account</div>
+          <div className="subhead">이 계정의 인원</div>
           <AccountPeopleGrid people={people} />
         </>
       )}
@@ -660,7 +656,7 @@ function SelfHostedPlan({
 /** Plan & Billing while the account loads: the two cards' shapes, shimmering. */
 function PlanSkeleton() {
   return (
-    <div className="plan-cards plan-skeleton" aria-busy="true" aria-label="Loading your plan">
+    <div className="plan-cards plan-skeleton" aria-busy="true" aria-label="요금제 불러오는 중">
       <div className="billing-card plan-card">
         <span className="skel-line" style={{ width: 90, height: 11 }} />
         <span className="skel-line" style={{ width: 140, height: 28, marginTop: 14 }} />

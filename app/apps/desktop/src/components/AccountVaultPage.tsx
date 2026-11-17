@@ -58,14 +58,14 @@ export function AccountVaultPage({
   const ordered = orderPageActions(actions);
   const switchChip = (
     <AsyncButton className="vault-switch-chip" disabled={busy} onClick={onSwitch}>
-      Switch here
+      여기로 전환
     </AsyncButton>
   );
   return (
     <section className="member-profile account-vault-page" aria-label={name}>
       {onBack && (
         <button type="button" className="link-btn member-profile-back" onClick={onBack}>
-          ← Vaults
+          ← 볼트
         </button>
       )}
       <header className="member-profile-head">
@@ -75,14 +75,14 @@ export function AccountVaultPage({
           {slug && <span className="muted">{slug}</span>}
         </span>
         <span className="account-vault-page-pills">
-          {lapsed && <span className="billing-status canceled">Read-only</span>}
-          {isCurrent ? (folderMissing ? null : <span className="member-role">Current</span>) : switchChip}
+          {lapsed && <span className="billing-status canceled">읽기 전용</span>}
+          {isCurrent ? (folderMissing ? null : <span className="member-role">현재</span>) : switchChip}
         </span>
       </header>
 
       {showStats && (
         <>
-          <div className="subhead">Stats</div>
+          <div className="subhead">통계</div>
           <div className="vault-usage-tiles">
             {tiles.map((t) => (
               <div key={t.key} className="vault-usage-tile">
@@ -97,36 +97,36 @@ export function AccountVaultPage({
             ))}
           </div>
           {!usageLoading && !usage && (
-            <p className="muted account-vault-page-note">Usage is shown for vaults on your account.</p>
+            <p className="muted account-vault-page-note">사용량은 내 계정의 볼트에만 표시돼요.</p>
           )}
         </>
       )}
 
-      <div className="subhead">Details</div>
+      <div className="subhead">상세 정보</div>
       <dl className="member-profile-about">
         {details.map((d) => (
           <DetailRow key={d.key} label={d.label} value={d.value} />
         ))}
       </dl>
 
-      <div className="subhead">Actions</div>
+      <div className="subhead">작업</div>
       <ul className="account-vault-actions">
         {!isCurrent && (
-          <ActionRow title="Switch here" description="Open this vault in the sidebar.">
+          <ActionRow title="여기로 전환" description="이 볼트를 사이드바에서 열어요.">
             {switchChip}
           </ActionRow>
         )}
         {folderMissing && (
-          <ActionRow title="Folder missing" description="This vault's folder is gone from this device.">
+          <ActionRow title="폴더를 찾을 수 없음" description="이 기기에서 이 볼트의 폴더가 사라졌어요.">
             {folderMissing}
           </ActionRow>
         )}
         <ActionRow
-          title="Open Vault Settings"
+          title="볼트 설정 열기"
           description={
             settingsAction === "unavailable"
               ? VAULT_SETTINGS_UNAVAILABLE_HINT
-              : "Members and access, appearance and more."
+              : "멤버와 권한, 화면 설정 등을 바꿀 수 있어요."
           }
         >
           <AsyncButton
@@ -135,7 +135,7 @@ export function AccountVaultPage({
             title={settingsAction === "unavailable" ? VAULT_SETTINGS_UNAVAILABLE_HINT : undefined}
             onClick={onOpenSettings}
           >
-            Open
+            열기
           </AsyncButton>
         </ActionRow>
         {ordered.map((a) => (

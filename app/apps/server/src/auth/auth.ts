@@ -450,7 +450,7 @@ export const auth = betterAuth({
     // OAuth 2.1 authorization server for MCP clients (spec: MCP integration).
     // Lets a Claude "custom connector" run the standard discovery → dynamic
     // client registration → PKCE authorize/consent → token flow against an
-    // EXISTING Baalda account. The issued access token carries the user id, so
+    // EXISTING 마브 account. The issued access token carries the user id, so
     // POST /api/mcp resolves it to that user + the vault they picked on the
     // consent screen and enforces the very same per-file ACL an mcp_ token does.
     //

@@ -150,7 +150,7 @@ function DashboardFolderPicker({
         type="button"
         className="dashboard-folder-trigger"
         disabled={disabled}
-        aria-label={`Folder: ${value || "Vault root"}`}
+        aria-label={`폴더: ${value || "볼트 루트"}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? id : undefined}
@@ -163,7 +163,7 @@ function DashboardFolderPicker({
         }}
       >
         <FolderIcon />
-        <span>{value || "Vault root"}</span>
+        <span>{value || "볼트 루트"}</span>
         <svg
           className="dashboard-folder-chevron"
           viewBox="0 0 16 16"
@@ -181,7 +181,7 @@ function DashboardFolderPicker({
           className="dashboard-folder-options"
           style={{ maxHeight: menuHeight }}
           role="listbox"
-          aria-label="Folder"
+          aria-label="폴더"
         >
           {folders.map((path, index) => (
             <button
@@ -193,7 +193,7 @@ function DashboardFolderPicker({
               role="option"
               aria-selected={value === path}
               tabIndex={active === index ? 0 : -1}
-              title={path || "Vault root"}
+              title={path || "볼트 루트"}
               onFocus={() => setActive(index)}
               onClick={() => {
                 onChange(path);
@@ -201,7 +201,7 @@ function DashboardFolderPicker({
               }}
             >
               <FolderIcon />
-              <span>{path || "Vault root"}</span>
+              <span>{path || "볼트 루트"}</span>
               <span className="dashboard-folder-check" aria-hidden="true">
                 {value === path ? "✓" : ""}
               </span>
@@ -347,7 +347,7 @@ export function HomeDashboardDialog() {
       /[\\/:*?"<>|\x00-\x1f]/.test(name) ||
       name.trim().startsWith(".")
     ) {
-      setNameError("Choose a valid file name.");
+      setNameError("올바른 파일 이름을 입력하세요.");
       nameInput.current?.focus();
       return;
     }
@@ -358,13 +358,13 @@ export function HomeDashboardDialog() {
     try {
       path = dashboardPath(folder ? `${folder}/${fileName}` : fileName);
     } catch (error) {
-      setNameError(error instanceof Error ? error.message : "Choose a valid file name.");
+      setNameError(error instanceof Error ? error.message : "올바른 파일 이름을 입력하세요.");
       nameInput.current?.focus();
       return;
     }
     if (!created && existingPaths().has(path.toLowerCase())) {
       setNameError(
-        "A file with this name already exists in this folder. Choose another name.",
+        "이 폴더에 같은 이름의 파일이 이미 있어요. 다른 이름을 입력하세요.",
       );
       nameInput.current?.focus();
       return;
@@ -375,12 +375,12 @@ export function HomeDashboardDialog() {
     try {
       if (!created) {
         if (!folder && useStore.getState().rootFrozen)
-          throw new Error("This vault’s root is frozen. Choose a folder.");
+          throw new Error("이 볼트의 루트는 잠겨 있어요. 폴더를 선택하세요.");
         const content = kind === "link" ? internetShortcut(url) : await templateHtml(selected);
         if (!current()) return;
         if (folder.toLowerCase() === "dashboards") {
           if (useStore.getState().rootFrozen && !useStore.getState().tree?.children?.some((node) => node.isDir && node.path.toLowerCase() === folder.toLowerCase()))
-            throw new Error("This vault’s root is frozen. Choose an existing folder.");
+            throw new Error("이 볼트의 루트는 잠겨 있어요. 기존 폴더를 선택하세요.");
           if (!current()) return;
           await ipc.ensureFolder(folder, requestEpoch);
           if (!current()) return;
@@ -393,7 +393,7 @@ export function HomeDashboardDialog() {
         if (!current()) return;
         if (!wasCreated) {
           setNameError(
-            "A file with this name already exists in this folder. Choose another name.",
+            "이 폴더에 같은 이름의 파일이 이미 있어요. 다른 이름을 입력하세요.",
           );
           nameInput.current?.focus();
           return;
@@ -475,15 +475,15 @@ export function HomeDashboardDialog() {
         <div className="dashboard-dialog-heading">
           <h2 id="new-dashboard-title">
             {created
-              ? "Your dashboard is ready"
+              ? "대시보드가 준비됐어요"
               : kind === "link"
-                ? "Add dashboard from link"
-                : manage ? "Home & dashboards" : configuring ? `Set up ${selected.name}` : "New dashboard"}
+                ? "링크로 대시보드 추가"
+                : manage ? "홈 및 대시보드" : configuring ? `${selected.name} 설정` : "새 대시보드"}
           </h2>
           <button
             type="button"
             className="icon-btn"
-            aria-label="Close"
+            aria-label="닫기"
             disabled={busy}
             onClick={close}
           >
@@ -502,21 +502,21 @@ export function HomeDashboardDialog() {
         {manage ? <VaultDashboardsTab onClose={close} onNew={(id) => { if (id) setTemplateId(id); setManage(false); setConfiguring(true); }} /> : created && setAsHome ? (
           <>
             <p className="dashboard-dialog-description">
-              {busy ? "Setting up your Home…" : `${created} was created. Finish setting it as your Home.`}
+              {busy ? "홈을 설정하는 중…" : `${created}을(를) 만들었어요. 홈으로 설정을 마무리하세요.`}
             </p>
             <div className="dashboard-dialog-footer">
               <button type="button" className="primary" disabled={busy} onClick={() => void create()}>
-                {busy ? "Setting Home…" : "Retry setting Home"}
+                {busy ? "홈을 설정하는 중…" : "홈 설정 다시 시도"}
               </button>
             </div>
           </>
         ) : created ? (
           <>
             <p className="dashboard-dialog-description">
-              <strong>{created}</strong> is an ordinary file in your vault.{" "}
+              <strong>{created}</strong>은(는) 볼트 안의 일반 파일이에요.{" "}
               {kind === "html"
-                ? "Ask your agent to replace the examples using your notes."
-                : "Share and pin it like any note. Some sites open in your browser."}
+                ? "에이전트에게 예시를 내 노트 내용으로 바꿔 달라고 요청하세요."
+                : "다른 노트처럼 공유하고 고정할 수 있어요. 일부 사이트는 브라우저에서 열려요."}
             </p>
             <div className="dashboard-dialog-footer">
               {agents?.map((agent) => (
@@ -528,7 +528,7 @@ export function HomeDashboardDialog() {
                     setKind(null);
                     requestDashboardAgent({ agent: agent.agent, path: created, expectedEpoch });
                   }}>
-                  Update with {agent.agent === "claude" ? "Claude" : "Codex"}
+                  {agent.agent === "claude" ? "Claude" : "Codex"}로 업데이트
                 </button>
               ))}
               {agents?.length === 0 && kind === "html" && (
@@ -546,7 +546,7 @@ export function HomeDashboardDialog() {
                       .catch((e) => setError(String(e)))
                   }
                 >
-                  {copied ? "Prompt copied" : "Copy agent prompt"}
+                  {copied ? "프롬프트를 복사했어요" : "에이전트 프롬프트 복사"}
                 </button>
               )}
               <button
@@ -561,10 +561,10 @@ export function HomeDashboardDialog() {
                     .catch((e) => setError(String(e)))
                 }
               >
-                Set as my home
+                내 홈으로 설정
               </button>
               <button type="button" className="primary" disabled={busy} onClick={close}>
-                Done
+                완료
               </button>
             </div>
           </>
@@ -572,15 +572,15 @@ export function HomeDashboardDialog() {
           <>
             <p className="dashboard-dialog-description">
               {kind === "html"
-                ? configuring ? "Give your dashboard a name and choose where to save it." : "Choose an original dashboard design. Preview it, then let Claude or Codex connect it to your vault."
-                : "Save a link to a dashboard or artifact in your vault."}
+                ? configuring ? "대시보드 이름을 정하고 저장할 위치를 선택하세요." : "대시보드 디자인을 고르세요. 미리 본 뒤 Claude나 Codex가 볼트와 연결하도록 할 수 있어요."
+                : "대시보드나 아티팩트 링크를 볼트에 저장하세요."}
             </p>
             {kind === "html" && !configuring && (
               <DashboardTemplateGallery selectedId={templateId} disabled={busy} onUse={(template) => { setTemplateId(template.id); setConfiguring(true); }} />
             )}
             {configuring && <div className="dashboard-file-fields">
               <div className="dashboard-field">
-                <label htmlFor={`${fieldId}-name`}>File name</label>
+                <label htmlFor={`${fieldId}-name`}>파일 이름</label>
                 <div
                   className={`dashboard-name-input${nameError ? " is-invalid" : ""}`}
                 >
@@ -615,7 +615,7 @@ export function HomeDashboardDialog() {
                 )}
               </div>
               <div className="dashboard-field">
-                <span className="dashboard-field-label">Folder</span>
+                <span className="dashboard-field-label">폴더</span>
                 <DashboardFolderPicker
                   value={folder}
                   folders={folders}
@@ -630,7 +630,7 @@ export function HomeDashboardDialog() {
             }
             {kind === "link" && (
               <div className="dashboard-field dashboard-url-field">
-                <label htmlFor={`${fieldId}-url`}>Dashboard URL</label>
+                <label htmlFor={`${fieldId}-url`}>대시보드 URL</label>
                 <input
                   id={`${fieldId}-url`}
                   type="url"
@@ -654,7 +654,7 @@ export function HomeDashboardDialog() {
                 disabled={busy}
                 onClick={close}
               >
-                Cancel
+                취소
               </button>
               {configuring && <button
                 type="button"
@@ -664,7 +664,7 @@ export function HomeDashboardDialog() {
                 }
                 onClick={() => void create()}
               >
-                {busy ? "Adding…" : setAsHome ? "Set as Home" : "Add to vault"}
+                {busy ? "추가하는 중…" : setAsHome ? "홈으로 설정" : "볼트에 추가"}
               </button>}
             </div>
           </>

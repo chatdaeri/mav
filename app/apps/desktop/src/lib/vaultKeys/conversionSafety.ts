@@ -10,7 +10,7 @@
 //       without being revoked still has a row, so (c) can over-count. The
 //       launch safety net (server recovery copies sealed to an offline key)
 //       covers that window.
-//   (d) the server's launch safety net is on (owner decision 2026-11-01): Baalda
+//   (d) the server's launch safety net is on (owner decision 2026-11-01): 마브
 //       can rescue a lost key with its offline recovery key, so every vault,
 //       a Google-only solo owner's included, encrypts during launch. Before the
 //       net is switched off, owners with no other way back see the "save your

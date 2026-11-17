@@ -95,7 +95,7 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
         className="search-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="Search notes"
+        aria-label="노트 검색"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="search-field">
@@ -114,7 +114,7 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
           <input
             ref={inputRef}
             className="search-box"
-            placeholder="Search notes…"
+            placeholder="노트 검색…"
             value={query}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
@@ -125,7 +125,7 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
 
         {searching && (
           <ul className="search-results" ref={listRef}>
-            {results.length === 0 && <li className="search-none">No matches</li>}
+            {results.length === 0 && <li className="search-none">일치하는 항목이 없어요</li>}
             {results.map((r, i) => (
               <li
                 key={r.id}
@@ -164,7 +164,7 @@ export function SearchHit({ result }: { result: SearchResult }) {
       <div className="search-title">
         <span className="search-label">{noteLabel(result.path)}</span>
         {result.kind === "file" && (
-          <span className="ws-badge local search-ext">{result.ext ?? "file"}</span>
+          <span className="ws-badge local search-ext">{result.ext ?? "파일"}</span>
         )}
       </div>
       <div

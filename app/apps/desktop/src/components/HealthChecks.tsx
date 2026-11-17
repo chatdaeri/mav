@@ -91,7 +91,7 @@ export function HealthChecks({
         </ul>
       );
     }
-    return <p className="muted">Checks are not available for this vault.</p>;
+    return <p className="muted">이 볼트에서는 점검을 사용할 수 없어요.</p>;
   }
 
   const allRows = checkRows(checks).filter(row => !onlyIds || onlyIds.includes(row.def.id));
@@ -162,7 +162,7 @@ function IgnoredChecks({
         <span className="health-chevron" data-open={open ? "" : undefined} aria-hidden="true">
           <Glyph name="chevron" />
         </span>
-        Ignored · {rows.length}
+        무시됨 · {rows.length}
       </button>
       {open && (
         <ul className="health-ignored-list">
@@ -172,7 +172,7 @@ function IgnoredChecks({
               <span className="health-ignored-count">{r.result.count.toLocaleString()}</span>
               {onRestore && (
                 <button type="button" className="link-btn" onClick={() => onRestore(r.def.id)}>
-                  Show again
+                  다시 표시
                 </button>
               )}
             </li>
@@ -274,17 +274,17 @@ function CheckItem({
               </span>
             </>
           )}
-          {state === "unknown" && <span className="health-check-note">Not run</span>}
+          {state === "unknown" && <span className="health-check-note">실행 안 함</span>}
         </button>
         {failed && <CheckActions row={row} handlers={handlers} />}
         {failed && onIgnore && (
           <button
             type="button"
             className="link-btn health-check-ignore"
-            title="Stop showing this check for this vault on this device. It waits in the Ignored list"
+            title="이 기기에서 이 볼트의 이 점검을 더 이상 표시하지 않아요. 무시됨 목록에 보관돼요"
             onClick={() => onIgnore(def.id)}
           >
-            Ignore
+            무시
           </button>
         )}
       </div>
@@ -297,7 +297,7 @@ function CheckItem({
       {failed && open && (
         <div className="health-check-panel" id={panelId}>
           <p className="health-check-why">{def.whyItMatters}</p>
-          <Eyebrow>What to do</Eyebrow>
+          <Eyebrow>해결 방법</Eyebrow>
           <ol className="health-fixes">
             {def.howToFix.map((fix, i) => (
               <li key={i}>{fix}</li>
@@ -305,10 +305,8 @@ function CheckItem({
           </ol>
           {isTrash && (
             <p className="muted">
-              {result.count.toLocaleString()} {result.count === 1 ? "file" : "files"} in{" "}
-              {result.items.length.toLocaleString()}
-              {result.items.length >= 25 ? " or more" : ""}{" "}
-              {result.items.length === 1 ? "recovery set" : "recovery sets"}.
+              복구 세트 {result.items.length.toLocaleString()}
+              {result.items.length >= 25 ? "개 이상" : "개"}에 파일 {result.count.toLocaleString()}개가 있어요.
             </p>
           )}
           {result.items.length > 0 && (
@@ -347,18 +345,18 @@ function CheckItem({
 function CheckBadge({ def, state }: { def: CheckRow["def"]; state: CheckState }) {
   if (state === "passed") {
     return (
-      <span className="health-check-tick" aria-label="Passed">
+      <span className="health-check-tick" aria-label="통과">
         <Glyph name="check" size={14} />
       </span>
     );
   }
   if (state === "unknown") {
-    return <span className="health-check-dot" data-hollow="" aria-label="Not run" />;
+    return <span className="health-check-dot" data-hollow="" aria-label="실행 안 함" />;
   }
   return (
     <span
       className="health-check-badge"
-      aria-label={def.severity === "error" ? "Error" : "Warning"}
+      aria-label={def.severity === "error" ? "오류" : "경고"}
     >
       <Glyph name="alert" size={13} />
     </span>
@@ -405,10 +403,10 @@ function CheckActions({ row, handlers }: { row: CheckRow; handlers: HealthHandle
 /** What the button is about to do, in the exact numbers, before it is pressed. */
 function healTitle(plan: CheckActionPlan): string {
   if (plan.wholeVault) return plan.label;
-  const bits = [`${plan.label}: ${plan.targets.length.toLocaleString()} listed`];
-  if (plan.skipped.length > 0) bits.push(`${plan.skipped.length.toLocaleString()} left alone`);
+  const bits = [`${plan.label}: ${plan.targets.length.toLocaleString()}개 표시됨`];
+  if (plan.skipped.length > 0) bits.push(`${plan.skipped.length.toLocaleString()}개 건너뜀`);
   if (plan.unlisted > 0) {
-    bits.push(`${plan.unlisted.toLocaleString()} more are not listed and stay as they are`);
+    bits.push(`표시되지 않은 ${plan.unlisted.toLocaleString()}개는 그대로 둬요`);
   }
   return bits.join(" · ");
 }
@@ -423,7 +421,7 @@ function CheckRunLine({ run }: { run: CheckRun }) {
   if (run.running) {
     const progress =
       run.total > 0
-        ? ` ${run.done.toLocaleString()} of ${run.total.toLocaleString()}`
+        ? ` ${run.done.toLocaleString()}/${run.total.toLocaleString()}`
         : "";
     return (
       <p className="health-check-run" data-state="running" aria-live="polite">
@@ -450,7 +448,7 @@ function CheckRunLine({ run }: { run: CheckRun }) {
             </li>
           ))}
           {outcome.errors.length > 5 && (
-            <li className="muted">and {(outcome.errors.length - 5).toLocaleString()} more</li>
+            <li className="muted">외 {(outcome.errors.length - 5).toLocaleString()}개</li>
           )}
         </ul>
       )}
@@ -463,7 +461,7 @@ function CheckRunLine({ run }: { run: CheckRun }) {
             </li>
           ))}
           {outcome.skipped.length > 5 && (
-            <li className="muted">and {(outcome.skipped.length - 5).toLocaleString()} more</li>
+            <li className="muted">외 {(outcome.skipped.length - 5).toLocaleString()}개</li>
           )}
         </ul>
       )}
@@ -485,13 +483,13 @@ function ItemAction({
     case "open":
       return (
         <button type="button" className="ghost-pill sm" onClick={() => openNote(item.path)}>
-          Open
+          열기
         </button>
       );
     case "reveal":
       return (
         <AsyncButton className="ghost-pill sm" onClick={() => actions.reveal(item.path)}>
-          Reveal
+          위치 보기
         </AsyncButton>
       );
     case "delete":
@@ -501,13 +499,13 @@ function ItemAction({
           className="ghost-pill sm danger"
           onClick={() => confirm({ kind: "delete", path: item.path })}
         >
-          Delete
+          삭제
         </button>
       );
     case "export-copy":
       return (
         <AsyncButton className="link-btn" onClick={() => actions.exportCopy(item.path)}>
-          Save a copy
+          사본 저장
         </AsyncButton>
       );
     case "reset-history":
@@ -521,7 +519,7 @@ function ItemAction({
             confirm({ kind: "reset", docId: item.docId as string, path: item.path })
           }
         >
-          Reset history
+          기록 초기화
         </button>
       ) : null;
     default:

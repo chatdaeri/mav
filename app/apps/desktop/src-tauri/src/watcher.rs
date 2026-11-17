@@ -1030,7 +1030,7 @@ mod tests {
         );
         assert_eq!(
             plan.indexable_files,
-            vec![v.join("Report.docx"), v.join("sub/clip.mp4")],
+            vec![v.join("Report.docx"), v.join("notes.bak"), v.join("sub/clip.mp4")],
             "the attachments store is excluded (hash-named, hidden, unlocatable \
              hits) and `.bak` is not a surfaced format at all"
         );

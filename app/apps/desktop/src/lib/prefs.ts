@@ -25,12 +25,12 @@ export const STATUS_MOMENTS: Array<{
   /** How older apps (and the presence ring) read it. */
   tone: "away" | "busy";
 }> = [
-  { id: "smoke", emoji: "🚬", label: "Out for a smoke", hint: "Back in a few minutes", tone: "away" },
-  { id: "coffee", emoji: "☕", label: "Coffee break", hint: "Grabbing a coffee", tone: "away" },
-  { id: "lunch", emoji: "🍜", label: "At lunch", hint: "Eating, back soon", tone: "away" },
-  { id: "meeting", emoji: "🎧", label: "In a meeting", hint: "On a call", tone: "busy" },
-  { id: "focus", emoji: "🌙", label: "Focusing", hint: "Heads down, replies later", tone: "busy" },
-  { id: "brb", emoji: "⏱️", label: "Back in 10", hint: "Short break", tone: "away" },
+  { id: "smoke", emoji: "🚬", label: "잠깐 나왔어요", hint: "몇 분 뒤에 돌아와요", tone: "away" },
+  { id: "coffee", emoji: "☕", label: "커피 타임", hint: "커피 한 잔 하는 중", tone: "away" },
+  { id: "lunch", emoji: "🍜", label: "점심 식사 중", hint: "식사 중, 곧 돌아와요", tone: "away" },
+  { id: "meeting", emoji: "🎧", label: "회의 중", hint: "통화 중", tone: "busy" },
+  { id: "focus", emoji: "🌙", label: "집중 중", hint: "집중하는 중, 나중에 답할게요", tone: "busy" },
+  { id: "brb", emoji: "⏱️", label: "10분 뒤 복귀", hint: "잠깐 쉬는 중", tone: "away" },
 ];
 
 export function isMoment(v: unknown): v is MomentStatus {
@@ -56,10 +56,10 @@ export function statusFromWire(status: unknown, moment: unknown): ActivityStatus
 
 /** Clear-after choices, in minutes (null = never). */
 export const STATUS_CLEAR_AFTER: Array<{ label: string; minutes: number | null }> = [
-  { label: "30 min", minutes: 30 },
-  { label: "1 hour", minutes: 60 },
-  { label: "Today", minutes: -1 },
-  { label: "Never", minutes: null },
+  { label: "30분", minutes: 30 },
+  { label: "1시간", minutes: 60 },
+  { label: "오늘", minutes: -1 },
+  { label: "지우지 않음", minutes: null },
 ];
 const STATUS_UNTIL_KEY = "context.activityStatusUntil";
 
@@ -87,10 +87,10 @@ export const ACTIVITY_STATUSES: Array<{
   label: string;
   hint: string;
 }> = [
-  { id: "online", label: "Online", hint: "Active and available" },
-  { id: "away", label: "Away", hint: "Not at the keyboard right now" },
-  { id: "busy", label: "Busy", hint: "Please do not disturb" },
-  { id: "invisible", label: "Invisible", hint: "Appear offline to teammates" },
+  { id: "online", label: "온라인", hint: "활동 중이며 연락 가능해요" },
+  { id: "away", label: "자리 비움", hint: "지금은 자리에 없어요" },
+  { id: "busy", label: "바쁨", hint: "방해하지 말아 주세요" },
+  { id: "invisible", label: "표시 안 함", hint: "팀원에게 오프라인으로 보여요" },
 ];
 
 const STATUS_KEY = "context.activityStatus";
@@ -293,9 +293,9 @@ export const PROPERTIES_MODES: ReadonlyArray<{
   label: string;
   hint: string;
 }> = [
-  { id: "visible", label: "Visible", hint: "Shown as a panel above the note" },
-  { id: "hidden", label: "Hidden", hint: "Not shown; still in the file" },
-  { id: "source", label: "Source", hint: "Shown as plain YAML" },
+  { id: "visible", label: "표시", hint: "노트 위에 패널로 보여요" },
+  { id: "hidden", label: "숨김", hint: "보이지 않지만 파일에는 남아 있어요" },
+  { id: "source", label: "소스", hint: "일반 YAML로 보여요" },
 ];
 
 // ---- Editor layout ----------------------------------------------------------
@@ -438,11 +438,11 @@ export function applyEditorFontSize(px: number): void {
  */
 export type EditorFont = "sauce" | "inter" | "literata" | "atkinson" | "plexmono";
 export const EDITOR_FONTS: ReadonlyArray<{ id: EditorFont; label: string; hint: string; stack: string }> = [
-  { id: "sauce", label: "Open Sauce", hint: "Baalda's own, clean and friendly", stack: "var(--font-body)" },
-  { id: "inter", label: "Inter", hint: "The most legible screen sans", stack: '"Inter", var(--font-body)' },
-  { id: "literata", label: "Literata", hint: "A serif made for long reading", stack: '"Literata", Georgia, serif' },
-  { id: "atkinson", label: "Atkinson Hyperlegible", hint: "Every letter unmistakable, for low vision", stack: '"Atkinson Hyperlegible", var(--font-body)' },
-  { id: "plexmono", label: "IBM Plex Mono", hint: "A warm typewriter feel for drafting", stack: '"IBM Plex Mono", var(--font-mono)' },
+  { id: "sauce", label: "Open Sauce", hint: "마이 세컨드 브레인 고유의 깔끔하고 친근한 글꼴", stack: "var(--font-body)" },
+  { id: "inter", label: "Inter", hint: "화면에서 가장 읽기 좋은 산세리프", stack: '"Inter", var(--font-body)' },
+  { id: "literata", label: "Literata", hint: "긴 글 읽기에 알맞은 세리프", stack: '"Literata", Georgia, serif' },
+  { id: "atkinson", label: "Atkinson Hyperlegible", hint: "저시력 사용자를 위해 글자마다 또렷해요", stack: '"Atkinson Hyperlegible", var(--font-body)' },
+  { id: "plexmono", label: "IBM Plex Mono", hint: "초안 쓰기에 좋은 따뜻한 타자기 느낌", stack: '"IBM Plex Mono", var(--font-mono)' },
 ];
 export const EDITOR_FONT_DEFAULT: EditorFont = "sauce";
 const EDITOR_FONT_KEY = "context.editorFont";

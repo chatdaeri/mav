@@ -2,7 +2,7 @@
    dialog (`.mcp-token-dialog`, the skills form-dialog shell), and every copy
    button flips its glyph inside the same 28px box. */
 
-/* Managed server only: Baalda's listing in Claude's connector directory.
+/* Managed server only: 마브's listing in Claude's connector directory.
    Green like the access "Can edit" level. */
 .mcp-directory {
   display: flex;

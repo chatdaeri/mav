@@ -165,7 +165,7 @@ export function readMarketplace(json: unknown): { name: string | null; plugins: 
     if (localPath !== null) {
       const viaRoot = localPath.startsWith("./") || localPath.startsWith("../") || !pluginRoot ? localPath : `${pluginRoot}/${localPath}`;
       const root = joinRepoPath("", viaRoot);
-      if (root === null) plugins.push({ kind: "unsupported", name, description, reason: "Its folder is outside the repository." });
+      if (root === null) plugins.push({ kind: "unsupported", name, description, reason: "폴더가 저장소 밖에 있어요." });
       else plugins.push({ kind: "local", name, description, root, skills });
       continue;
     }
@@ -182,7 +182,7 @@ export function readMarketplace(json: unknown): { name: string | null; plugins: 
     const type = src && typeof src === "object" && typeof (src as { source?: unknown }).source === "string"
       ? (src as { source: string }).source
       : "unknown";
-    plugins.push({ kind: "unsupported", name, description, reason: `"${type}" sources are not supported yet.` });
+    plugins.push({ kind: "unsupported", name, description, reason: `"${type}" 소스는 아직 지원하지 않아요.` });
   }
   return { name: typeof o.name === "string" ? o.name : null, plugins };
 }
@@ -347,10 +347,10 @@ export function describeSkill(
   const name = skillNameFor(rawName, folder, repo);
   let problem: string | null = null;
   if (cap) problem = CAP_TEXT[cap];
-  else if (!fm) problem = "Its SKILL.md couldn't be read.";
+  else if (!fm) problem = "SKILL.md를 읽을 수 없어요.";
   else if (!fm.ok) problem = skillMdProblemText(fm.reason, name ?? "");
-  else if (!name) problem = "Its name can't be used for a skill.";
-  else if (fm.name !== name) problem = `Its SKILL.md name "${fm.name}" must be lowercase letters, digits and hyphens.`;
+  else if (!name) problem = "이 이름은 스킬 이름으로 쓸 수 없어요.";
+  else if (fm.name !== name) problem = `SKILL.md의 이름 "${fm.name}"은 소문자, 숫자, 하이픈만 쓸 수 있어요.`;
   return {
     name,
     title: rawName ?? (folder ? baseName(folder) : baseName(repo)),
@@ -388,7 +388,7 @@ export function originOf(skill: MarketplaceSkill): SkillOrigin {
 }
 
 export function importNotes(skill: Pick<MarketplaceSkill, "repo" | "commitSha">): string {
-  return `Imported from ${skill.repo}@${skill.commitSha.slice(0, 7)}`;
+  return `${skill.repo}@${skill.commitSha.slice(0, 7)}에서 가져옴`;
 }
 
 // ---- GitHub reader -------------------------------------------------------------
@@ -432,21 +432,21 @@ export function githubError(status: number, headers: { get(name: string): string
     return new MarketplaceError(
       "rate_limited",
       hasToken
-        ? `GitHub's request limit for your token is used up${at ? `; it resets at ${at}` : ""}.`
-        : `GitHub's limit for requests without a token is used up${at ? ` until ${at}` : ""}. Add a GitHub token below to keep going.`,
+        ? `내 토큰의 GitHub 요청 한도를 모두 썼어요${at ? `. ${at}에 초기화돼요` : ""}.`
+        : `토큰 없이 보낼 수 있는 GitHub 요청 한도를 모두 썼어요${at ? ` (${at}까지)` : ""}. 계속하려면 아래에 GitHub 토큰을 추가하세요.`,
     );
   }
   if (status === 404) {
     return new MarketplaceError(
       "not_found",
       hasToken
-        ? `Couldn't find ${repo}, or your GitHub token can't see it.`
-        : `Couldn't find ${repo}. If it's private, add a GitHub token below.`,
+        ? `${repo}을(를) 찾을 수 없거나 GitHub 토큰으로 볼 수 없어요.`
+        : `${repo}을(를) 찾을 수 없어요. 비공개 저장소라면 아래에 GitHub 토큰을 추가하세요.`,
     );
   }
-  if (status === 401) return new MarketplaceError("unauthorized", "GitHub refused the saved token. Replace it below.");
-  if (status === 403) return new MarketplaceError("forbidden", `GitHub refused access to ${repo}.`);
-  return new MarketplaceError("other", `GitHub answered ${status}.`);
+  if (status === 401) return new MarketplaceError("unauthorized", "GitHub가 저장된 토큰을 거부했어요. 아래에서 토큰을 바꿔 주세요.");
+  if (status === 403) return new MarketplaceError("forbidden", `GitHub가 ${repo} 접근을 거부했어요.`);
+  return new MarketplaceError("other", `GitHub가 ${status} 오류로 응답했어요.`);
 }
 
 export function createGitHubReader({ fetchImpl, token }: { fetchImpl: typeof fetch; token: string | null }): GitHubReader {
@@ -460,7 +460,7 @@ export function createGitHubReader({ fetchImpl, token }: { fetchImpl: typeof fet
     try {
       res = await fetchImpl(url, { headers: url.startsWith(API) ? headers(accept) : {} });
     } catch {
-      throw new MarketplaceError("network", "Couldn't reach GitHub. Check your connection.");
+      throw new MarketplaceError("network", "GitHub에 연결할 수 없어요. 연결 상태를 확인하세요.");
     }
     if (!res.ok) throw githubError(res.status, res.headers, repo, !!token);
     return res;
@@ -472,14 +472,14 @@ export function createGitHubReader({ fetchImpl, token }: { fetchImpl: typeof fet
       const body = (await res.json()) as { sha?: unknown; commit?: { tree?: { sha?: unknown } } };
       const commitSha = typeof body.sha === "string" ? body.sha : "";
       const treeSha = typeof body.commit?.tree?.sha === "string" ? body.commit.tree.sha : "";
-      if (!commitSha || !treeSha) throw new MarketplaceError("other", `GitHub sent an unexpected answer for ${repo}.`);
+      if (!commitSha || !treeSha) throw new MarketplaceError("other", `GitHub가 ${repo}에 대해 예상 밖의 응답을 보냈어요.`);
       return { commitSha, treeSha };
     },
     async tree(repo, treeSha) {
       const res = await get(`${API}/repos/${repo}/git/trees/${treeSha}?recursive=1`, repo);
       const body = (await res.json()) as { truncated?: unknown; tree?: unknown };
       if (body.truncated === true) {
-        throw new MarketplaceError("truncated", `${repo} is too large to browse in one listing.`);
+        throw new MarketplaceError("truncated", `${repo}은(는) 한 번에 둘러보기에는 너무 커요.`);
       }
       return (Array.isArray(body.tree) ? body.tree : []).filter(
         (e): e is TreeEntry => !!e && typeof e.path === "string" && typeof e.sha === "string" && typeof e.type === "string",
@@ -683,7 +683,7 @@ export async function fetchSkillFolder(reader: GitHubReader, skill: MarketplaceS
 
 /** "Claude plugin marketplace", "Codex plugin marketplace" or "Skills folder". */
 export function formatLabel(format: MarketplaceFormat): string {
-  return format === "claude" ? "Claude plugin marketplace" : format === "codex" ? "Codex plugin marketplace" : "Skills repository";
+  return format === "claude" ? "Claude 플러그인 마켓플레이스" : format === "codex" ? "Codex 플러그인 마켓플레이스" : "스킬 저장소";
 }
 
 export interface MarketplacePeek {

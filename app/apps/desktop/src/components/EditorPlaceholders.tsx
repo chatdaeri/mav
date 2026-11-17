@@ -33,7 +33,7 @@ export function EditorSkeleton({ immediate = false }: { immediate?: boolean }) {
       className="editor-skeleton"
       data-immediate={immediate || undefined}
       role="status"
-      aria-label="Opening note"
+      aria-label="노트 여는 중"
     >
       {/* `.skel-page` is capped at ~60% of the pane and fades out at its foot,
           so the page reads as "a note's worth of text" at any window height

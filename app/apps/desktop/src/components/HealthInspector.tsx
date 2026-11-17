@@ -89,8 +89,8 @@ export function HealthInspector({
         <input
           type="text"
           className="health-inspector-input"
-          placeholder="Type a note's path or name…"
-          aria-label="Check one note"
+          placeholder="노트 경로나 이름을 입력하세요…"
+          aria-label="노트 하나 점검"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -119,7 +119,7 @@ export function HealthInspector({
         )}
       </div>
 
-      {busy && <p className="muted">Looking…</p>}
+      {busy && <p className="muted">찾는 중…</p>}
       {error && <div className="auth-error">{error}</div>}
       {!busy && result && (
         <InspectionCard result={result} handlers={handlers} onShowIssue={onShowIssue} />
@@ -143,32 +143,32 @@ export function InspectionCard({
   if (!result.exists) {
     return (
       <div className="health-inspection" data-tone="warn">
-        <p className="health-inspection-verdict">There is no file at this path.</p>
+        <p className="health-inspection-verdict">이 경로에는 파일이 없어요.</p>
         <PathText path={result.path} />
       </div>
     );
   }
 
   const facts: Array<[string, string, boolean?]> = [
-    ["State", stateLabel(result)],
-    ["On Remote Vault", yesNo(result.pushed)],
-    ["Waiting to push", yesNo(result.queued)],
-    ["Has unsent edits", yesNo(result.diverged)],
-    ["Size", result.bytes != null ? formatBytes(result.bytes) : "Not measured"],
+    ["상태", stateLabel(result)],
+    ["원격 볼트에 있음", yesNo(result.pushed)],
+    ["올리기 대기 중", yesNo(result.queued)],
+    ["보내지 않은 편집", yesNo(result.diverged)],
+    ["크기", result.bytes != null ? formatBytes(result.bytes) : "측정 안 함"],
     [
-      "Modified",
-      result.mtime != null ? relativeTime(result.mtime, handlers.now) : "Unknown",
+      "수정함",
+      result.mtime != null ? relativeTime(result.mtime, handlers.now) : "알 수 없음",
     ],
     [
-      "History size",
-      result.historyBytes != null ? formatBytes(result.historyBytes) : "Unknown",
+      "기록 크기",
+      result.historyBytes != null ? formatBytes(result.historyBytes) : "알 수 없음",
     ],
-    ["Doc id", result.docId ?? "Not registered", result.docId != null],
+    ["문서 ID", result.docId ?? "등록 안 됨", result.docId != null],
   ];
 
   const copyFacts = async () => {
     const text = [
-      `Baalda: ${result.path}`,
+      `마이 세컨드 브레인: ${result.path}`,
       result.verdict,
       "",
       ...facts.map(([label, value]) => `${label}: ${value}`),
@@ -187,7 +187,7 @@ export function InspectionCard({
             <dt>{label}</dt>
             <dd>
               <span className="health-fact-value">{value}</span>
-              {copyable && <CopyButton value={value} label={`Copy ${label}`} />}
+              {copyable && <CopyButton value={value} label={`${label} 복사`} />}
             </dd>
           </div>
         ))}
@@ -199,7 +199,7 @@ export function InspectionCard({
           className="link-btn"
           onClick={() => onShowIssue((result.issue as { key: string }).key)}
         >
-          See its entry above
+          위쪽 항목 보기
         </button>
       )}
 
@@ -209,21 +209,21 @@ export function InspectionCard({
           className="link-btn"
           onClick={() => handlers.openNote(result.path)}
         >
-          Open
+          열기
         </button>
         <AsyncButton className="link-btn" onClick={() => handlers.actions.reveal(result.path)}>
-          Reveal
+          파일 위치 보기
         </AsyncButton>
         {result.docId && (
           <AsyncButton
             className="link-btn"
             onClick={() => handlers.actions.retryDoc(result.docId as string)}
           >
-            Retry
+            다시 시도
           </AsyncButton>
         )}
         <AsyncButton className="link-btn" onClick={copyFacts}>
-          Copy facts
+          정보 복사
         </AsyncButton>
       </div>
     </div>
@@ -231,26 +231,26 @@ export function InspectionCard({
 }
 
 function yesNo(v: boolean): string {
-  return v ? "Yes" : "No";
+  return v ? "예" : "아니요";
 }
 
 /** The reported per-doc state in the page's own words. `null` is not "unsynced"
  *  — it means nothing has spoken for this note since launch, which is a
  *  different thing and reads as such. */
 function stateLabel(r: NoteInspection): string {
-  if (r.permanentFailure) return "Stopped trying";
+  if (r.permanentFailure) return "시도 중단됨";
   switch (r.state) {
     case "synced":
-      return "Synced";
+      return "동기화됨";
     case "syncing":
-      return "Syncing";
+      return "동기화 중";
     case "queued":
-      return "Queued";
+      return "대기 중";
     case "error":
-      return "Failed";
+      return "실패";
     case "unsynced":
-      return "Not on the Remote Vault";
+      return "원격 볼트에 없음";
     default:
-      return r.emptyEverywhere ? "Empty here and on the Remote Vault" : "Nothing reported yet";
+      return r.emptyEverywhere ? "여기와 원격 볼트 모두 비어 있음" : "아직 보고된 내용 없음";
   }
 }

@@ -4,7 +4,7 @@
 export const LOAD_TIMEOUT_MS = 30_000;
 
 export class LoadTimeoutError extends Error {
-  constructor(message = "This is taking too long. Check your connection and try again.") {
+  constructor(message = "시간이 너무 오래 걸려요. 연결을 확인한 뒤 다시 시도하세요.") {
     super(message);
     this.name = "LoadTimeoutError";
   }
@@ -26,5 +26,5 @@ export function withTimeout<T>(promise: Promise<T>, ms = LOAD_TIMEOUT_MS, messag
 export function loadErrorText(e: unknown): string {
   if (e instanceof LoadTimeoutError) return e.message;
   const text = e instanceof Error ? e.message : String(e);
-  return text || "Something went wrong.";
+  return text || "문제가 생겼어요.";
 }

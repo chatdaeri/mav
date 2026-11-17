@@ -33,16 +33,16 @@ function serverMessage(err: unknown): string | null {
 export function passwordResetFailureMessage(err: unknown, ctx: ResetFailureContext): string {
   const code = errorCode(err);
   if (code === "no_account" || (err instanceof ApiError && err.status === 404)) {
-    return `There's no account for ${ctx.email} on ${ctx.serverHost}. Check the address (or the server, if your team runs its own), or sign up instead.`;
+    return `${ctx.serverHost}에 ${ctx.email} 계정이 없어요. 주소(팀에서 서버를 직접 운영한다면 서버)를 확인하거나 가입해 주세요.`;
   }
   if (code === "send_failed") {
-    return `The reset email couldn't be sent. ${serverMessage(err) ?? ""} Try again in a minute, or contact whoever runs this server.`.replace(/\s+/g, " ");
+    return `재설정 이메일을 보내지 못했어요. ${serverMessage(err) ?? ""} 잠시 후 다시 시도하거나 서버 운영자에게 문의해 주세요.`.replace(/\s+/g, " ");
   }
   if (code === "too_many_requests") {
-    return serverMessage(err) ?? "Too many reset requests for this address. Try again in an hour.";
+    return serverMessage(err) ?? "이 주소로 재설정 요청이 너무 많아요. 한 시간 뒤에 다시 시도해 주세요.";
   }
   if (code === "email_not_configured") {
-    return "This server can't send email, so passwords can't be reset from here. Ask whoever runs it to set a new password for you.";
+    return "이 서버는 이메일을 보낼 수 없어서 여기서 비밀번호를 재설정할 수 없어요. 서버 운영자에게 새 비밀번호 설정을 요청해 주세요.";
   }
-  return err instanceof Error && err.message ? err.message : "Could not request a reset.";
+  return err instanceof Error && err.message ? err.message : "재설정을 요청하지 못했어요.";
 }

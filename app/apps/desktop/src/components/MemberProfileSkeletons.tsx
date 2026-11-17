@@ -5,7 +5,7 @@ import "./editor.css";
 /** Header (avatar + name + email) and the six Personal info rows. */
 export function ProfileSkeleton() {
   return (
-    <section className="member-profile member-profile-skeleton" role="status" aria-busy="true" aria-label="Loading profile">
+    <section className="member-profile member-profile-skeleton" role="status" aria-busy="true" aria-label="프로필 불러오는 중">
       <header className="member-profile-head" aria-hidden="true">
         <span className="skel-line member-skel-avatar" />
         <span className="members-skel-names">
@@ -18,7 +18,7 @@ export function ProfileSkeleton() {
   );
 }
 
-const INFO_LABELS = ["Name", "Email", "Role", "Joined", "Last active", "Status"] as const;
+const INFO_LABELS = ["이름", "이메일", "역할", "참여일", "마지막 활동", "상태"] as const;
 const INFO_WIDTHS = [120, 160, 72, 180, 120, 56];
 
 /** Personal info: the real labels, a bar where each value goes. */
@@ -41,13 +41,13 @@ function InfoRow({ label, width }: { label: string; width: number }) {
   );
 }
 
-const BOARD_TITLES = ["Can edit", "Can view", "No access"] as const;
+const BOARD_TITLES = ["편집 가능", "보기 가능", "접근 불가"] as const;
 const BOARD_ROWS = [5, 4, 6];
 
 /** The board's three columns, each with a header and a few row bars. */
 export function BoardSkeleton() {
   return (
-    <div className="access-board-columns member-skel-board" role="status" aria-busy="true" aria-label="Loading access">
+    <div className="access-board-columns member-skel-board" role="status" aria-busy="true" aria-label="권한 불러오는 중">
       {BOARD_TITLES.map((title, c) => (
         <section key={title} className="access-board-column" aria-hidden="true">
           <header className="access-board-column-head">
@@ -70,7 +70,7 @@ export function BoardSkeleton() {
 /** The List view's checkbox tree. */
 export function TreeSkeleton() {
   return (
-    <ul className="member-access-tree member-skel-tree" role="status" aria-busy="true" aria-label="Loading access">
+    <ul className="member-access-tree member-skel-tree" role="status" aria-busy="true" aria-label="권한 불러오는 중">
       {Array.from({ length: 6 }, (_, i) => (
         <li key={i} className="member-access-row" aria-hidden="true" style={{ paddingLeft: `${8 + (i % 3 === 2 ? 16 : 0)}px` }}>
           <span className="member-access-main">
@@ -90,13 +90,13 @@ export function TreeSkeleton() {
 
 /** A per-row placeholder while one tree row's level is first being read. */
 export function RowLevelSkeleton() {
-  return <span className="skel-line member-skel-level" role="status" aria-busy="true" aria-label="Loading" />;
+  return <span className="skel-line member-skel-level" role="status" aria-busy="true" aria-label="불러오는 중" />;
 }
 
 /** Activity: a day pill and seven event rows. */
 export function ActivitySkeleton() {
   return (
-    <div className="member-activity member-skel-activity" role="status" aria-busy="true" aria-label="Loading activity">
+    <div className="member-activity member-skel-activity" role="status" aria-busy="true" aria-label="활동 불러오는 중">
       <ol className="member-activity-trail" aria-hidden="true">
         <li className="member-activity-day"><span className="skel-line member-skel-day" /></li>
         {Array.from({ length: 7 }, (_, i) => (
@@ -116,7 +116,7 @@ export function ActivitySkeleton() {
 /** Under a loaded board, while some rows' levels are still being read. */
 export function BoardPendingRows() {
   return (
-    <ul className="access-board-list member-skel-pending" role="status" aria-busy="true" aria-label="Loading access">
+    <ul className="access-board-list member-skel-pending" role="status" aria-busy="true" aria-label="권한 불러오는 중">
       {[70, 52].map((w) => (
         <li key={w} className="member-skel-board-row" aria-hidden="true">
           <span className="skel-line member-skel-icon" />

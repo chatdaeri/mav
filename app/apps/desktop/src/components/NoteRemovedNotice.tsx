@@ -19,14 +19,14 @@ export function NoteRemovedNotice() {
     <Banner show={visible} tone="danger">
       <span>
         {removed?.reason === "revoked" ? (
-          <>Your access to this note was removed. It is no longer on this device.</>
+          <>이 노트에 대한 권한이 제거됐어요. 이 기기에서도 삭제됐어요.</>
         ) : (
-          <>A teammate deleted this note. It was permanently removed from this device.</>
+          <>팀원이 이 노트를 삭제했어요. 이 기기에서도 완전히 삭제됐어요.</>
         )}
       </span>
       <div className="banner-actions">
         <button className="primary" onClick={dismiss}>
-          Dismiss
+          닫기
         </button>
       </div>
     </Banner>

@@ -10,10 +10,11 @@
 // opening a 25 MB archive costs nothing but the row it prints.
 
 import { useEffect, useState } from "react";
-import { formatFor, type FormatCategory } from "../../lib/formats";
+import { formatFor, openAppLabel, type FormatCategory } from "../../lib/formats";
 import { formatBytes } from "../../lib/health/format";
 import * as ipc from "../../lib/ipc";
 import { useStore } from "../../store";
+import { DriveLinkPaste } from "./DriveLinkPaste";
 
 /** Attachment names are `<sha256-first-16-hex>.<ext>` (see `attachments.ts`). */
 const HASH_NAME = /^([0-9a-f]{16})\.[^.]+$/i;
@@ -167,25 +168,27 @@ export function FileCard({ path, abs, reason }: FileCardProps) {
           </div>
           <div className="file-card-meta">
             {[
-              format ? format.exts[0].toUpperCase() : "File",
+              // A generic (unregistered) type has no `exts[0]`: show the name's own.
+              (format?.exts[0] ?? (name.includes(".") ? name.split(".").pop() : ""))?.toUpperCase() || "파일",
               size == null ? null : formatBytes(size),
             ]
               .filter(Boolean)
               .join(" · ")}
           </div>
           {hash && (
-            <div className="file-card-hash" title="Content hash (first 16 hex)">
+            <div className="file-card-hash" title="콘텐츠 해시 (앞 16자리)">
               {hash}
             </div>
           )}
           {reason && <p className="file-card-reason">{reason}</p>}
+          <DriveLinkPaste path={path} size={size} />
           <div className="file-card-actions">
             <button
               type="button"
               className="ghost-pill sm"
               onClick={() => void ipc.openInFileManager(abs)}
             >
-              Open externally
+              {openAppLabel(path)}
             </button>
             <button
               type="button"

@@ -18,7 +18,7 @@ describe("Your security code (Account Settings)", () => {
 
   it("renders the code with the read-it-out hint", () => {
     const html = renderToStaticMarkup(createElement(SecurityCodeRow, { code: "1a2b 3c4d 5e6f 7a8b" }));
-    expect(html).toContain("Your security code");
+    expect(html).toContain("내 보안 코드");
     expect(html).toContain("1a2b 3c4d 5e6f 7a8b");
     expect(html).toContain(SECURITY_CODE_HINT);
   });

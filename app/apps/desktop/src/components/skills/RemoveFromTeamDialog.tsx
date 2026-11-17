@@ -34,8 +34,8 @@ export function RemoveFromTeamDialog({
   const [busy, setBusy] = useState(false);
   return (
     <ConfirmDialog
-      title={`Remove ${name} from the team?`}
-      confirmLabel={busy ? "Removing…" : "Remove from team"}
+      title={`팀에서 ${name}을(를) 제거할까요?`}
+      confirmLabel={busy ? "제거하는 중…" : "팀에서 제거"}
       onCancel={onCancel}
       onConfirm={async () => {
         setBusy(true);
@@ -43,17 +43,17 @@ export function RemoveFromTeamDialog({
           await authManager.api.deleteSkill(orgId, skill.id);
         } catch {
           setBusy(false);
-          toast(`Couldn't remove ${name} from the team. Try again.`, "error");
+          toast(`팀에서 ${name}을(를) 제거할 수 없어요. 다시 시도해 주세요.`, "error");
           return;
         }
-        toast(`Removed ${name} from the team`);
+        toast(`팀에서 ${name}을(를) 제거했어요`);
         onRemoved();
       }}
     >
-      Removes it from everyone's AI tools.{" "}
+      모든 멤버의 AI 도구에서 제거돼요.{" "}
       {ownFolderHere || fromAComputer(skill)
-        ? "Your original folder on your computer stays as it is."
-        : "Your own local copy isn't touched."}
+        ? "내 컴퓨터의 원본 폴더는 그대로 남아요."
+        : "내 컴퓨터의 사본은 그대로 남아요."}
     </ConfirmDialog>
   );
 }

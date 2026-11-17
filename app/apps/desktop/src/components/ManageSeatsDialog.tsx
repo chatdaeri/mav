@@ -127,11 +127,11 @@ export function ManageSeatsDialog({
         className="modal manage-seats"
         role="dialog"
         aria-modal="true"
-        aria-label="Manage seats"
+        aria-label="좌석 관리"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="manage-seats-head">
-          <h2 className="confirm-title">Manage seats</h2>
+          <h2 className="confirm-title">좌석 관리</h2>
           <p className="manage-seats-subtitle">{subtitle}</p>
         </div>
         {legacy ? (
@@ -141,12 +141,12 @@ export function ManageSeatsDialog({
         ) : (
           <>
             <div className="manage-seats-row">
-              <span className="manage-seats-label">Seats</span>
+              <span className="manage-seats-label">좌석</span>
               <span className="manage-seats-stepper">
                 <button
                   type="button"
                   className="secondary"
-                  aria-label="Remove a seat"
+                  aria-label="좌석 하나 줄이기"
                   disabled={seats <= floor}
                   onClick={() => setSeats((n) => Math.max(floor, n - 1))}
                 >
@@ -158,7 +158,7 @@ export function ManageSeatsDialog({
                 <button
                   type="button"
                   className="secondary"
-                  aria-label="Add a seat"
+                  aria-label="좌석 하나 늘리기"
                   onClick={() => setSeats((n) => n + 1)}
                 >
                   +
@@ -168,7 +168,7 @@ export function ManageSeatsDialog({
             {pending && current != null && (
               <div className="manage-seats-scheduled">
                 <span>
-                  Dropping to {pending.to} {pending.to === 1 ? "seat" : "seats"} on {formatDate(pending.effectiveAt)}.
+                  {formatDate(pending.effectiveAt)}에 좌석이 {pending.to}개로 줄어들어요.
                 </span>
                 <AsyncButton
                   type="button"
@@ -177,7 +177,7 @@ export function ManageSeatsDialog({
                     if (await onKeepSeats()) onClose();
                   }}
                 >
-                  Keep {current} {current === 1 ? "seat" : "seats"}
+                  좌석 {current}개 유지
                 </AsyncButton>
               </div>
             )}
@@ -187,7 +187,7 @@ export function ManageSeatsDialog({
         {error && <div className="auth-error">{error}</div>}
         <div className="confirm-actions invite-people-actions">
           <button type="button" className="ghost-pill" onClick={onClose}>
-            {legacy ? "Close" : "Cancel"}
+            {legacy ? "닫기" : "취소"}
           </button>
           {legacy ? null : canceling ? (
             <AsyncButton
@@ -197,11 +197,11 @@ export function ManageSeatsDialog({
                 if (await onResume()) onClose();
               }}
             >
-              Resume plan
+              요금제 재개
             </AsyncButton>
           ) : (
             <AsyncButton className="primary" spinnerTone="on-accent" disabled={!summary.canConfirm} onClick={confirm}>
-              Update seats
+              좌석 업데이트
             </AsyncButton>
           )}
         </div>

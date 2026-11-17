@@ -31,7 +31,7 @@ beforeAll(() => {
 });
 
 const TITLES: NoteTitle[] = [
-  { id: "a", path: "Projects/Baalda.md", title: "Baalda roadmap" },
+  { id: "a", path: "Projects/마이 세컨드 브레인.md", title: "마이 세컨드 브레인 roadmap" },
   { id: "b", path: "Inbox.md", title: "Inbox" },
   { id: "c", path: "Journal/2026-09-25.md", title: "Friday" },
 ];
@@ -49,26 +49,26 @@ describe("isWikilinkResolved", () => {
   const ok = (inner: string) => isWikilinkResolved(inner, TITLES);
 
   it("resolves a note's full relative path", () => {
-    expect(ok("Projects/Baalda")).toBe(true);
+    expect(ok("Projects/마이 세컨드 브레인")).toBe(true);
     expect(ok("Journal/2026-09-25")).toBe(true);
   });
 
   it("resolves a note's basename anywhere in the tree", () => {
-    expect(ok("Baalda")).toBe(true);
+    expect(ok("마이 세컨드 브레인")).toBe(true);
     expect(ok("2026-09-25")).toBe(true);
     // Rust's basename rule ignores the folder part of the target.
-    expect(ok("Elsewhere/Baalda")).toBe(true);
+    expect(ok("Elsewhere/마이 세컨드 브레인")).toBe(true);
   });
 
   it("resolves a note's title", () => {
-    expect(ok("Baalda roadmap")).toBe(true);
+    expect(ok("마이 세컨드 브레인 roadmap")).toBe(true);
     expect(ok("Friday")).toBe(true);
   });
 
   it("is case-insensitive", () => {
-    expect(ok("projects/BAALDA")).toBe(true);
+    expect(ok("PROJECTS/마이 세컨드 브레인")).toBe(true);
     expect(ok("inbox")).toBe(true);
-    expect(ok("baalda ROADMAP")).toBe(true);
+    expect(ok("마이 세컨드 브레인 ROADMAP")).toBe(true);
   });
 
   it("matches across Unicode normalization forms (NFC vs NFD)", () => {
@@ -98,7 +98,7 @@ describe("isWikilinkResolved", () => {
 
   it("accepts a .md suffix", () => {
     expect(ok("Inbox.md")).toBe(true);
-    expect(ok("Projects/Baalda.md")).toBe(true);
+    expect(ok("Projects/마이 세컨드 브레인.md")).toBe(true);
   });
 
   it("does not resolve a target no note answers to", () => {

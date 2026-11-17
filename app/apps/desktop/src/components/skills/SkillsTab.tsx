@@ -45,12 +45,12 @@ import { myAccessOf } from "../../lib/skills/access";
 import "./skills.css";
 
 const ERROR_TEXT: Record<string, string> = {
-  invalid_name: "Skill names use lowercase letters, digits and single hyphens.",
-  skill_name_taken: "A skill with that name already exists.",
-  skill_limit_reached: "This vault has the most skills it can hold (500).",
+  invalid_name: "스킬 이름은 소문자, 숫자, 하이픈 하나로만 만들 수 있어요.",
+  skill_name_taken: "같은 이름의 스킬이 이미 있어요.",
+  skill_limit_reached: "이 볼트에 담을 수 있는 최대 스킬 수(500개)에 도달했어요.",
   ...CAP_RULE_TEXT,
-  payload_too_large: "That skill is too large to upload.",
-  invalid_path: "One of the file names can't be used.",
+  payload_too_large: "스킬이 너무 커서 업로드할 수 없어요.",
+  invalid_path: "사용할 수 없는 파일 이름이 있어요.",
 };
 
 function errorText(e: unknown): string {
@@ -115,7 +115,7 @@ function ScopeToggle({
       {label}
       {/* Distinct keys: reused in place, WebKit kept spinning the number. */}
       {count === null ? (
-        <span key="spin" className="spinner spinner-xs spinner-inherit skills-scope-spin" aria-label="Counting" />
+        <span key="spin" className="spinner spinner-xs spinner-inherit skills-scope-spin" aria-label="세는 중" />
       ) : (
         <span key="count" className="skills-chip-count">{count}</span>
       )}
@@ -123,14 +123,14 @@ function ScopeToggle({
     </button>
   );
   return (
-    <div className="member-access-view" role="radiogroup" aria-label="Which skills">
-      {option("team", "Team", teamCount)}
+    <div className="member-access-view" role="radiogroup" aria-label="스킬 범위">
+      {option("team", "팀", teamCount)}
       {option(
         "device",
-        "On this device",
+        "이 기기",
         deviceCount,
         showDot ? <span className="skills-new-dot" aria-hidden="true" /> : null,
-        showDot ? "See every skill your AI tools have on this computer" : undefined,
+        showDot ? "이 컴퓨터의 AI 도구에 있는 모든 스킬 보기" : undefined,
       )}
     </div>
   );
@@ -147,7 +147,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   const [marketplace, setMarketplace] = useState<{ preload?: string } | null>(null);
   const [scope, setScope] = useState<SkillsScope>(readScope);
   const [loadFailed, setLoadFailed] = useState(false);
-  /** "Reading files…" then "Uploading…" while a .zip goes up. */
+  /** "파일을 읽는 중…" then "업로드하는 중…" while a .zip goes up. */
   const [uploadPhase, setUploadPhase] = useState<string | null>(null);
   // Started quietly on open, so the toggle can count this computer's skills.
   const deviceScan = useDeviceScan();
@@ -231,17 +231,17 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
     canDrop,
     (path) => dropFile.current(path),
     (paths) => {
-      const name = paths[0].split(/[\\/]/).pop() ?? "That file";
-      toast(`${paths.length > 1 ? "Those files aren't" : `${name} isn't`} a skill. Drop a .zip or .skill file.`, "error");
+      const name = paths[0].split(/[\\/]/).pop() ?? "그 파일";
+      toast(`${paths.length > 1 ? "해당 파일은" : `${name}은(는)`} 스킬이 아니에요. .zip 또는 .skill 파일을 놓아 주세요.`, "error");
     },
   );
 
-  if (!orgId) return <div className="muted perm-empty">Skills need a synced vault.</div>;
+  if (!orgId) return <div className="muted perm-empty">스킬을 쓰려면 동기화된 볼트가 필요해요.</div>;
   if (supported === false) {
     return (
       <>
-        <h2 className="settings-section-title">Agent Skills</h2>
-        <div className="muted">This server needs an update to manage skills.</div>
+        <h2 className="settings-section-title">에이전트 스킬</h2>
+        <div className="muted">스킬을 관리하려면 서버를 업데이트해야 해요.</div>
       </>
     );
   }
@@ -311,7 +311,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   };
 
   const uploadZip = async () => {
-    const picked = await openDialog({ multiple: false, filters: [{ name: "Skill", extensions: SKILL_FILE_EXTS }] });
+    const picked = await openDialog({ multiple: false, filters: [{ name: "스킬", extensions: SKILL_FILE_EXTS }] });
     if (!picked || Array.isArray(picked)) return;
     await uploadZipAt(picked);
   };
@@ -320,7 +320,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   const uploadZipAt = async (picked: string) => {
     setError(null);
     let bundle: ipc.SkillBundle;
-    setUploadPhase("Reading files…");
+    setUploadPhase("파일을 읽는 중…");
     try {
       bundle = await ipc.skillsReadZip(picked);
     } catch (e) {
@@ -334,7 +334,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
     const fm = md ? parseSkillFrontmatter(base64ToText(md.contentBase64) ?? "") : null;
     const name = fm?.ok && isValidSkillName(fm.name) ? fm.name : suggestSkillName(bundle.suggestedName);
     if (!isValidSkillName(name)) {
-      setError(`"${bundle.suggestedName}" can't be used as a skill name. Set name in SKILL.md.`);
+      setError(`"${bundle.suggestedName}"은(는) 스킬 이름으로 쓸 수 없어요. SKILL.md에서 이름을 지정하세요.`);
       return;
     }
     const files = bundle.files.map((f) => ({
@@ -352,7 +352,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   dropFile.current = (path) => void uploadZipAt(path);
 
   const applyUpload = async (u: PendingUpload) => {
-    setUploadPhase("Uploading…");
+    setUploadPhase("업로드하는 중…");
     try {
       let id: string;
       if (u.existing) {
@@ -365,8 +365,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
       }
       toast(
         u.skipped.length
-          ? `Uploaded ${u.name}. Left out ${u.skipped.length} ${u.skipped.length === 1 ? "file" : "files"}: ${u.skipped.slice(0, 3).join(", ")}${u.skipped.length > 3 ? "…" : ""}`
-          : `Uploaded ${u.name}. Publish it when it's ready.`,
+          ? `${u.name}을(를) 업로드했어요. 파일 ${u.skipped.length}개는 제외했어요: ${u.skipped.slice(0, 3).join(", ")}${u.skipped.length > 3 ? "…" : ""}`
+          : `${u.name}을(를) 업로드했어요. 준비되면 게시하세요.`,
         "neutral",
       );
       await reload();
@@ -383,8 +383,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   const targetsOn = loadSkillsPrefs().targets;
   const groups = groupSkills(skills, filter);
   const newMenu = [
-    { key: "write", label: "Write from scratch", onSelect: () => setCreating(true) },
-    { key: "zip", label: "Upload .zip or .skill", onSelect: () => uploadZip() },
+    { key: "write", label: "처음부터 작성", onSelect: () => setCreating(true) },
+    { key: "zip", label: ".zip 또는 .skill 업로드", onSelect: () => uploadZip() },
   ];
   const toggleGroup = (key: string) =>
     setFlipped((c) => {
@@ -407,7 +407,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
       void reload();
       throw e;
     }
-    toast(`${skillDisplayName(s.name)} is now optional. People can remove it from their computer.`);
+    toast(`${skillDisplayName(s.name)}은(는) 이제 선택 사항이에요. 각자 컴퓨터에서 제거할 수 있어요.`);
     void reload();
   };
 
@@ -419,32 +419,32 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
     // An owner/admin sees every skill, but only one shared with them installs here.
     const mine = myAccessOf(s);
     if (mine === "none") {
-      return { button: <InstallButton kind="blocked" title={"Not shared with you\nYou see it because you manage skills"} /> };
+      return { button: <InstallButton kind="blocked" title={"나에게 공유되지 않음\n스킬을 관리하는 사람이라 보이는 거예요"} /> };
     }
     const optional = mine === "optional";
     const optedIn = !optional || isSkillOnThisDevice(serverUrl, orgId, s.id);
     let button: React.ReactNode;
     if (installing.has(s.id) && overall === "none") {
-      button = <InstallButton kind="busy" title="Installing on this computer…" />;
+      button = <InstallButton kind="busy" title="이 컴퓨터에 설치하는 중…" />;
     } else if (optedIn && (overall === "warn" || overall === "bad")) {
-      button = <InstallButton kind={overall} title={`${lines}\nOpen to fix`} onClick={() => setOpenId(s.id)} />;
+      button = <InstallButton kind={overall} title={`${lines}\n열어서 해결하세요`} onClick={() => setOpenId(s.id)} />;
     } else if (!optional) {
       button = (
         <InstallButton
           kind="required"
-          title={`Required by your team\n${lines}`}
+          title={`팀 필수 스킬\n${lines}`}
           name={s.name}
           canManage={manage}
           onMakeOptional={manage ? () => makeOptional(s) : undefined}
         />
       );
     } else if (optedIn) {
-      button = <InstallButton kind="installed" title={`On this computer · click to remove\n${lines}`} onClick={() => setRemoving(s)} />;
+      button = <InstallButton kind="installed" title={`이 컴퓨터에 설치됨 · 눌러서 제거\n${lines}`} onClick={() => setRemoving(s)} />;
     } else {
       button = (
         <InstallButton
           kind="install"
-          title="Use on this computer"
+          title="이 컴퓨터에서 사용"
           onClick={() => {
             setInstalling((p) => new Set(p).add(s.id));
             // A run that never reports (both folders off, say) stops spinning.
@@ -465,16 +465,16 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
   /** "By Sara Lee · v2 · Required" or "anthropics/skills · v1 · Optional". */
   const metaLine = (s: SkillSummary, withAuthor: boolean) => {
     const author = skillAuthor(s);
-    const who = s.source ? s.source.repo : author ? `By ${author.name}` : null;
+    const who = s.source ? s.source.repo : author ? `${author.name} 작성` : null;
     const parts = [
       ...(withAuthor && who ? [who] : []),
-      s.effectiveVersion !== null ? `v${s.effectiveVersion}${s.pinnedVersion !== null ? " (pinned)" : ""}` : null,
+      s.effectiveVersion !== null ? `v${s.effectiveVersion}${s.pinnedVersion !== null ? " (고정됨)" : ""}` : null,
       // Cards say who and which version; Required/Optional is in the ✓ tooltip.
-      ...(withAuthor ? [] : [s.delivery === "required" ? "Required" : "Optional"]),
+      ...(withAuthor ? [] : [s.delivery === "required" ? "필수" : "선택"]),
     ].filter(Boolean);
     return (
       <span className="skills-meta-line">
-        {s.effectiveVersion === null && <span className="skills-meta-warn">Not published · </span>}
+        {s.effectiveVersion === null && <span className="skills-meta-warn">게시 안 됨 · </span>}
         {parts.join(" · ")}
       </span>
     );
@@ -491,9 +491,9 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
     );
     if (on.length === 0) return null;
     return (
-      <span className="skills-card-tools" aria-label={`Used by ${on.map((t) => AI_TOOL_NAME[t.tool]).join(", ")} on this computer`}>
+      <span className="skills-card-tools" aria-label={`이 컴퓨터에서 ${on.map((t) => AI_TOOL_NAME[t.tool]).join(", ")}가 사용 중`}>
         {on.map((t) => (
-          <ToolLogo key={t.tool} tool={t.tool} size={14} title={`${AI_TOOL_NAME[t.tool]} uses it on this computer`} />
+          <ToolLogo key={t.tool} tool={t.tool} size={14} title={`이 컴퓨터에서 ${AI_TOOL_NAME[t.tool]}가 사용 중`} />
         ))}
       </span>
     );
@@ -517,9 +517,9 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
           <SkillCard
             key={s.id}
             name={s.name}
-            titleExtra={newIds.has(s.id) && <span className="skills-new-chip">New</span>}
+            titleExtra={newIds.has(s.id) && <span className="skills-new-chip">새로움</span>}
             byline={metaLine(s, true)}
-            description={s.description || "No description yet."}
+            description={s.description || "아직 설명이 없어요."}
             footer={
               <>
                 {toolsHere(s)}
@@ -532,13 +532,13 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             more={
               manage && (
                 <RowActionsMenu
-                  ariaLabel={`More for ${skillDisplayName(s.name)}`}
+                  ariaLabel={`${skillDisplayName(s.name)} 더 보기`}
                   actions={[
-                    { key: "open", label: "Open", onSelect: () => openProps(s).onClick() },
+                    { key: "open", label: "열기", onSelect: () => openProps(s).onClick() },
                     ...(s.effectiveVersion !== null
-                      ? [{ key: "zip", label: "Download .zip", onSelect: () => downloadSkillZip(orgId, s.id, s.name, s.effectiveVersion!) }]
+                      ? [{ key: "zip", label: ".zip 다운로드", onSelect: () => downloadSkillZip(orgId, s.id, s.name, s.effectiveVersion!) }]
                       : []),
-                    { key: "remove", label: "Remove from team", danger: true, separated: true, onSelect: () => setTeamRemoving(s) },
+                    { key: "remove", label: "팀에서 제거", danger: true, separated: true, onSelect: () => setTeamRemoving(s) },
                   ]}
                 />
               )
@@ -560,8 +560,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
       )}
       <div className="members-access-header skills-page-head">
         <div>
-          <h2 className="settings-section-title">Agent Skills</h2>
-          <p className="skills-intro">Teach your team's AI tools how you work.</p>
+          <h2 className="settings-section-title">에이전트 스킬</h2>
+          <p className="skills-intro">팀의 AI 도구에 일하는 방식을 가르쳐 보세요.</p>
         </div>
         {(catalog || !loadFailed) && (
           <div className="skills-actions">
@@ -580,8 +580,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
                   disabled={scope !== "device" || deviceScan.status === "loading" || (deviceScan.status === "ready" && !!deviceScan.refreshing)}
                   tabIndex={scope === "device" ? undefined : -1}
                   onClick={() => void scanDevice(true)}
-                  aria-label="Look through this computer's skills again"
-                  title="Refresh"
+                  aria-label="이 컴퓨터의 스킬 다시 찾아보기"
+                  title="새로 고침"
                 >
                   <RefreshIcon />
                 </button>
@@ -590,7 +590,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             <SearchToggle
               value={filter}
               onChange={setFilter}
-              placeholder={scope === "device" ? "Search this computer" : "Search skills"}
+              placeholder={scope === "device" ? "이 컴퓨터에서 검색" : "스킬 검색"}
               hotkeys
             />
             <ScopeToggle
@@ -607,9 +607,9 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             {manage && skills.length > 0 && (
               <span className={`skills-hdr-slot is-end${scope === "team" ? "" : " is-folded"}`} aria-hidden={scope !== "team" || undefined}>
                 <button className="secondary skills-hdr-btn" tabIndex={scope === "team" ? undefined : -1} onClick={() => setMarketplace({})}>
-                  Browse marketplace
+                  마켓플레이스 둘러보기
                 </button>
-                <SkillsMenuButton label="New skill" className="primary skills-hdr-btn" actions={newMenu} />
+                <SkillsMenuButton label="새 스킬" className="primary skills-hdr-btn" actions={newMenu} />
               </span>
             )}
           </div>
@@ -619,7 +619,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
       {error && !loadFailed && <div className="auth-error">{error}</div>}
 
       {loadFailed && !catalog ? (
-        <LoadError message={`Couldn't load this vault's skills: ${error ?? ""}`} onRetry={() => void reload()} />
+        <LoadError message={`이 볼트의 스킬을 불러오지 못했어요: ${error ?? ""}`} onRetry={() => void reload()} />
       ) : scope === "device" ? (
         <DeviceSkillsView
           onPageChange={setDevicePage}
@@ -655,21 +655,21 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
       ) : skills.length === 0 ? (
         manage ? (
           <EmptyState
-            title="No skills yet"
+            title="아직 스킬이 없어요"
             page
             dropHint={
               <>
-                <UploadGlyph /> or drop a .zip or .skill file here
+                <UploadGlyph /> 또는 .zip, .skill 파일을 여기에 놓으세요
               </>
             }
             actions={
               <>
-                <button className="primary" onClick={() => setMarketplace({})}>Browse marketplace</button>
-                <SkillsMenuButton label="Create a skill" className="secondary" actions={newMenu} />
+                <button className="primary" onClick={() => setMarketplace({})}>마켓플레이스 둘러보기</button>
+                <SkillsMenuButton label="스킬 만들기" className="secondary" actions={newMenu} />
               </>
             }
           >
-            Add one and it reaches everyone's Claude, Codex and Cursor.
+            스킬을 추가하면 모든 멤버의 Claude, Codex, Cursor에 전달돼요.
             <span className="skills-chips">
               {POPULAR_SOURCES.map((repo) => (
                 <button key={repo} type="button" className="skills-chip" onClick={() => setMarketplace({ preload: repo })}>
@@ -679,11 +679,11 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             </span>
           </EmptyState>
         ) : (
-          <EmptyState title="No skills yet" page>Your admins haven't published any skills.</EmptyState>
+          <EmptyState title="아직 스킬이 없어요" page>관리자가 아직 스킬을 게시하지 않았어요.</EmptyState>
         )
       ) : (
         <>
-          {groups.length === 0 && <div className="field-hint skills-quiet">No skills match.</div>}
+          {groups.length === 0 && <div className="field-hint skills-quiet">일치하는 스킬이 없어요.</div>}
           {groups.map((g, gi) => {
             // Only the first group starts open: "Shared with your team" when
             // there is one, else the first import source.
@@ -721,8 +721,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
               <span className="skills-drop-strip-icon">
                 <UploadGlyph />
               </span>
-              <strong>Drop a .zip or .skill here</strong>
-              <span>or click to choose a file · it becomes a draft you can publish</span>
+              <strong>.zip 또는 .skill 파일을 여기에 놓으세요</strong>
+              <span>또는 눌러서 파일을 선택하세요 · 게시할 수 있는 초안이 돼요</span>
             </button>
           )}
         </>
@@ -736,8 +736,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
           <span className="skills-empty-icon">
             <SkillGlyph size={22} />
           </span>
-          <strong>{dragging === "skill" ? "Drop to add this skill" : "Only .zip or .skill files"}</strong>
-          <span>{dragging === "skill" ? "It becomes a draft you can review and publish." : "This file can't be added as a skill."}</span>
+          <strong>{dragging === "skill" ? "놓아서 이 스킬 추가" : ".zip 또는 .skill 파일만 가능해요"}</strong>
+          <span>{dragging === "skill" ? "검토 후 게시할 수 있는 초안이 돼요." : "이 파일은 스킬로 추가할 수 없어요."}</span>
         </div>
       )}
 
@@ -766,8 +766,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
 
       {removing && (
         <ConfirmDialog
-          title={`Remove ${skillDisplayName(removing.name)} from this computer?`}
-          confirmLabel="Remove"
+          title={`이 컴퓨터에서 ${skillDisplayName(removing.name)}을(를) 제거할까요?`}
+          confirmLabel="제거"
           onCancel={() => setRemoving(null)}
           onConfirm={() => {
             setSkillOnThisDevice(orgId, removing.id, false);
@@ -775,7 +775,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             setRemoving(null);
           }}
         >
-          It stays in the vault; you can add it back any time. A copy you edited is kept, not deleted.
+          볼트에는 그대로 남아 있어서 언제든 다시 추가할 수 있어요. 직접 수정한 사본은 삭제되지 않고 유지돼요.
         </ConfirmDialog>
       )}
 
@@ -789,8 +789,8 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
 
       {pending && (
         <ConfirmDialog
-          title={`Replace the draft of ${pending.name}?`}
-          confirmLabel="Replace draft"
+          title={`${pending.name}의 초안을 바꿀까요?`}
+          confirmLabel="초안 바꾸기"
           tone="accent"
           onCancel={() => setPending(null)}
           onConfirm={async () => {
@@ -799,7 +799,7 @@ export function SkillsTab({ canManage, resetToken }: { canManage: boolean; reset
             await applyUpload(u);
           }}
         >
-          The uploaded files become the new draft. Published versions are not affected until you publish.
+          업로드한 파일이 새 초안이 돼요. 게시하기 전까지 게시된 버전에는 영향이 없어요.
         </ConfirmDialog>
       )}
     </>

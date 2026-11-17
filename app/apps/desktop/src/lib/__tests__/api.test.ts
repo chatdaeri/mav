@@ -477,7 +477,7 @@ describe("ApiClient tree-binary routes", () => {
  * one is a de-facto sign-out (the session lives under a per-server keychain
  * key). So a wrong address has to come back as a wrong address: these cases pin
  * that a 200 from something-that-isn't-us is a failure, and that "unreachable"
- * stays distinguishable from "reachable but not Baalda" — the two send the user
+ * stays distinguishable from "reachable but not 마브" — the two send the user
  * to completely different places.
  */
 describe("ApiClient.health", () => {
@@ -523,7 +523,7 @@ describe("ApiClient.health", () => {
     expect(seen.url).toBe("http://localhost:3010/health");
   });
 
-  it("rejects a 200 that isn't a Baalda health body", async () => {
+  it("rejects a 200 that isn't a 마이 세컨드 브레인 health body", async () => {
     for (const body of ["<!doctype html><h1>nginx</h1>", "", JSON.stringify({ ok: false }), '"ok"']) {
       const api = new ApiClient({ fetchImpl: rawFetch(200, body) });
       await expect(api.health("https://notes.example.com")).rejects.toMatchObject({

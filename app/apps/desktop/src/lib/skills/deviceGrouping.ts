@@ -3,7 +3,7 @@
 // pinned by `__tests__/deviceGrouping.test.ts`.
 //
 // One skill shows once:
-// - a Baalda team copy is one card however many tool folders hold it (Baalda
+// - a 마브 team copy is one card however many tool folders hold it (마브
 //   writes a real copy into each, so their folders differ): merged by `skillId`;
 // - a personal skill found in several folders is merged when it is the SAME
 //   skill: same name and same description (a symlink trivially qualifies);
@@ -44,12 +44,12 @@ export function usedByText(item: Pick<DeviceItem, "locations">): string {
 
 const LOCATION_HINT: Record<SkillLocation, string> = {
   claudePersonal: "~/.claude/skills",
-  claudeSynced: "claude.ai org",
-  claudePlugin: "Claude plugin",
+  claudeSynced: "claude.ai 조직",
+  claudePlugin: "Claude 플러그인",
   agentsPersonal: "~/.agents/skills",
   codexPersonal: "~/.codex/skills",
-  codexSystem: "Codex built-in",
-  codexPlugin: "Codex plugin",
+  codexSystem: "Codex 기본 제공",
+  codexPlugin: "Codex 플러그인",
 };
 
 export interface DeviceItem {
@@ -83,16 +83,16 @@ const PERSONAL: ReadonlySet<SkillLocation> = new Set(["claudePersonal", "agentsP
 const KIND_ORDER: DeviceGroupKind[] = ["team", "personal", "claudePlugin", "codexPlugin", "claudeOrg", "codexSystem"];
 
 function groupOf(item: DeviceItem): { key: string; kind: DeviceGroupKind; label: string } {
-  if (item.managed) return { key: "team", kind: "team", label: "From your team" };
-  if (item.locations.some((l) => PERSONAL.has(l))) return { key: "personal", kind: "personal", label: "Your skills" };
+  if (item.managed) return { key: "team", kind: "team", label: "팀에서 받음" };
+  if (item.locations.some((l) => PERSONAL.has(l))) return { key: "personal", kind: "personal", label: "내 스킬" };
   if (item.locations.includes("claudePlugin") || item.locations.includes("codexPlugin")) {
     const kind = item.locations.includes("claudePlugin") ? "claudePlugin" : "codexPlugin";
-    const plugin = item.pluginName ?? "plugin";
+    const plugin = item.pluginName ?? "플러그인";
     const label = item.marketplace ? `${plugin} · ${item.marketplace}` : plugin;
     return { key: `${kind}|${plugin}|${item.marketplace ?? ""}`, kind, label };
   }
-  if (item.locations.includes("claudeSynced")) return { key: "claudeOrg", kind: "claudeOrg", label: "Claude org (claude.ai)" };
-  return { key: "codexSystem", kind: "codexSystem", label: "Codex built-in" };
+  if (item.locations.includes("claudeSynced")) return { key: "claudeOrg", kind: "claudeOrg", label: "Claude 조직 (claude.ai)" };
+  return { key: "codexSystem", kind: "codexSystem", label: "Codex 기본 제공" };
 }
 
 /** The identity two entries share when they are the same skill (see the module note). */
@@ -154,7 +154,7 @@ export function isDisabled(item: Pick<DeviceItem, "enabled">): boolean {
 
 /**
  * How many skills "On this device" lists: disabled plugins don't count, and
- * neither do Baalda's copies of team skills (the Team tab shows those).
+ * neither do 마브's copies of team skills (the Team tab shows those).
  */
 export function countLive(items: readonly DeviceItem[]): number {
   return items.filter((i) => !isDisabled(i) && !i.managed).length;
@@ -200,9 +200,9 @@ export function deviceAvailability(
   detected: Record<DeviceTool, boolean>,
 ): ToolAvailability[] {
   return AI_TOOLS.map((tool) => {
-    if (!detected[tool]) return { tool, on: false, reason: `${AI_TOOL_NAME[tool]} isn't installed` };
-    if (!visibleTo(item, tool)) return { tool, on: false, reason: `Not in a folder ${AI_TOOL_NAME[tool]} reads` };
-    if (tool === "claude" && isDisabled(item)) return { tool, on: false, reason: "Plugin is off in Claude" };
+    if (!detected[tool]) return { tool, on: false, reason: `${AI_TOOL_NAME[tool]}가 설치되어 있지 않아요` };
+    if (!visibleTo(item, tool)) return { tool, on: false, reason: `${AI_TOOL_NAME[tool]}가 읽는 폴더에 없어요` };
+    if (tool === "claude" && isDisabled(item)) return { tool, on: false, reason: "Claude에서 플러그인이 꺼져 있어요" };
     return { tool, on: true, reason: null };
   });
 }

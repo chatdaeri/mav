@@ -101,7 +101,7 @@ function buttonClass(a: MessageAction, first: boolean): string {
   return "secondary";
 }
 
-/** A server-driven message as a dialog in Baalda's own modal shell. Mounted
+/** A server-driven message as a dialog in 마브's own modal shell. Mounted
  * once (App), it also runs the message center. */
 export function MessagePopup() {
   useEffect(() => startMessageCenter(), []);
@@ -167,7 +167,7 @@ function MessageDialog({ m }: { m: PreparedMessage }) {
         aria-labelledby="message-popup-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button type="button" className="message-close" aria-label="Close" onClick={dismiss}>
+        <button type="button" className="message-close" aria-label="닫기" onClick={dismiss}>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6 6 18" />
           </svg>

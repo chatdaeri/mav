@@ -14,11 +14,11 @@ import { invitationState, loadInvitation } from "../../registry/invitations.js";
  *
  *   GET /forgot-password         ask for the reset email (linked from /oauth/login)
  *   GET /reset-password?token=…  choose a new password (the emailed link), then
- *                                bounces into `baalda://signin`
+ *                                bounces into `mav://signin`
  *   GET /email-verified          where the verification link lands; bounces into
- *                                `baalda://verified` so the app refreshes itself
+ *                                `mav://verified` so the app refreshes itself
  *   GET /invite/:id              where an invitation email lands: bounces into
- *                                the desktop app's `baalda://invite/…` deep link
+ *                                the desktop app's `mav://invite/…` deep link
  *
  * All four are public. The reset page's token is single-use and expires in an
  * hour (Better Auth's `reset-password:<token>` verification row); the invite
@@ -41,10 +41,10 @@ const SIGNIN_DEEP_LINK = `${config.deepLinkScheme}://signin`;
 
 function notAvailable() {
   return page({
-    title: "Not available",
-    body: `<h1>Not available</h1><p class="sub">This ${esc(
+    title: "사용할 수 없음",
+    body: `<h1>사용할 수 없어요</h1><p class="sub">이 ${esc(
       BRAND_NAME,
-    )} server doesn't send email, so passwords can't be reset here. Ask whoever runs it to configure outbound email (see the deploy guide) or to set a new password for you.</p>`,
+    )} 서버는 이메일을 보내지 않아서 여기서는 비밀번호를 재설정할 수 없어요. 서버 운영자에게 이메일 발송 설정(배포 가이드 참고)이나 새 비밀번호 설정을 요청하세요.</p>`,
   });
 }
 
@@ -52,18 +52,18 @@ function notAvailable() {
 accountPageRoutes.get("/forgot-password", (c) => {
   if (!emailEnabled()) return c.html(notAvailable(), 404);
   const body = `
-    <h1>Reset your password</h1>
-    <p class="sub">Enter your email and we'll send a link to choose a new password.</p>
+    <h1>비밀번호 재설정</h1>
+    <p class="sub">이메일을 입력하면 새 비밀번호를 정할 수 있는 링크를 보내드려요.</p>
     <div id="err" class="err" style="display:none"></div>
     <form id="f" autocomplete="on">
-      <label for="email">Email</label>
+      <label for="email">이메일</label>
       <input id="email" type="email" required autocomplete="username" autofocus />
-      <button type="submit" class="primary">Email me a reset link</button>
+      <button type="submit" class="primary">재설정 링크 받기</button>
     </form>
     <div id="done" style="display:none">
-      <div class="ok">Reset link sent to <b id="who"></b>. Check your inbox (and spam). The link is valid for one hour.</div>
+      <div class="ok"><b id="who"></b> 주소로 재설정 링크를 보냈어요. 받은편지함(스팸함 포함)을 확인하세요. 링크는 1시간 동안 유효해요.</div>
     </div>
-    <p class="foot"><a class="plain" href="/oauth/login">Back to sign in</a></p>
+    <p class="foot"><a class="plain" href="/oauth/login">로그인으로 돌아가기</a></p>
     <script>
       const errEl = document.getElementById('err');
       function showErr(m){ errEl.textContent = m; errEl.style.display='block'; }
@@ -72,7 +72,7 @@ accountPageRoutes.get("/forgot-password", (c) => {
         errEl.style.display='none';
         const form = e.target; const btn = form.querySelector('button');
         const email = document.getElementById('email').value.trim();
-        btn.disabled = true; btn.textContent = 'Sending…';
+        btn.disabled = true; btn.textContent = '보내는 중…';
         try {
           const res = await fetch('/api/password-reset/request', {
             method:'POST', headers:{'Content-Type':'application/json'},
@@ -80,18 +80,18 @@ accountPageRoutes.get("/forgot-password", (c) => {
           });
           if (!res.ok) {
             const j = await res.json().catch(()=>({}));
-            if (j.error === 'no_account') throw new Error('There is no account for ' + email + ' on this server. Check the address (or the server, if your team runs its own).');
-            throw new Error(j.message || 'Could not send the email');
+            if (j.error === 'no_account') throw new Error('이 서버에 ' + email + ' 계정이 없어요. 주소를 확인하세요(팀에서 서버를 따로 운영한다면 서버도 확인하세요).');
+            throw new Error(j.message || '이메일을 보내지 못했어요');
           }
           document.getElementById('who').textContent = email;
           form.style.display = 'none';
           document.getElementById('done').style.display = 'block';
         } catch (err) {
-          showErr(err.message || 'Could not send the email'); btn.disabled=false; btn.textContent='Email me a reset link';
+          showErr(err.message || '이메일을 보내지 못했어요'); btn.disabled=false; btn.textContent='재설정 링크 받기';
         }
       });
     </script>`;
-  return c.html(page({ title: "Reset password", body }));
+  return c.html(page({ title: "비밀번호 재설정", body }));
 });
 
 // ── Reset password (the emailed link) ────────────────────────────────────────
@@ -100,30 +100,30 @@ accountPageRoutes.get("/reset-password", (c) => {
   if (!ID_RE.test(token)) {
     return c.html(
       page({
-        title: "Invalid link",
-        body: `<h1>This link isn't valid</h1><p class="sub">Request a new reset link from the ${esc(
+        title: "잘못된 링크",
+        body: `<h1>유효하지 않은 링크예요</h1><p class="sub">${esc(
           BRAND_NAME,
-        )} app (Sign in → Forgot password?).</p>`,
+        )} 앱에서 새 재설정 링크를 요청하세요(로그인 → 비밀번호를 잊으셨나요?).</p>`,
       }),
       400,
     );
   }
   const body = `
-    <h1>Choose a new password</h1>
-    <p class="sub">At least 8 characters. Every other device signed in to this account will be signed out.</p>
+    <h1>새 비밀번호 정하기</h1>
+    <p class="sub">8자 이상으로 정하세요. 이 계정에 로그인된 다른 기기는 모두 로그아웃돼요.</p>
     <div id="err" class="err" style="display:none"></div>
     <form id="f" autocomplete="on">
-      <label for="pw">New password</label>
+      <label for="pw">새 비밀번호</label>
       <input id="pw" type="password" required minlength="8" autocomplete="new-password" autofocus />
-      <label for="pw2">Repeat it</label>
+      <label for="pw2">새 비밀번호 확인</label>
       <input id="pw2" type="password" required minlength="8" autocomplete="new-password" />
-      <button type="submit" class="primary">Set new password</button>
+      <button type="submit" class="primary">새 비밀번호 저장</button>
     </form>
     <div id="done" style="display:none">
-      <div class="ok">Your password is updated. Opening ${esc(BRAND_NAME)} so you can sign in with it…</div>
-      <a class="btn primary" href="${esc(SIGNIN_DEEP_LINK)}" style="display:flex;text-decoration:none">Open ${esc(
+      <div class="ok">비밀번호를 바꿨어요. ${esc(BRAND_NAME)}을 열어 새 비밀번호로 로그인하세요…</div>
+      <a class="btn primary" href="${esc(SIGNIN_DEEP_LINK)}" style="display:flex;text-decoration:none">${esc(
         BRAND_NAME,
-      )}</a>
+      )} 열기</a>
     </div>
     <script>
       const TOKEN = ${JSON.stringify(token)};
@@ -134,9 +134,9 @@ accountPageRoutes.get("/reset-password", (c) => {
         e.preventDefault();
         errEl.style.display='none';
         const pw = document.getElementById('pw').value, pw2 = document.getElementById('pw2').value;
-        if (pw !== pw2) { showErr("Those passwords don't match."); return; }
+        if (pw !== pw2) { showErr('비밀번호가 서로 달라요.'); return; }
         const form = e.target; const btn = form.querySelector('button');
-        btn.disabled = true; btn.textContent = 'Saving…';
+        btn.disabled = true; btn.textContent = '저장 중…';
         try {
           const res = await fetch('/api/auth/reset-password', {
             method:'POST', headers:{'Content-Type':'application/json'},
@@ -146,9 +146,9 @@ accountPageRoutes.get("/reset-password", (c) => {
             const j = await res.json().catch(()=>({}));
             const code = j.code || '';
             if (code === 'INVALID_TOKEN' || /invalid token/i.test(j.message || '')) {
-              throw new Error('This link has expired or was already used. Request a new one from the app.');
+              throw new Error('링크가 만료됐거나 이미 사용됐어요. 앱에서 새 링크를 요청하세요.');
             }
-            throw new Error(j.message || 'Could not set the password');
+            throw new Error(j.message || '비밀번호를 바꾸지 못했어요');
           }
           form.style.display = 'none';
           document.getElementById('done').style.display = 'block';
@@ -156,11 +156,11 @@ accountPageRoutes.get("/reset-password", (c) => {
           // reset) and opens the sign-in card. The button stays as the fallback.
           setTimeout(() => { location.href = SIGNIN; }, 600);
         } catch (err) {
-          showErr(err.message || 'Could not set the password'); btn.disabled=false; btn.textContent='Set new password';
+          showErr(err.message || '비밀번호를 바꾸지 못했어요'); btn.disabled=false; btn.textContent='새 비밀번호 저장';
         }
       });
     </script>`;
-  return c.html(page({ title: "Choose a new password", body }));
+  return c.html(page({ title: "새 비밀번호 정하기", body }));
 });
 
 // ── Email verified (verification link callback) ──────────────────────────────
@@ -169,10 +169,10 @@ accountPageRoutes.get("/email-verified", (c) => {
   if (error) {
     return c.html(
       page({
-        title: "Link expired",
-        body: `<h1>This link has expired</h1><p class="sub">Sign in to ${esc(
+        title: "링크 만료",
+        body: `<h1>링크가 만료됐어요</h1><p class="sub">${esc(
           BRAND_NAME,
-        )} and we'll send you a fresh confirmation email.</p>`,
+        )}에 로그인하면 확인 메일을 다시 보내드려요.</p>`,
       }),
       400,
     );
@@ -181,13 +181,13 @@ accountPageRoutes.get("/email-verified", (c) => {
   // session so the verified state shows without a reload; button as fallback.
   return c.html(
     page({
-      title: "Email confirmed",
-      body: `<h1>Email confirmed</h1><p class="sub">Thanks, your address is verified. Taking you back to ${esc(
+      title: "이메일 확인 완료",
+      body: `<h1>이메일을 확인했어요</h1><p class="sub">주소 인증이 끝났어요. ${esc(
         BRAND_NAME,
-      )}…</p>
-      <a class="btn primary" href="${esc(VERIFIED_DEEP_LINK)}" style="display:flex;text-decoration:none">Open ${esc(
+      )}(으)로 돌아가는 중…</p>
+      <a class="btn primary" href="${esc(VERIFIED_DEEP_LINK)}" style="display:flex;text-decoration:none">${esc(
         BRAND_NAME,
-      )}</a>
+      )} 열기</a>
       <script>location.href = ${JSON.stringify(VERIFIED_DEEP_LINK)};</script>`,
     }),
   );
@@ -219,14 +219,14 @@ function inviteHandOffScript(deepLink: string): string {
 // ── Invitation landing page ──────────────────────────────────────────────────
 accountPageRoutes.get("/invite/:id", async (c) => {
   const id = c.req.param("id");
-  if (!ID_RE.test(id)) return c.text("Malformed link", 400);
+  if (!ID_RE.test(id)) return c.text("잘못된 링크예요", 400);
 
   const inv = await loadInvitation(pool, id);
   if (!inv) {
     return c.html(
       page({
-        title: "Invitation not found",
-        body: `<h1>Invitation not found</h1><p class="sub">This link doesn't match any invitation. Ask the person who invited you to send a new one.</p>`,
+        title: "초대를 찾을 수 없음",
+        body: `<h1>초대를 찾을 수 없어요</h1><p class="sub">이 링크에 해당하는 초대가 없어요. 초대한 사람에게 새 초대를 요청하세요.</p>`,
       }),
       404,
     );
@@ -235,16 +235,16 @@ accountPageRoutes.get("/invite/:id", async (c) => {
   if (state !== "pending") {
     const why =
       state === "expired"
-        ? "This invitation has expired."
+        ? "초대가 만료됐어요."
         : state === "accepted"
-          ? "This invitation was already accepted."
-          : "This invitation was withdrawn.";
+          ? "이미 수락한 초대예요."
+          : "초대가 취소됐어요.";
     return c.html(
       page({
-        title: "Invitation unavailable",
-        body: `<h1>${esc(why)}</h1><p class="sub">Ask the person who invited you to <b>${esc(
+        title: "초대를 사용할 수 없음",
+        body: `<h1>${esc(why)}</h1><p class="sub"><b>${esc(
           inv.organizationName,
-        )}</b> to send a new invitation${state === "accepted" ? ", or just sign in. You may already be a member" : ""}.</p>`,
+        )}</b> 볼트에 초대한 사람에게 새 초대를 요청하세요${state === "accepted" ? ". 이미 멤버일 수 있으니 로그인해 보세요" : ""}.</p>`,
       }),
       410,
     );
@@ -252,19 +252,19 @@ accountPageRoutes.get("/invite/:id", async (c) => {
 
   const server = publicBaseUrl(c);
   const deepLink = `${config.deepLinkScheme}://invite/${encodeURIComponent(id)}?server=${encodeURIComponent(server)}`;
-  const who = inv.inviterName?.trim() || "A teammate";
+  const who = inv.inviterName?.trim() || "팀원";
   const body = `
-    <h1>Join ${esc(inv.organizationName)}</h1>
-    <p class="sub"><b>${esc(who)}</b> invited <b>${esc(inv.email)}</b> to this vault${
-      inv.role === "admin" ? " as an admin" : ""
-    }.</p>
-    <a id="open-invite" class="btn primary" href="${esc(deepLink)}" style="display:flex;text-decoration:none">Open in ${esc(
+    <h1>${esc(inv.organizationName)} 볼트 참여</h1>
+    <p class="sub"><b>${esc(who)}</b>님이 <b>${esc(inv.email)}</b> 주소를 이 볼트에${
+      inv.role === "admin" ? " 관리자로" : ""
+    } 초대했어요.</p>
+    <a id="open-invite" class="btn primary" href="${esc(deepLink)}" style="display:flex;text-decoration:none">${esc(
       BRAND_NAME,
-    )}</a>
-    <p class="sub" style="margin-top:18px">Sign in with <b>${esc(
+    )}에서 열기</a>
+    <p class="sub" style="margin-top:18px"><b>${esc(
       inv.email,
-    )}</b> (or create an account with that address) and you'll land in the vault.</p>
-    <p class="foot">Don't have ${esc(BRAND_NAME)} yet? <a href="https://baalda.com" rel="noopener">Get it</a>, then open this link again.</p>
+    )}</b> 주소로 로그인하거나 가입하면 바로 볼트로 이동해요.</p>
+    <p class="foot">아직 ${esc(BRAND_NAME)}이 없나요? <a href="https://github.com/chatdaeri/mav" rel="noopener">받기</a> 후 이 링크를 다시 열어 주세요.</p>
     <script>${inviteHandOffScript(deepLink)}</script>`;
-  return c.html(page({ title: `Join ${inv.organizationName}`, body }));
+  return c.html(page({ title: `${inv.organizationName} 볼트 참여`, body }));
 });

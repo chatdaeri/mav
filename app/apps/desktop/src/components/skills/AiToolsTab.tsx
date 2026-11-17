@@ -38,7 +38,7 @@ import "./skills.css";
 
 const TARGET_LABEL: Record<SkillTarget, string> = {
   claude: "Claude",
-  agents: "Codex & other tools",
+  agents: "Codex 및 기타 도구",
 };
 
 const TOOL_NAME: Record<string, string> = {
@@ -51,9 +51,9 @@ const TOOL_NAME: Record<string, string> = {
 
 
 function installedText(t: SkillTargetInfo): string {
-  if (t.target === "claude") return t.toolInstalled ? "Detected" : "Not installed";
-  if (t.detectedTools.length === 0) return "Not installed";
-  return `Detected: ${t.detectedTools.map((d) => TOOL_NAME[d] ?? d).join(", ")}`;
+  if (t.target === "claude") return t.toolInstalled ? "감지됨" : "설치 안 됨";
+  if (t.detectedTools.length === 0) return "설치 안 됨";
+  return `감지됨: ${t.detectedTools.map((d) => TOOL_NAME[d] ?? d).join(", ")}`;
 }
 
 export function AiToolsTab() {
@@ -83,7 +83,7 @@ export function AiToolsTab() {
   }, [state.targets]);
 
   if (state.unsupported) {
-    return <div className="muted">This server needs an update before skills can sync here.</div>;
+    return <div className="muted">스킬을 동기화하려면 서버를 업데이트해야 해요.</div>;
   }
 
   const results = state.results;
@@ -110,30 +110,30 @@ export function AiToolsTab() {
       const which = (t: SkillTarget, many: boolean, label: string) => (many ? `${label} (${TARGET_SHORT[t]})` : label);
       const actions = [
         ...edited.flatMap((t) => [
-          { key: `keep-${t}`, label: which(t, edited.length > 1, "Keep mine"), hint: "Leave your edited copy as it is", onSelect: () => keepMySkill(orgId, skill.skillId, t) },
-          { key: `team-${t}`, label: which(t, edited.length > 1, "Use team version"), hint: "Your copy is backed up first", onSelect: () => applyTeamSkillVersion(orgId, skill.skillId, t) },
+          { key: `keep-${t}`, label: which(t, edited.length > 1, "내 버전 유지"), hint: "수정한 복사본을 그대로 둬요", onSelect: () => keepMySkill(orgId, skill.skillId, t) },
+          { key: `team-${t}`, label: which(t, edited.length > 1, "팀 버전 사용"), hint: "내 복사본은 먼저 백업돼요", onSelect: () => applyTeamSkillVersion(orgId, skill.skillId, t) },
         ]),
         ...conflict.flatMap((t) => {
           const own = results.find((r) => r.orgId === orgId && r.skillId === skill.skillId && r.target === t)?.conflict === "unmanaged";
           return own
             ? [
-                { key: `nt-team-${t}`, label: which(t, conflict.length > 1, "Use team version"), hint: "Your copy is backed up first", onSelect: () => replaceNameTakenSkill(orgId, skill.skillId, t) },
-                { key: `nt-keep-${t}`, label: which(t, conflict.length > 1, "Keep my own"), hint: "Leave your folder as it is on this computer", onSelect: () => keepMySkill(orgId, skill.skillId, t) },
+                { key: `nt-team-${t}`, label: which(t, conflict.length > 1, "팀 버전 사용"), hint: "내 복사본은 먼저 백업돼요", onSelect: () => replaceNameTakenSkill(orgId, skill.skillId, t) },
+                { key: `nt-keep-${t}`, label: which(t, conflict.length > 1, "내 폴더 유지"), hint: "이 컴퓨터의 폴더를 그대로 둬요", onSelect: () => keepMySkill(orgId, skill.skillId, t) },
               ]
             : [
                 // Another vault's, server's or account's copy: backed up, then replaced.
-                { key: `nt-team-${t}`, label: which(t, conflict.length > 1, "Use team version"), hint: "The other copy is backed up first", onSelect: () => replaceNameTakenSkill(orgId, skill.skillId, t) },
+                { key: `nt-team-${t}`, label: which(t, conflict.length > 1, "팀 버전 사용"), hint: "다른 복사본은 먼저 백업돼요", onSelect: () => replaceNameTakenSkill(orgId, skill.skillId, t) },
               ];
         }),
-        { key: "check", label: "Check again", onSelect: () => checkSkillsNow() },
+        { key: "check", label: "다시 확인", onSelect: () => checkSkillsNow() },
       ];
       return (
-        <TipAnchor content={{ heading: overall === "bad" ? "Couldn't install on this computer" : "Needs a look on this computer", lines: lines.split("\n"), note: "Click to choose what to do" }}>
+        <TipAnchor content={{ heading: overall === "bad" ? "이 컴퓨터에 설치하지 못했어요" : "이 컴퓨터에서 확인이 필요해요", lines: lines.split("\n"), note: "눌러서 할 일을 선택하세요" }}>
           <SkillsMenuButton
             label={<WarnMark />}
             caret={false}
             className={`skills-install is-${overall}`}
-            ariaLabel={`Fix ${skillDisplayName(skill.name)}. ${lines.split("\n").join(". ")}`}
+            ariaLabel={`${skillDisplayName(skill.name)} 해결. ${lines.split("\n").join(". ")}`}
             actions={actions}
           />
         </TipAnchor>
@@ -144,7 +144,7 @@ export function AiToolsTab() {
       return (
         <InstallButton
           kind="required"
-          title={`Required by your team\n${lines}`}
+          title={`팀에서 필수로 지정했어요\n${lines}`}
           name={skill.name}
           canManage={canManage}
           onMakeOptional={
@@ -157,7 +157,7 @@ export function AiToolsTab() {
                     undo();
                     throw e;
                   }
-                  toast(`${skillDisplayName(skill.name)} is now optional. People can remove it from their computer.`);
+                  toast(`${skillDisplayName(skill.name)}을(를) 선택 사항으로 바꿨어요. 이제 각자 컴퓨터에서 제거할 수 있어요.`);
                   checkSkillsNow();
                 }
               : undefined
@@ -169,12 +169,12 @@ export function AiToolsTab() {
       return (
         <InstallButton
           kind="installed"
-          title={`On this computer · click to remove\n${lines}`}
+          title={`이 컴퓨터에 설치됨 · 눌러서 제거\n${lines}`}
           onClick={() => setRemoving({ orgId, skillId: skill.skillId, name: skill.name })}
         />
       );
     }
-    return <InstallButton kind="install" title="Use on this computer" onClick={() => setSkillOnThisDevice(orgId, skill.skillId, true)} />;
+    return <InstallButton kind="install" title="이 컴퓨터에서 사용" onClick={() => setSkillOnThisDevice(orgId, skill.skillId, true)} />;
   };
 
   const openBackups = async () => {
@@ -190,23 +190,23 @@ export function AiToolsTab() {
     >
       {state.running ? (
         <span className="skills-inline">
-          <Spinner size="xs" /> Checking…
+          <Spinner size="xs" /> 확인 중…
         </span>
       ) : (
-        "Check now"
+        "지금 확인"
       )}
     </AsyncButton>
   );
 
   return (
     <>
-      <p className="ai-tools-lede">Skills from your vaults install into the AI tools on this computer.</p>
+      <p className="ai-tools-lede">볼트의 스킬이 이 컴퓨터의 AI 도구에 설치돼요.</p>
       <div className="profile-rows ai-tools-rows">
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Install into</span>
+            <span className="profile-row-title">설치할 도구</span>
             <span className="profile-row-hint">
-              Tools found on this computer. Switch one off to stop installing skills there.
+              이 컴퓨터에서 찾은 도구예요. 끄면 해당 도구에는 스킬을 설치하지 않아요.
             </span>
           </div>
           <div className="profile-row-control ai-tools-list">
@@ -222,12 +222,12 @@ export function AiToolsTab() {
                   <span className="ai-tool-name">{TARGET_LABEL[t.target]}</span>
                   <code className="ai-tool-path">{t.root}</code>
                 </span>
-                <span className={`ai-tool-tag${installedText(t) === "Not installed" ? " is-off" : ""}`}>
-                  {installedText(t).replace(/^Detected: /, "")}
+                <span className={`ai-tool-tag${installedText(t) === "설치 안 됨" ? " is-off" : ""}`}>
+                  {installedText(t).replace(/^감지됨: /, "")}
                 </span>
                 <Switch
                   checked={prefs.targets[t.target]}
-                  ariaLabel={`Install skills for ${TARGET_LABEL[t.target]}`}
+                  ariaLabel={`${TARGET_LABEL[t.target]}에 스킬 설치`}
                   onChange={(next) => setSkillTargetEnabled(t.target, next)}
                 />
               </label>
@@ -237,29 +237,29 @@ export function AiToolsTab() {
 
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Skills on this computer</span>
+            <span className="profile-row-title">이 컴퓨터의 스킬</span>
             <span className="profile-row-hint">
-              Required skills always install. Optional ones you can add or remove.
+              필수 스킬은 항상 설치돼요. 선택 스킬은 직접 추가하거나 제거할 수 있어요.
             </span>
             <span className="ai-tools-actions">
               {checkButton}
               <RowActionsMenu
-                ariaLabel="More"
-                actions={[{ key: "backups", label: "Open backups folder", onSelect: openBackups }]}
+                ariaLabel="더 보기"
+                actions={[{ key: "backups", label: "백업 폴더 열기", onSelect: openBackups }]}
               />
             </span>
           </div>
           <div className="profile-row-control ai-tools-list">
             <ProgressBar active={state.running && !!state.manifest} />
             {state.lastError && (
-              <LoadError message={`Couldn't check for skills: ${state.lastError}`} onRetry={() => checkSkillsNow()} />
+              <LoadError message={`스킬을 확인하지 못했어요: ${state.lastError}`} onRetry={() => checkSkillsNow()} />
             )}
             {!state.active ? (
-              <div className="muted">Sign in to get your team's skills.</div>
+              <div className="muted">로그인하면 팀의 스킬을 받을 수 있어요.</div>
             ) : !state.manifest ? (
-              <SkeletonCards count={3} label="Checking for skills" />
+              <SkeletonCards count={3} label="스킬을 확인하는 중" />
             ) : rows.length === 0 ? (
-              <EmptyState title="No skills yet">Your vaults haven't published any skills.</EmptyState>
+              <EmptyState title="아직 스킬이 없어요">볼트에 게시된 스킬이 없어요.</EmptyState>
             ) : (
               <ul className="ai-skills">
                 {rows.map(({ org, skill }) => (
@@ -278,7 +278,7 @@ export function AiToolsTab() {
                       </span>
                     </span>
                     <span className={`ai-skill-tag${skill.delivery === "optional" ? " is-optional" : ""}`}>
-                      {skill.delivery === "optional" ? "Optional" : "Required"}
+                      {skill.delivery === "optional" ? "선택" : "필수"}
                     </span>
                     {square(org.orgId, org.role, skill)}
                   </li>
@@ -291,15 +291,15 @@ export function AiToolsTab() {
 
       {removing && (
         <ConfirmDialog
-          title={`Remove ${skillDisplayName(removing.name)} from this computer?`}
-          confirmLabel="Remove"
+          title={`이 컴퓨터에서 ${skillDisplayName(removing.name)}을(를) 제거할까요?`}
+          confirmLabel="제거"
           onCancel={() => setRemoving(null)}
           onConfirm={() => {
             setSkillOnThisDevice(removing.orgId, removing.skillId, false);
             setRemoving(null);
           }}
         >
-          It stays in the vault; you can add it back any time. A copy you edited is kept, not deleted.
+          볼트에는 그대로 남아 있어서 언제든 다시 추가할 수 있어요. 수정한 복사본은 삭제되지 않고 유지돼요.
         </ConfirmDialog>
       )}
     </>

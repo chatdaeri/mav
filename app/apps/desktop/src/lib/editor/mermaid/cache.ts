@@ -85,7 +85,7 @@ export function requestDiagram(
   if (source.length > MAX_MERMAID_CHARS) {
     return {
       key,
-      cached: { error: "Diagram too large to render" },
+      cached: { error: "다이어그램이 너무 커서 그릴 수 없어요" },
       subscribe: () => () => {},
     };
   }
@@ -108,7 +108,7 @@ export function requestDiagram(
             .then(
               (svg): DiagramResult => ({ svg }),
               (err): DiagramResult => ({
-                error: err instanceof Error ? err.message : "Diagram could not be drawn",
+                error: err instanceof Error ? err.message : "다이어그램을 그릴 수 없어요",
               }),
             )
             .then((result) => {

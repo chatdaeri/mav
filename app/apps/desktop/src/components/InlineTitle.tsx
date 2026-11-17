@@ -167,7 +167,7 @@ export function InlineTitle({
     // Case-insensitive by way of the filesystem: `resolve_in_vault` goes
     // through the real path, and macOS treats `Foo.md` and `foo.md` as one.
     if (await noteExists(plan.nextPath)) {
-      setWarning(`A note called "${plan.stem}" already exists here.`);
+      setWarning(`"${plan.stem}"라는 노트가 이미 여기에 있어요.`);
       inputRef.current?.focus();
       return;
     }
@@ -235,8 +235,8 @@ export function InlineTitle({
         value={value}
         readOnly={readOnly}
         aria-readonly={readOnly}
-        aria-label="Note name"
-        placeholder="Untitled"
+        aria-label="노트 이름"
+        placeholder="제목 없음"
         spellCheck
         autoCapitalize="off"
         autoCorrect="off"
@@ -323,13 +323,13 @@ export function InlineTitle({
               <path d="M20 12l-8 8-9-9V3h8z" />
               <circle cx="7.5" cy="7.5" r="1.5" />
             </svg>
-            Add tags
+            태그 추가
           </button>
           <button type="button" className="inline-title-add" onClick={() => addPropertyToNote(view)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
             </svg>
-            Add property
+            속성 추가
           </button>
           <button
             type="button"
@@ -345,7 +345,7 @@ export function InlineTitle({
               <rect x="3" y="5" width="18" height="16" rx="2" />
               <path d="M3 10h18M8 3v4M16 3v4" />
             </svg>
-            Add date
+            날짜 추가
           </button>
         </div>
       )}

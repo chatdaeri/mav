@@ -107,7 +107,7 @@ export function SidebarHeader() {
   const copyPath = async () => {
     if (switching) return;
     if (await copyText(vault.path)) setCopiedPath(vault.path);
-    else toast("Couldn't copy the vault path", "error");
+    else toast("볼트 경로를 복사하지 못했어요", "error");
   };
 
   // The tile matches the vault's card in the switcher: the target while a switch
@@ -157,7 +157,7 @@ export function SidebarHeader() {
               className={`vault-switch-btn${menuOpen ? " open" : ""}`}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
-              title={menuOpen ? undefined : "Switch vault"}
+              title={menuOpen ? undefined : "볼트 전환"}
               onClick={togglePinnedMenu}
             >
               {/* Keyed on the name so a switch cross-fades between the two vaults
@@ -216,8 +216,8 @@ export function SidebarHeader() {
               role="button"
               tabIndex={switching ? -1 : 0}
               aria-disabled={!!switching}
-              title={`Copy ${vault.path}`}
-              aria-label="Copy vault folder path"
+              title={`${vault.path} 복사`}
+              aria-label="볼트 폴더 경로 복사"
               onMouseDown={(event) => event.stopPropagation()}
               onClick={() => {
                 // A hover preview would cover the copied check; a pinned menu stays.
@@ -237,7 +237,7 @@ export function SidebarHeader() {
               </span>
               {copiedPath === vault.path && !switching && (
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-                  className="vault-path-copied" role="img" aria-label="Path copied">
+                  className="vault-path-copied" role="img" aria-label="경로 복사됨">
                   <path d="m3 8 3 3 7-7" />
                 </svg>
               )}
@@ -263,7 +263,7 @@ export function sidebarPathLabel(
   path: string,
   state: { switching: boolean; rootMissing: boolean },
 ): string {
-  if (state.switching) return "Switching…";
-  if (state.rootMissing) return "Folder missing";
+  if (state.switching) return "전환 중…";
+  if (state.rootMissing) return "폴더 없음";
   return displayVaultPath(path);
 }

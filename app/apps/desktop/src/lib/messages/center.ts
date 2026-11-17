@@ -140,13 +140,13 @@ export const SAMPLE_VAULT_KEY_MESSAGE: MessageSpec = {
   priority: 100,
   icon: "key",
   tone: "important",
-  title: "Keep a copy of your vault key",
-  body: "{vaultName} is protected by a key that only your team's computers hold. If you ever lose access to them, this key is the only way to get your notes back.\n\nSave it somewhere safe, like your password manager.",
+  title: "볼트 키를 따로 보관해 두세요",
+  body: "{vaultName} 볼트는 팀 컴퓨터에만 있는 키로 보호돼요. 그 컴퓨터에 접근할 수 없게 되면 이 키만이 노트를 되찾을 유일한 방법이에요.\n\n비밀번호 관리자처럼 안전한 곳에 저장해 두세요.",
   actions: [
-    { id: "save", kind: "save-vault-key", label: "Save to file", style: "primary", then: "done" },
-    { id: "open", kind: "open-settings", target: "vault:general#security", label: "Show key", then: "close" },
-    { id: "later", kind: "remind-later", hours: 72, label: "Remind me later", style: "quiet", then: "snooze" },
-    { id: "already", kind: "done", label: "I already saved it", style: "quiet", then: "done" },
+    { id: "save", kind: "save-vault-key", label: "파일로 저장", style: "primary", then: "done" },
+    { id: "open", kind: "open-settings", target: "vault:general#security", label: "키 보기", then: "close" },
+    { id: "later", kind: "remind-later", hours: 72, label: "나중에 알림", style: "quiet", then: "snooze" },
+    { id: "already", kind: "done", label: "이미 저장했어요", style: "quiet", then: "done" },
   ],
 };
 
@@ -171,7 +171,7 @@ function startPreview(raw: string): void {
       spec,
       orgId: spec.perVault ? orgId : null,
       vaultId: spec.perVault ? (syncManager.registry?.vaultId ?? "preview-vault") : null,
-      vaultName: spec.perVault ? (s.vault?.name ?? "My vault") : null,
+      vaultName: spec.perVault ? (s.vault?.name ?? "내 볼트") : null,
       showCount: 0,
       lastShownAt: null,
     },

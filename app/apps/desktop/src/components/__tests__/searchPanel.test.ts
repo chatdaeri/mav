@@ -54,7 +54,7 @@ describe("SearchHit", () => {
 
   it("falls back to a generic tag when the path has no extension", () => {
     const out = render(hit({ path: "Archive/readme", kind: "file", ext: null }));
-    expect(out).toContain(">file<");
+    expect(out).toContain(">파일<");
   });
 
   it("renders the Rust snippet as HTML, which only <mark> survives", () => {

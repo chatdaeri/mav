@@ -73,13 +73,13 @@ export function groupCreateRefusals(failures: readonly CreateRefusalInput[]): Cr
   return out;
 }
 
-/** "in Projects/Q3" / "at the top of this vault". */
+/** "Projects/Q3 안에" / "이 볼트의 최상위에". */
 export function wherePhrase(folder: string): string {
-  return folder === "" ? "at the top of this vault" : `in ${folder}`;
+  return folder === "" ? "이 볼트의 최상위에" : `${folder} 안에`;
 }
 
 function count(n: number, word: string): string {
-  return `${n} ${word}${n === 1 ? "" : "s"}`;
+  return `${word} ${n}개`;
 }
 
 /**
@@ -93,25 +93,25 @@ export function createRefusalBannerText(groups: readonly CreateRefusalGroup[]): 
   if (groups.length === 0) return null;
   const total = groups.reduce((n, g) => n + g.paths.length, 0);
   const items = groups.every((g) => g.notes === g.paths.length)
-    ? count(total, "new note")
-    : count(total, "new item");
-  const lead = `${items} on this computer ${total === 1 ? "isn't" : "aren't"} syncing.`;
+    ? count(total, "새 노트")
+    : count(total, "새 항목");
+  const lead = `이 컴퓨터의 ${items}가 동기화되지 않고 있어요.`;
   const access = groups.filter((g) => g.code === "no_write_access");
   const frozen = groups.some((g) => g.code === "root_frozen");
   const parts: string[] = [];
   if (access.length === 1) {
     parts.push(
-      `You don't have permission to add notes ${wherePhrase(access[0].folder)}. ` +
-        "Ask an owner to give you edit access.",
+      `${wherePhrase(access[0].folder)} 노트를 추가할 권한이 없어요. ` +
+        "소유자에게 편집 권한을 요청하세요.",
     );
   } else if (access.length > 1) {
     parts.push(
-      `You don't have permission to add notes in ${access.length} places. ` +
-        "Ask an owner to give you edit access.",
+      `${access.length}곳에 노트를 추가할 권한이 없어요. ` +
+        "소유자에게 편집 권한을 요청하세요.",
     );
   }
   if (frozen) {
-    parts.push("New notes can't be added at the top of this vault. Move them into a folder.");
+    parts.push("볼트 최상위에는 새 노트를 추가할 수 없어요. 폴더로 옮겨 주세요.");
   }
   return { lead, detail: parts.join(" ") };
 }

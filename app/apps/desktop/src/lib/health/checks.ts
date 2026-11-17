@@ -62,79 +62,79 @@ export interface CheckActionWording {
 }
 
 export const CHECK_ACTIONS: Record<CheckAction, CheckActionWording> = {
-  open: { label: "Open", verb: "Opened", gerund: "Opening" },
-  reveal: { label: "Reveal", verb: "Revealed", gerund: "Revealing" },
-  delete: { label: "Delete", verb: "Deleted", gerund: "Deleting" },
-  "export-copy": { label: "Save a copy", verb: "Saved", gerund: "Saving" },
-  "reset-history": { label: "Reset history", verb: "Reset", gerund: "Resetting" },
+  open: { label: "열기", verb: "열었음", gerund: "여는 중" },
+  reveal: { label: "위치 보기", verb: "표시함", gerund: "표시하는 중" },
+  delete: { label: "삭제", verb: "삭제함", gerund: "삭제하는 중" },
+  "export-copy": { label: "사본 저장", verb: "저장함", gerund: "저장하는 중" },
+  "reset-history": { label: "기록 초기화", verb: "초기화함", gerund: "초기화하는 중" },
 
   "delete-all": {
-    label: "Delete all",
-    verb: "Deleted",
-    gerund: "Deleting",
+    label: "모두 삭제",
+    verb: "삭제함",
+    gerund: "삭제하는 중",
     confirm: {
-      title: "Delete {n} {check}?",
+      title: "{check} {n}개를 삭제할까요?",
       body:
-        "They are removed from this vault and from every device that syncs it. It is the " +
-        "same delete the sidebar makes. A vault checkpoint can bring them back.",
-      confirmLabel: "Delete all",
+        "이 볼트와 동기화하는 모든 기기에서 삭제돼요. 사이드바에서 삭제하는 것과 " +
+        "같은 삭제예요. 볼트 체크포인트로 되돌릴 수 있어요.",
+      confirmLabel: "모두 삭제",
       tone: "danger",
     },
   },
   "export-all": {
-    label: "Save copies",
-    verb: "Saved",
-    gerund: "Saving",
+    label: "사본 저장",
+    verb: "저장함",
+    gerund: "저장하는 중",
   },
   "reset-history-all": {
-    label: "Reset history",
-    verb: "Reset",
-    gerund: "Resetting",
+    label: "기록 초기화",
+    verb: "초기화함",
+    gerund: "초기화하는 중",
     confirm: {
-      title: "Reset the history of {n} notes?",
+      title: "노트 {n}개의 기록을 초기화할까요?",
       body:
-        "Each note starts over from the file on disk. The text you have now is kept, " +
-        "but the edit history behind it is discarded on every device, and undo cannot " +
-        "reach past this point.",
-      confirmLabel: "Reset history",
+        "각 노트가 디스크에 있는 파일에서 다시 시작해요. 지금 있는 텍스트는 유지되지만, " +
+        "그 뒤의 편집 기록은 모든 기기에서 삭제되고 실행 취소로 이 시점 이전으로 " +
+        "돌아갈 수 없어요.",
+      confirmLabel: "기록 초기화",
       tone: "danger",
     },
   },
   "rename-legal": {
-    label: "Rename to legal names",
-    verb: "Renamed",
-    gerund: "Renaming",
+    label: "사용 가능한 이름으로 바꾸기",
+    verb: "이름 바꿈",
+    gerund: "이름 바꾸는 중",
     confirm: {
-      title: "Rename {n} files?",
+      title: "파일 {n}개의 이름을 바꿀까요?",
       body:
-        "Each offending character becomes `-`, a trailing dot or space is dropped, and " +
-        "a name Windows reserves gets a leading `_`. The file keeps its identity, its " +
-        "history and its place, so this is a rename and not a new note, but a " +
-        "[[wikilink]] that used the old name will need updating. Folders are left alone.",
-      confirmLabel: "Rename them",
+        "문제가 되는 문자는 `-`로 바뀌고, 끝의 점이나 공백은 사라지며, " +
+        "Windows 예약어는 앞에 `_`가 붙어요. 파일의 식별 정보와 기록, 위치는 그대로라서 " +
+        "새 노트가 아니라 이름 변경이지만, 예전 이름을 쓴 " +
+        "[[위키링크]]는 직접 고쳐야 해요. 폴더는 그대로 둬요.",
+      confirmLabel: "이름 바꾸기",
       tone: "accent",
     },
   },
-  reclaim: { label: "Reclaim", verb: "Reclaimed", gerund: "Reclaiming" },
+  reclaim: { label: "공간 확보", verb: "확보함", gerund: "확보하는 중" },
   "empty-trash": {
-    label: "Empty trash",
-    verb: "Removed",
-    gerund: "Emptying",
+    label: "휴지통 비우기",
+    verb: "제거함",
+    gerund: "비우는 중",
     confirm: {
-      title: "Empty the recovery copies?",
+      title: "복구 사본을 비울까요?",
       body:
-        "These files can include local edits that could not be synced and deleted-note copies " +
-        "kept by earlier versions. Emptying permanently deletes them. Notes still in the vault are untouched.",
-      confirmLabel: "Empty trash",
+        "이 파일에는 동기화하지 못한 로컬 편집 내용과 이전 버전이 보관한 삭제된 노트 사본이 " +
+        "들어 있을 수 있어요. 비우면 영구 삭제돼요. 볼트에 있는 노트는 그대로예요.",
+      confirmLabel: "휴지통 비우기",
       tone: "danger",
     },
   },
   "rebuild-index": {
-    label: "Rebuild index",
-    verb: "Rebuilt",
-    gerund: "Rebuilding",
+    label: "색인 다시 만들기",
+    verb: "다시 만듦",
+    gerund: "다시 만드는 중",
   },
-  "sync-now": { label: "Sync now", verb: "Synced", gerund: "Syncing" },
+  "sync-now": { label: "지금 동기화", verb: "동기화함", gerund: "동기화하는 중" },
 };
 
 /**
@@ -187,14 +187,14 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "empty-notes",
     group: "files",
-    label: "Empty notes",
-    looksFor: "Notes whose file is 0 bytes.",
+    label: "빈 노트",
+    looksFor: "파일 크기가 0바이트인 노트예요.",
     whyItMatters:
-      "An empty note syncs fine, but a note that used to have text and is now empty " +
-      "usually means a save that never landed or a file another app truncated.",
+      "빈 노트는 동기화에는 문제가 없지만, 예전에 내용이 있었는데 지금 비어 있다면 " +
+      "저장이 반영되지 않았거나 다른 앱이 파일을 잘라낸 경우가 많아요.",
     howToFix: [
-      "Open the note. If it should have content, restore it from Versioning.",
-      "Delete notes you never filled in. Delete all clears every one listed here at once.",
+      "노트를 열어 보세요. 내용이 있어야 한다면 버전 기록에서 복원하세요.",
+      "채우지 않은 노트는 삭제하세요. '모두 삭제'를 누르면 여기 나열된 노트를 한 번에 지워요.",
     ],
     severity: "info",
     itemActions: ["open", "reveal", "delete"],
@@ -203,15 +203,15 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "unreadable-notes",
     group: "files",
-    label: "Unreadable notes",
-    looksFor: "Note files that are not valid text (not UTF-8, or binary).",
+    label: "읽을 수 없는 노트",
+    looksFor: "올바른 텍스트가 아닌 노트 파일이에요 (UTF-8이 아니거나 바이너리).",
     whyItMatters:
-      "Baalda cannot open, index or sync a note it cannot read as text. These files are " +
-      "skipped silently everywhere else, so this is the only place you will see them.",
+      "마이 세컨드 브레인은 텍스트로 읽을 수 없는 노트를 열거나 색인하거나 동기화할 수 없어요. 이런 파일은 " +
+      "다른 곳에서는 조용히 건너뛰므로 여기에서만 볼 수 있어요.",
     howToFix: [
-      "Open the file in a text editor and save it as UTF-8.",
-      "If it is not really a note (an image or export with a .md name), move it out of the vault or rename it.",
-      "Save copies puts all of them in one folder outside the vault before you delete them.",
+      "텍스트 편집기에서 파일을 열어 UTF-8로 저장하세요.",
+      "실제로는 노트가 아니라면(이름만 .md인 이미지나 내보내기 파일) 볼트 밖으로 옮기거나 이름을 바꾸세요.",
+      "'사본 저장'을 누르면 삭제하기 전에 모든 파일을 볼트 밖의 한 폴더에 모아 저장해요.",
     ],
     severity: "error",
     itemActions: ["reveal", "export-copy", "delete"],
@@ -220,17 +220,17 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "bad-frontmatter",
     group: "files",
-    label: "Broken properties block",
+    label: "깨진 속성 블록",
     looksFor:
-      "A note that starts with --- but the properties block never closes, or holds lines that are not key: value.",
+      "---로 시작하지만 속성 블록이 닫히지 않았거나, key: value 형식이 아닌 줄이 있는 노트예요.",
     whyItMatters:
-      "Properties Baalda cannot read are shown as plain text and never touched, so nothing is " +
-      "lost, but tags and dates in that block will not be found by search or filters.",
+      "마이 세컨드 브레인이 읽을 수 없는 속성은 일반 텍스트로 표시되고 절대 수정되지 않아서 잃는 것은 없지만, " +
+      "그 블록의 태그와 날짜는 검색이나 필터에서 찾을 수 없어요.",
     howToFix: [
-      "Open the note and close the block with a line containing only ---.",
-      "Keep one property per line as key: value.",
-      "Baalda will not repair this for you: properties it cannot read are never rewritten, " +
-        "because a guess at what you meant would silently change your data.",
+      "노트를 열고 ---만 있는 줄로 블록을 닫으세요.",
+      "속성은 한 줄에 하나씩 key: value 형식으로 쓰세요.",
+      "마이 세컨드 브레인은 이 문제를 대신 고치지 않아요. 읽을 수 없는 속성은 절대 다시 쓰지 않는데, " +
+        "의도를 짐작해서 고치면 모르는 사이에 데이터가 바뀔 수 있기 때문이에요.",
     ],
     severity: "warn",
     itemActions: ["open", "reveal"],
@@ -238,15 +238,15 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "oversized-notes",
     group: "files",
-    label: "Notes over the size limit",
-    looksFor: "Notes at or above 10 MB, the most the Remote Vault accepts for one note.",
+    label: "크기 제한을 넘은 노트",
+    looksFor: "10MB 이상인 노트예요. 원격 볼트가 노트 하나에 받을 수 있는 최대 크기예요.",
     whyItMatters:
-      "A note this size cannot be uploaded, so its only copy is on this device. Large notes " +
-      "are almost always pasted images or data tables.",
+      "이 크기의 노트는 업로드할 수 없어서 유일한 사본이 이 기기에만 있어요. 큰 노트는 " +
+      "대부분 붙여 넣은 이미지나 데이터 표 때문이에요.",
     howToFix: [
-      "Move big images and files into attachments and link to them.",
-      "Split the note, or save a copy outside the vault and shorten it. Save copies puts " +
-        "all of them in one folder in a single step.",
+      "큰 이미지와 파일은 첨부 파일로 옮기고 링크로 연결하세요.",
+      "노트를 나누거나, 볼트 밖에 사본을 저장한 뒤 줄이세요. '사본 저장'을 누르면 " +
+        "모든 노트를 한 번에 한 폴더에 저장해요.",
     ],
     severity: "error",
     itemActions: ["open", "reveal", "export-copy"],
@@ -256,13 +256,13 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "stale-index",
     group: "files",
-    label: "Search index out of date",
-    looksFor: "Notes that changed on disk after they were last indexed, or whose file is gone.",
+    label: "검색 색인이 오래됨",
+    looksFor: "마지막으로 색인한 뒤 디스크에서 바뀌었거나 파일이 사라진 노트예요.",
     whyItMatters:
-      "Search, tags, backlinks and the graph read the index, so a stale row means results " +
-      "that miss recent edits or point at a file that no longer exists.",
+      "검색, 태그, 백링크, 그래프는 색인을 읽기 때문에 오래된 항목이 있으면 최근 편집이 " +
+      "빠지거나 이미 없는 파일을 가리키는 결과가 나와요.",
     howToFix: [
-      "Heal rebuilds the index. It reads every note again and takes a few seconds.",
+      "자동 고치기는 색인을 다시 만들어요. 모든 노트를 다시 읽으며 몇 초 걸려요.",
     ],
     severity: "warn",
     itemActions: ["open", "reveal"],
@@ -271,14 +271,14 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "unindexed-markdown",
     group: "files",
-    label: "Markdown not picked up",
-    looksFor: "Markdown files on disk that have no entry in the index.",
+    label: "인식되지 않은 Markdown",
+    looksFor: "디스크에는 있지만 색인에 없는 Markdown 파일이에요.",
     whyItMatters:
-      "A file the index never saw is invisible to search and is not synced. Usually it is one " +
-      "that was copied in while Baalda was not running.",
+      "색인이 한 번도 보지 못한 파일은 검색에 나타나지 않고 동기화되지도 않아요. 보통 " +
+      "마이 세컨드 브레인이 꺼져 있는 동안 복사해 넣은 파일이에요.",
     howToFix: [
-      "Heal rebuilds the index so these files become notes.",
-      "Sync now then registers them with the Remote Vault.",
+      "자동 고치기가 색인을 다시 만들어 이 파일들이 노트가 돼요.",
+      "그다음 '지금 동기화'를 누르면 원격 볼트에 등록돼요.",
     ],
     severity: "warn",
     itemActions: ["reveal"],
@@ -290,15 +290,15 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "case-collisions",
     group: "names",
-    label: "Names that differ only by case",
-    looksFor: "Two paths that are the same once you ignore upper and lower case.",
+    label: "대소문자만 다른 이름",
+    looksFor: "대소문자를 무시하면 같아지는 두 경로예요.",
     whyItMatters:
-      "On a Mac or Windows these are ONE file; on the Remote Vault and on Linux they are two. " +
-      "That mismatch is the single most common cause of a note that keeps re-syncing forever.",
+      "Mac이나 Windows에서는 하나의 파일이지만, 원격 볼트와 Linux에서는 두 파일이에요. " +
+      "이 불일치가 노트가 계속 다시 동기화되는 가장 흔한 원인이에요.",
     howToFix: [
-      "Rename one of the pair so the names differ by more than case.",
-      "Baalda will not pick for you: only you know which of the two names is the " +
-        "right one, and renaming the wrong one moves the note your links point at.",
+      "둘 중 하나의 이름을 바꿔서 대소문자 외에도 다르게 만드세요.",
+      "마이 세컨드 브레인은 대신 고르지 않아요. 두 이름 중 어느 쪽이 맞는지는 직접 아는 사람만 알고, " +
+        "잘못된 쪽을 바꾸면 링크가 가리키던 노트가 옮겨져요.",
     ],
     severity: "error",
     itemActions: ["reveal"],
@@ -306,17 +306,17 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "illegal-names",
     group: "names",
-    label: "Names Windows cannot use",
+    label: "Windows에서 쓸 수 없는 이름",
     looksFor:
-      'Names containing < > : " | ? *, ending in a dot or a space, or reserved words such as CON or NUL.',
+      '< > : " | ? * 가 들어 있거나, 점이나 공백으로 끝나거나, CON·NUL 같은 예약어인 이름이에요.',
     whyItMatters:
-      "A teammate on Windows cannot create these files, so their vault silently misses them.",
+      "Windows를 쓰는 팀원은 이 파일을 만들 수 없어서 그 사람의 볼트에는 조용히 빠져요.",
     howToFix: [
-      "Heal renames every FILE listed here to the same name without the offending " +
-        "character (it becomes `-`, a trailing dot or space is dropped, and a reserved " +
-        "Windows name gets a leading `_`). The note keeps its identity and its history.",
-      "Folders are left to you, because renaming one moves everything inside it.",
-      "A wikilink that used the old name needs updating afterwards.",
+      "자동 고치기는 여기 나열된 모든 파일의 이름에서 문제가 되는 문자를 " +
+        "없애요(`-`로 바뀌고, 끝의 점이나 공백은 사라지며, Windows 예약어는 앞에 `_`가 " +
+        "붙어요). 노트의 식별 정보와 기록은 그대로예요.",
+      "폴더는 직접 고쳐야 해요. 폴더 이름을 바꾸면 안에 있는 모든 항목이 함께 옮겨지기 때문이에요.",
+      "예전 이름을 쓴 위키링크는 나중에 직접 고쳐야 해요.",
     ],
     severity: "warn",
     itemActions: ["reveal"],
@@ -325,13 +325,13 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "long-paths",
     group: "names",
-    label: "Very long paths",
-    looksFor: "Paths longer than 200 characters from the vault root.",
-    whyItMatters: "Windows and some backup tools refuse paths past 260 characters in total.",
+    label: "너무 긴 경로",
+    looksFor: "볼트 루트부터 200자를 넘는 경로예요.",
+    whyItMatters: "Windows와 일부 백업 도구는 전체 260자를 넘는 경로를 처리하지 못해요.",
     howToFix: [
-      "Shorten the folder or file name.",
-      "Baalda will not shorten it for you. A name truncated by a machine stops " +
-        "saying what the note is.",
+      "폴더나 파일 이름을 줄이세요.",
+      "마이 세컨드 브레인은 대신 줄이지 않아요. 기계가 잘라낸 이름은 " +
+        "노트가 무엇인지 알려 주지 못하기 때문이에요.",
     ],
     severity: "info",
     itemActions: ["reveal"],
@@ -339,14 +339,14 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "duplicate-titles",
     group: "names",
-    label: "Notes with the same title",
-    looksFor: "Two or more notes sharing one title.",
+    label: "제목이 같은 노트",
+    looksFor: "제목이 같은 노트가 둘 이상 있어요.",
     whyItMatters:
-      "A [[wikilink]] to that title is ambiguous, so it may open a different note than you meant.",
+      "그 제목으로 연결한 [[위키링크]]가 모호해서 의도와 다른 노트가 열릴 수 있어요.",
     howToFix: [
-      "Give one of them a more specific title, or link by path.",
-      "Nothing here is broken, so Baalda changes no titles on its own: which of the " +
-        "two should be renamed is yours to say.",
+      "하나의 제목을 더 구체적으로 바꾸거나, 경로로 연결하세요.",
+      "망가진 것은 없어서 마이 세컨드 브레인은 제목을 직접 바꾸지 않아요. 둘 중 " +
+        "어느 쪽을 바꿀지는 직접 정하세요.",
     ],
     severity: "info",
     itemActions: ["open", "reveal"],
@@ -356,12 +356,12 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "broken-links",
     group: "links",
-    label: "Links to missing notes",
-    looksFor: "[[wikilinks]] that point at no note in the vault.",
-    whyItMatters: "Clicking one creates a new empty note instead of opening what you meant.",
+    label: "없는 노트로 가는 링크",
+    looksFor: "볼트에 없는 노트를 가리키는 [[위키링크]]예요.",
+    whyItMatters: "클릭하면 의도한 노트가 열리는 대신 새 빈 노트가 만들어져요.",
     howToFix: [
-      "Open the source note and fix the link if it is a typo.",
-      "If the link is intentional, create the note yourself with the name and location you want.",
+      "링크가 오타라면 원본 노트를 열어 링크를 고치세요.",
+      "의도한 링크라면 원하는 이름과 위치로 직접 노트를 만드세요.",
     ],
     severity: "info",
     itemActions: ["open"],
@@ -369,15 +369,15 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "missing-embeds",
     group: "links",
-    label: "Missing images and attachments",
-    looksFor: "![[embeds]] and ![](images) whose file is not in the vault.",
+    label: "없는 이미지와 첨부 파일",
+    looksFor: "파일이 볼트에 없는 ![[임베드]]와 ![](이미지)예요.",
     whyItMatters:
-      "The note shows a broken image. Usually the file was never copied in, or was deleted " +
-      "from attachments while a note still used it.",
+      "노트에 깨진 이미지가 표시돼요. 보통 파일을 복사해 넣지 않았거나, 노트가 아직 쓰고 있는데 " +
+      "첨부 파일에서 삭제된 경우예요.",
     howToFix: [
-      "Drop the file back into the note, or remove the embed.",
-      "Baalda cannot heal this one: the bytes are not in the vault, so there is " +
-        "nothing to point the embed at.",
+      "파일을 다시 노트에 넣거나 임베드를 지우세요.",
+      "마이 세컨드 브레인이 이 문제는 고칠 수 없어요. 파일 데이터가 볼트에 없어서 " +
+        "임베드가 가리킬 대상이 없기 때문이에요.",
     ],
     severity: "warn",
     itemActions: ["open"],
@@ -387,14 +387,14 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "heavy-history",
     group: "storage",
-    label: "Notes with heavy edit history",
-    looksFor: "Notes whose local edit history is many times the size of the note itself.",
+    label: "편집 기록이 큰 노트",
+    looksFor: "로컬 편집 기록이 노트 자체보다 몇 배나 큰 노트예요.",
     whyItMatters:
-      "History this large slows opening and syncing the note and can push it over the Remote Vault's " +
-      "limit even when the text is small.",
+      "기록이 이렇게 크면 노트를 열고 동기화하는 속도가 느려지고, 텍스트가 작아도 원격 볼트의 " +
+      "한도를 넘을 수 있어요.",
     howToFix: [
-      "Reset the note's history. It keeps the text and starts a fresh history on every device.",
-      "Heal does that for every note listed here in one pass.",
+      "노트의 기록을 초기화하세요. 텍스트는 유지되고 모든 기기에서 새 기록이 시작돼요.",
+      "자동 고치기는 여기 나열된 모든 노트에 한 번에 이 작업을 해요.",
     ],
     severity: "warn",
     itemActions: ["open", "reset-history"],
@@ -404,10 +404,10 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "orphan-history",
     group: "storage",
-    label: "Leftover edit history",
-    looksFor: "Edit history for notes this vault no longer has.",
-    whyItMatters: "It only takes up space. Nothing you can see depends on it.",
-    howToFix: ["Heal reclaims it. Nothing you can see changes."],
+    label: "남은 편집 기록",
+    looksFor: "이 볼트에 더 이상 없는 노트의 편집 기록이에요.",
+    whyItMatters: "공간만 차지해요. 눈에 보이는 것 중 이 기록에 의존하는 것은 없어요.",
+    howToFix: ["자동 고치기로 공간을 확보하세요. 눈에 보이는 것은 바뀌지 않아요."],
     severity: "info",
     itemActions: [],
     heal: "reclaim",
@@ -416,12 +416,12 @@ export const CHECK_DEFINITIONS: CheckDefinition[] = [
   {
     id: "trash",
     group: "storage",
-    label: "Recovery copies",
+    label: "복구 사본",
     looksFor:
-      "Unsent local edits Baalda preserved, plus deleted-note copies kept by earlier versions.",
+      "마이 세컨드 브레인이 보존한 보내지 못한 로컬 편집 내용과, 이전 버전이 보관한 삭제된 노트 사본이에요.",
     whyItMatters:
-      "They may contain changes that could not be synced, and they take up space until emptied.",
-    howToFix: ["Review the copies, then empty them when you are sure you no longer need them."],
+      "동기화하지 못한 변경 사항이 들어 있을 수 있고, 비우기 전까지 공간을 차지해요.",
+    howToFix: ["사본을 확인한 뒤 더 이상 필요 없다고 확신할 때 비우세요."],
     severity: "info",
     itemActions: ["reveal"],
     bulkActions: ["empty-trash"],
@@ -434,10 +434,10 @@ export const CHECK_BY_ID: ReadonlyMap<VaultCheckId, CheckDefinition> = new Map(
 );
 
 export const CHECK_GROUP_LABELS: Record<CheckDefinition["group"], string> = {
-  files: "Files",
-  names: "Names & paths",
-  links: "Links",
-  storage: "Storage",
+  files: "파일",
+  names: "이름과 경로",
+  links: "링크",
+  storage: "저장 공간",
 };
 
 /**
@@ -497,13 +497,13 @@ export function summarizeChecks(rows: CheckRow[]): CheckSummary {
   const passed = rows.length - errors - warnings - infos;
   const attention = errors + warnings;
   let headline: string;
-  if (attention === 0 && infos === 0) headline = `All ${rows.length} checks passed`;
+  if (attention === 0 && infos === 0) headline = `점검 ${rows.length}개를 모두 통과했어요`;
   else if (attention === 0) {
-    headline = `${passed} of ${rows.length} checks passed · ${infos} housekeeping`;
+    headline = `점검 ${rows.length}개 중 ${passed}개 통과 · 정리 ${infos}개`;
   } else {
     headline =
-      `${attention} check${attention === 1 ? "" : "s"} need${attention === 1 ? "s" : ""} a look` +
-      (infos > 0 ? ` · ${infos} housekeeping` : "");
+      `확인이 필요한 점검 ${attention}개` +
+      (infos > 0 ? ` · 정리 ${infos}개` : "");
   }
   return { total: rows.length, passed, errors, warnings, infos, headline };
 }

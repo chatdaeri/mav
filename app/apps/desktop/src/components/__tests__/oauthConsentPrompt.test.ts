@@ -21,7 +21,7 @@ describe("connector consent prompt (red team 3)", () => {
     );
     expect(html).toContain("Claude");
     expect(html).toContain("claude-ai.evil.example");
-    expect(html).toContain("Allow only if you started this connection there yourself");
+    expect(html).toContain("직접 그곳에서 연결을 시작했을 때만 허용하세요");
   });
 
   it("escapes a hostile name and host; an older server without hosts still warns", () => {
@@ -33,6 +33,6 @@ describe("connector consent prompt (red team 3)", () => {
     expect(html).not.toContain("<img");
     expect(html).not.toContain("<b>x</b>");
     const old = renderToStaticMarkup(createElement(ConsentPromptBody, { request: base }));
-    expect(old).toContain("Allow only if you started this connection yourself");
+    expect(old).toContain("방금 직접 연결을 시작했을 때만 허용하세요");
   });
 });

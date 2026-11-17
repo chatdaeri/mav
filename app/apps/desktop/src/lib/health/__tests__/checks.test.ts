@@ -64,8 +64,8 @@ describe("check definitions", () => {
     expect(def.heal).toBeUndefined();
     expect(def.bulkActions).toBeUndefined();
     expect(def.itemActions).toEqual(["open"]);
-    expect(def.howToFix.join(" ")).toContain("fix the link if it is a typo");
-    expect(def.howToFix.join(" ")).toContain("create the note yourself");
+    expect(def.howToFix.join(" ")).toContain("링크가 오타라면");
+    expect(def.howToFix.join(" ")).toContain("직접 노트를 만드세요");
   });
 
   it("word every action they offer", () => {
@@ -73,9 +73,9 @@ describe("check definitions", () => {
       for (const a of [...d.itemActions, ...(d.bulkActions ?? []), ...(d.heal ? [d.heal] : [])]) {
         const wording = CHECK_ACTIONS[a];
         expect(wording, `${d.id} → ${a}`).toBeDefined();
-        expect(wording.label.length).toBeGreaterThan(2);
+        expect(wording.label.length).toBeGreaterThanOrEqual(2);
         expect(wording.verb.length).toBeGreaterThan(2);
-        expect(wording.gerund.endsWith("ing")).toBe(true);
+        expect(wording.gerund.endsWith("중")).toBe(true);
       }
     }
   });
@@ -105,7 +105,7 @@ describe("check definitions", () => {
       const def = CHECK_BY_ID.get(id)!;
       expect(def.heal).toBeUndefined();
       expect(def.howToFix.join(" ")).toMatch(
-        /Baalda (will not|cannot)|Nothing here is broken|create the note yourself/,
+        /마이 세컨드 브레인(은|이) |망가진 것은 없어서|직접 노트를 만드세요/,
       );
     }
   });
@@ -164,7 +164,7 @@ describe("checkRows", () => {
       results: [{ id: "orphan-history", count: 18, bytes: 4_200_000, items: [] }],
     };
     expect(checkRows(checks).some((r) => r.def.id === "orphan-history")).toBe(false);
-    expect(summarizeChecks(checkRows(checks)).headline).toBe(`All ${LISTED.length} checks passed`);
+    expect(summarizeChecks(checkRows(checks)).headline).toBe(`점검 ${LISTED.length}개를 모두 통과했어요`);
     expect(withoutAutomaticChecks(checks).results).toEqual([]);
   });
 });
@@ -177,7 +177,7 @@ describe("summarizeChecks", () => {
 
   it("says all passed when nothing fails", () => {
     const s = summarizeChecks(checkRows(null));
-    expect(s.headline).toBe(`All ${LISTED.length} checks passed`);
+    expect(s.headline).toBe(`점검 ${LISTED.length}개를 모두 통과했어요`);
     expect(s.errors + s.warnings + s.infos).toBe(0);
   });
 
@@ -188,19 +188,19 @@ describe("summarizeChecks", () => {
     expect(s.errors).toBe(1);
     expect(s.warnings).toBe(1);
     expect(s.infos).toBe(2);
-    expect(s.headline).toBe("2 checks need a look · 2 housekeeping");
+    expect(s.headline).toBe("확인이 필요한 점검 2개 · 정리 2개");
   });
 
   it("calls housekeeping-only failures out separately from problems", () => {
     const s = summarizeChecks(checkRows(failing(["trash"])));
     expect(s.errors + s.warnings).toBe(0);
     expect(s.headline).toBe(
-      `${LISTED.length - 1} of ${LISTED.length} checks passed · 1 housekeeping`,
+      `점검 ${LISTED.length}개 중 ${LISTED.length - 1}개 통과 · 정리 1개`,
     );
   });
 
   it("uses the singular for one problem", () => {
     const s = summarizeChecks(checkRows(failing(["unreadable-notes"])));
-    expect(s.headline).toBe("1 check needs a look");
+    expect(s.headline).toBe("확인이 필요한 점검 1개");
   });
 });

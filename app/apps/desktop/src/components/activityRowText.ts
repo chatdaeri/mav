@@ -32,7 +32,7 @@ export interface ActivityRowText {
 function formatDate(iso: string): string {
   const ms = Date.parse(iso);
   if (!Number.isFinite(ms)) return "—";
-  return new Date(ms).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  return new Date(ms).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
 }
 
 const capitalize = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
@@ -40,14 +40,14 @@ const capitalize = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 /** "In Projects/Q3" for a note the message already names; nothing at the root. */
 function folderFact(path: string): string[] {
   const { dir } = splitPath(path);
-  return dir ? [`In ${dir.replace(/\/$/, "")}`] : [];
+  return dir ? [`${dir.replace(/\/$/, "")} 안`] : [];
 }
 
 /** A recovery-copy location without the filename the row already names. */
 function savedIn(location: string, path: string): string {
   const name = splitPath(path).name;
   const { dir, name: last } = splitPath(location);
-  return last === name && dir ? `Copy saved in ${dir}` : location;
+  return last === name && dir ? `사본 저장 위치: ${dir}` : location;
 }
 
 export function activityRowText(row: ActivityRow, now: number): ActivityRowText {
@@ -79,17 +79,17 @@ export function activityRowText(row: ActivityRow, now: number): ActivityRowText 
   switch (row.type) {
     case "reconcile": {
       const facts = [
-        ...(row.item.newPath ? [`Renamed to ${row.item.newPath}`] : []),
+        ...(row.item.newPath ? [`${row.item.newPath}(으)로 이름 변경됨`] : []),
         ...(row.item.detail && row.item.detail !== row.path ? [savedIn(row.item.detail, row.path)] : []),
       ];
       return named(name, ACTIVITY_HINT.reconcile, facts);
     }
     case "trash": {
       const facts = [
-        ...(row.item.deletedBy ? [`Deleted by ${row.item.deletedBy.name}`] : []),
-        `Purges on ${formatDate(row.item.purgeAfter)}`,
+        ...(row.item.deletedBy ? [`삭제한 사람: ${row.item.deletedBy.name}`] : []),
+        `${formatDate(row.item.purgeAfter)}에 영구 삭제돼요`,
         ...(row.item.hasUnsyncedContributions
-          ? ["Someone's edits arrived after it was deleted. Review before it is purged."]
+          ? ["삭제된 뒤에 다른 사람의 수정이 도착했어요. 영구 삭제되기 전에 확인하세요."]
           : []),
       ];
       return named(name, ACTIVITY_HINT.trash, facts);
@@ -97,16 +97,16 @@ export function activityRowText(row: ActivityRow, now: number): ActivityRowText 
     case "copy":
       return named(name, ACTIVITY_HINT.copy, [
         formatBytes(row.copy.bytes),
-        `Copy saved in .context/trash/${row.copy.stamp}/`,
+        `사본 저장 위치: .context/trash/${row.copy.stamp}/`,
       ]);
     case "held":
-      return sentence(capitalize(row.text), ACTIVITY_HINT.held, ["Restoring on this device"]);
+      return sentence(capitalize(row.text), ACTIVITY_HINT.held, ["이 기기에서 복원 중"]);
     case "shrunk":
-      return sentence(capitalize(row.text), ACTIVITY_HINT.shrunk, row.event.deleted ? ["The note is deleted now."] : []);
+      return sentence(capitalize(row.text), ACTIVITY_HINT.shrunk, row.event.deleted ? ["지금은 노트가 삭제된 상태예요."] : []);
     case "paused": {
       const facts = row.event.held
-        ? [`Paused until ${clockTime(Date.parse(row.event.heldUntil))}`]
-        : [row.event.releasedAt ? "Released early" : "Ended"];
+        ? [`${clockTime(Date.parse(row.event.heldUntil))}까지 일시 중지`]
+        : [row.event.releasedAt ? "일찍 해제됨" : "종료됨"];
       return sentence(capitalize(row.text), ACTIVITY_HINT.paused, facts);
     }
     case "access": {
@@ -127,7 +127,7 @@ export function activityRowText(row: ActivityRow, now: number): ActivityRowText 
     case "failed":
       return sentence(capitalize(row.text), ACTIVITY_HINT.failed, []);
     case "invitation": {
-      const by = row.invitation.inviterName ? [`Sent by ${row.invitation.inviterName}`] : [];
+      const by = row.invitation.inviterName ? [`보낸 사람: ${row.invitation.inviterName}`] : [];
       return sentence(capitalize(row.text), ACTIVITY_HINT.invitation, by);
     }
   }

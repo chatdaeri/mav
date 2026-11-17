@@ -23,11 +23,11 @@ describe("AttachmentLocalOnlyNoticeView", () => {
       }),
     );
 
-    expect(html).toContain("Standalone files require Team to sync");
-    expect(html).toContain("Notes and their embedded attachments still sync");
-    expect(html).toContain("embedded attachments");
-    expect(html).toContain("remain available to preview locally");
-    expect(html).toContain("Upgrade to Team");
+    expect(html).toContain("독립 파일 동기화는 Team 플랜에서 쓸 수 있어요");
+    expect(html).toContain("노트와 노트에 포함된 첨부 파일은 계속 동기화돼요");
+    expect(html).toContain("포함된 첨부 파일");
+    expect(html).toContain("이 기기에서 미리 볼 수 있어요");
+    expect(html).toContain("Team으로 업그레이드");
     expect(html).not.toContain("Health");
   });
 
@@ -40,8 +40,8 @@ describe("AttachmentLocalOnlyNoticeView", () => {
       }),
     );
 
-    expect(html).toContain("Standalone files require Team to sync");
-    expect(html).not.toContain("Upgrade");
+    expect(html).toContain("독립 파일 동기화는 Team 플랜에서 쓸 수 있어요");
+    expect(html).not.toContain("업그레이드");
   });
 
   it("renders nothing until the server explicitly refuses attachment sync", () => {

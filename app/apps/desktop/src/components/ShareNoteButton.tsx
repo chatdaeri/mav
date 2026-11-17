@@ -40,8 +40,8 @@ export function ShareNoteButton({ docId }: { docId: string }) {
     <>
       <button
         className={`icon-btn share-btn${open ? " active" : ""}`}
-        title="Share this note"
-        aria-label="Share this note"
+        title="이 노트 공유"
+        aria-label="이 노트 공유"
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
       >
@@ -116,13 +116,13 @@ function ShareNoteDialog({
       setCopied(kind);
       return true;
     }
-    toast("Couldn't copy the link", "error");
+    toast("링크를 복사하지 못했어요", "error");
     return false;
   }, []);
 
   const copyTeam = () =>
     // Built on the server URL so it's an https link — chat apps make those
-    // clickable, where a bare baalda:// scheme had to be copy-pasted. The
+    // clickable, where a bare mav:// scheme had to be copy-pasted. The
     // server's /open/note page bounces the click into the app.
     void copy("team", buildNoteLink({ orgId, docId }, useStore.getState().serverUrl));
 
@@ -136,20 +136,20 @@ function ShareNoteDialog({
         // clipboard refuses, the url is on screen with its own Copy button.
         if (await copyText(link.url)) {
           setCopied("public");
-          toast("Public link created and copied");
+          toast("공개 링크를 만들고 복사했어요");
         }
       } else {
         await authManager.api.revokePublicLink(docId);
         setPublicLink(null);
-        toast("Public link turned off. The old link no longer works");
+        toast("공개 링크를 껐어요. 이전 링크는 더 이상 작동하지 않아요");
       }
     } catch (e) {
       toast(
         e instanceof ApiError
           ? e.message
           : next
-            ? "Couldn't create the public link"
-            : "Couldn't turn off the public link",
+            ? "공개 링크를 만들지 못했어요"
+            : "공개 링크를 끄지 못했어요",
         "error",
       );
     } finally {
@@ -174,12 +174,12 @@ function ShareNoteDialog({
         className="modal share-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={`Share ${title}`}
+        aria-label={`${title} 공유`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
           <span className="share-dialog-title">
-            Share this note
+            이 노트 공유
             <span className="share-dialog-note">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -188,7 +188,7 @@ function ShareNoteDialog({
               <span>{title}</span>
             </span>
           </span>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <button className="icon-btn" onClick={onClose} aria-label="닫기">
             ✕
           </button>
         </div>
@@ -203,16 +203,16 @@ function ShareNoteDialog({
               </svg>
             </span>
             <span className="share-option-copy">
-              <strong>Team link</strong>
-              <span>Opens for people in this vault who have access.</span>
+              <strong>팀 링크</strong>
+              <span>이 볼트에서 권한이 있는 사람이 열 수 있어요.</span>
             </span>
             <button type="button" className="ghost-pill sm share-copy-btn" onClick={copyTeam}>
               {copied === "team" ? (
                 <>
-                  <CheckMark size="xs" /> Copied
+                  <CheckMark size="xs" /> 복사됨
                 </>
               ) : (
-                "Copy link"
+                "링크 복사"
               )}
             </button>
           </section>
@@ -225,8 +225,8 @@ function ShareNoteDialog({
               </svg>
             </span>
             <span className="share-option-copy">
-              <strong>Publish to the web</strong>
-              <span>Anyone with the link can read it in a browser.</span>
+              <strong>웹에 게시</strong>
+              <span>링크가 있는 사람은 누구나 브라우저에서 볼 수 있어요.</span>
             </span>
             {/* The switch stays put while it works (disabled, not swapped for a
                 spinner) so the row never changes width mid-click. */}
@@ -234,7 +234,7 @@ function ShareNoteDialog({
               checked={published}
               disabled={publicLink === undefined || publicBusy}
               onChange={(next) => void setPublished(next)}
-              ariaLabel="Publish to the web"
+              ariaLabel="웹에 게시"
             />
             {/* Always mounted and animated open/closed (grid 0fr → 1fr), with
                 the last url kept while it collapses — so publishing slides the
@@ -246,7 +246,7 @@ function ShareNoteDialog({
                   readOnly
                   tabIndex={published ? 0 : -1}
                   value={shownUrl}
-                  aria-label="Public link"
+                  aria-label="공개 링크"
                   onFocus={(e) => e.currentTarget.select()}
                 />
                 <button
@@ -257,13 +257,13 @@ function ShareNoteDialog({
                 >
                   {copied === "public" ? (
                     <>
-                      <CheckMark size="xs" /> Copied
+                      <CheckMark size="xs" /> 복사됨
                     </>
                   ) : (
-                    "Copy"
+                    "복사"
                   )}
                 </button>
-                <p className="share-url-hint">Turn this off to make the link stop working.</p>
+                <p className="share-url-hint">끄면 링크가 더 이상 작동하지 않아요.</p>
               </div>
             </div>
           </section>

@@ -73,7 +73,7 @@ describe("vault keys never reach the logs", () => {
   it("redactKeyFragments hides #k= / &k= / ?k= secrets in any text", () => {
     const s = "0123456789ABCDEFGHJKMNPQRS";
     const out = redactKeyFragments(
-      `https://x/invite/i1#k=${s} baalda://invite/i1?server=https%3A%2F%2Fx&k=${s} baalda://invite/i1?k=${s}&server=y`,
+      `https://x/invite/i1#k=${s} mav://invite/i1?server=https%3A%2F%2Fx&k=${s} mav://invite/i1?k=${s}&server=y`,
     );
     expect(out.includes(s)).toBe(false);
     expect(out).toContain("#k=<redacted>");

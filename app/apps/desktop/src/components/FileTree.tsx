@@ -120,7 +120,7 @@ const isNotCreatorReason = (reason: unknown) =>
 
 /** Tooltip on every root-create affordance while the vault's root is frozen. */
 const ROOT_FROZEN_HINT =
-  "This vault's root is frozen. New notes and folders go inside a folder.";
+  "이 볼트의 최상위는 잠겨 있어요. 새 노트와 폴더는 폴더 안에 만드세요.";
 
 interface Dimensions {
   width: number;
@@ -702,8 +702,8 @@ export function FileTree() {
     } else if (failed.length > 0) {
       toast(
         failed.length === 1
-          ? `Couldn't delete "${failed[0].path}": ${failed[0].reason}`
-          : `Couldn't delete ${failed.length} items: ${failed[0].reason}`,
+          ? `"${failed[0].path}"을(를) 삭제하지 못했어요: ${failed[0].reason}`
+          : `항목 ${failed.length}개를 삭제하지 못했어요: ${failed[0].reason}`,
         "error",
       );
     }
@@ -844,9 +844,9 @@ export function FileTree() {
   function announceImport(s: ipc.ImportSummary) {
     const files =
       s.files > 0
-        ? `Imported ${s.files} file${s.files === 1 ? "" : "s"}`
-        : "Nothing imported";
-    const text = s.skipped > 0 ? `${files} · ${s.skipped} skipped` : files;
+        ? `파일 ${s.files}개를 가져왔어요`
+        : "가져온 항목이 없어요";
+    const text = s.skipped > 0 ? `${files} · ${s.skipped}개 건너뜀` : files;
     flashStatus(text, s.files > 0 ? "success" : "neutral");
   }
 
@@ -944,7 +944,7 @@ export function FileTree() {
             // The size gate speaks for itself; only say something when the
             // failure had no voice of its own.
             if (failed > 0 && embeds.length === 0) {
-              flashStatus("Couldn't attach file", "error");
+              flashStatus("파일을 첨부하지 못했어요", "error");
             }
             return;
           }
@@ -971,7 +971,7 @@ export function FileTree() {
             }
           } catch (e) {
             console.error("import (drop) failed", e);
-            flashStatus("Import failed", "error");
+            flashStatus("가져오기에 실패했어요", "error");
           }
         }
       });
@@ -1001,7 +1001,7 @@ export function FileTree() {
       announceImport(summary);
     } catch (e) {
       console.error("import files failed", e);
-      flashStatus("Import failed", "error");
+      flashStatus("가져오기에 실패했어요", "error");
     }
   }
 
@@ -1019,7 +1019,7 @@ export function FileTree() {
       announceImport(summary);
     } catch (e) {
       console.error("import folder failed", e);
-      flashStatus("Import failed", "error");
+      flashStatus("가져오기에 실패했어요", "error");
     }
   }
 
@@ -1039,7 +1039,7 @@ export function FileTree() {
       await ipc.revealInFileManager(`${root}/${node.data.path}`);
     } catch (e) {
       console.error("reveal failed", e);
-      toast("Couldn't open that in the file manager", "error");
+      toast("파일 관리자에서 열지 못했어요", "error");
     }
   }
 
@@ -1061,7 +1061,7 @@ export function FileTree() {
       await ipc.openInFileManager(root);
     } catch (e) {
       console.error("open vault failed", e);
-      toast("Couldn't open that in the file manager", "error");
+      toast("파일 관리자에서 열지 못했어요", "error");
     }
   }
 
@@ -1080,10 +1080,10 @@ export function FileTree() {
       // Export writes outside the vault, so nothing in the app changes to show it
       // worked. Silence here read as "the menu item is broken"; a whole folder
       // export can also take a while, and this is the only sign it finished.
-      flashStatus(`Exported ${basename(node.data.path)}`);
+      flashStatus(`${basename(node.data.path)}을(를) 내보냈어요`);
     } catch (e) {
       console.error("export failed", e);
-      flashStatus("Export failed", "error");
+      flashStatus("내보내기에 실패했어요", "error");
     }
   }
 
@@ -1169,7 +1169,7 @@ export function FileTree() {
     // Reordering things already at the root is fine — the shape doesn't change.
     if (destDir === "" && rootFrozen && dragIds.some((p) => p.includes("/"))) {
       toast(
-        "This vault's root is frozen. Drop this inside a folder.",
+        "이 볼트의 최상위는 잠겨 있어요. 폴더 안에 놓아 주세요.",
         "error",
       );
       return;
@@ -1578,7 +1578,7 @@ export function FileTree() {
   function rootBlocked(dir: string): boolean {
     if (dir !== "" || !rootFrozen) return false;
     toast(
-      "This vault's root is frozen. Create this inside a folder instead.",
+      "이 볼트의 최상위는 잠겨 있어요. 대신 폴더 안에 만드세요.",
       "error",
     );
     return true;
@@ -1586,7 +1586,7 @@ export function FileTree() {
 
   async function createUniqueFolder(dir: string) {
     if (rootBlocked(dir)) return;
-    let name = "New Folder";
+    let name = "새 폴더";
     for (let i = 0; i < 50; i++) {
       const candidate = i === 0 ? name : `${name} ${i}`;
       try {
@@ -1624,7 +1624,7 @@ export function FileTree() {
       toast(NOT_CREATOR_MESSAGE, "error");
     } else if (failed.length > 0) {
       toast(
-        `Couldn't delete "${failed[0].path}": ${failed[0].reason}`,
+        `"${failed[0].path}"을(를) 삭제하지 못했어요: ${failed[0].reason}`,
         "error",
       );
     }
@@ -1655,8 +1655,8 @@ export function FileTree() {
   }
   const navigationActions = (kind: "dashboard" | "pin" | "home"): { label: string; run: () => void; checked?: boolean }[] => {
     if (kind === "dashboard") return [
-      { label: "New dashboard…", run: () => requestNewDashboard() },
-      { label: "Add dashboard link…", run: () => requestNewDashboard("link") },
+      { label: "새 대시보드…", run: () => requestNewDashboard() },
+      { label: "대시보드 링크 추가…", run: () => requestNewDashboard("link") },
     ];
     if (!menu?.node) return [];
     const { path, isDir } = menu.node.data;
@@ -1670,15 +1670,15 @@ export function FileTree() {
       const personal = key && state.personalPins.some((pin) => pinKey(pin) === key);
       const shared = key && appearance?.pinnedItems?.some((pin) => pinKey(pin) === key);
       return [
-        { label: "For me", checked: !!personal, run: () => void state.togglePin(path, isDir).catch(fail) },
-        ...(canManage && orgId ? [{ label: "For everyone", checked: !!shared, run: () => void state.togglePin(path, isDir, "vault").catch(fail) }] : []),
+        { label: "나만", checked: !!personal, run: () => void state.togglePin(path, isDir).catch(fail) },
+        ...(canManage && orgId ? [{ label: "모든 멤버", checked: !!shared, run: () => void state.togglePin(path, isDir, "vault").catch(fail) }] : []),
       ];
     }
     const personalHome = !!docId && state.personalHomeDocId === docId;
     const sharedHome = !!docId && appearance?.homeDocId === docId;
     return [
-      { label: personalHome ? appearance?.homeDocId ? "Use vault Home instead" : "Unset my Home" : "Set as my home", run: () => void state.setHome(personalHome ? null : path, "personal").catch(fail) },
-      ...(canManage && orgId ? [{ label: sharedHome ? "Unset vault Home for everyone" : "Set as vault home", run: () => void state.setHome(sharedHome ? null : path, "vault").catch(fail) }] : []),
+      { label: personalHome ? appearance?.homeDocId ? "볼트 홈으로 대체" : "내 홈 해제" : "내 홈으로 설정", run: () => void state.setHome(personalHome ? null : path, "personal").catch(fail) },
+      ...(canManage && orgId ? [{ label: sharedHome ? "모든 멤버의 볼트 홈 해제" : "볼트 홈으로 설정", run: () => void state.setHome(sharedHome ? null : path, "vault").catch(fail) }] : []),
     ];
   };
 
@@ -1773,7 +1773,7 @@ export function FileTree() {
       }}
     >
       <div className="filetree-head">
-        <span className="section-label">Notes</span>
+        <span className="section-label">노트</span>
         <div className="filetree-actions">
           {/* Dimmed but NOT `disabled` while the root is frozen: a disabled
               button swallows the click, so the only explanation was a tooltip
@@ -1781,8 +1781,8 @@ export function FileTree() {
               `rootBlocked("")`, which toasts the reason immediately. */}
           <button
             className={`tree-tool${rootFrozen ? " blocked" : ""}`}
-            title={rootFrozen ? ROOT_FROZEN_HINT : "New note"}
-            aria-label="New note"
+            title={rootFrozen ? ROOT_FROZEN_HINT : "새 노트"}
+            aria-label="새 노트"
             aria-disabled={rootFrozen}
             onClick={() => void useStore.getState().createNoteIn("")}
           >
@@ -1790,8 +1790,8 @@ export function FileTree() {
           </button>
           <button
             className={`tree-tool${rootFrozen ? " blocked" : ""}`}
-            title={rootFrozen ? ROOT_FROZEN_HINT : "New folder"}
-            aria-label="New folder"
+            title={rootFrozen ? ROOT_FROZEN_HINT : "새 폴더"}
+            aria-label="새 폴더"
             aria-disabled={rootFrozen}
             onClick={() => createUniqueFolder("")}
           >
@@ -1803,10 +1803,10 @@ export function FileTree() {
           <button
             className={`tree-tool tree-fold-toggle${treeCollapsed ? " collapsed" : ""}`}
             title={
-              treeCollapsed ? "Expand all folders" : "Collapse all folders"
+              treeCollapsed ? "모든 폴더 펼치기" : "모든 폴더 접기"
             }
             aria-label={
-              treeCollapsed ? "Expand all folders" : "Collapse all folders"
+              treeCollapsed ? "모든 폴더 펼치기" : "모든 폴더 접기"
             }
             onClick={() => {
               // Decide from the tree, not from our flag: if anything is open,
@@ -1832,8 +1832,8 @@ export function FileTree() {
           <div className="tree-sort-wrap" onClick={(e) => e.stopPropagation()}>
             <button
               className={`tree-tool${sortOpen ? " on" : ""}`}
-              title={`Sort: ${TREE_SORTS.find((s) => s.id === treeSort)?.label}`}
-              aria-label="Sort notes"
+              title={`정렬: ${TREE_SORTS.find((s) => s.id === treeSort)?.label}`}
+              aria-label="노트 정렬"
               aria-haspopup="menu"
               aria-expanded={sortOpen}
               // The wrapper swallows this click so the window-level dismiss
@@ -1848,7 +1848,7 @@ export function FileTree() {
             </button>
             {sortOpen && (
               <ul className="context-menu tree-sort-menu" role="menu">
-                <li className="menu-heading">Sort notes by</li>
+                <li className="menu-heading">노트 정렬 기준</li>
                 {TREE_SORTS.map((s) => (
                   <li
                     key={s.id}
@@ -1871,8 +1871,8 @@ export function FileTree() {
                     invisible otherwise: someone who has dragged rows around
                     needs to know this button won't undo that. */}
                 <li className="menu-note">
-                  Folders and notes you've dragged into place keep their
-                  position.
+                  끌어서 배치한 폴더와 노트는 위치를
+                  그대로 유지해요.
                 </li>
               </ul>
             )}
@@ -1880,8 +1880,8 @@ export function FileTree() {
           <span className="tool-divider" aria-hidden="true" />
           <button
             className={`tree-tool${selectMode ? " on" : ""}`}
-            title={selectMode ? "Exit selection" : "Select items"}
-            aria-label={selectMode ? "Exit selection" : "Select items"}
+            title={selectMode ? "선택 모드 끝내기" : "항목 선택"}
+            aria-label={selectMode ? "선택 모드 끝내기" : "항목 선택"}
             aria-pressed={selectMode}
             onClick={() => (selectMode ? exitSelect() : setSelectMode(true))}
           >
@@ -1913,8 +1913,8 @@ export function FileTree() {
         <div className="filetree-selectbar">
           <button
             className={`selbar-check${allSelected ? " on" : ""}`}
-            title={allSelected ? "Clear selection" : "Select all"}
-            aria-label={allSelected ? "Clear selection" : "Select all"}
+            title={allSelected ? "선택 해제" : "모두 선택"}
+            aria-label={allSelected ? "선택 해제" : "모두 선택"}
             aria-checked={allSelected}
             role="checkbox"
             onClick={toggleSelectAll}
@@ -1934,8 +1934,8 @@ export function FileTree() {
                   className="selbar-icon"
                   onClick={bulkUnlock}
                   replaceLabel
-                  title="Unlock selected"
-                  aria-label="Unlock selected"
+                  title="선택 항목 잠금 해제"
+                  aria-label="선택 항목 잠금 해제"
                 >
                   {ICON_UNLOCK}
                 </AsyncButton>
@@ -1950,11 +1950,11 @@ export function FileTree() {
                   !bulkDeleteAllowed
                     ? NOT_CREATOR_MESSAGE
                     : confirmDelete
-                      ? `Delete ${selected.size}? Click to confirm`
-                      : "Delete selected"
+                      ? `${selected.size}개를 삭제할까요? 눌러서 확인`
+                      : "선택 항목 삭제"
                 }
                 aria-label={
-                  confirmDelete ? "Confirm delete" : "Delete selected"
+                  confirmDelete ? "삭제 확인" : "선택 항목 삭제"
                 }
               >
                 {ICON_TRASH}
@@ -1968,7 +1968,7 @@ export function FileTree() {
           {emptyView.state === "nothing-shared" ? (
             <NothingShared ownerName={emptyView.ownerName} vaultName={emptyView.vaultName} />
           ) : (
-            "No notes yet"
+            "아직 노트가 없어요"
           )}
         </div>
       ) : (
@@ -2035,14 +2035,14 @@ export function FileTree() {
             title={menuCreateBlocked ? ROOT_FROZEN_HINT : undefined}
             onClick={() => void useStore.getState().createNoteIn(menuDir)}
           >
-            New note
+            새 노트
           </li>
           <li
             className={menuCreateBlocked ? "disabled" : undefined}
             title={menuCreateBlocked ? ROOT_FROZEN_HINT : undefined}
             onClick={() => createUniqueFolder(menuDir)}
           >
-            New folder
+            새 폴더
           </li>
           {navigationGroups.map((kind) => (
             <li key={kind} role="menuitem" tabIndex={0}
@@ -2051,7 +2051,7 @@ export function FileTree() {
               onMouseEnter={(event) => openSub(kind, event.currentTarget)}
               onMouseLeave={closeSubSoon}
               onClick={(event) => { event.stopPropagation(); openSub(kind, event.currentTarget); }}>
-              <span className="menu-sub-label">{kind === "dashboard" ? "Dashboard" : kind === "pin" ? "Pin" : "Home"}</span>
+              <span className="menu-sub-label">{kind === "dashboard" ? "대시보드" : kind === "pin" ? "고정" : "홈"}</span>
               <span className="menu-sub-chevron" aria-hidden="true">›</span>
             </li>
           ))}
@@ -2062,14 +2062,14 @@ export function FileTree() {
             title={menuCreateBlocked ? ROOT_FROZEN_HINT : undefined}
             onClick={() => void importFilesInto(menuDir)}
           >
-            Import files…
+            파일 가져오기…
           </li>
           <li
             className={menuCreateBlocked ? "disabled" : undefined}
             title={menuCreateBlocked ? ROOT_FROZEN_HINT : undefined}
             onClick={() => void importFolderInto(menuDir)}
           >
-            Import folder…
+            폴더 가져오기…
           </li>
           {/* Root menu only, and it sits where a row's reveal item sits, so the
               "get me to this on disk" action is always in the same place. */}
@@ -2079,14 +2079,14 @@ export function FileTree() {
             </li>
           )}
           {menu.node && (
-            <li onClick={() => void exportNode(menu.node!)}>Export…</li>
+            <li onClick={() => void exportNode(menu.node!)}>내보내기…</li>
           )}
           {menu.node && (
             <li onClick={() => void revealNode(menu.node!)}>
               {ipc.revealLabel()}
             </li>
           )}
-          {menu.node && <li onClick={() => menu.node!.edit()}>Rename</li>}
+          {menu.node && <li onClick={() => menu.node!.edit()}>이름 바꾸기</li>}
           {/* At the vault root this is the vault-wide sort (the same setting
               as the header button). Inside a folder it is THAT folder's sort:
               it replaces the vault-wide one for the folder and everything under
@@ -2097,7 +2097,7 @@ export function FileTree() {
             className={`menu-sub-row menu-sep-item${sub?.kind === "sort" ? " open" : ""}`}
             aria-haspopup="menu"
             aria-expanded={sub?.kind === "sort"}
-            title={menuDir === "" ? "How the whole vault is sorted" : "How this folder is sorted"}
+            title={menuDir === "" ? "볼트 전체의 정렬 방식" : "이 폴더의 정렬 방식"}
             onMouseEnter={(e) => openSub("sort", e.currentTarget)}
             onMouseLeave={closeSubSoon}
             onClick={(e) => {
@@ -2105,13 +2105,13 @@ export function FileTree() {
               openSub("sort", e.currentTarget);
             }}
           >
-            <span className="menu-sub-label">Sort by</span>
+            <span className="menu-sub-label">정렬 기준</span>
             <span className="menu-sub-value">
               {menuDir === ""
                 ? TREE_SORTS.find((t) => t.id === treeSort)?.label
                 : folderSorts[menuDir]
                   ? TREE_SORTS.find((t) => t.id === folderSorts[menuDir])?.label
-                  : "Vault default"}
+                  : "볼트 기본값"}
             </span>
             <span className="menu-sub-chevron" aria-hidden="true">
               ›
@@ -2125,8 +2125,8 @@ export function FileTree() {
               className="menu-sep-item"
               title={
                 menu.node?.data.isDir
-                  ? "Forget the drag-and-drop arrangement inside this folder"
-                  : "Forget the drag-and-drop arrangement in this folder"
+                  ? "이 폴더 안에서 끌어서 정한 배치를 잊어요"
+                  : "이 폴더에서 끌어서 정한 배치를 잊어요"
               }
               onClick={() =>
                 useStore
@@ -2134,17 +2134,17 @@ export function FileTree() {
                   .setItemOrder(clearOrderAt(itemOrder, menuDir))
               }
             >
-              Reset manual order
+              수동 정렬 초기화
             </li>
           )}
           {SHOW_SHARE_ITEM && menu.node && menuTarget && (
-            <li onClick={() => setShareTarget(menuTarget)}>Share…</li>
+            <li onClick={() => setShareTarget(menuTarget)}>공유…</li>
           )}
           {menu.node &&
             menuTarget &&
             canManage &&
             (menuLock ? (
-              <li onClick={() => void unlockFromMenu(menuLock.id)}>Unlock</li>
+              <li onClick={() => void unlockFromMenu(menuLock.id)}>잠금 해제</li>
             ) : menuVaultLockedOnly ? (
               // The row shows a padlock but has no row of its own to unlock,
               // and locking it would change nothing. Shown disabled rather than
@@ -2153,10 +2153,10 @@ export function FileTree() {
               <li
                 className="disabled"
                 aria-disabled="true"
-                title="Everyone can only view this vault. Change it in Members and access"
+                title="모든 멤버가 이 볼트를 볼 수만 있어요. 멤버 및 권한에서 바꿀 수 있어요"
                 onClick={(e) => e.stopPropagation()}
               >
-                Locked by the vault
+                볼트에서 잠김
               </li>
             ) : null)}
           {menu.node && (() => {
@@ -2177,18 +2177,18 @@ export function FileTree() {
                   openSub("color", e.currentTarget);
                 }}
               >
-                <span className="menu-sub-label">Color</span>
+                <span className="menu-sub-label">색상</span>
                 <span className="menu-sub-value">
                   {currentColor ? (
                     <>
-                      {auto && <span className="menu-sub-auto">Auto</span>}
+                      {auto && <span className="menu-sub-auto">자동</span>}
                       <span
                         className="swatch"
                         style={{ backgroundColor: currentColor.fill, boxShadow: `inset 0 0 0 1.5px ${currentColor.value}` }}
                       />
                     </>
                   ) : (
-                    "None"
+                    "없음"
                   )}
                 </span>
                 <span className="menu-sub-chevron" aria-hidden="true">
@@ -2200,7 +2200,7 @@ export function FileTree() {
           {menu.node &&
             (canDeletePath(menu.node.data.path, menu.node.data.isDir) ? (
               <li className="danger" onClick={() => handleDelete(menu.node!)}>
-                Delete
+                삭제
               </li>
             ) : (
               <li
@@ -2208,7 +2208,7 @@ export function FileTree() {
                 aria-disabled="true"
                 title={NOT_CREATOR_MESSAGE}
               >
-                Delete
+                삭제
               </li>
             ))}
         </ul>
@@ -2242,7 +2242,7 @@ export function FileTree() {
                   role="menuitemradio"
                   aria-checked={!folderSorts[menuDir]}
                   className={!folderSorts[menuDir] ? "is-on" : undefined}
-                  title="Follow the vault-wide sort (header button)"
+                  title="볼트 전체 정렬을 따라요 (헤더 버튼)"
                   onClick={() => {
                     useStore.getState().setFolderSort(menuDir, null);
                     setMenu(null);
@@ -2251,7 +2251,7 @@ export function FileTree() {
                   <span className="menu-tick" aria-hidden="true">
                     {!folderSorts[menuDir] ? "✓" : ""}
                   </span>
-                  Vault default
+                  볼트 기본값
                 </li>
               )}
               {TREE_SORTS.map((t) => {
@@ -2287,7 +2287,7 @@ export function FileTree() {
               <li className="menu-swatches">
                 <span
                   className={`swatch clear${effective == null ? " on" : ""}`}
-                  title={hasAuto ? "Reset to automatic" : "No colour"}
+                  title={hasAuto ? "자동으로 되돌리기" : "색상 없음"}
                   onClick={() => {
                     useStore.getState().setItemColor(path, null);
                     setMenu(null);
@@ -2686,7 +2686,7 @@ export function SidebarPresence({ peers }: { peers: VaultPeer[] }) {
     <span
       className="tree-presence"
       title={names}
-      aria-label={`Viewing: ${names}`}
+      aria-label={`보고 있는 사람: ${names}`}
     >
       {shown.map((p) => (
         <SidebarAvatar key={p.userId} peer={p} />
@@ -2813,7 +2813,7 @@ function Node({
           className={`tree-check${checked ? " on" : ""}`}
           role="checkbox"
           aria-checked={checked}
-          aria-label={checked ? "Deselect" : "Select"}
+          aria-label={checked ? "선택 해제" : "선택"}
           onClick={(e) => {
             e.stopPropagation();
             onToggleCheck(node.data.path);
@@ -2875,7 +2875,7 @@ function Node({
               would cost the whole vault a signal to spare a collision that is
               no longer rare. An item's own lock still wins the space. */}
           {isEmpty && (!lock || lock === "vault") && (
-            <span className="tree-hint">empty</span>
+            <span className="tree-hint">비어 있음</span>
           )}
           {lock && (
             <span
@@ -2890,8 +2890,8 @@ function Node({
           {!selectMode && (
             <button
               className="tree-more"
-              title="More actions"
-              aria-label={`Actions for ${displayName(node.data.name, isDir)}`}
+              title="더 보기"
+              aria-label={`${displayName(node.data.name, isDir)} 작업`}
               onClick={(e) => {
                 e.stopPropagation();
                 const r = e.currentTarget.getBoundingClientRect();

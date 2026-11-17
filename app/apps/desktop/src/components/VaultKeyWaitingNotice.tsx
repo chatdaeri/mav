@@ -60,19 +60,19 @@ export function VaultKeyWaitingNotice() {
       <Banner show={visible}>
         {code ? (
           <span>
-            {FRESH_KEY_WAITING_PREFIX} <strong>{code}</strong>. Your files here are untouched; sync resumes on its
-            own.
+            {FRESH_KEY_WAITING_PREFIX} <strong>{code}</strong>. 이 기기의 파일은 그대로이며, 동기화는
+            저절로 다시 시작돼요.
           </span>
         ) : (
           <span>
-            This vault is locked on this computer until a teammate shares its key. Your files here are untouched;
-            sync resumes on its own.
+            팀원이 키를 공유할 때까지 이 컴퓨터에서 볼트가 잠겨 있어요. 이 기기의 파일은 그대로이며,
+            동기화는 저절로 다시 시작돼요.
           </span>
         )}
         <div className="banner-actions">
           {isOwner && (
             <button className="primary" onClick={() => setRestoring(true)}>
-              Restore with vault key
+              볼트 키로 복원
             </button>
           )}
           {offersLostDevices(account) && (
@@ -81,7 +81,7 @@ export function VaultKeyWaitingNotice() {
             </button>
           )}
           <button className="ghost-pill" onClick={() => vaultKeysNudge()}>
-            Check again
+            다시 확인
           </button>
         </div>
       </Banner>

@@ -47,14 +47,14 @@ export function PeopleLimitNotice({ error, canManageBilling, ownerName = null, f
     return (
       <div className="limit-nudge">
         <span>
-          {canManageBilling ? freePeopleCopy(cap) : `${freePeopleIncluded(cap)} ${askOwnerTo(ownerName, "upgrade to Team")}`}
+          {canManageBilling ? freePeopleCopy(cap) : `${freePeopleIncluded(cap)} ${askOwnerTo(ownerName, "팀 요금제 업그레이드")}`}
         </span>
         {canManageBilling && (
           <button
             className="link-btn"
             onClick={() => useStore.getState().requestUpgradeDialog({ reason: peopleLimitReason(cap) })}
           >
-            Upgrade →
+            업그레이드 →
           </button>
         )}
       </div>
@@ -63,10 +63,10 @@ export function PeopleLimitNotice({ error, canManageBilling, ownerName = null, f
   const message = seatsFullCopy(seatLimitFromError(error)?.seats ?? null);
   return (
     <div className="limit-nudge">
-      <span>{canManageBilling ? message : `${message} ${askOwnerTo(ownerName, "add seats")}`}</span>
+      <span>{canManageBilling ? message : `${message} ${askOwnerTo(ownerName, "좌석 추가")}`}</span>
       {canManageBilling && (
         <button className="link-btn" onClick={() => useStore.getState().requestAccountSettings("plan")}>
-          Add seats
+          좌석 추가
         </button>
       )}
     </div>

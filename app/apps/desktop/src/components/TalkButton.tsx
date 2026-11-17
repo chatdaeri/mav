@@ -110,14 +110,14 @@ export function TalkButton() {
         aria-pressed={broadcasting}
         aria-label={
           receiving
-            ? `${speaker.name} is talking. Press and hold to talk`
-            : "Push to talk"
+            ? `${speaker.name}님이 말하는 중이에요. 길게 눌러 말하기`
+            : "눌러서 말하기"
         }
         // Always available. Talking into an empty vault is harmless — the chunks
         // simply go nowhere — and gating on "is anyone listening" would make the
         // control flicker in and out with the connection. If someone IS there,
         // the talking indicator says so.
-        title="Press and hold to talk"
+        title="길게 눌러 말하기"
         onPointerDown={(e) => {
           // Primary button only; a right-click shouldn't open the mic.
           if (e.button !== 0) return;
@@ -159,7 +159,7 @@ export function TalkStatus() {
         style={{ background: speaker.color || "var(--accent)" }}
         aria-hidden="true"
       />
-      {extra > 0 ? `${speaker.name} +${extra} talking` : `${speaker.name} is talking`}
+      {extra > 0 ? `${speaker.name} 외 ${extra}명 말하는 중` : `${speaker.name}님이 말하는 중`}
     </span>
   );
 }

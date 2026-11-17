@@ -1,4 +1,4 @@
-// The Baalda app icon (the neural "A" on black, rounded), 256px PNG, embedded
+// The 마브 app icon (the neural "A" on black, rounded), 256px PNG, embedded
 // as base64 for the same reason as brand-assets.ts: the tsc build copies no
 // static files. Downscaled from the desktop app's 1024px master
 // (app/apps/desktop/src-tauri/icons/icon.icns), the same art baalda.com serves

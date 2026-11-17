@@ -272,7 +272,7 @@ fn resolve_resource(root: &Path, rel: &str) -> AppResult<PathBuf> {
         || rel
             .split('/')
             .any(|s| s.is_empty() || vault::is_ignored_name(s))
-        || !vault::is_allowed_file(rel)
+        || !vault::is_known_format(rel)
     {
         return Err(AppError::new("invalid view resource"));
     }

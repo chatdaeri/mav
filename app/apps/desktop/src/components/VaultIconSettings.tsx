@@ -109,7 +109,7 @@ export function VaultIconSettings({
       rememberRecentUpload(src);
     } catch (e) {
       console.warn("[vault-icon] upload failed", e);
-      setUploadError("Couldn't upload that image. Try a smaller PNG or JPG.");
+      setUploadError("이미지를 업로드하지 못했어요. 더 작은 PNG나 JPG로 시도해 보세요.");
     } finally {
       setPending(null);
     }
@@ -130,13 +130,13 @@ export function VaultIconSettings({
           )}
         </span>
         <div className="vault-icon-head-text">
-          <span className="vault-icon-title">Vault icon</span>
+          <span className="vault-icon-title">볼트 아이콘</span>
           <span className="field-hint">
             {!isSynced
-              ? "Shown on this device only, until you turn on sync."
+              ? "동기화를 켜기 전까지 이 기기에서만 보여요."
               : canEdit
-                ? "Everyone in this vault sees this icon."
-                : "Everyone in this vault sees this icon. Only an owner or admin can change it."}
+                ? "이 볼트의 모든 멤버에게 이 아이콘이 보여요."
+                : "이 볼트의 모든 멤버에게 이 아이콘이 보여요. 소유자나 관리자만 바꿀 수 있어요."}
           </span>
         </div>
         <div className="vault-icon-head-actions">
@@ -146,7 +146,7 @@ export function VaultIconSettings({
               disabled={!canEdit || busy}
               onClick={() => save(null, "reset")}
             >
-              Reset
+              초기화
             </AsyncButton>
           )}
           {/* Not an AsyncButton: its click only opens the file picker, and the
@@ -158,7 +158,7 @@ export function VaultIconSettings({
             onClick={() => fileRef.current?.click()}
           >
             <span className="async-btn-label">
-              {pending === "upload" ? "Uploading…" : "Upload image"}
+              {pending === "upload" ? "업로드 중…" : "이미지 업로드"}
             </span>
             {pending === "upload" && <Spinner size="xs" />}
           </button>
@@ -185,8 +185,8 @@ export function VaultIconSettings({
       <div className="vault-icon-customise" aria-busy={busy || undefined}>
         {shownRecent.length > 0 && (
           <div className="vault-icon-recent">
-            <span className="vault-icon-label">Recent uploads</span>
-            <div className="vault-icon-recent-row" role="radiogroup" aria-label="Recent uploads">
+            <span className="vault-icon-label">최근 업로드</span>
+            <div className="vault-icon-recent-row" role="radiogroup" aria-label="최근 업로드">
               {shownRecent.map((src) => {
                 const selected = current.kind === "image" && current.src === src;
                 return (
@@ -195,7 +195,7 @@ export function VaultIconSettings({
                     className={`vault-icon-thumb${selected ? " active" : ""}`}
                     role="radio"
                     aria-checked={selected}
-                    title="Use this image"
+                    title="이 이미지 사용"
                     disabled={!canEdit || busy}
                     onClick={() => {
                       rememberRecentUpload(src);
@@ -212,13 +212,13 @@ export function VaultIconSettings({
           </div>
         )}
 
-        <div className="vault-icon-colors" role="radiogroup" aria-label="Icon colour">
+        <div className="vault-icon-colors" role="radiogroup" aria-label="아이콘 색상">
           {/* No background: the glyph alone, in the text colour. */}
           <button
             className={`swatch swatch-none${color === NO_COLOR ? " active" : ""}`}
             role="radio"
             aria-checked={color === NO_COLOR}
-            title="None"
+            title="없음"
             disabled={!canEdit || busy}
             onClick={() => pickColor(NO_COLOR)}
           />
@@ -238,10 +238,10 @@ export function VaultIconSettings({
 
         {usingImage && (
           <span className="vault-icon-note">
-            {canEdit ? "Using your uploaded image. Pick an icon to switch back." : "Using an uploaded image."}
+            {canEdit ? "업로드한 이미지를 쓰고 있어요. 아이콘을 고르면 되돌아가요." : "업로드한 이미지를 쓰고 있어요."}
           </span>
         )}
-        <div className="vault-icon-grid" role="radiogroup" aria-label="Icon">
+        <div className="vault-icon-grid" role="radiogroup" aria-label="아이콘">
           {VAULT_ICON_NAMES.map((icon) => {
             const selected = current.kind === "preset" && current.icon === icon;
             return (

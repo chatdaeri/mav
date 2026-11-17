@@ -9,13 +9,13 @@ import type { PlanStatusPill } from "../lib/billing";
 export function PlanHeader({ name, pill }: { name: string; pill: PlanStatusPill | null }) {
   return (
     <>
-      <div className="subhead">Current plan</div>
+      <div className="subhead">현재 요금제</div>
       <div className="billing-plan-head">
         <span className="billing-plan-name">{name}</span>
         {pill ? (
           <span className={`billing-status ${pill.tone}`}>{pill.label}</span>
         ) : (
-          <span className="muted">Free forever</span>
+          <span className="muted">영구 무료</span>
         )}
       </div>
     </>

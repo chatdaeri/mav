@@ -47,36 +47,36 @@ describe("composeInspectionVerdict", () => {
     // Every later sentence describes a file. Saying "synced" about a path with
     // nothing at it would send someone looking for a note that isn't there.
     expect(v({ exists: false, state: "synced", pushed: true })).toBe(
-      "There is no file at this path.",
+      "이 경로에는 파일이 없어요.",
     );
   });
 
   it("says the folder doesn't sync before reporting any sync state", () => {
     expect(v({ syncEnabled: false, pushed: true, state: "synced" })).toContain(
-      "does not sync",
+      "동기화되지 않아서",
     );
   });
 
   it("points at the issue row when the note has one, ahead of every softer fact", () => {
     const out = v({ issue, queued: true, diverged: true, state: "synced", pushed: true });
     expect(out).toContain("Too large to sync");
-    expect(out).toContain("Needs attention");
+    expect(out).toContain("확인 필요");
   });
 
   it("reports a remembered permanent failure when no issue row covers it", () => {
     const out = v({ permanentFailure: "too large to sync (12.4 MB; the limit is 10 MB)" });
-    expect(out).toContain("stopped trying");
+    expect(out).toContain("더 이상 시도하지 않아요");
     expect(out).toContain("12.4 MB");
   });
 
   it("prefers 'queued' over 'diverged' — the queue is the thing about to act", () => {
-    expect(v({ queued: true, diverged: true })).toContain("Waiting to be pushed");
-    expect(v({ diverged: true })).toContain("edits the Remote Vault may not have");
+    expect(v({ queued: true, diverged: true })).toContain("업로드 대기 중");
+    expect(v({ diverged: true })).toContain("원격 볼트에 아직 없을 수 있는 편집");
   });
 
   it("only claims a confirmation when BOTH the report and the checkpoint agree", () => {
     expect(v({ state: "synced", pushed: true })).toBe(
-      "Synced. The Remote Vault confirmed this note's content.",
+      "동기화됨. 원격 볼트가 이 노트의 내용을 확인했어요.",
     );
     // A `synced` report with no durable checkpoint is not a confirmation, and
     // a checkpoint with a live `unsynced` state is not one either.
@@ -84,22 +84,22 @@ describe("composeInspectionVerdict", () => {
       v({ state: "synced", pushed: false }),
       v({ state: "unsynced", pushed: true }),
     ]) {
-      expect(weak).toContain("Not confirmed yet");
-      expect(weak).not.toContain("the Remote Vault confirmed");
+      expect(weak).toContain("아직 확인되지 않았어요");
+      expect(weak).not.toContain("원격 볼트가 이 노트의 내용을 확인했어요");
     }
   });
 
   it("explains a pushed note nothing has spoken for this session", () => {
-    expect(v({ pushed: true, state: null })).toContain("nothing about it has changed");
+    expect(v({ pushed: true, state: null })).toContain("바뀐 것은 없어요");
   });
 
   it("says the Remote Vault doesn't know an unmapped note", () => {
-    expect(v({ docId: null })).toBe("The Remote Vault does not know this note yet.");
+    expect(v({ docId: null })).toBe("원격 볼트가 아직 이 노트를 몰라요.");
   });
 
   it("falls back to 'not confirmed', never to something reassuring", () => {
     const out = v({ state: "unsynced" });
-    expect(out).toContain("Not confirmed yet");
-    expect(out).not.toContain("Synced");
+    expect(out).toContain("아직 확인되지 않았어요");
+    expect(out).not.toContain("동기화됨");
   });
 });

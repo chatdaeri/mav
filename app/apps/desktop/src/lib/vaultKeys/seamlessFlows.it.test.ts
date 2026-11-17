@@ -267,7 +267,7 @@ describe.skipIf(!BASE)("seamless vault keys (live server)", () => {
     expect((await soloDevice.ensureVaultKey(vault.id)).state).toBe("unkeyed");
     const before = await solo.api.getMyVaultKeys(vault.id);
     if (!before.keyed && before.recoveryNet) {
-      // Launch safety net on: Baalda can rescue a lost key, so it encrypts at once.
+      // Launch safety net on: 마브 can rescue a lost key, so it encrypts at once.
       let first = await soloDevice.convertVault(vault.id);
       for (let i = 0; i < 3 && first === "waiting-ready"; i++) first = await soloDevice.convertVault(vault.id);
       expect(first).toBe("converted");

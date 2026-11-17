@@ -39,12 +39,12 @@ export function VersionsTab() {
   if (!docId) {
     return (
       <p className="muted version-panel-empty">
-        Open a synced note to see its version history.
+        동기화된 노트를 열면 버전 기록을 볼 수 있어요.
       </p>
     );
   }
   return (
-    <ErrorBoundary label="Version history" resetKeys={[docId]}>
+    <ErrorBoundary label="버전 기록" resetKeys={[docId]}>
       <VersionPanelBody key={docId} docId={docId} />
     </ErrorBoundary>
   );
@@ -207,23 +207,23 @@ function VersionPanelBody({ docId }: { docId: string }) {
       ref={asideRef}
       className="version-tab"
       tabIndex={-1}
-      aria-label="Version history"
+      aria-label="버전 기록"
       onKeyDown={onKeyDown}
     >
       <header className="version-panel-head">
         <div className="version-panel-title">
-          <span className="settings-eyebrow">Version history</span>
-          <strong>{noteTitle ?? "This note"}</strong>
+          <span className="settings-eyebrow">버전 기록</span>
+          <strong>{noteTitle ?? "이 노트"}</strong>
         </div>
       </header>
 
       <p className="muted version-panel-hint">
-        Hover a version to preview it here. Reverting keeps a copy of the current
-        text first, so you can always come back.
+        버전에 마우스를 올리면 여기서 미리 볼 수 있어요. 되돌리기 전에 현재
+        텍스트를 먼저 사본으로 남기므로 언제든 돌아올 수 있어요.
       </p>
 
       {versions == null ? (
-        <div className="muted version-panel-empty">Loading…</div>
+        <div className="muted version-panel-empty">불러오는 중…</div>
       ) : (
         <ul className="version-list" ref={listRef} onMouseLeave={scheduleClearPreview}>
           <li
@@ -236,8 +236,8 @@ function VersionPanelBody({ docId }: { docId: string }) {
           >
             <span className="version-dot" aria-hidden="true" />
             <span className="version-row-main">
-              <span className="version-row-title">Current</span>
-              <span className="version-row-sub">What’s in the editor right now</span>
+              <span className="version-row-title">현재</span>
+              <span className="version-row-sub">지금 편집기에 있는 내용</span>
             </span>
           </li>
           {rows.map((v, i) => (
@@ -257,8 +257,8 @@ function VersionPanelBody({ docId }: { docId: string }) {
           ))}
           {rows.length === 0 && (
             <li className="muted version-panel-empty">
-              No versions yet. One is captured automatically a few minutes after
-              you stop editing, and always just before a revert.
+              아직 버전이 없어요. 편집을 멈추고 몇 분 뒤에 자동으로 저장되고,
+              되돌리기 직전에도 항상 저장돼요.
             </li>
           )}
         </ul>
@@ -302,7 +302,7 @@ function VersionRow({
       <span className="version-row-main">
         <span className="version-row-title">
           {agoFromIso(version.createdAt, now)}
-          {isCurrent && <span className="version-badge">Current</span>}
+          {isCurrent && <span className="version-badge">현재</span>}
         </span>
         <span className="version-row-sub">
           {author} · {versionCauseLabel(version.cause)}
@@ -314,12 +314,12 @@ function VersionRow({
         disabled={isCurrent}
         title={
           isCurrent
-            ? "This is already what the note says"
-            : "Replace the note with this version"
+            ? "이미 노트의 현재 내용이에요"
+            : "노트를 이 버전으로 바꾸기"
         }
         onClick={onRevert}
       >
-        Revert
+        되돌리기
       </AsyncButton>
     </li>
   );

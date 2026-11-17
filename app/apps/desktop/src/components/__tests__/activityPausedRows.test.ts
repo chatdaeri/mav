@@ -35,10 +35,10 @@ describe("paused rows", () => {
       type: "paused",
       key: "p:e1",
       at: T,
-      label: "Paused",
+      label: "일시 중지됨",
       canRelease: true,
       own: false,
-      text: "Sync paused for Sam · 12 notes emptied at once",
+      text: "Sam님의 동기화가 일시 중지됨 · 노트 12개가 한꺼번에 비워짐",
     });
   });
 
@@ -49,19 +49,19 @@ describe("paused rows", () => {
       copies: [],
       brakes: { items: [event({ held: false, releasedAt: new Date(T + 1).toISOString() })], canRelease: true, selfId: null },
     });
-    expect(ended[0]).toMatchObject({ label: "Resumed", canRelease: false });
+    expect(ended[0]).toMatchObject({ label: "재개됨", canRelease: false });
     const member = buildActivity({
       reconcile: [],
       trash: [],
       copies: [],
       brakes: { items: [event({ userId: "me" })], canRelease: false, selfId: "me" },
     });
-    expect(member[0]).toMatchObject({ canRelease: false, own: true, text: "Your sync was paused · 12 notes emptied at once" });
+    expect(member[0]).toMatchObject({ canRelease: false, own: true, text: "내 동기화가 일시 중지됨 · 노트 12개가 한꺼번에 비워짐" });
   });
 
   it("falls back to 'a member' without a name", () => {
-    expect(pausedText({ userName: null, noteCount: 1 }, false)).toBe("Sync paused for a member · 1 note emptied at once");
-    expect(pausedText({ userName: "  ", noteCount: 2 }, false)).toBe("Sync paused for a member · 2 notes emptied at once");
+    expect(pausedText({ userName: null, noteCount: 1 }, false)).toBe("한 멤버의 동기화가 일시 중지됨 · 노트 1개가 한꺼번에 비워짐");
+    expect(pausedText({ userName: "  ", noteCount: 2 }, false)).toBe("한 멤버의 동기화가 일시 중지됨 · 노트 2개가 한꺼번에 비워짐");
   });
 
   it("does not list each held note as a failure", () => {

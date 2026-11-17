@@ -21,9 +21,12 @@ import {
 export type Invitation = ReturnType<typeof useStore.getState>["userInvitations"][number];
 
 /** "Naveed · Admin": who asked and, when it is not plain member, the role. */
+const ROLE_LABELS: Record<string, string> = { owner: "소유자", admin: "관리자", member: "멤버" };
+const roleLabel = (r: string) => ROLE_LABELS[r] ?? r;
+
 export function invitationHint(inv: Invitation): string {
   const role = inv.role && inv.role !== "member" ? inv.role : null;
-  return [inv.inviterName ?? "", role ? role.charAt(0).toUpperCase() + role.slice(1) : ""]
+  return [inv.inviterName ?? "", role ? roleLabel(role) : ""]
     .filter(Boolean)
     .join(" · ");
 }
@@ -87,12 +90,12 @@ export function InvitationRows({
       <>
         {invitations.map((inv) => {
           const hint = invitationHint(inv);
-          const name = inv.organizationName ?? "A vault";
+          const name = inv.organizationName ?? "볼트";
           return (
             <div
               key={inv.id}
               className={`invites-flyout-row${freshIds.has(inv.id) ? " is-new" : ""}`}
-              title={hint ? `Invitation to ${name}, ${hint}` : `Invitation to ${name}`}
+              title={hint ? `${name} 초대, ${hint}` : `${name} 초대`}
             >
               <span className="invites-flyout-tile" aria-hidden="true">
                 {name.trim().charAt(0).toUpperCase() || "V"}
@@ -108,7 +111,7 @@ export function InvitationRows({
                   replaceLabel
                   onClick={() => declineInvite(inv)}
                 >
-                  Decline
+                  거절
                 </AsyncButton>
                 <AsyncButton
                   className="invite-btn accept"
@@ -116,7 +119,7 @@ export function InvitationRows({
                   replaceLabel
                   onClick={() => acceptInvite(inv)}
                 >
-                  Accept
+                  수락
                 </AsyncButton>
               </span>
             </div>
@@ -137,17 +140,17 @@ export function InvitationRows({
               neither, hence the plain-language defaults. Accept already
               says what happens, so the title is just the vault. */}
           <span className="invite-row-meta">
-            <span className="invite-row-title">{inv.organizationName ?? "A vault"}</span>
+            <span className="invite-row-title">{inv.organizationName ?? "볼트"}</span>
             <span className="muted">
-              {inv.inviterName ? `Invited by ${inv.inviterName} · ` : ""}
-              <span className="invite-row-role">{inv.role}</span>
+              {inv.inviterName ? `${inv.inviterName}님의 초대 · ` : ""}
+              <span className="invite-row-role">{roleLabel(inv.role)}</span>
             </span>
           </span>
           <AsyncButton className="primary sm" onClick={() => acceptInvite(inv)}>
-            Accept
+            수락
           </AsyncButton>
           <AsyncButton className="ghost-pill sm" onClick={() => declineInvite(inv)}>
-            Decline
+            거절
           </AsyncButton>
         </div>
       ))}

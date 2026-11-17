@@ -118,7 +118,7 @@ function ToastRow({
       )}
       <button
         className="toast-close"
-        aria-label="Dismiss"
+        aria-label="닫기"
         onClick={() => dismissToast(toast.id)}
       >
         ×

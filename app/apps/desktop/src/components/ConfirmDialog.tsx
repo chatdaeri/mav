@@ -5,10 +5,10 @@ import { levelClass } from "../lib/membersAccess";
 
 /** Access levels as the confirm's before/after card names them. */
 const LEVEL_NAME: Record<string, string> = {
-  open: "Can edit",
-  readonly: "Can view",
-  private: "No access",
-  custom: "Custom",
+  open: "편집 가능",
+  readonly: "보기 가능",
+  private: "접근 불가",
+  custom: "사용자 지정",
 };
 
 /**
@@ -46,7 +46,7 @@ export function ConfirmDialog({
   change,
   children,
   confirmLabel,
-  cancelLabel = "Cancel",
+  cancelLabel = "취소",
   tone = "danger",
   confirmDisabled = false,
   onConfirm,
@@ -136,7 +136,7 @@ export function ConfirmDialog({
             {change.from && (
               <>
                 <span className={`confirm-level ${levelClass(change.from)}`}>{LEVEL_NAME[change.from]}</span>
-                <span className="confirm-change-arrow" aria-label="to">→</span>
+                <span className="confirm-change-arrow" aria-label="다음으로">→</span>
               </>
             )}
             <span className={`confirm-level ${levelClass(change.to)}`}>{LEVEL_NAME[change.to]}</span>

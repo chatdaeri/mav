@@ -50,7 +50,7 @@ interface Particle {
 }
 
 // The sidebar's folder colours (lib/appearance.ts ITEM_COLORS), so a burst
-// looks like Baalda rather than a generic party.
+// looks like 마브 rather than a generic party.
 const CONFETTI_COLORS = [
   "#7c5cff",
   "#dc5f97",

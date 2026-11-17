@@ -108,7 +108,7 @@ describe("Member access board", () => {
   /** Folders start collapsed: open every one, nested ones included. */
   async function expandAll() {
     for (;;) {
-      const next = host.querySelector<HTMLButtonElement>('button[aria-label^="Expand "]');
+      const next = host.querySelector<HTMLButtonElement>('button[aria-label$=" 펼치기"]');
       if (!next) return;
       await act(async () => next.click());
     }
@@ -126,7 +126,7 @@ describe("Member access board", () => {
 
   it("an arrow is one bulk write for one resource and one user, then toasts", async () => {
     await render();
-    await act(async () => button("Move Welcome left").click());
+    await act(async () => button("Welcome 왼쪽으로 이동").click());
     await settle();
     expect(dialog()).toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
@@ -139,7 +139,7 @@ describe("Member access board", () => {
     // Optimistic move.
     expect(names("open")).toContain("Welcome");
     expect(row("open", "Welcome").classList.contains("is-landing")).toBe(true);
-    expect(toast).toHaveBeenCalledWith("Sara can now edit Welcome.");
+    expect(toast).toHaveBeenCalledWith("Sara님의 Welcome 권한이 편집 가능으로 바뀌었어요.");
     expect(host.querySelector(".access-board-undo")).toBeNull();
   });
 
@@ -147,7 +147,7 @@ describe("Member access board", () => {
     await render();
     // The write is accepted but the server still resolves Welcome as view only.
     api.setBulkAccess.mockResolvedValue({ mode: "open", resourcesChanged: 1, overridesCleared: 0, membersAffected: 1, disconnectedDocs: 0 });
-    await act(async () => button("Move Welcome left").click());
+    await act(async () => button("Welcome 왼쪽으로 이동").click());
     expect(api.setBulkAccess.mock.calls[0][1]).toEqual({
       resources: [{ resourceType: "file", resourceId: "n2" }],
       audience: { type: "users", userIds: ["u2"] },
@@ -159,8 +159,8 @@ describe("Member access board", () => {
     // ...then the truth.
     expect(names("readonly")).toContain("Welcome");
     expect(names("open")).not.toContain("Welcome");
-    expect(toast).toHaveBeenCalledWith("Couldn't apply: Welcome is still Can view", "error");
-    expect(toast).not.toHaveBeenCalledWith("Sara can now edit Welcome.");
+    expect(toast).toHaveBeenCalledWith("적용하지 못했어요: Welcome의 권한이 아직 \"보기 가능\" 상태예요", "error");
+    expect(toast).not.toHaveBeenCalledWith("Sara님의 Welcome 권한이 편집 가능으로 바뀌었어요.");
   });
 
   /** The column as drawn, grey path rows marked with ~. */
@@ -171,13 +171,13 @@ describe("Member access board", () => {
   it("floats a moved row to the top of its level, newest first, with the landing pulse", async () => {
     await render();
     await expandAll();
-    await act(async () => button("Move Welcome left").click());
+    await act(async () => button("Welcome 왼쪽으로 이동").click());
     await settle();
     expect(drawn("open")).toEqual(["Welcome", "Specs", "API"]);
     expect(row("open", "Welcome").dataset.pulse).toBe("true");
-    await act(async () => button("Move Roadmap left").click());
+    await act(async () => button("Roadmap 왼쪽으로 이동").click());
     await settle();
-    await act(async () => button("Move Roadmap left").click());
+    await act(async () => button("Roadmap 왼쪽으로 이동").click());
     await settle();
     expect(drawn("open")).toEqual(["Roadmap", "Welcome", "Specs", "API"]);
     expect(row("open", "Roadmap").dataset.pulse).toBe("true");
@@ -189,7 +189,7 @@ describe("Member access board", () => {
   it("a moved nested row rises with its grey path, keeping the tree", async () => {
     await render();
     await expandAll();
-    await act(async () => button("Move API right").click());
+    await act(async () => button("API 오른쪽으로 이동").click());
     await settle();
     expect(drawn("readonly")).toEqual(["~Specs", "API", "Welcome"]);
     expect(drawn("open")).toEqual(["Specs"]);
@@ -208,7 +208,7 @@ describe("Member access board", () => {
     await render();
     expect(drawn("readonly")).toEqual(["~Specs", "API", "Welcome"]);
     await expandAll();
-    await act(async () => button("Move Zeta right").click());
+    await act(async () => button("Zeta 오른쪽으로 이동").click());
     await settle();
     // Specs is now interactive here and keeps the expansion it had in Can edit.
     expect(drawn("readonly")).toEqual(["Specs", "Zeta", "API", "Welcome"]);
@@ -221,9 +221,9 @@ describe("Member access board", () => {
     await render();
     const welcome = row("readonly", "Welcome");
     expect(welcome.querySelector(".access-board-lock")?.getAttribute("title"))
-      .toBe("Read-only for everyone. Moving to Can edit will ask to unlock");
-    expect(button("Move Welcome left").disabled).toBe(false);
-    expect(button("Move Welcome right").disabled).toBe(false);
+      .toBe("모든 멤버에게 읽기 전용이에요. 편집 가능으로 옮기면 잠금 해제를 확인해요");
+    expect(button("Welcome 왼쪽으로 이동").disabled).toBe(false);
+    expect(button("Welcome 오른쪽으로 이동").disabled).toBe(false);
     const original = document.elementFromPoint;
     document.elementFromPoint = () => column("open");
     try {
@@ -235,10 +235,10 @@ describe("Member access board", () => {
     }
     await settle();
     expect(api.setBulkAccess).not.toHaveBeenCalled();
-    expect(dialog()?.textContent).toContain("Remove read-only rules for everyone?");
+    expect(dialog()?.textContent).toContain("모든 멤버의 읽기 전용 규칙을 없앨까요?");
     const removeLock = vi.fn().mockResolvedValue(undefined);
     patchStore({ removeLock });
-    await act(async () => dialogButton("Unlock and allow editing").click());
+    await act(async () => dialogButton("잠금 해제하고 편집 허용").click());
     await settle();
     expect(removeLock).toHaveBeenCalledWith("l1");
     expect(api.setBulkAccess).toHaveBeenCalledWith("org-1", expect.objectContaining({ mode: "open" }), expect.anything());
@@ -252,10 +252,10 @@ describe("Member access board", () => {
     const removeLock = vi.fn().mockResolvedValue(undefined);
     patchStore({ removeLock, locks: [{ id: "child-lock", resourceType: "file", resourceId: "n1", principalType: "org", principalId: "org-1", permission: "readonly" }] });
     await render();
-    await act(async () => button("Move Specs left").click());
-    expect(dialog()?.textContent).toContain("Remove read-only rules for everyone?");
+    await act(async () => button("Specs 왼쪽으로 이동").click());
+    expect(dialog()?.textContent).toContain("모든 멤버의 읽기 전용 규칙을 없앨까요?");
     expect(api.setBulkAccess).not.toHaveBeenCalled();
-    await act(async () => dialogButton("Cancel").click());
+    await act(async () => dialogButton("취소").click());
     expect(removeLock).not.toHaveBeenCalled();
     expect(api.setBulkAccess).not.toHaveBeenCalled();
     expect(names("readonly")).toContain("Specs");
@@ -267,30 +267,30 @@ describe("Member access board", () => {
     const removeLock = vi.fn().mockRejectedValue(new Error("offline"));
     patchStore({ removeLock, locks: [{ id: "child-lock", resourceType: "file", resourceId: "n1", principalType: "org", principalId: "org-1", permission: "readonly" }] });
     await render();
-    await act(async () => button("Move Specs left").click());
-    await act(async () => dialogButton("Unlock and allow editing").click());
+    await act(async () => button("Specs 왼쪽으로 이동").click());
+    await act(async () => dialogButton("잠금 해제하고 편집 허용").click());
     await settle();
     expect(api.setBulkAccess).not.toHaveBeenCalled();
-    expect(toast).toHaveBeenCalledWith("Couldn't update access, check your connection", "error");
+    expect(toast).toHaveBeenCalledWith("권한을 바꾸지 못했어요. 연결을 확인해 주세요.", "error");
   });
 
   it("only a move to No access confirms: Set everything to → Can view and Add all apply at once", async () => {
     await render({ personVaultMode: "open" });
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Set everything to"]')!.click());
-    const view = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("Can view"))!;
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="모두 일괄 설정"]')!.click());
+    const view = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("보기 가능"))!;
     await act(async () => view.click());
     expect(dialog()).toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
     expect(api.setBulkAccess.mock.calls[0][1]).toMatchObject({ resources: [{ resourceType: "vault", resourceId: "org-1" }], mode: "readonly" });
     await settle();
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Can view actions"]')!.click());
-    const addAll = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("Add all"))!;
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="보기 가능 작업"]')!.click());
+    const addAll = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("모두 추가"))!;
     await act(async () => addAll.click());
     expect(dialog()).toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(2);
     await settle();
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Set everything to"]')!.click());
-    const none = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("No access"))!;
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="모두 일괄 설정"]')!.click());
+    const none = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find((li) => li.textContent?.startsWith("접근 불가"))!;
     await act(async () => none.click());
     expect(dialog()).not.toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(2);
@@ -298,7 +298,7 @@ describe("Member access board", () => {
 
   it("lowering one row writes at once, without a confirm, and toasts", async () => {
     await render();
-    await act(async () => button("Move Welcome right").click());
+    await act(async () => button("Welcome 오른쪽으로 이동").click());
     await settle();
     expect(dialog()).toBeNull();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
@@ -308,7 +308,7 @@ describe("Member access board", () => {
       mode: "private",
     });
     expect(names("private")).toContain("Welcome");
-    expect(toast).toHaveBeenCalledWith("Sara can no longer open Welcome.");
+    expect(toast).toHaveBeenCalledWith("Sara님의 Welcome 권한이 접근 불가로 바뀌었어요.");
   });
 
   it("Add all to No access targets existing items, including binaries, without changing the vault default", async () => {
@@ -316,13 +316,13 @@ describe("Member access board", () => {
     api.listAccessTree.mockResolvedValue({ ...tree, files: [{ id: "b1", path: "Guide.pdf" }] });
     modes.b1 = "open";
     await render({ personVaultMode: "open", isSelf: true });
-    await act(async () => button("No access actions").click());
+    await act(async () => button("접근 불가 작업").click());
     const add = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
-      .find((li) => li.textContent?.startsWith("Add all"))!;
+      .find((li) => li.textContent?.startsWith("모두 추가"))!;
     await act(async () => add.click());
-    expect(dialog()?.textContent).toContain("Move all existing items to No access?");
+    expect(dialog()?.textContent).toContain("기존 항목을 모두 접근 불가로 옮길까요?");
     expect(api.setBulkAccess).not.toHaveBeenCalled();
-    await act(async () => dialogButton("Remove access").click());
+    await act(async () => dialogButton("접근 제거").click());
     await settle();
     const input = api.setBulkAccess.mock.calls[0][1];
     expect(input.mode).toBe("private");
@@ -343,9 +343,9 @@ describe("Member access board", () => {
   it("Add all in an empty vault never becomes a vault-wide write", async () => {
     api.listAccessTree.mockResolvedValue({ folders: [], notes: [], files: [] });
     await render({ personVaultMode: "open" });
-    await act(async () => button("No access actions").click());
+    await act(async () => button("접근 불가 작업").click());
     const add = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
-      .find((li) => li.textContent?.startsWith("Add all"))!;
+      .find((li) => li.textContent?.startsWith("모두 추가"))!;
     await act(async () => add.click());
     expect(dialog()).toBeNull();
     expect(api.setBulkAccess).not.toHaveBeenCalled();
@@ -366,9 +366,9 @@ describe("Member access board", () => {
 
   it("Set everything to → Can view writes the vault resource", async () => {
     await render({ personVaultMode: "private" });
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Set everything to"]')!.click());
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="모두 일괄 설정"]')!.click());
     const option = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
-      .find((li) => li.textContent?.startsWith("Can view"))!;
+      .find((li) => li.textContent?.startsWith("보기 가능"))!;
     await act(async () => option.click());
     expect(api.setBulkAccess).toHaveBeenCalledWith("org-1", {
       resources: [{ resourceType: "vault", resourceId: "org-1" }],
@@ -380,14 +380,14 @@ describe("Member access board", () => {
 
   it("disables arrows and dragging without permission", async () => {
     await render({ canSetAccess: false });
-    expect(button("Move Welcome left").disabled).toBe(true);
+    expect(button("Welcome 왼쪽으로 이동").disabled).toBe(true);
     expect(column("readonly").querySelector(".access-board-row")?.getAttribute("data-movable")).toBe("false");
   });
 
   it("drags a row with the pointer onto another column (even an empty one) and writes once", async () => {
     modes = { f1: "open", n1: "open", n2: "readonly", n3: "readonly" };
     await render();
-    expect(column("private").querySelector(".access-board-empty")?.textContent).toBe("Nothing here");
+    expect(column("private").querySelector(".access-board-empty")?.textContent).toBe("항목이 없어요");
     const target = column("private").querySelector(".access-board-empty")!;
     const original = document.elementFromPoint;
     document.elementFromPoint = () => target;
@@ -485,13 +485,13 @@ describe("Member access board", () => {
   it("Reset to vault default confirms, then makes one request and reloads", async () => {
     api.resetMemberAccess.mockResolvedValue({ removed: 2, disconnectedDocs: 0 });
     await render({ personVaultMode: "readonly", everyoneMode: "open" });
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Set everything to"]')!.click());
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="모두 일괄 설정"]')!.click());
     const option = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
-      .find((li) => li.textContent?.startsWith("Reset to vault default"))!;
+      .find((li) => li.textContent?.startsWith("볼트 기본값으로 되돌리기"))!;
     await act(async () => option.click());
-    expect(dialog()?.textContent).toContain("Reset Sara's access to the vault default?");
+    expect(dialog()?.textContent).toContain("Sara님의 권한을 볼트 기본값으로 되돌릴까요?");
     expect(api.resetMemberAccess).not.toHaveBeenCalled();
-    await act(async () => dialogButton("Reset").click());
+    await act(async () => dialogButton("되돌리기").click());
     expect(api.resetMemberAccess).toHaveBeenCalledTimes(1);
     expect(api.resetMemberAccess).toHaveBeenCalledWith("org-1", "u2");
     expect(api.setBulkAccess).not.toHaveBeenCalled();
@@ -527,7 +527,7 @@ describe("Member access board", () => {
       expect(drawn("open")).toEqual(["Plans", "Specs", "Welcome"]);
       // The header still counts every row in the column.
       expect(column("open").querySelector(".access-board-column-title .access-board-count")?.textContent).toBe("6");
-      const toggle = button("Expand Specs");
+      const toggle = button("Specs 펼치기");
       expect(toggle.tagName).toBe("BUTTON");
       expect(toggle.getAttribute("aria-expanded")).toBe("false");
       expect(row("open", "Specs").querySelector(".access-board-descendants")?.textContent).toBe("3");
@@ -537,16 +537,16 @@ describe("Member access board", () => {
     it("the toggle shows a folder's children, and collapses them again", async () => {
       nested();
       await render();
-      await act(async () => button("Expand Specs").click());
+      await act(async () => button("Specs 펼치기").click());
       expect(drawn("open")).toEqual(["Plans", "Specs", "Deep", "API", "Welcome"]);
-      expect(button("Collapse Specs").getAttribute("aria-expanded")).toBe("true");
+      expect(button("Specs 접기").getAttribute("aria-expanded")).toBe("true");
       expect(row("open", "Specs").querySelector(".access-board-descendants")).toBeNull();
-      await act(async () => button("Expand Deep").click());
+      await act(async () => button("Deep 펼치기").click());
       expect(drawn("open")).toEqual(["Plans", "Specs", "Deep", "Inner", "API", "Welcome"]);
-      await act(async () => button("Collapse Specs").click());
+      await act(async () => button("Specs 접기").click());
       expect(drawn("open")).toEqual(["Plans", "Specs", "Welcome"]);
       // Re-opening the parent remembers the child was open.
-      await act(async () => button("Expand Specs").click());
+      await act(async () => button("Specs 펼치기").click());
       expect(drawn("open")).toEqual(["Plans", "Specs", "Deep", "Inner", "API", "Welcome"]);
       expect(api.setBulkAccess).not.toHaveBeenCalled();
     });
@@ -554,7 +554,7 @@ describe("Member access board", () => {
     it("pressing the toggle never starts a drag", async () => {
       nested();
       await render();
-      const toggle = button("Expand Specs");
+      const toggle = button("Specs 펼치기");
       pointer("pointerdown", toggle, 10, 10);
       pointer("pointermove", window, 400, 10);
       pointer("pointerup", window, 400, 10);
@@ -566,9 +566,9 @@ describe("Member access board", () => {
     it("Expand all and Collapse all in the column menu", async () => {
       nested();
       await render();
-      await pickMenu("Can edit actions", "Expand all");
+      await pickMenu("편집 가능 작업", "모두 펼치기");
       expect(drawn("open")).toEqual(["Plans", "Specs", "Deep", "Inner", "API", "Welcome"]);
-      await pickMenu("Can edit actions", "Collapse all");
+      await pickMenu("편집 가능 작업", "모두 접기");
       expect(drawn("open")).toEqual(["Plans", "Specs", "Welcome"]);
       expect(api.setBulkAccess).not.toHaveBeenCalled();
     });
@@ -579,17 +579,17 @@ describe("Member access board", () => {
       // Plans lives in Can edit (no children there), Q4 in Can view under a grey Plans.
       expect(drawn("readonly")).toEqual(["~Plans", "Q4"]);
       expect(row("readonly", "Plans").querySelector("button")).toBeNull();
-      await pickMenu("Can view actions", "Collapse all");
+      await pickMenu("보기 가능 작업", "모두 접기");
       expect(drawn("readonly")).toEqual(["~Plans", "Q4"]);
     });
 
     it("Expand all and Collapse all stay offered without permission to move", async () => {
       nested();
       await render({ canSetAccess: false });
-      await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Can edit actions"]')!.click());
+      await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="편집 가능 작업"]')!.click());
       const items = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].map((li) => li.textContent ?? "");
-      expect(items.some((t) => t.startsWith("Expand all"))).toBe(true);
-      expect(items.some((t) => t.startsWith("Add all"))).toBe(false);
+      expect(items.some((t) => t.startsWith("모두 펼치기"))).toBe(true);
+      expect(items.some((t) => t.startsWith("모두 추가"))).toBe(false);
     });
   });
 
@@ -604,16 +604,16 @@ describe("Member access board", () => {
     it("puts a moved row back and toasts the connection error", async () => {
       await render();
       api.setBulkAccess.mockRejectedValue(new TypeError("Load failed"));
-      await act(async () => button("Move Welcome left").click());
+      await act(async () => button("Welcome 왼쪽으로 이동").click());
       await settle();
       expect(names("readonly")).toEqual(["Welcome"]);
       expect(names("open")).not.toContain("Welcome");
-      expect(toast).toHaveBeenCalledWith("Couldn't update access, check your connection", "error");
-      expect(toast).not.toHaveBeenCalledWith("Sara can now edit Welcome.");
+      expect(toast).toHaveBeenCalledWith("권한을 바꾸지 못했어요. 연결을 확인해 주세요.", "error");
+      expect(toast).not.toHaveBeenCalledWith("Sara님의 Welcome 권한이 편집 가능으로 바뀌었어요.");
       expect(onItemWritten).not.toHaveBeenCalled();
       expect(host.querySelector(".auth-error")).toBeNull();
       // The board stays usable.
-      expect(button("Move Welcome left").disabled).toBe(false);
+      expect(button("Welcome 왼쪽으로 이동").disabled).toBe(false);
     });
 
     it("Add all on Can view puts every row, root notes included, back in its column", async () => {
@@ -622,7 +622,7 @@ describe("Member access board", () => {
       await expandAll();
       expect(names("private")).toEqual(["Specs", "API", "Roadmap", "Welcome"]);
       api.setBulkAccess.mockRejectedValue(new DOMException("The operation was aborted.", "AbortError"));
-      await openMenu("Can view actions", "Add all");
+      await openMenu("보기 가능 작업", "모두 추가");
       await settle();
       expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
       expect(api.setBulkAccess.mock.calls[0][1]).toMatchObject({
@@ -636,7 +636,7 @@ describe("Member access board", () => {
       expect(api.setBulkAccess.mock.calls[0][2]).toEqual({ timeoutMs: 30_000 });
       expect(names("private")).toEqual(["Specs", "API", "Roadmap", "Welcome"]);
       expect(names("readonly")).toEqual([]);
-      expect(toast).toHaveBeenCalledWith("Couldn't update access, check your connection", "error");
+      expect(toast).toHaveBeenCalledWith("권한을 바꾸지 못했어요. 연결을 확인해 주세요.", "error");
       expect(onChanged).not.toHaveBeenCalled();
     });
 
@@ -647,18 +647,18 @@ describe("Member access board", () => {
         throw new TypeError("Load failed");
       });
       const reads = api.resolveAccessSummaries.mock.calls.length;
-      await act(async () => button("Move Roadmap left").click());
+      await act(async () => button("Roadmap 왼쪽으로 이동").click());
       await settle();
       expect(api.resolveAccessSummaries.mock.calls.length).toBeGreaterThan(reads);
       expect(names("readonly")).toContain("Roadmap");
       expect(names("private")).not.toContain("Roadmap");
-      expect(toast).toHaveBeenCalledWith("Couldn't update access, check your connection", "error");
+      expect(toast).toHaveBeenCalledWith("권한을 바꾸지 못했어요. 연결을 확인해 주세요.", "error");
     });
 
     it("a refusal the server explained is shown as is", async () => {
       await render();
       api.setBulkAccess.mockRejectedValue(Object.assign(new Error("Only the vault owner or an admin can manage access"), { name: "ApiError", status: 403 }));
-      await act(async () => button("Move Welcome left").click());
+      await act(async () => button("Welcome 왼쪽으로 이동").click());
       await settle();
       expect(toast).toHaveBeenCalledWith("Only the vault owner or an admin can manage access", "error");
       expect(names("readonly")).toEqual(["Welcome"]);

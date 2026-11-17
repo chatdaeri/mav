@@ -118,9 +118,9 @@ describe("Access board, one request", () => {
     await settle();
     expect(api.getAccessBoard).toHaveBeenCalledTimes(1);
     api.getAccessBoard.mockResolvedValue({ ...big, modes: "v".repeat(251), complete: true });
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Can view actions"]')!.click());
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="보기 가능 작업"]')!.click());
     const addAll = [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
-      .find((li) => li.textContent?.startsWith("Add all"))!;
+      .find((li) => li.textContent?.startsWith("모두 추가"))!;
     await act(async () => addAll.click());
     await settle();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
@@ -132,7 +132,7 @@ describe("Access board, one request", () => {
   it("a small move keeps re-reading only the affected rows", async () => {
     await render();
     await settle();
-    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Move Welcome left"]')!.click());
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label="Welcome 왼쪽으로 이동"]')!.click());
     await settle();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
     expect(api.getAccessBoard).toHaveBeenCalledTimes(1);

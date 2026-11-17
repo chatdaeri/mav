@@ -31,7 +31,9 @@ pub const ALLOWED_EXTS: &[&str] = &[
     "png", "jpg", "jpeg", "jfif", "gif", "webp", "svg", "bmp", "ico", "avif", "heic", "heif",
     "tiff", "tif",
     // documents
-    "pdf", "docx", "xlsx", "xlsm", "pptx",
+    "pdf", "docx", "xlsx", "xlsm", "pptx", "hwpx",
+    // legacy binaries: listed and synced, opened in their own app (no preview)
+    "hwp", "doc", "ppt", "xls",
     // video / audio
     "mp4", "m4v", "mov", "webm", "mp3", "wav", "m4a", "ogg", "aac", "flac",
     // tabular / structured data
@@ -72,7 +74,7 @@ pub const TRANSIENT_PREFIXES: &[&str] = &["~$", ".~lock."];
 /// already-registered lock file simply stops being re-uploaded.
 pub fn is_transient_name(name: &str) -> bool {
     if TRANSIENT_PREFIXES.iter().any(|p| name.starts_with(p))
-        && is_allowed_file(name)
+        && is_known_format(name)
         && !is_note_file(name)
     {
         return true;
@@ -88,9 +90,43 @@ pub fn is_ignored_name(name: &str) -> bool {
         || is_transient_name(name)
 }
 
-/// True if a file (by name) is an allowed, surfaceable type per `ALLOWED_EXTS`.
-/// Files with no extension, or an extension not on the list, are not surfaced.
+/// Temp/partial-download types the tree never shows (마브: everything else
+/// surfaces). ONE CONTRACT with `HIDDEN_EXTS` in `src/lib/formats.ts`
+/// (pinned by `formatsLockstep.test.ts`).
+pub const HIDDEN_EXTS: &[&str] = &["tmp", "temp", "crdownload", "part", "partial", "swp", "swo", "download"];
+
+/// True if a file (by name) surfaces in the tree, the index and binary sync.
+///
+/// 마브: EVERY file does — fonts, Illustrator files, GIS data, code — except
+/// dotfiles and the temp types in [`HIDDEN_EXTS`]; a format the app has no
+/// viewer for opens as a file card. (Baalda surfaced only `ALLOWED_EXTS`.)
 pub fn is_allowed_file(name: &str) -> bool {
+    if name.is_empty() || name.starts_with('.') || has_ext_in(name, HIDDEN_EXTS) {
+        return false;
+    }
+    is_known_format(name) || has_word_ext(name)
+}
+
+/// Does the name end in a real file extension — a letter followed by up to
+/// nine letters/digits/`_`/`-` (`ai`, `shp`, `ttf`, `woff2`)? Version-numbered
+/// folders (`1.0.0`, `Pretendard-1.3.9`) and names with a dotted phrase do
+/// not, which is what lets the UI tell such a FOLDER from a file by name alone.
+/// ONE CONTRACT with `hasWordExt` in `src/lib/formats.ts`.
+pub fn has_word_ext(name: &str) -> bool {
+    let Some((stem, ext)) = name.rsplit_once('.') else {
+        return false;
+    };
+    let mut chars = ext.chars();
+    !stem.is_empty()
+        && ext.len() <= 10
+        && chars.next().is_some_and(|c| c.is_ascii_alphabetic())
+        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+}
+
+/// True if the app has a format entry (viewer, MIME, extractor) for the file:
+/// the original `ALLOWED_EXTS` allowlist. Used where a KNOWN type is required,
+/// e.g. which local files a dashboard view may load.
+pub fn is_known_format(name: &str) -> bool {
     has_ext_in(name, ALLOWED_EXTS)
 }
 
@@ -227,7 +263,7 @@ pub enum PathState {
 }
 
 impl PathState {
-    /// Identity checks treat a link exactly like nothing: Baalda never syncs
+    /// Identity checks treat a link exactly like nothing: 마브 never syncs
     /// through links.
     pub fn is_absent(self) -> bool {
         matches!(self, PathState::Missing | PathState::Symlink)
@@ -398,6 +434,19 @@ mod tests {
     /// off it on purpose: the app can OPEN a `.js`, it just refuses to flood the
     /// sidebar with a project's worth of them.
     #[test]
+    fn every_file_surfaces_except_dotfiles_and_temp_types() {
+        for ok in ["script.js", "types.d.ts", "font.ttf", "logo.ai", "map.shp", "a.dbf", "notes.md", "f.woff2"] {
+            assert!(is_allowed_file(ok), "{ok} should surface");
+        }
+        // No extension, or a version number that reads like a folder name.
+        for no in ["x.tmp", "X.TMP", "dl.crdownload", "big.part", ".gitignore", ".DS_Store", "edit.swp",
+                   "Makefile", "LICENSE", "1.0.0", "Pretendard-1.3.9", "guide_1.0 2"] {
+            assert!(!is_allowed_file(no), "{no} should stay hidden");
+        }
+        assert!(!is_known_format("script.js") && is_known_format("deck.pptx"));
+    }
+
+    #[test]
     fn allowlist_matches_the_format_registry() {
         for ok in [
             "note.md", "a.markdown", "b.MDX", "readme.txt", "page.html", "board.canvas",
@@ -408,10 +457,10 @@ mod tests {
             "run.py", "lib.rs", "main.go", "setup.sh", "q.sql",
             "bundle.zip",
         ] {
-            assert!(is_allowed_file(ok), "{ok} should be allowed");
+            assert!(is_known_format(ok), "{ok} should be a known format");
         }
         for no in ["script.js", "types.d.ts", "styles.css", "Makefile", "LICENSE", "bundle.min.js"] {
-            assert!(!is_allowed_file(no), "{no} should be rejected");
+            assert!(!is_known_format(no), "{no} has no format entry");
         }
     }
 

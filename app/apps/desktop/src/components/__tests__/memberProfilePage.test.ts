@@ -77,7 +77,7 @@ describe("Member profile page, Access tab", () => {
   async function settle() {
     for (let i = 0; i < 3; i++) await act(async () => { await new Promise((r) => setTimeout(r, 60)); });
   }
-  const folderBox = () => document.body.querySelector<HTMLInputElement>('input[aria-label="Specs: can open"]');
+  const folderBox = () => document.body.querySelector<HTMLInputElement>('input[aria-label="Specs: 열 수 있음"]');
 
   it("shows each row's icon, name, level pill and annotation", async () => {
     api.listAccessTree.mockResolvedValue({
@@ -93,10 +93,10 @@ describe("Member profile page, Access tab", () => {
     expect(rows.every((r) => r.querySelector(".member-access-icon svg"))).toBe(true);
     const byName = (n: string) => rows.find((r) => r.querySelector(".member-access-name")?.textContent === n)!;
     // Team mode is Can edit: an open row is inherited, a view row is the person's own.
-    expect(byName("Specs").textContent).toContain("Same as everyone");
-    expect(byName("Specs").querySelector(".member-access-pill")?.textContent).toContain("Can edit");
-    expect(byName("Welcome").querySelector(".member-access-pill")?.textContent).toContain("Can view");
-    expect(byName("Welcome").textContent).not.toContain("Same as everyone");
+    expect(byName("Specs").textContent).toContain("모든 멤버와 동일");
+    expect(byName("Specs").querySelector(".member-access-pill")?.textContent).toContain("편집 가능");
+    expect(byName("Welcome").querySelector(".member-access-pill")?.textContent).toContain("보기 가능");
+    expect(byName("Welcome").textContent).not.toContain("모든 멤버와 동일");
     expect(byName("Archive").querySelector(".member-access-pill")).toBeNull();
   });
 
@@ -114,9 +114,9 @@ describe("Member profile page, Access tab", () => {
       await settle();
       const rows = [...host.querySelectorAll(".member-access-row")];
       const byName = (n: string) => rows.find((r) => r.querySelector(".member-access-name")?.textContent === n)!;
-      expect(byName("Specs").querySelector(".member-access-pill")?.textContent).toContain("Can edit");
-      expect(byName("Welcome").querySelector(".member-access-pill")?.textContent).toContain("Can view");
-      const boardBtn = host.querySelector<HTMLButtonElement>('[role="radiogroup"] [aria-label="Board view"]')!;
+      expect(byName("Specs").querySelector(".member-access-pill")?.textContent).toContain("편집 가능");
+      expect(byName("Welcome").querySelector(".member-access-pill")?.textContent).toContain("보기 가능");
+      const boardBtn = host.querySelector<HTMLButtonElement>('[role="radiogroup"] [aria-label="보드 보기"]')!;
       await act(async () => boardBtn.click());
       await settle();
       expect(host.querySelector('.access-board-column[data-mode="open"] .access-board-count')?.textContent).toBe("1");
@@ -133,7 +133,7 @@ describe("Member profile page, Access tab", () => {
   it("is a page with a way back, not a dialog", async () => {
     await render();
     expect(document.body.querySelector('[role="dialog"]')).toBeNull();
-    const back = [...host.querySelectorAll("button")].find((b) => b.textContent?.includes("Members and access"));
+    const back = [...host.querySelectorAll("button")].find((b) => b.textContent?.includes("멤버와 권한"));
     expect(back).toBeDefined();
     await act(async () => back!.click());
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -177,9 +177,9 @@ describe("Member profile page, Access tab", () => {
 
     // Across the vault: Custom → Can view everything. View-only never asks.
     serverMode = "readonly";
-    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="Access across the vault"]')!.click());
+    await act(async () => document.body.querySelector<HTMLButtonElement>('[aria-label="볼트 전체 권한"]')!.click());
     const viewAll = [...document.body.querySelectorAll('[role="menuitemradio"]')]
-      .find((n) => n.textContent?.startsWith("Can view everything")) as HTMLElement;
+      .find((n) => n.textContent?.startsWith("모두 보기 가능")) as HTMLElement;
     await act(async () => viewAll.click());
     expect(document.body.querySelector('[role="alertdialog"]')).toBeNull();
     await settle();
@@ -191,7 +191,7 @@ describe("Member profile page, Access tab", () => {
     expect(spinning()).toBe(0);
     const pills = [...host.querySelectorAll(".member-access-row .member-access-pill")].map((p) => p.textContent ?? "");
     expect(pills).toHaveLength(3);
-    expect(pills.every((p) => p.includes("Can view"))).toBe(true);
+    expect(pills.every((p) => p.includes("보기 가능"))).toBe(true);
     expect([...host.querySelectorAll<HTMLInputElement>('.member-access-row input[type="checkbox"]')].every((b) => b.checked)).toBe(true);
   });
 
@@ -204,7 +204,7 @@ describe("Member profile page, Access tab", () => {
       expect(spinning()).toBeGreaterThan(0);
       await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
       expect(spinning()).toBe(0);
-      const dash = host.querySelector('.member-access-row [title="Couldn\'t load"]');
+      const dash = host.querySelector('.member-access-row [title="불러올 수 없어요"]');
       expect(dash?.textContent).toBe("—");
     } finally {
       vi.useRealTimers();
@@ -238,11 +238,11 @@ describe("Member profile page, Access tab", () => {
     await act(async () => folderBox()!.click());
     await settle();
     const dialog = document.body.querySelector('[role="alertdialog"]');
-    expect(dialog?.querySelector(".confirm-title")?.textContent).toBe("Remove access to “Specs”?");
-    expect(dialog?.textContent).toContain("removed from their devices on the next sync");
+    expect(dialog?.querySelector(".confirm-title")?.textContent).toBe("“Specs”의 권한을 제거할까요?");
+    expect(dialog?.textContent).toContain("다음 동기화 때 상대방의 기기에서 삭제돼요");
     expect(dialog?.textContent).not.toMatch(/narrow/i);
     expect(api.setBulkAccess).not.toHaveBeenCalled();
-    const apply = [...dialog!.querySelectorAll("button")].find((b) => b.textContent === "Remove access")!;
+    const apply = [...dialog!.querySelectorAll("button")].find((b) => b.textContent === "권한 제거")!;
     await act(async () => apply.click());
     await settle();
     expect(api.setBulkAccess).toHaveBeenCalledTimes(1);
@@ -294,19 +294,19 @@ describe("Member profile page, Personal info and Activity tabs", () => {
 
   it("lists name, email, role, joined with the inviter, last active and status", async () => {
     await render();
-    expect(tabs()).toEqual(["Personal info", "Access", "Activity"]);
+    expect(tabs()).toEqual(["개인 정보", "권한", "활동"]);
     const pairs = [...host.querySelectorAll(".member-profile-about dt")].map((dt) => [dt.textContent, dt.nextElementSibling?.textContent]);
     const long = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
     const joined = `${long("2026-09-12T10:00:00Z")} (${relativeTime(Date.parse("2026-09-12T10:00:00Z"), Date.now())})`;
-    expect(pairs.map((p) => p[0])).toEqual(["Name", "Email", "Role", "Joined", "Last active", "Status"]);
+    expect(pairs.map((p) => p[0])).toEqual(["이름", "이메일", "역할", "참여일", "마지막 활동", "상태"]);
     expect(Object.fromEntries(pairs)).toMatchObject({
-      Name: "Lee Park",
-      Email: "lee@team.test",
-      Role: "Member",
-      Joined: `${joined}, invited by Kamil Ali`,
-      Status: "Away",
+      "이름": "Lee Park",
+      "이메일": "lee@team.test",
+      "역할": "멤버",
+      "참여일": `${joined}, Kamil Ali님이 초대`,
+      "상태": "자리 비움",
     });
-    expect(Object.fromEntries(pairs)["Last active"]).toMatch(new RegExp(`^${long("2026-10-01T10:00:00Z")} \\(.+ ago\\)$`));
+    expect(Object.fromEntries(pairs)["마지막 활동"]).toMatch(new RegExp(`^${long("2026-10-01T10:00:00Z")} \\(.+ 전\\)$`));
     expect(api.getMemberActivity).not.toHaveBeenCalled();
   });
 
@@ -314,14 +314,14 @@ describe("Member profile page, Personal info and Activity tabs", () => {
     await render({ present: true, member: { ...person, invitedBy: null } });
     const dd = (label: string) =>
       [...host.querySelectorAll(".member-profile-about dt")].find((dt) => dt.textContent === label)?.nextElementSibling?.textContent;
-    expect(dd("Last active")).toBe("Now");
-    expect(dd("Status")).toBe("Online");
-    expect(dd("Joined")).not.toContain("invited by");
+    expect(dd("마지막 활동")).toBe("지금");
+    expect(dd("상태")).toBe("온라인");
+    expect(dd("참여일")).not.toContain("초대");
   });
 
   it("shows a plain member only Personal info on someone else's profile (#301)", async () => {
     await render({ showAccessTab: false });
-    expect(tabs()).toEqual(["Personal info"]);
+    expect(tabs()).toEqual(["개인 정보"]);
   });
 
   /** Each timeline entry's sentence without its " · 2 hours ago" tail. */
@@ -343,24 +343,24 @@ describe("Member profile page, Personal info and Activity tabs", () => {
     ]);
     const onOpenNote = vi.fn();
     await render({ onOpenNote });
-    await clickTab("Activity");
+    await clickTab("활동");
     await flush();
     expect(api.getMemberActivity).toHaveBeenCalledWith("org-1", "u2", 50);
     expect(entries()).toEqual([
-      "Edited Q3 plan",
-      "Created Kickoff notes in Meeting notes › 2026 › Q3 › Week 40",
-      "Got Can edit on Pricing experiments from Kamil Ali",
-      "Got Can view across the vault",
-      "Lost access to Secret",
-      "Joined Product team, invited by Kamil Ali",
+      "Q3 plan을(를) 편집했어요",
+      "Meeting notes › 2026 › Q3 › Week 40에 Kickoff notes을(를) 만들었어요",
+      "Pricing experiments에 대해 편집 가능 권한을 받았어요 · Kamil Ali님이 부여",
+      "볼트 전체에 대해 보기 가능 권한을 받았어요",
+      "Secret에 대한 접근 권한을 잃었어요",
+      "Product team에 참여했어요 · Kamil Ali님이 초대",
     ]);
-    expect(host.querySelector(".member-activity-now")?.textContent).toBe("Now");
-    expect(host.querySelector(".member-activity-day-pill")?.textContent).toBe("Today");
+    expect(host.querySelector(".member-activity-now")?.textContent).toBe("지금");
+    expect(host.querySelector(".member-activity-day-pill")?.textContent).toBe("오늘");
     const all = host.querySelectorAll(".member-activity-entry");
     expect(all[all.length - 1].classList.contains("is-origin")).toBe(true);
     expect(host.querySelectorAll(".member-activity-node").length).toBe(6);
-    expect(host.querySelector(".member-activity-time")?.textContent).toMatch(/ · (just now|1 min ago)/);
-    expect(host.querySelector(".member-activity-summary")?.textContent).toMatch(/^Active for \d+ days · 1 edit · 1 note created$/);
+    expect(host.querySelector(".member-activity-time")?.textContent).toMatch(/ · (방금 전|1분 전)/);
+    expect(host.querySelector(".member-activity-summary")?.textContent).toMatch(/^\d+일째 활동 중 · 수정 1회 · 노트 1개 생성$/);
     await act(async () => host.querySelector<HTMLButtonElement>(".member-activity-note")!.click());
     expect(onOpenNote).toHaveBeenCalledWith("Plans/Q3 plan.md");
   });
@@ -379,15 +379,15 @@ describe("Member profile page, Personal info and Activity tabs", () => {
     await render({ initialTab: "activity", onOpenNote });
     await flush();
     expect(entries()).toEqual([
-      "You edited 5 notes: Welcome, AGENTS, Keyboard shortcuts and 2 more",
-      "You got Can view across the vault from Kamil Ali",
-      "You edited One",
-      "You edited Two",
-      "You created 4 notes in Getting Started",
-      "You joined Product team, invited by Kamil Ali",
+      "노트 5개를 편집했어요: Welcome, AGENTS, Keyboard shortcuts 외 2개",
+      "볼트 전체에 대해 보기 가능 권한을 받았어요 · Kamil Ali님이 부여",
+      "One을(를) 편집했어요",
+      "Two을(를) 편집했어요",
+      "Getting Started에 노트 4개를 만들었어요",
+      "Product team에 참여했어요 · Kamil Ali님이 초대",
     ]);
     const disclose = host.querySelector<HTMLButtonElement>(".member-activity-disclose")!;
-    expect(disclose.textContent).toBe("Show all");
+    expect(disclose.textContent).toBe("모두 보기");
     await act(async () => disclose.click());
     const run = host.querySelector(".member-activity-run")!;
     expect(run.querySelectorAll("li").length).toBe(5);
@@ -402,22 +402,22 @@ describe("Member profile page, Personal info and Activity tabs", () => {
     );
     await render({ initialTab: "activity" });
     await flush();
-    expect(host.querySelector(".member-activity-summary")?.textContent).toMatch(/· 50 edits in the last 50 events$/);
+    expect(host.querySelector(".member-activity-summary")?.textContent).toMatch(/최근 활동 50건 기준 .* · 수정 50회$/);
   });
 
   it("shows only the join when there is nothing else, and says so when it can't load", async () => {
     api.getMemberActivity.mockResolvedValue([]);
     await render({ initialTab: "activity" });
     await flush();
-    expect(entries()).toEqual(["Joined Product team, invited by Kamil Ali"]);
+    expect(entries()).toEqual(["Product team에 참여했어요 · Kamil Ali님이 초대"]);
     expect(host.querySelector(".member-activity-entry")?.classList.contains("is-origin")).toBe(true);
     await render({ initialTab: "activity", member: { ...person, userId: "u7", joinedAt: null } });
     await flush();
-    expect(host.querySelector(".member-activity-empty")?.textContent).toBe("No activity yet.");
+    expect(host.querySelector(".member-activity-empty")?.textContent).toBe("아직 활동이 없어요.");
     api.getMemberActivity.mockRejectedValue(new Error("boom"));
     await render({ initialTab: "activity", member: { ...person, userId: "u9" } });
     await flush();
-    expect(host.querySelector(".member-activity-empty")?.textContent).toBe("Couldn't load activity.");
+    expect(host.querySelector(".member-activity-empty")?.textContent).toBe("활동을 불러올 수 없어요.");
   });
 
   describe("Access view toggle", () => {
@@ -435,28 +435,28 @@ describe("Member profile page, Personal info and Activity tabs", () => {
     });
     afterEach(() => vi.unstubAllGlobals());
     const view = (label: string) => host.querySelector<HTMLButtonElement>(`[role="radiogroup"] [aria-label="${label}"]`)!;
-    const acrossRow = () => [...host.querySelectorAll(".members-access-row-title")].some((n) => n.textContent === "Across the vault");
+    const acrossRow = () => [...host.querySelectorAll(".members-access-row-title")].some((n) => n.textContent === "볼트 전체");
 
     it("defaults to the board, switches to the list and back, and remembers the choice", async () => {
       await render({ initialTab: "access" });
       await flush();
-      expect(view("Board view").getAttribute("aria-checked")).toBe("true");
+      expect(view("보드 보기").getAttribute("aria-checked")).toBe("true");
       expect(host.querySelector(".access-board")).not.toBeNull();
       // One header row in both views: same vault-wide control, same toggle spot,
       // and the board's own "Set everything to" stays hidden.
       expect(acrossRow()).toBe(true);
-      expect(view("Board view").closest(".members-access-row")?.querySelector('[aria-label="Access across the vault"]')).not.toBeNull();
-      expect(host.querySelector('[aria-label="Set everything to"]')).toBeNull();
+      expect(view("보드 보기").closest(".members-access-row")?.querySelector('[aria-label="볼트 전체 권한"]')).not.toBeNull();
+      expect(host.querySelector('[aria-label="모두 일괄 설정"]')).toBeNull();
 
-      await act(async () => view("List view").click());
+      await act(async () => view("목록 보기").click());
       await flush();
       expect(host.querySelector(".access-board")).toBeNull();
       expect(acrossRow()).toBe(true);
-      expect(view("List view").closest(".members-access-row")?.querySelector('[aria-label="Access across the vault"]')).not.toBeNull();
-      expect(view("List view").getAttribute("aria-checked")).toBe("true");
+      expect(view("목록 보기").closest(".members-access-row")?.querySelector('[aria-label="볼트 전체 권한"]')).not.toBeNull();
+      expect(view("목록 보기").getAttribute("aria-checked")).toBe("true");
       expect(store["context.memberAccess.view"]).toBe("list");
 
-      await act(async () => view("Board view").click());
+      await act(async () => view("보드 보기").click());
       await flush();
       expect(host.querySelector(".access-board")).not.toBeNull();
       expect(store["context.memberAccess.view"]).toBe("board");
@@ -467,15 +467,15 @@ describe("Member profile page, Personal info and Activity tabs", () => {
       await render({ initialTab: "access" });
       await flush();
       expect(host.querySelector(".access-board")).toBeNull();
-      expect(view("List view").getAttribute("aria-checked")).toBe("true");
+      expect(view("목록 보기").getAttribute("aria-checked")).toBe("true");
     });
 
     it("falls back to the board when storage throws", async () => {
       vi.stubGlobal("localStorage", { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } });
       await render({ initialTab: "access" });
       await flush();
-      expect(view("Board view").getAttribute("aria-checked")).toBe("true");
-      await act(async () => view("List view").click());
+      expect(view("보드 보기").getAttribute("aria-checked")).toBe("true");
+      await act(async () => view("목록 보기").click());
       expect(host.querySelector(".access-board")).toBeNull();
     });
   });

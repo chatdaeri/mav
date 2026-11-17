@@ -1075,7 +1075,6 @@ mod tests {
             "/etc/evil.png",          // absolute
             "Team/.hidden/x.png",     // dotfile segment
             "node_modules/a/logo.png",// a denied dir
-            "Notes/script.js",        // not a surfaced extension
             "Notes/x.txt",            // a note extension, despite looking inert
         ] {
             assert!(
@@ -1113,6 +1112,8 @@ mod tests {
             vec![
                 "Media/clip.mp4",
                 "Team/report.docx",
+                // 마브 surfaces every type, code included.
+                "Team/script.js",
                 // The store is listed whatever the file is called — its names
                 // are ours, and an extension-less blob still has to sync.
                 "attachments/abc123.png",

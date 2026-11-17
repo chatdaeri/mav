@@ -10,30 +10,30 @@ describe("updateRowHint", () => {
   });
 
   it("names a running check, an install, a pending release and a held restart", () => {
-    expect(updateRowHint({ phase: "checking" }, "0.1.81")).toBe("Checking…");
+    expect(updateRowHint({ phase: "checking" }, "0.1.81")).toBe("확인 중…");
     expect(updateRowHint({ phase: "downloading", version: "0.1.82", downloaded: 1, total: 2 }, "0.1.81")).toBe(
-      "Updating…",
+      "업데이트 중…",
     );
-    expect(updateRowHint({ phase: "pending", version: "0.1.82" }, "0.1.81")).toBe("Update on its way");
-    expect(updateRowHint({ phase: "ready", version: "0.1.82" }, "0.1.81")).toBe("Restart to update");
+    expect(updateRowHint({ phase: "pending", version: "0.1.82" }, "0.1.81")).toBe("업데이트 준비 중");
+    expect(updateRowHint({ phase: "ready", version: "0.1.82" }, "0.1.81")).toBe("다시 시작하여 업데이트");
   });
 });
 
 describe("updateCheckToast", () => {
   it("words each settled outcome like About's status line", () => {
     expect(updateCheckToast({ phase: "uptodate" })).toEqual({
-      text: "You're on the latest version.",
+      text: "최신 버전을 사용 중이에요.",
       tone: "success",
     });
     expect(updateCheckToast({ phase: "pending", version: "0.1.82" })).toEqual({
-      text: "An update is on its way.",
+      text: "업데이트가 곧 도착해요.",
       tone: "neutral",
     });
     expect(updateCheckToast({ phase: "available", version: "0.1.82" })?.text).toBe(
-      "Version 0.1.82 found. Starting the download…",
+      "버전 0.1.82을(를) 찾았어요. 다운로드를 시작해요…",
     );
     expect(updateCheckToast({ phase: "error", message: "offline" })).toEqual({
-      text: "Couldn't check for updates: offline",
+      text: "업데이트를 확인하지 못했어요: offline",
       tone: "error",
     });
     expect(updateCheckToast({ phase: "idle" })).toBeNull();

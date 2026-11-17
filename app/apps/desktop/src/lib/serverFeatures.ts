@@ -14,7 +14,7 @@
 export const REQUIRED_SERVER_FEATURES: readonly string[] = ["notes-with-state"];
 
 /** Host of the managed instance (`PRODUCTION_SERVER_URL`). */
-export const MANAGED_SERVER_HOST = "api.baalda.com";
+export const MANAGED_SERVER_HOST = "";
 
 export interface ServerHealth {
   ok: boolean;
@@ -35,7 +35,7 @@ export interface BackendStatus {
 
 /**
  * Parse a `/health` body. Tolerates the old `{ ok: true }` shape (features
- * become `[]`) and drops non-string entries. Anything that is not a Baalda
+ * become `[]`) and drops non-string entries. Anything that is not a 마브
  * health answer (`ok !== true`, not an object) returns null: unknown.
  */
 export function parseHealth(body: unknown): ServerHealth | null {
@@ -55,7 +55,7 @@ export function parseHealth(body: unknown): ServerHealth | null {
 
 /** True when `serverUrl`'s host is the managed instance. Malformed ⇒ false. */
 export function isManagedServer(serverUrl: string | null | undefined): boolean {
-  if (!serverUrl) return false;
+  if (!serverUrl || !MANAGED_SERVER_HOST) return false;
   try {
     return new URL(serverUrl.trim()).hostname.toLowerCase() === MANAGED_SERVER_HOST;
   } catch {
@@ -65,7 +65,7 @@ export function isManagedServer(serverUrl: string | null | undefined): boolean {
 
 /**
  * Judge a health answer. `health` null (fetch failed, unreachable, not
- * Baalda) ⇒ not outdated: we only warn when the server answered and
+ * 마브) ⇒ not outdated: we only warn when the server answered and
  * demonstrably lacks something.
  */
 export function backendStatus(

@@ -15,7 +15,7 @@ const FORBIDDEN = /[<>:"|?*\u0000-\u001f]/;
 
 /**
  * Longest vault-relative path we materialize on Windows. MAX_PATH is 260
- * including the vault root (`C:\Users\<name>\Documents\Baalda Vaults\<vault>\`,
+ * including the vault root (`C:\Users\<name>\Documents\마브 볼트\<vault>\`,
  * typically 40-60 chars) and the NUL; 200 leaves room for that root.
  */
 export const WINDOWS_MAX_REL_PATH = 200;

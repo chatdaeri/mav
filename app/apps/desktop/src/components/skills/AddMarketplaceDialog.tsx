@@ -115,15 +115,15 @@ export function AddMarketplaceDialog({
         className="modal skills-form-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="Add a marketplace"
+        aria-label="마켓플레이스 추가"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="skills-form-head">
-          <h2 className="confirm-title">Add a marketplace</h2>
-          <button type="button" className="icon-btn" aria-label="Close" onClick={onClose}>✕</button>
+          <h2 className="confirm-title">마켓플레이스 추가</h2>
+          <button type="button" className="icon-btn" aria-label="닫기" onClick={onClose}>✕</button>
         </div>
         <p className="skills-form-intro">
-          Paste a GitHub repository. Claude and Codex plugin marketplaces work, and so does any repo of skills.
+          GitHub 저장소를 붙여 넣으세요. Claude·Codex 플러그인 마켓플레이스와 스킬이 들어 있는 모든 저장소를 쓸 수 있어요.
         </p>
 
         <label className="skills-prefix-input">
@@ -131,8 +131,8 @@ export function AddMarketplaceDialog({
           <input
             autoFocus
             value={repo}
-            placeholder="owner/repo or a github.com link"
-            aria-label="Repository"
+            placeholder="owner/repo 또는 github.com 링크"
+            aria-label="저장소"
             spellCheck={false}
             onChange={(e) => setRepo(e.target.value)}
             onKeyDown={enter}
@@ -145,8 +145,8 @@ export function AddMarketplaceDialog({
             <input
               ref={refInput}
               value={ref}
-              placeholder="Branch or tag, e.g. main"
-              aria-label="Branch or tag"
+              placeholder="브랜치 또는 태그, 예: main"
+              aria-label="브랜치 또는 태그"
               spellCheck={false}
               onChange={(e) => setRef(e.target.value)}
               onKeyDown={(e) => {
@@ -159,8 +159,8 @@ export function AddMarketplaceDialog({
             <button
               type="button"
               className="skills-ref-clear"
-              aria-label="Use the default branch"
-              title="Use the default branch"
+              aria-label="기본 브랜치 사용"
+              title="기본 브랜치 사용"
               onClick={() => {
                 setRef("");
                 setShowRef(false);
@@ -172,7 +172,7 @@ export function AddMarketplaceDialog({
         ) : (
           <button type="button" className="skills-ref-toggle" onClick={() => setShowRef(true)}>
             <BranchGlyph />
-            Pick a branch or tag
+            브랜치 또는 태그 선택
           </button>
         )}
 
@@ -182,7 +182,7 @@ export function AddMarketplaceDialog({
               <Spinner size="xs" />
               <span className="skills-preview-text">
                 <span className="skills-preview-title">{check.repo}</span>
-                <span className="skills-preview-sub">Looking for skills…</span>
+                <span className="skills-preview-sub">스킬을 찾는 중…</span>
               </span>
             </div>
           ) : check.status === "ok" ? (
@@ -195,8 +195,8 @@ export function AddMarketplaceDialog({
                 </span>
                 <span className="skills-preview-sub">
                   {check.peek.skills > 0
-                    ? `${formatLabel(check.peek.format)} · ${check.peek.skills} ${check.peek.skills === 1 ? "skill" : "skills"}`
-                    : "Found it, but no skills were spotted yet. You can still add it."}
+                    ? `${formatLabel(check.peek.format)} · 스킬 ${check.peek.skills}개`
+                    : "저장소를 찾았지만 아직 스킬이 보이지 않아요. 그래도 추가할 수 있어요."}
                 </span>
               </span>
             </div>
@@ -208,17 +208,17 @@ export function AddMarketplaceDialog({
               </span>
             </div>
           ) : check.status === "invalid" ? (
-            <div className="skills-preview-hint">Use owner/repo, or paste the repository's GitHub link.</div>
+            <div className="skills-preview-hint">owner/repo 형식으로 입력하거나 저장소의 GitHub 링크를 붙여 넣으세요.</div>
           ) : (
-            <div className="skills-preview-hint">Private repository? Save a GitHub token on the Marketplaces page first.</div>
+            <div className="skills-preview-hint">비공개 저장소인가요? 먼저 마켓플레이스 페이지에서 GitHub 토큰을 저장하세요.</div>
           )}
         </div>
         {error && <div className="auth-error">{error}</div>}
 
         <div className="confirm-actions skills-form-actions">
-          <button type="button" className="ghost-pill" onClick={onClose}>Cancel</button>
-          <BusyButton ref={addRef} className="primary" busyLabel="Adding…" disabled={!ready} onClick={add}>
-            Add marketplace
+          <button type="button" className="ghost-pill" onClick={onClose}>취소</button>
+          <BusyButton ref={addRef} className="primary" busyLabel="추가하는 중…" disabled={!ready} onClick={add}>
+            마켓플레이스 추가
           </BusyButton>
         </div>
       </div>

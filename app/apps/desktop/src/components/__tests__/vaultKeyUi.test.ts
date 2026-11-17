@@ -132,6 +132,6 @@ describe("lost every device", () => {
     expect(waitingNoticeCode({ freshCode: "1a2b 3c4d 5e6f 7a8b", vaultState: "key-mismatch" })).toBeNull();
     expect(waitingNoticeCode({ freshCode: "1a2b 3c4d 5e6f 7a8b", vaultState: null })).toBeNull();
     expect(waitingNoticeCode({ freshCode: null, vaultState: "waiting-for-teammate" })).toBeNull();
-    expect(FRESH_KEY_EXPLAINER).toContain("Your notes on the server are not affected.");
+    expect(FRESH_KEY_EXPLAINER).toContain("서버에 있는 노트에는 영향이 없어요.");
   });
 });

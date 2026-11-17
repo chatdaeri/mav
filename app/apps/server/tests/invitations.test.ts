@@ -76,7 +76,7 @@ describe("invitation emails + landing page", () => {
     expect(mail!.subject).toContain("Olive Owner");
     expect(mail!.subject).toContain("Acme Notes");
     expect(mail!.text).toContain(`/invite/${inv.id}`);
-    expect(mail!.text).toContain("as an admin");
+    expect(mail!.text).toContain("관리자로");
 
     const res = await app.request(`/invite/${inv.id}`, { headers: { host: "notes.example.com" } });
     expect(res.status).toBe(200);
@@ -84,7 +84,7 @@ describe("invitation emails + landing page", () => {
     expect(html).toContain("Acme Notes");
     expect(html).toContain("teammate@inv.io");
     expect(html).toContain(
-      `baalda://invite/${inv.id}?server=${encodeURIComponent("http://notes.example.com")}`,
+      `mav://invite/${inv.id}?server=${encodeURIComponent("http://notes.example.com")}`,
     );
   });
 
@@ -96,15 +96,15 @@ describe("invitation emails + landing page", () => {
     await pool.query(`UPDATE invitation SET status = 'accepted' WHERE id = $1`, [used.id]);
     const r1 = await app.request(`/invite/${used.id}`);
     expect(r1.status).toBe(410);
-    expect(await r1.text()).toContain("already accepted");
+    expect(await r1.text()).toContain("이미 수락한");
 
     const expired = await invite(owner, org.id, "b@inv2.io");
     await pool.query(`UPDATE invitation SET "expiresAt" = now() - interval '1 hour' WHERE id = $1`, [expired.id]);
     const r2 = await app.request(`/invite/${expired.id}`);
     expect(r2.status).toBe(410);
     const expiredHtml = await r2.text();
-    expect(expiredHtml).toContain("expired");
-    expect(expiredHtml).not.toContain("baalda://");
+    expect(expiredHtml).toContain("만료");
+    expect(expiredHtml).not.toContain("mav://");
 
     expect((await app.request("/invite/does-not-exist")).status).toBe(404);
     expect((await app.request("/invite/%3Cscript%3E")).status).toBe(400);

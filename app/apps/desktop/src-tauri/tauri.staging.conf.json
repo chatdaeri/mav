@@ -1,16 +1,16 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Baalda Staging",
-  "identifier": "com.baalda.context.staging",
+  "productName": "마이 세컨드 브레인 Staging",
+  "identifier": "com.chatdaeri.mav.staging",
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["baalda-staging"]
+        "schemes": ["mav-staging"]
       }
     },
     "updater": {
       "endpoints": [
-        "https://github.com/naveedharri/baalda/releases/download/staging/latest.json"
+        "https://github.com/chatdaeri/mav/releases/download/staging/latest.json"
       ]
     }
   }

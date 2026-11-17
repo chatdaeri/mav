@@ -60,26 +60,26 @@ describe("Only on this computer", () => {
     await act(async () => root.render(createElement(LocalOnlyGroup, {
       inventory, actions, filesBlocked: true, onOpen: vi.fn(), onShow: vi.fn(), stale: false,
     })));
-    expect(container.textContent).toContain("Only on this computer · 5 items");
+    expect(container.textContent).toContain("이 컴퓨터에만 있음 · 5개 항목");
     expect(container.textContent).toContain(PRO_FILES_LINE);
-    expect(button("Select files")).toBeUndefined();
+    expect(button("파일 선택")).toBeUndefined();
     // Notes, folders and files are all selectable.
     for (const p of ["a.md", "b.md", "Dir", "y.png", "z.pdf"]) {
-      expect(container.querySelector(`input[aria-label="Select ${p}"]`), p).not.toBeNull();
+      expect(container.querySelector(`input[aria-label="${p} 선택"]`), p).not.toBeNull();
     }
-    expect(button("Delete selected (1)")).toBeUndefined();
+    expect(button("선택 항목 삭제 (1)")).toBeUndefined();
     const check = async (p: string) =>
-      act(async () => (container.querySelector(`input[aria-label="Select ${p}"]`) as HTMLInputElement).click());
+      act(async () => (container.querySelector(`input[aria-label="${p} 선택"]`) as HTMLInputElement).click());
     await check("a.md");
     await check("Dir");
     await check("y.png");
-    await click("Delete selected (3)");
+    await click("선택 항목 삭제 (3)");
     expect(actions.deleteLocalFiles).not.toHaveBeenCalled();
     const dialog = document.querySelector('[role="alertdialog"]')!;
-    expect(dialog.textContent).toContain("Delete 1 note, 1 folder, 1 file from this computer?");
-    expect(dialog.textContent).toContain("only on this computer");
-    expect(dialog.textContent).toContain("Folders are deleted with everything inside them.");
-    await click("Delete", dialog);
+    expect(dialog.textContent).toContain("이 컴퓨터에서 노트 1개, 폴더 1개, 파일 1개를 삭제할까요?");
+    expect(dialog.textContent).toContain("이 컴퓨터에만 있어요");
+    expect(dialog.textContent).toContain("폴더는 안에 든 모든 항목과 함께 삭제돼요.");
+    await click("삭제", dialog);
     expect(actions.deleteLocalFiles).toHaveBeenCalledWith(["a.md", "Dir", "y.png"]);
   });
 
@@ -88,14 +88,14 @@ describe("Only on this computer", () => {
       inventory, actions, filesBlocked: false, onOpen: vi.fn(), onShow: vi.fn(), stale: false,
     })));
     expect(container.textContent).not.toContain(PRO_FILES_LINE);
-    await act(async () => (container.querySelector('input[aria-label="Select b.md"]') as HTMLInputElement).click());
-    await click("Delete selected (1)");
+    await act(async () => (container.querySelector('input[aria-label="b.md 선택"]') as HTMLInputElement).click());
+    await click("선택 항목 삭제 (1)");
     const dialog = document.querySelector('[role="alertdialog"]')!;
-    expect(dialog.textContent).toContain("Delete 1 note from this computer?");
-    expect(dialog.textContent).not.toContain("Folders are deleted");
-    await click("Cancel", dialog);
-    await click("Select all");
-    expect(button("Delete selected (5)")).toBeDefined();
+    expect(dialog.textContent).toContain("이 컴퓨터에서 노트 1개를 삭제할까요?");
+    expect(dialog.textContent).not.toContain("폴더는 안에 든");
+    await click("취소", dialog);
+    await click("모두 선택");
+    expect(button("선택 항목 삭제 (5)")).toBeDefined();
   });
 });
 
@@ -105,18 +105,18 @@ describe("Only on the Remote Vault", () => {
       inventory: { ...inventory, serverOnlyFiles: ["s.pdf", "t.png"] },
       actions, downloadsBlocked: false, showCheckAgain: true, stale: false,
     })));
-    expect(container.textContent).toContain("Only on the Remote Vault · 3 items");
-    expect(container.querySelector('input[aria-label="Select r.md"]')).toBeNull();
+    expect(container.textContent).toContain("원격 볼트에만 있음 · 3개 항목");
+    expect(container.querySelector('input[aria-label="r.md 선택"]')).toBeNull();
     expect(container.querySelector(".health-place-checkslot")).not.toBeNull();
-    await click("Download all");
+    await click("모두 다운로드");
     expect(actions.downloadFiles).toHaveBeenLastCalledWith(["s.pdf", "t.png"]);
-    await act(async () => (container.querySelector('input[aria-label="Select t.png"]') as HTMLInputElement).click());
-    await click("Download selected (1)");
+    await act(async () => (container.querySelector('input[aria-label="t.png 선택"]') as HTMLInputElement).click());
+    await click("선택 항목 다운로드 (1)");
     expect(actions.downloadFiles).toHaveBeenLastCalledWith(["t.png"]);
-    await act(async () => (container.querySelector('input[aria-label="Select s.pdf"]') as HTMLInputElement).click());
-    await click("Remove from server (1)");
+    await act(async () => (container.querySelector('input[aria-label="s.pdf 선택"]') as HTMLInputElement).click());
+    await click("서버에서 제거 (1)");
     expect(actions.removeServerFile).not.toHaveBeenCalled();
-    await click("Remove from server", document.querySelector('[role="alertdialog"]')!);
+    await click("서버에서 제거", document.querySelector('[role="alertdialog"]')!);
     expect(actions.removeServerFile).toHaveBeenCalledWith("s.pdf");
   });
 
@@ -125,10 +125,10 @@ describe("Only on the Remote Vault", () => {
       inventory, actions, downloadsBlocked: true, showCheckAgain: false, stale: false,
     })));
     expect(container.textContent).toContain(PRO_FILES_LINE);
-    expect(button("Download")).toBeUndefined();
-    expect(button("Download all")).toBeUndefined();
-    await act(async () => (container.querySelector('input[aria-label="Select s.pdf"]') as HTMLInputElement).click());
-    expect(button("Download selected (1)")).toBeUndefined();
-    expect(button("Remove from server (1)")).toBeDefined();
+    expect(button("다운로드")).toBeUndefined();
+    expect(button("모두 다운로드")).toBeUndefined();
+    await act(async () => (container.querySelector('input[aria-label="s.pdf 선택"]') as HTMLInputElement).click());
+    expect(button("선택 항목 다운로드 (1)")).toBeUndefined();
+    expect(button("서버에서 제거 (1)")).toBeDefined();
   });
 });

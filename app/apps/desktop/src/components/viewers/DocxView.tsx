@@ -83,7 +83,7 @@ export function DocxView({ path, abs }: ViewerProps) {
         const hardCap = maxBytesFor("docx");
         if (stat.size > hardCap) {
           setError(
-            `This document is ${formatBytes(stat.size)}, over the ${formatBytes(hardCap)} limit.`,
+            `문서 크기가 ${formatBytes(stat.size)}로, 한도 ${formatBytes(hardCap)}를 넘어요.`,
           );
           return;
         }
@@ -107,7 +107,7 @@ export function DocxView({ path, abs }: ViewerProps) {
       } catch (e) {
         if (!cancelled) {
           console.error("docx preview failed", e);
-          setError("Couldn't read this document.");
+          setError("이 문서를 읽지 못했어요.");
         }
       }
     })();
@@ -130,21 +130,20 @@ export function DocxView({ path, abs }: ViewerProps) {
         {askSize != null ? (
           <div className="file-ask">
             <p>
-              This document is {formatBytes(askSize)}. Rendering it may take a few seconds.
+              문서 크기가 {formatBytes(askSize)}예요. 표시하는 데 몇 초 걸릴 수 있어요.
             </p>
             <button type="button" className="primary sm" onClick={() => setConfirmed(true)}>
-              Render anyway
+              그래도 표시
             </button>
           </div>
         ) : html == null ? (
-          <div className="editor-empty">Loading…</div>
+          <div className="editor-empty">불러오는 중…</div>
         ) : (
           <div className="file-doc">
             {warnings.length > 0 && (
               <details className="file-doc-warnings">
                 <summary>
-                  {warnings.length} conversion{" "}
-                  {warnings.length === 1 ? "note" : "notes"}
+                  변환 안내 {warnings.length}개
                 </summary>
                 <ul>
                   {warnings.map((w, i) => (

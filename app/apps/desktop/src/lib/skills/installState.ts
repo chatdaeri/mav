@@ -11,7 +11,7 @@ export type Overall = "installed" | "updating" | "warn" | "bad" | "none";
 
 export const TARGET_LABEL: Record<SkillTarget, string> = {
   claude: "Claude",
-  agents: "Codex & other tools",
+  agents: "Codex 및 기타 도구",
 };
 
 /** Each tool folder's state for one skill. `on` = the folder's switch in AI tools. */
@@ -41,14 +41,14 @@ export function overallState(states: Record<SkillTarget, TargetState>): Overall 
 }
 
 const STATE_TEXT: Record<TargetState, string> = {
-  installed: "Installed",
-  updating: "Updating",
-  edited: "Edited here",
-  keptMine: "Your edited copy",
-  conflict: "Name taken by another skill",
-  failed: "Couldn't install",
-  off: "Off",
-  missing: "Not installed",
+  installed: "설치됨",
+  updating: "업데이트 중",
+  edited: "여기서 수정됨",
+  keptMine: "내가 수정한 사본",
+  conflict: "다른 스킬이 이름을 사용 중",
+  failed: "설치하지 못함",
+  off: "꺼짐",
+  missing: "설치 안 됨",
 };
 
 /** "Claude: Installed v2" lines for a tooltip. */
@@ -72,7 +72,7 @@ export const AI_TOOL_NAME: Record<AiTool, string> = {
   gemini: "Gemini",
 };
 
-/** Which Baalda install folders each tool reads (Cursor reads both). */
+/** Which 마브 install folders each tool reads (Cursor reads both). */
 export const TOOL_TARGETS: Record<AiTool, readonly SkillTarget[]> = {
   claude: ["claude"],
   codex: ["agents"],
@@ -103,23 +103,23 @@ export function teamAvailability(
 ): ToolAvailability[] {
   return AI_TOOLS.map((tool) => {
     const targets = TOOL_TARGETS[tool];
-    if (!optedIn) return { tool, on: false, reason: "Not on this computer · click + to install" };
-    if (!detected[tool]) return { tool, on: false, reason: `${AI_TOOL_NAME[tool]} isn't installed` };
+    if (!optedIn) return { tool, on: false, reason: "이 컴퓨터에 없음 · +를 눌러 설치" };
+    if (!detected[tool]) return { tool, on: false, reason: `${AI_TOOL_NAME[tool]}가 설치되어 있지 않아요` };
     if (targets.some((t) => LIVE.has(states[t]))) {
       return tool === "codex"
-        ? { tool, on: true, reason: null, note: "Installed · new Codex chats pick it up" }
+        ? { tool, on: true, reason: null, note: "설치됨 · 새 Codex 대화부터 적용돼요" }
         : { tool, on: true, reason: null };
     }
     const s = targets.map((t) => states[t]);
     const reason = s.includes("edited")
-      ? "Edited here"
+      ? "여기서 수정됨"
       : s.includes("conflict")
-        ? "Name taken by another skill"
+        ? "다른 스킬이 이름을 사용 중"
         : s.includes("failed")
-          ? "Couldn't install"
+          ? "설치하지 못함"
           : s.every((x) => x === "off")
-            ? `${targets.map((t) => TARGET_LABEL[t]).join(" and ")} folder is off in AI tools`
-            : "Not installed yet";
+            ? `${targets.map((t) => TARGET_LABEL[t]).join(", ")} 폴더가 AI 도구에서 꺼져 있어요`
+            : "아직 설치 안 됨";
     return { tool, on: false, reason };
   });
 }

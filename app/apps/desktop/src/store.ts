@@ -224,7 +224,7 @@ export interface PendingVaultFolder {
     /** The vault's folder is GONE (not merely failed to open): the prompt then
      *  offers Restore here / Locate folder…, like the in-vault banner (#228). */
     missing?: boolean;
-    /** macOS refused Baalda the Documents folder, so the default vaults root
+    /** macOS refused 마브 the Documents folder, so the default vaults root
      *  couldn't be created: the prompt offers Open System Settings / Try again
      *  and only a secondary "Choose another folder…". */
     documentsDenied?: boolean;
@@ -347,11 +347,11 @@ interface AppStore {
    * A flow needs the sign-in dialog on screen NOW. Three of them:
    *   - "note-link": a shared link arrived while signed out, and the link is
    *     queued to open right after the sign-in succeeds;
-   *   - "server-link": a `baalda://connect` invite arrived, offering a server
+   *   - "server-link": a `mav://connect` invite arrived, offering a server
    *     to point this device at (see `pendingServerLink`);
    *   - "invite": a team invitation arrived while signed out, and the dialog
    *     says which vault and which address it is for (see `invitePrompt`);
-   *   - "sign-in": a password was just reset in the browser (`baalda://signin`),
+   *   - "sign-in": a password was just reset in the browser (`mav://signin`),
    *     this device's session died with it, and the card opens ready for the
    *     new password.
    * App.tsx mounts AuthDialog off this in both root branches; dismissing the
@@ -739,7 +739,7 @@ interface AppStore {
   requestUpgradeDialog: (opts?: { reason?: string; orgId?: string }) => void;
   clearUpgradeDialogRequest: () => void;
   /**
-   * A `baalda://oauth-consent` hand-off: claude.ai / ChatGPT asking to connect
+   * A `mav://oauth-consent` hand-off: claude.ai / ChatGPT asking to connect
    * to a keyed vault (W3). Parked until the person confirms in
    * `OAuthConsentHost` (main.tsx); a deep link never presents a key on its own.
    */
@@ -771,13 +771,13 @@ interface AppStore {
   revealedPath: string | null;
   setRevealedPath: (path: string | null) => void;
   /**
-   * Follow a `baalda://note/<orgId>/<docId>` link: switch to that vault if
+   * Follow a `mav://note/<orgId>/<docId>` link: switch to that vault if
    * needed, then open the note. Never grants anything — the recipient's own
    * membership and ACL decide whether the note is there to open.
    */
   openNoteLink: (url: string) => Promise<void>;
   /**
-   * Follow a `baalda://invite/<id>?server=<url>` link: confirm the server if it
+   * Follow a `mav://invite/<id>?server=<url>` link: confirm the server if it
    * names a different one, look the invitation up, then accept it (signed in)
    * or raise the sign-in dialog for it (signed out). Grants nothing on its own
    * — the server re-checks the invitation on accept.
@@ -905,14 +905,14 @@ interface AppStore {
   /** Re-send the sign-up confirmation email to the signed-in address. */
   resendVerificationEmail: () => Promise<void>;
   /**
-   * A `baalda://verified` / `baalda://signin` hand-off arrived from one of the
+   * A `mav://verified` / `mav://signin` hand-off arrived from one of the
    * server's account pages: re-read the session so the app reflects what just
    * happened in the browser (address confirmed / sessions revoked by a reset)
    * without a reload.
    */
   handleAccountLink: (kind: AccountLinkKind) => Promise<void>;
   /**
-   * A `baalda://billing/upgraded?org=…` hand-off arrived from the checkout
+   * A `mav://billing/upgraded?org=…` hand-off arrived from the checkout
    * success page: the server has confirmed the payment, so re-read billing and
    * say so. `orgId` is the vault that was upgraded, when the page knew it.
    */
@@ -1704,7 +1704,7 @@ function promptSignInForQueuedLink(
   set: (partial: Partial<AppStore>) => void,
 ): void {
   set({ authPrompt: "note-link" });
-  toast("Sign in to open this shared note. It will open right after you sign in", "neutral");
+  toast("공유된 노트를 열려면 로그인하세요. 로그인하면 바로 열려요", "neutral");
 }
 
 /**
@@ -1927,7 +1927,7 @@ function sameVault(get: () => AppStore, epoch: number | null | undefined): boole
 function rootCreateBlocked(get: () => AppStore, dir: string): boolean {
   if (dir !== "" || !get().rootFrozen) return false;
   toast(
-    "This vault's root is frozen. Create this inside a folder instead.",
+    "이 볼트의 최상위는 잠겨 있어요. 폴더 안에서 만들어 주세요.",
     "error",
   );
   return true;
@@ -2317,13 +2317,13 @@ export const useStore = create<AppStore>((set, get) => ({
     if (scope === "vault" && !isDir) {
       const mapping = await syncManager.registry.registerNote(path, null, docId!);
       if (!sameVault(get, epoch)) return;
-      if (!mapping) throw new Error("This note has not synced yet. Try again when connected.");
+      if (!mapping) throw new Error("이 노트는 아직 동기화되지 않았어요. 연결된 뒤 다시 시도해 주세요.");
       docId = mapping.docId;
     }
     if (scope === "vault" && isDir) {
       const folderId = await syncManager.registry.registerFolder(path, path.split("/").pop()!);
       if (!sameVault(get, epoch)) return;
-      if (!folderId) throw new Error("This folder has not synced yet. Try again when connected.");
+      if (!folderId) throw new Error("이 폴더는 아직 동기화되지 않았어요. 연결된 뒤 다시 시도해 주세요.");
     }
     const item: PinnedItem = isDir ? { kind: "folder", path } : { kind: "note", docId: docId! };
     if (scope === "personal") {
@@ -2332,7 +2332,7 @@ export const useStore = create<AppStore>((set, get) => ({
       set({ personalPins: next });
     } else {
       const orgId = get().syncEnabled ? get().session?.activeOrganizationId : null;
-      if (!orgId) throw new Error("A synced vault is required");
+      if (!orgId) throw new Error("동기화된 볼트가 필요해요");
       const res = await authManager.api.toggleVaultPin(orgId, item);
       get().receiveVaultAppearance(orgId, res.settings);
     }
@@ -2346,7 +2346,7 @@ export const useStore = create<AppStore>((set, get) => ({
     if (scope === "vault" && path) {
       const mapping = await syncManager.registry.registerNote(path, null, docId!);
       if (!sameVault(get, epoch)) return;
-      if (!mapping) throw new Error("This note has not synced yet. Try again when connected.");
+      if (!mapping) throw new Error("이 노트는 아직 동기화되지 않았어요. 연결된 뒤 다시 시도해 주세요.");
       docId = mapping.docId;
       await syncManager.prepareSharedHome(docId, path, epoch);
       if (!sameVault(get, epoch)) return;
@@ -2356,7 +2356,7 @@ export const useStore = create<AppStore>((set, get) => ({
       set({ personalHomeDocId: docId ?? null, homeActivation: null });
     } else {
       const orgId = get().syncEnabled ? get().session?.activeOrganizationId : null;
-      if (!orgId) throw new Error("A synced vault is required");
+      if (!orgId) throw new Error("동기화된 볼트가 필요해요");
       const res = await authManager.api.patchVaultAppearance(orgId, { homeDocId: docId ?? null });
       if (sameVault(get, epoch) && path) {
         // Choosing the vault Home explicitly also means using it on this device.
@@ -2428,7 +2428,7 @@ export const useStore = create<AppStore>((set, get) => ({
     writeItemColors(vault.path, next);
     set({ itemColors: next });
     void syncManager.setItemColor(path, colorId).catch(() => {
-      toast("Couldn't save that color for the team", "error");
+      toast("팀에 그 색을 저장할 수 없어요", "error");
     });
   },
 
@@ -2828,7 +2828,7 @@ export const useStore = create<AppStore>((set, get) => ({
   createNoteIn: async (dir) => {
     if (rootCreateBlocked(get, dir)) return null;
     for (let i = 0; i < 50; i++) {
-      const candidate = i === 0 ? "Untitled" : `Untitled ${i}`;
+      const candidate = i === 0 ? "제목 없음" : `제목 없음 ${i}`;
       let path: string;
       try {
         path = await ipc.createNote(dir, candidate);
@@ -2904,7 +2904,7 @@ export const useStore = create<AppStore>((set, get) => ({
         // Actually signed out: put the sign-in dialog up. "unknown" stays
         // silent — initAuth resolves it either way and consumes the queue.
         set({ authPrompt: "note-link" });
-        toast("Sign in to open this shared note. It will open right after you sign in", "neutral");
+        toast("공유된 노트를 열려면 로그인하세요. 로그인하면 바로 열려요", "neutral");
       }
       return;
     }
@@ -2918,7 +2918,7 @@ export const useStore = create<AppStore>((set, get) => ({
       // Deliberately the same message whether the vault doesn't exist or the
       // user simply isn't in it — a link must not be a way to probe which
       // vaults exist.
-      toast("That note is in a vault you don't have access to", "error");
+      toast("접근 권한이 없는 볼트에 있는 노트예요", "error");
       return;
     }
     if (get().session?.activeOrganizationId !== target.orgId) {
@@ -2933,7 +2933,7 @@ export const useStore = create<AppStore>((set, get) => ({
       // consumes it, and dismissing the prompt drops it.
       queueNoteLink(url);
       toast(
-        `Choose a folder for “${pendingFolder.orgName}”. The shared note will open once it's set`,
+        `“${pendingFolder.orgName}”의 폴더를 선택하세요. 선택하면 공유된 노트가 열려요`,
         "neutral",
       );
       return;
@@ -2945,8 +2945,8 @@ export const useStore = create<AppStore>((set, get) => ({
     let progressToastId: number | null = null;
     const progressTimer = setTimeout(() => {
       const name =
-        get().organizations.find((o) => o.id === target.orgId)?.name ?? "the vault";
-      progressToastId = toast(`Opening shared note. Syncing “${name}”…`, "neutral");
+        get().organizations.find((o) => o.id === target.orgId)?.name ?? "볼트";
+      progressToastId = toast(`공유된 노트를 여는 중. “${name}” 동기화 중…`, "neutral");
     }, 1_000);
     const path = await waitForDocPath(target.docId, {
       isBusy: () => {
@@ -3576,7 +3576,7 @@ export const useStore = create<AppStore>((set, get) => ({
         const methods = await authManager.api.getAuthMethods();
         if (methods.passwordReset && session.user.emailVerified === false) {
           toast(
-            `Account created. We sent a confirmation email to ${session.user.email}. Click its link to confirm your address.`,
+            `계정을 만들었어요. ${session.user.email}(으)로 확인 메일을 보냈어요. 메일의 링크를 눌러 주소를 확인하세요.`,
             "neutral",
           );
         }
@@ -3909,8 +3909,8 @@ export const useStore = create<AppStore>((set, get) => ({
         broadcasting: false,
         voiceError:
           err instanceof MicPermissionError && err.denied
-            ? "Microphone access is blocked. Enable it in your system settings."
-            : "Couldn't open the microphone.",
+            ? "마이크 접근이 차단돼 있어요. 시스템 설정에서 허용해 주세요."
+            : "마이크를 열 수 없어요.",
       });
       return;
     }
@@ -3928,7 +3928,7 @@ export const useStore = create<AppStore>((set, get) => ({
   clearVoiceError: () => set({ voiceError: null }),
 
   celebrateMemberJoined: (name) => {
-    const who = name?.trim() || "A new teammate";
+    const who = name?.trim() || "새 팀원";
     set({ memberJoined: { name: who, at: Date.now() } });
     // Reuse the app's sound preference so a muted user stays muted.
     if (get().mentionSound) playJoinChime();
@@ -4027,7 +4027,7 @@ export const useStore = create<AppStore>((set, get) => ({
 
   turnOnSyncForCurrentVault: async (name) => {
     const vault = get().vault;
-    if (!vault) throw new Error("Open a vault first.");
+    if (!vault) throw new Error("먼저 볼트를 열어 주세요.");
     const stampedOrgId = await peekStampedOrgId(vault.path);
     // Which vault this folder belongs to (if any) decides what happens — NOT
     // whether the account happens to have an active vault. See `planTurnOnSync`
@@ -4064,7 +4064,7 @@ export const useStore = create<AppStore>((set, get) => ({
           throw new Error(foreignFolderMessage(refusal.stampedOrgId));
         }
         throw new Error(
-          "Couldn't connect to this vault. Check your connection and try again.",
+          "이 볼트에 연결할 수 없어요. 연결을 확인하고 다시 시도해 주세요.",
         );
       }
       return;
@@ -4139,8 +4139,8 @@ export const useStore = create<AppStore>((set, get) => ({
               : undefined,
         });
       } else {
-        toast(`Couldn't turn on sync: ${errMsg(e)}`, "error", {
-          action: { label: "Retry", run: () => void get().turnOnSyncNow(name) },
+        toast(`동기화를 켤 수 없어요: ${errMsg(e)}`, "error", {
+          action: { label: "다시 시도", run: () => void get().turnOnSyncNow(name) },
         });
       }
       return false;
@@ -4309,7 +4309,7 @@ export const useStore = create<AppStore>((set, get) => ({
       // No local folder opened above. Do NOT reuse the folder that's currently
       // open — rediscover this vault's existing folder, or mint one.
       const org = get().organizations.find((o) => o.id === organizationId);
-      const orgName = org?.name ?? "New vault";
+      const orgName = org?.name ?? "새 볼트";
       const askForFolder = (reason: PendingVaultFolder["reason"]) => {
         set({
           syncEnabled: false,
@@ -4331,7 +4331,7 @@ export const useStore = create<AppStore>((set, get) => ({
         // Ask instead; the binding stays on the user's real folder.
         console.warn("[vault] bound folder failed to open", openError);
         askForFolder({
-          text: `This vault's folder couldn't be opened: ${
+          text: `이 볼트의 폴더를 열 수 없어요: ${
             openError instanceof Error ? openError.message : String(openError)
           }`,
           path: bound,
@@ -4360,7 +4360,7 @@ export const useStore = create<AppStore>((set, get) => ({
           console.warn("[vault] rediscovered folder failed to open", e);
           if (superseded()) return;
           askForFolder({
-            text: `This vault's folder couldn't be opened: ${e instanceof Error ? e.message : String(e)}`,
+            text: `이 볼트의 폴더를 열 수 없어요: ${e instanceof Error ? e.message : String(e)}`,
             path: found,
           });
           return;
@@ -4407,7 +4407,7 @@ export const useStore = create<AppStore>((set, get) => ({
           }
         }
         askForFolder({
-          text: "This vault's folder is missing. It was moved, renamed or deleted.",
+          text: "이 볼트의 폴더를 찾을 수 없어요. 이동했거나 이름을 바꿨거나 삭제됐을 수 있어요.",
           path: bound,
           missing: true,
         });
@@ -4482,7 +4482,7 @@ export const useStore = create<AppStore>((set, get) => ({
 
   resendVerificationEmail: async () => {
     const email = get().session?.user.email;
-    if (!email) throw new Error("Not signed in");
+    if (!email) throw new Error("로그인하지 않았어요");
     await authManager.api.sendVerificationEmail(email);
   },
 
@@ -4491,12 +4491,12 @@ export const useStore = create<AppStore>((set, get) => ({
       // The browser just flipped `emailVerified`; re-read the session so the
       // account screen (and anything else keyed on it) updates in place.
       if (get().authStatus !== "signed-in") {
-        toast("Email confirmed. Sign in to continue.", "neutral");
+        toast("이메일을 확인했어요. 계속하려면 로그인하세요.", "neutral");
         return;
       }
       const session = await authManager.currentSession();
       if (session) set({ session });
-      toast("Email confirmed. Thanks!", "success");
+      toast("이메일을 확인했어요. 감사합니다!", "success");
       return;
     }
     // "signin": a password reset in the browser revoked every session for that
@@ -4504,17 +4504,17 @@ export const useStore = create<AppStore>((set, get) => ({
     // may have been for a different account than the one signed in here.
     const session = await authManager.currentSession().catch(() => null);
     if (session) {
-      toast("Password updated.", "success");
+      toast("비밀번호를 변경했어요.", "success");
       return;
     }
     if (get().authStatus === "signed-in") await get().signOut();
     set({ authPrompt: "sign-in" });
-    toast("Password updated. Sign in with your new password.", "success");
+    toast("비밀번호를 변경했어요. 새 비밀번호로 로그인하세요.", "success");
   },
 
   handleBillingLink: async (orgId) => {
     if (get().authStatus !== "signed-in") {
-      toast("Payment received. Sign in to see your Team plan.", "neutral");
+      toast("결제가 완료됐어요. 로그인하면 Team 요금제를 볼 수 있어요.", "neutral");
       return;
     }
     // Ask the server to re-read the live subscription from the provider once
@@ -4533,7 +4533,7 @@ export const useStore = create<AppStore>((set, get) => ({
     if (isPro) {
       const name = row?.name;
       toast(
-        name ? `${name} is now on Team.` : "You are now on Team.",
+        name ? `${name}이(가) 이제 Team이에요.` : "이제 Team을 사용 중이에요.",
         "success",
       );
       return;
@@ -4541,19 +4541,19 @@ export const useStore = create<AppStore>((set, get) => ({
     // Paid, but the confirmation hasn't landed yet (provider still processing,
     // or a webhook on its way). Polling in the Upgrade dialog and the next
     // Billing visit pick it up; say so rather than nothing.
-    toast("Payment received. Your subscription will show up in a moment.", "neutral");
+    toast("결제가 완료됐어요. 구독 정보가 곧 표시돼요.", "neutral");
   },
 
   removeMember: async (userId) => {
     const activeOrgId = get().session?.activeOrganizationId;
-    if (!activeOrgId) throw new Error("No active vault");
+    if (!activeOrgId) throw new Error("활성 볼트가 없어요");
     await authManager.api.removeMember(activeOrgId, userId);
     await get().refreshVault();
   },
 
   updateMemberRole: async (userId, role) => {
     const activeOrgId = get().session?.activeOrganizationId;
-    if (!activeOrgId) throw new Error("No active vault");
+    if (!activeOrgId) throw new Error("활성 볼트가 없어요");
     await authManager.api.updateMemberRole(activeOrgId, userId, role);
     await get().refreshVault();
   },
@@ -4619,7 +4619,7 @@ export const useStore = create<AppStore>((set, get) => ({
     set({ invitePrompt: null });
     // The joiner celebrates locally too (they connect after the server push).
     const me = get().session?.user;
-    get().celebrateMemberJoined(me?.name || me?.email || "You");
+    get().celebrateMemberJoined(me?.name || me?.email || "나");
   },
 
   joinVault: async (code) => {
@@ -4639,7 +4639,7 @@ export const useStore = create<AppStore>((set, get) => ({
     // the server broadcast, so they'd otherwise miss the live push).
     if (!joined.alreadyMember) {
       const me = get().session?.user;
-      get().celebrateMemberJoined(me?.name || me?.email || "You");
+      get().celebrateMemberJoined(me?.name || me?.email || "나");
     }
   },
 
@@ -4834,7 +4834,7 @@ export const useStore = create<AppStore>((set, get) => ({
     // 2. Where this vault lives here, captured BEFORE the binding is forgotten.
     const folderPath = readOrgVaults()[organizationId] ?? null;
     const label =
-      get().organizations.find((o) => o.id === organizationId)?.name ?? "This vault";
+      get().organizations.find((o) => o.id === organizationId)?.name ?? "이 볼트";
     // Whether this is the folder on screen decides what the user still has to
     // do, so read it BEFORE the teardown moves the state underneath.
     const wasOpenFolder = folderPath != null && get().vault?.path === folderPath;
@@ -4851,9 +4851,9 @@ export const useStore = create<AppStore>((set, get) => ({
     toast(
       folder
         ? wasOpenFolder
-          ? `${label} is local only now. Your files are still in ${folder}.`
-          : `${label} is local only now. Your files are still in ${folder}. Open that folder to keep it local or turn sync back on.`
-        : `${label} is local only now. Your files were not touched.`,
+          ? `${label}은(는) 이제 이 기기에만 있어요. 파일은 ${folder}에 그대로 있어요.`
+          : `${label}은(는) 이제 이 기기에만 있어요. 파일은 ${folder}에 그대로 있어요. 그 폴더를 열어 이 기기에만 두거나 동기화를 다시 켜세요.`
+        : `${label}은(는) 이제 이 기기에만 있어요. 파일은 그대로예요.`,
       "neutral",
     );
     return result;
@@ -4910,7 +4910,7 @@ export const useStore = create<AppStore>((set, get) => ({
     // that is left is this device's half of the teardown — and it touches no
     // file: the folder stays open, the notes stay put, the index survives.
     await unsyncLocalTeardown(get, set, pending.organizationId, pending.path);
-    toast("This vault is a local folder now. Your files were not touched.", "neutral");
+    toast("이 볼트는 이제 로컬 폴더예요. 파일은 그대로예요.", "neutral");
   },
 
   resyncUnsyncedVault: async () => {
@@ -5131,7 +5131,7 @@ export const useStore = create<AppStore>((set, get) => ({
   restoreVaultFolder: async () => {
     const target = folderRecoveryTarget(get);
     if (!target) return;
-    if (!target.orgId) throw new Error("This vault isn't synced, so there is nothing to restore it from.");
+    if (!target.orgId) throw new Error("이 볼트는 동기화되지 않아 복원할 원본이 없어요.");
     // A missing folder comes back where it was; a vault that never had one
     // ("Start with an empty folder") gets a fresh folder under the vaults root.
     const folder = target.path ?? (await freeVaultFolder(target.orgName));
@@ -5190,7 +5190,7 @@ export const useStore = create<AppStore>((set, get) => ({
     const v = get().vault;
     const orgId = get().session?.activeOrganizationId ?? null;
     if (!v || !get().syncEnabled || !orgId) {
-      throw new Error("Only a synced vault can be reset. A local vault has no other copy.");
+      throw new Error("동기화된 볼트만 초기화할 수 있어요. 로컬 볼트에는 다른 사본이 없어요.");
     }
     // Every tab names a file about to be deleted.
     get().closeAllTabs();
@@ -5239,7 +5239,7 @@ export const useStore = create<AppStore>((set, get) => ({
 
   setRootFrozen: async (frozen) => {
     const vaultId = syncManager.registry.vaultId;
-    if (!vaultId) throw new Error("This vault isn't synced yet.");
+    if (!vaultId) throw new Error("이 볼트는 아직 동기화되지 않았어요.");
     const { rootFrozen } = await authManager.api.updateVaultSettings(vaultId, {
       rootFrozen: frozen,
     });
@@ -5346,7 +5346,7 @@ export const useStore = create<AppStore>((set, get) => ({
 
   revertToVersion: async (versionId) => {
     const docId = get().versionPanelDocId;
-    if (!docId) throw new Error("No note is open.");
+    if (!docId) throw new Error("열린 노트가 없어요.");
     // Leave the read-only overlay before the write lands, so the editor the user
     // is looking at is the live one that's about to change.
     set({ versionPreview: null });
@@ -5676,7 +5676,7 @@ export const useStore = create<AppStore>((set, get) => ({
 function requireSyncedVaultId(get: () => AppStore): string {
   const vaultId = syncManager.registry.vaultId;
   if (!vaultId || !get().syncEnabled) {
-    throw new Error("Turn on sync for this vault to use checkpoints.");
+    throw new Error("체크포인트를 쓰려면 이 볼트의 동기화를 켜세요.");
   }
   return vaultId;
 }

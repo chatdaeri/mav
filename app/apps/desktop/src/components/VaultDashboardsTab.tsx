@@ -60,14 +60,14 @@ export function VaultDashboardsTab({ onClose, onNew, resetToken = 0 }: { onClose
     finally { setBusy(false); }
   };
   return <div className="vault-dashboards">
-    {st.homeSectionHidden && <button className="secondary vault-dashboards-restore-home" type="button" onClick={() => st.setHomeSectionHidden(false)}>Show Home in sidebar</button>}
-    <p className="vault-dashboards-description">Choose a dashboard for your Home. Preview a design, then make it yours with Claude or Codex.</p>
+    {st.homeSectionHidden && <button className="secondary vault-dashboards-restore-home" type="button" onClick={() => st.setHomeSectionHidden(false)}>사이드바에 홈 표시</button>}
+    <p className="vault-dashboards-description">홈에 쓸 대시보드를 고르세요. 디자인을 미리 본 뒤 Claude나 Codex로 내 것으로 만들 수 있어요.</p>
     <DashboardTemplateGallery key={resetToken} saved={saved} currentId={currentId} disabled={busy} onUse={(t) => void useTemplate(t.id)}
       onOpen={(path) => { void st.openNoteByPath(path).then(onClose).catch((e) => toast(String(e), "error")); }}
       onUnset={canUnset ? () => {
         setBusy(true);
         void st.setHome(null, st.personalHomeDocId ? "personal" : "vault").catch((e) => toast(String(e), "error")).finally(() => setBusy(false));
       } : undefined} />
-    <button className="vault-dashboards-link" type="button" onClick={() => { onClose(); requestNewDashboard("link", { setAsHome:!home }); }}>Add a dashboard from a link ↗</button>
+    <button className="vault-dashboards-link" type="button" onClick={() => { onClose(); requestNewDashboard("link", { setAsHome:!home }); }}>링크로 대시보드 추가 ↗</button>
   </div>;
 }

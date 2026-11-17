@@ -57,7 +57,7 @@ pub fn refuse_inside_vault(path: &Path, open_vault: Option<&Path>) -> AppResult<
             .unwrap_or(false)
     };
     let in_open = open_vault.map(inside).unwrap_or(false);
-    // A Baalda vault's `.context/` always holds its index; a bare `.context`
+    // A 마브 vault's `.context/` always holds its index; a bare `.context`
     // folder some other tool made (say in the home folder) does not count.
     let in_any = parent
         .ancestors()

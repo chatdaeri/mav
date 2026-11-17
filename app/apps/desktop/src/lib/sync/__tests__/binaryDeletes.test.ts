@@ -226,7 +226,7 @@ describe("BinaryDeleteQueue", () => {
     // cap = max(5, ceil((1 + 6) * 0.2)) = 5, and 6 > 5.
     expect(h.deleted).toEqual([]);
     expect(h.toasts).toHaveLength(1);
-    expect(h.toasts[0]).toContain("NOT removed from the server");
+    expect(h.toasts[0]).toContain("서버에서는 삭제하지 않았어요");
   });
 
   it("does nothing before the session is live", async () => {

@@ -100,7 +100,7 @@ describe("invitation reminders and expiry notices (#268)", () => {
     expect(first).toMatchObject({ ran: true, reminded: 1, reminderFailures: 0, expired: 0 });
     expect(mailer.sent.map((m) => m.to)).toEqual(["due@remind.io"]);
     const mail = mailer.sent[0];
-    expect(mail.subject).toContain("Reminder");
+    expect(mail.subject).toContain("알림");
     expect(mail.subject).toContain("Acme Notes");
     expect(mail.text).toContain(`/invite/${due.id}`);
     expect(mail.text).toContain("Olive Owner");

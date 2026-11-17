@@ -64,12 +64,12 @@ describe("selfRevoked summary", () => {
   it("reads as a quiet note, not a loss", () => {
     const one = summarizeReconcile([{ kind: "selfRevoked", docId: "a", path: "A.md", at: 1 }]);
     expect(one).toEqual([
-      { kind: "selfRevoked", count: 1, text: "You removed your own access to 1 note; its copy stays on this device." },
+      { kind: "selfRevoked", count: 1, text: "노트 1개에 대한 내 접근 권한을 직접 제거했어요. 사본은 이 기기에 남아 있어요." },
     ]);
     const two = summarizeReconcile([
       { kind: "selfRevoked", docId: "a", path: "A.md", at: 1 },
       { kind: "selfRevoked", docId: "b", path: "B.md", at: 1 },
     ]);
-    expect(two[0].text).toBe("You removed your own access to 2 notes; their copies stay on this device.");
+    expect(two[0].text).toBe("노트 2개에 대한 내 접근 권한을 직접 제거했어요. 사본은 이 기기에 남아 있어요.");
   });
 });

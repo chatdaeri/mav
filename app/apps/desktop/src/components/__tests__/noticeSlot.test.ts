@@ -132,24 +132,24 @@ describe("held bulk delete notice", () => {
   it("informs with Restore now + Dismiss and offers no delete", async () => {
     setHeld(12);
     mountAll();
-    expect(text()).toContain("You removed 12 notes on this device. They stay for your team and will be restored here.");
-    expect(buttons()).toEqual(["Restore now", "Dismiss"]);
+    expect(text()).toContain("이 기기에서 노트 12개를 삭제했어요. 팀에는 그대로 남아 있고 여기에도 다시 복원돼요.");
+    expect(buttons()).toEqual(["지금 복원", "닫기"]);
     expect(text()).not.toContain("Delete for everyone");
   });
 
   it("Restore now restores immediately", async () => {
     setHeld(12);
     mountAll();
-    click("Restore now");
+    click("지금 복원");
     await advance(0);
     expect(h.release).toHaveBeenCalledWith("restore");
-    expect(text()).not.toContain("You removed");
+    expect(text()).not.toContain("삭제했어요");
   });
 
   it("Dismiss releases the hold", async () => {
     setHeld(12);
     mountAll();
-    click("Dismiss");
+    click("닫기");
     await advance(0);
     expect(h.release).toHaveBeenCalledWith("dismiss");
   });
@@ -161,7 +161,7 @@ describe("held bulk delete notice", () => {
     expect(h.release).not.toHaveBeenCalled();
     await advance(1);
     expect(h.release).toHaveBeenCalledWith("dismiss");
-    expect(text()).not.toContain("You removed");
+    expect(text()).not.toContain("삭제했어요");
   });
 });
 
@@ -175,21 +175,21 @@ describe("one notice at a time", () => {
     await advance(RECONCILE_BANNER_DEBOUNCE_MS);
 
     expect(host.querySelectorAll(".banner")).toHaveLength(1);
-    expect(text()).toContain("You removed 12 notes");
+    expect(text()).toContain("노트 12개를 삭제했어요");
 
     // The held delete fades; the reconcile summary takes the slot.
     await advance(NOTICE_FADE_MS);
     await advance(0);
     expect(host.querySelectorAll(".banner")).toHaveLength(1);
-    expect(text()).not.toContain("You removed 12 notes");
+    expect(text()).not.toContain("노트 12개를 삭제했어요");
     expect(host.querySelector(".reconcile-banner")).not.toBeNull();
     expect(text()).not.toContain("Your access to this note was removed");
 
     // Dismissed: the open note's removal is next.
-    click("Dismiss");
+    click("닫기");
     await advance(0);
     expect(host.querySelectorAll(".banner")).toHaveLength(1);
-    expect(text()).toContain("Your access to this note was removed. It is no longer on this device.");
+    expect(text()).toContain("이 노트에 대한 권한이 제거됐어요. 이 기기에서도 삭제됐어요.");
 
     // It fades too, and the slot is empty.
     await advance(NOTICE_FADE_MS);

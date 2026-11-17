@@ -49,7 +49,7 @@ function ReconcileRowActions({ item, onChanged }: { item: ReconcileItem; onChang
           className="ghost-pill sm"
           onClick={() => void useStore.getState().openNoteByPath(item.path)}
         >
-          Open note
+          노트 열기
         </button>
       </span>
     );
@@ -90,10 +90,10 @@ function TrashRowActions({
         <AsyncButton
           className="ghost-pill sm"
           disabled={!online}
-          title={online ? "Bring it back for everyone." : "Reconnect to restore."}
+          title={online ? "모든 멤버에게 다시 보이게 해요." : "복원하려면 다시 연결하세요."}
           onClick={restore}
         >
-          Restore
+          복원
         </AsyncButton>
       </span>
       {error && (
@@ -123,7 +123,7 @@ function HeldRowActions({ onDone }: { onDone: () => void }) {
   return (
     <span className="health-missing-actions">
       <button type="button" className="ghost-pill sm" disabled={busy} onClick={restore}>
-        Restore now
+        지금 복원
       </button>
     </span>
   );
@@ -143,7 +143,7 @@ function ShrunkRowActions({
     setConfirm(false);
     try {
       await authManager.api.revertNoteToVersion(event.docId, event.versionId);
-      toast(`Restored ${noteLabel(event.relPath)} to its text from before it shrank.`, "success");
+      toast(`${noteLabel(event.relPath)}을(를) 줄어들기 전 텍스트로 복원했어요.`, "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : String(e), "error");
     }
@@ -157,21 +157,21 @@ function ShrunkRowActions({
           type="button"
           className="ghost-pill sm"
           disabled={!online}
-          title={online ? "Put the text from before back, for everyone." : "Reconnect to restore."}
+          title={online ? "이전 텍스트를 모든 멤버에게 되돌려요." : "복원하려면 다시 연결하세요."}
           onClick={() => setConfirm(true)}
         >
-          Restore version
+          버전 복원
         </button>
       </span>
       {confirm && (
         <ConfirmDialog
-          title="Restore this version?"
-          confirmLabel="Restore version"
+          title="이 버전으로 복원할까요?"
+          confirmLabel="버전 복원"
           onConfirm={restore}
           onCancel={() => setConfirm(false)}
         >
-          The note goes back to its text from before it shrank, for everyone. The current text is
-          kept as a version, so this can be undone from Version history.
+          노트가 줄어들기 전 텍스트로 모든 멤버에게 되돌아가요. 현재 텍스트는 버전으로
+          남아 있어서 버전 기록에서 되돌릴 수 있어요.
         </ConfirmDialog>
       )}
     </>
@@ -193,14 +193,14 @@ function PausedRowActions({
   onDone: () => void;
 }) {
   const [confirm, setConfirm] = useState(false);
-  const who = event.userName?.trim() || "this member";
+  const who = event.userName?.trim() || "이 멤버";
   const release = async () => {
     setConfirm(false);
     const vaultId = syncManager.registry.vaultId;
     if (!vaultId) return;
     try {
       await authManager.api.releaseShrinkBrake(vaultId, event.userId);
-      toast(`Sync resumed for ${who}.`, "success");
+      toast(`${who}님의 동기화를 재개했어요.`, "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : String(e), "error");
     }
@@ -213,22 +213,22 @@ function PausedRowActions({
           type="button"
           className="ghost-pill sm"
           disabled={!online}
-          title={online ? "Let their held edits sync now." : "Reconnect to release."}
+          title={online ? "보류된 편집을 지금 동기화해요." : "해제하려면 다시 연결하세요."}
           onClick={() => setConfirm(true)}
         >
-          Release
+          해제
         </button>
       </span>
       {confirm && (
         <ConfirmDialog
-          title={`Resume sync for ${who}?`}
-          confirmLabel="Release"
+          title={`${who}님의 동기화를 재개할까요?`}
+          confirmLabel="해제"
           onConfirm={release}
           onCancel={() => setConfirm(false)}
         >
-          Their edits that were waiting on their device sync now, including any notes they emptied.
-          Every emptied note was saved as a version first, so it can still be restored from Version
-          history. Check the Shrunk rows here first if the change might have been a mistake.
+          상대방 기기에서 대기 중이던 편집이 지금 동기화돼요. 비운 노트도 포함돼요.
+          비워진 노트는 먼저 모두 버전으로 저장되어 있어서 버전 기록에서 복원할 수 있어요.
+          실수였을 수 있다면 여기서 '줄어듦' 행을 먼저 확인하세요.
         </ConfirmDialog>
       )}
     </>
@@ -242,7 +242,7 @@ function OpenNoteButton({ path }: { path: string }) {
       className="ghost-pill sm"
       onClick={() => void useStore.getState().openNoteByPath(path)}
     >
-      Open note
+      노트 열기
     </button>
   );
 }
@@ -287,7 +287,7 @@ function FailedRowActions({
             onDone();
           }}
         >
-          Retry
+          다시 시도
         </AsyncButton>
       )}
     </span>
@@ -314,7 +314,7 @@ function InvitationRowActions({
       const role = invitation.role === "admin" ? "admin" : "member";
       const r = await useStore.getState().inviteMember(invitation.email, role, invitation.organizationId);
       if (r.emailed) {
-        toast(`Sent a new invitation to ${invitation.email}.`, "success");
+        toast(`${invitation.email}님에게 새 초대를 보냈어요.`, "success");
       } else {
         const link = buildInviteLink(useStore.getState().serverUrl, r.invitation.id);
         let copied = false;
@@ -326,9 +326,9 @@ function InvitationRowActions({
             /* clipboard unavailable */
           }
         }
-        const how = copied ? "Its link is copied; share it with them." : "Share its link from Vault Settings → Members and access.";
+        const how = copied ? "링크를 복사했어요. 상대방에게 공유하세요." : "볼트 설정 → 멤버 및 권한에서 링크를 공유하세요.";
         toast(
-          r.emailError ? `New invitation created, but the email failed: ${r.emailError} ${how}` : `New invitation created. ${how}`,
+          r.emailError ? `새 초대를 만들었지만 이메일 전송에 실패했어요: ${r.emailError} ${how}` : `새 초대를 만들었어요. ${how}`,
           r.emailError ? "error" : "success",
         );
       }
@@ -342,10 +342,10 @@ function InvitationRowActions({
       <AsyncButton
         className="ghost-pill sm"
         disabled={!online}
-        title={online ? "Send a new invitation with a fresh link." : "Reconnect to resend."}
+        title={online ? "새 링크로 초대를 다시 보내요." : "다시 보내려면 다시 연결하세요."}
         onClick={resend}
       >
-        Resend
+        다시 보내기
       </AsyncButton>
     </span>
   );
@@ -429,12 +429,12 @@ export function ActivityFeed() {
         <div className="activity-toolbar">
           {pending > 0 && (
             <button type="button" className="primary sm" onClick={openReviewTab}>
-              {`Review changes (${pending.toLocaleString()})`}
+              {`변경 사항 검토 (${pending.toLocaleString()})`}
             </button>
           )}
           {updating && (
             <span className="activity-updating muted" role="status">
-              Updating…
+              업데이트 중…
             </span>
           )}
           {rows.length > 0 && (
@@ -443,15 +443,15 @@ export function ActivityFeed() {
               className="activity-clear"
               onClick={() => setConfirmClear(true)}
             >
-              Clear
+              지우기
             </button>
           )}
         </div>
       )}
       {confirmClear && (
         <ConfirmDialog
-          title="Clear activity?"
-          confirmLabel="Clear"
+          title="활동을 지울까요?"
+          confirmLabel="지우기"
           tone="accent"
           onConfirm={() => {
             snap.clear();
@@ -459,12 +459,12 @@ export function ActivityFeed() {
           }}
           onCancel={() => setConfirmClear(false)}
         >
-          Everything listed here is hidden on this device, and changes waiting for review are marked
-          as skipped. No note, file or recovery copy is deleted, and anything new still shows up.
+          여기 나열된 항목은 이 기기에서 숨겨지고, 검토 대기 중인 변경 사항은 건너뜀으로
+          표시돼요. 노트, 파일, 복구 사본은 삭제되지 않으며 새 항목은 계속 표시돼요.
         </ConfirmDialog>
       )}
       {!snap.trashOnline && snap.trashCached && (
-        <p className="muted activity-note">Deleted notes are the last known list. Reconnect to restore.</p>
+        <p className="muted activity-note">삭제된 노트는 마지막으로 확인한 목록이에요. 복원하려면 다시 연결하세요.</p>
       )}
       {snap.error && (
         <p role="alert" className="auth-error health-missing-error">
@@ -476,9 +476,9 @@ export function ActivityFeed() {
           <span className="activity-empty-icon">
             <ActivityLogIcon />
           </span>
-          <p className="activity-empty-title">No activity yet.</p>
+          <p className="activity-empty-title">아직 활동이 없어요.</p>
           <p className="muted activity-empty-hint">
-            Changes sync made for you, deleted notes and recovery copies will appear here.
+            동기화가 나를 위해 한 변경, 삭제된 노트, 복구 사본이 여기에 표시돼요.
           </p>
         </div>
       ) : (
@@ -574,11 +574,11 @@ export function ActivityFeed() {
           </ul>
           {rows.length > limit && (
             <button type="button" className="link-btn activity-more" onClick={() => setLimit(limit + PAGE)}>
-              {`Show more (${(rows.length - limit).toLocaleString()} remaining)`}
+              {`더 보기 (${(rows.length - limit).toLocaleString()}개 남음)`}
             </button>
           )}
           {snap.trashTruncated && (
-            <p className="muted activity-note">Only the most recent deleted notes are listed.</p>
+            <p className="muted activity-note">최근에 삭제된 노트만 표시돼요.</p>
           )}
         </>
       )}

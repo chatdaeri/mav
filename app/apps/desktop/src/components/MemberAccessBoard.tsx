@@ -36,7 +36,7 @@ import { buildOrgRowsByPath } from "../lib/accessMode";
 import { itemLockRows, resourceIdsByPath } from "../lib/locks";
 import { useStore } from "../store";
 
-const LOCKED_TITLE = "Read-only for everyone. Moving to Can edit will ask to unlock";
+const LOCKED_TITLE = "모든 멤버에게 읽기 전용이에요. 편집 가능으로 옮기면 잠금 해제를 확인해요";
 
 /** One batcher for the board: a render's reads go out as one request. */
 const summaries = createAccessSummaryBatcher({
@@ -429,7 +429,7 @@ export function MemberAccessBoard({
       try {
         actual = await summaries.read(orgId, resourceOf(row), [member.userId], () => !live.current);
       } catch {
-        if (live.current) toast(`Saved, but couldn't check ${row.name} yet.`, "neutral");
+        if (live.current) toast(`저장했지만 ${row.name}의 상태를 아직 확인하지 못했어요.`, "neutral");
         return;
       }
       if (!live.current) return;
@@ -439,9 +439,9 @@ export function MemberAccessBoard({
     };
     if (blockers.length) {
       setConfirm({
-        title: "Remove read-only rules for everyone?",
-        button: "Unlock and allow editing",
-        outcome: `${row.name} is affected by ${blockers.length === 1 ? "a read-only rule" : `${blockers.length} read-only rules`} for everyone. Removing ${blockers.length === 1 ? "it" : "them"} lets each person's other permissions apply, including on any locked parent folder's contents. Then ${isSelf ? "you" : who} can edit ${row.name}.`,
+        title: "모든 멤버의 읽기 전용 규칙을 없앨까요?",
+        button: "잠금 해제하고 편집 허용",
+        outcome: `${row.name}에는 모든 멤버에게 적용되는 읽기 전용 규칙 ${blockers.length}개가 걸려 있어요. 이 규칙을 없애면 잠긴 상위 폴더의 내용을 포함해 각자의 다른 권한이 적용돼요. 그러면 ${row.name} 편집이 가능해져요.`,
         danger: false,
         apply: run,
       });
@@ -452,11 +452,11 @@ export function MemberAccessBoard({
     if (!canSetAccess || busy) return;
     if (choice === "reset") {
       setConfirm({
-        title: isSelf ? "Reset your access to the vault default?" : `Reset ${who}'s access to the vault default?`,
-        button: "Reset",
+        title: isSelf ? "내 권한을 볼트 기본값으로 되돌릴까요?" : `${who}님의 권한을 볼트 기본값으로 되돌릴까요?`,
+        button: "되돌리기",
         outcome: isSelf
-          ? "Your own settings are removed; you get what every member gets."
-          : "Their own settings are removed; they get what every member gets.",
+          ? "내게 따로 지정한 설정이 사라지고, 모든 멤버와 같은 권한을 갖게 돼요."
+          : "이 멤버에게 따로 지정한 설정이 사라지고, 모든 멤버와 같은 권한을 갖게 돼요.",
         danger: false,
         apply: resetToDefault,
       });
@@ -495,13 +495,13 @@ export function MemberAccessBoard({
     const roots = topLevelRows(allRows.map((row) => ({ row, grey: false, indent: 0 })));
     if (roots.length === 0) return;
     const apply = async () => {
-      if (await write(roots, mode)) toast("Updated access to existing items.");
+      if (await write(roots, mode)) toast("기존 항목의 권한을 바꿨어요.");
     };
     if (mode === "private") {
       setConfirm({
-        title: "Move all existing items to No access?",
-        button: "Remove access",
-        outcome: `${isSelf ? "You" : who} will lose access to these items. The vault-wide access setting will stay the same.`,
+        title: "기존 항목을 모두 접근 불가로 옮길까요?",
+        button: "접근 제거",
+        outcome: `${isSelf ? "나는" : `${who}님은`} 이 항목들에 접근할 수 없게 돼요. 볼트 전체 권한 설정은 그대로 유지돼요.`,
         danger: true,
         apply,
       });
@@ -514,13 +514,13 @@ export function MemberAccessBoard({
     if (tops.length === 0) return;
     const count = tops.length;
     setConfirm({
-      title: `Move ${count} ${count === 1 ? "item" : "items"} to No access?`,
-      button: "Remove access",
+      title: `항목 ${count}개를 접근 불가로 옮길까요?`,
+      button: "접근 제거",
       outcome: reduceAccessCopy({ kind: "person", name: fullName, self: isSelf }, "private").outcome,
       danger: true,
       apply: async () => {
         if (!(await write(tops, "private"))) return;
-        const what = count === 1 ? tops[0].name : `${count} items`;
+        const what = count === 1 ? tops[0].name : `항목 ${count}개`;
         toast(moveMessage(who, isSelf, what, "private"));
       },
     });
@@ -738,18 +738,18 @@ export function MemberAccessBoard({
   return (
     <div ref={boardRef} className={`access-board${dragKey ? " is-dragging" : ""}`}>
       <div className="access-board-head">
-        <p className="access-board-intro"><span className="access-board-intro-drag">Drag</span> rows between columns, or use the arrows. Changes save right away.</p>
+        <p className="access-board-intro"><span className="access-board-intro-drag">드래그</span>해서 열 사이로 옮기거나 화살표를 쓰세요. 변경 사항은 바로 저장돼요.</p>
         {!hideSetEverything && <MenuSelect<EverythingChoice | "none">
           value="none"
           options={[
-            { value: "open", label: "Can edit", hint: "Every folder and note" },
-            { value: "readonly", label: "Can view", hint: "Read only" },
-            { value: "private", label: "No access", hint: `Hide everything from ${isSelf ? "you" : who}` },
-            { value: "reset", label: "Reset to vault default", hint: "Back to what every member gets" },
+            { value: "open", label: "편집 가능", hint: "모든 폴더와 노트" },
+            { value: "readonly", label: "보기 가능", hint: "읽기 전용" },
+            { value: "private", label: "접근 불가", hint: `${isSelf ? "나" : `${who}님`}에게 모든 항목 숨기기` },
+            { value: "reset", label: "볼트 기본값으로 되돌리기", hint: "모든 멤버와 같은 권한으로" },
           ]}
-          triggerContent="Set everything to"
+          triggerContent="모두 일괄 설정"
           disabled={locked}
-          ariaLabel="Set everything to"
+          ariaLabel="모두 일괄 설정"
           triggerClassName="member-access-pill is-lg access-board-everything"
           menuClassName="access-menu access-board-everything-menu"
           onSelect={(v) => { if (v !== "none") setEverything(v); }}
@@ -764,12 +764,12 @@ export function MemberAccessBoard({
             const count = col.count;
             const view = views[i];
             const actions: Array<{ value: ColumnAction; label: string; hint: string }> = [
-              { value: "expand", label: "Expand all", hint: "Show what's inside every folder" },
-              { value: "collapse", label: "Collapse all", hint: "Show only the top level" },
-              { value: "add", label: "Add all", hint: "Move existing items here; keep the vault default" },
+              { value: "expand", label: "모두 펼치기", hint: "모든 폴더 안의 내용 보기" },
+              { value: "collapse", label: "모두 접기", hint: "최상위 항목만 보기" },
+              { value: "add", label: "모두 추가", hint: "기존 항목을 여기로 옮기고 볼트 기본값은 유지" },
             ];
             if (col.mode !== "private") {
-              actions.push({ value: "remove", label: "Remove all", hint: "Move everything here to No access" });
+              actions.push({ value: "remove", label: "모두 제거", hint: "여기 있는 항목을 모두 접근 불가로 옮기기" });
             }
             return (
               <section
@@ -789,7 +789,7 @@ export function MemberAccessBoard({
                     options={canSetAccess ? actions : actions.filter((a) => a.value === "expand" || a.value === "collapse")}
                     triggerContent={dots}
                     caret={false}
-                    ariaLabel={`${col.title} actions`}
+                    ariaLabel={`${col.title} 작업`}
                     triggerClassName="row-more-btn access-board-column-more"
                     menuClassName="access-menu access-board-column-menu"
                     onSelect={(v) => {
@@ -839,7 +839,7 @@ export function MemberAccessBoard({
                   {leaving?.mode === col.mode && leaving.index >= view.length && (
                     <li key={`gap-${leaving.token}`} className="access-board-gap" aria-hidden="true" />
                   )}
-                  {col.rows.length === 0 && <li className="access-board-empty">Nothing here</li>}
+                  {col.rows.length === 0 && <li className="access-board-empty">항목이 없어요</li>}
                 </ul>
                 {i === 0 && loading && <BoardPendingRows />}
               </section>
@@ -849,11 +849,11 @@ export function MemberAccessBoard({
       )}
       {failedCount > 0 && (
         <p className="access-board-failed muted">
-          Couldn't load access for {failedCount} {failedCount === 1 ? "item" : "items"}.
+          항목 {failedCount}개의 권한을 불러오지 못했어요.
         </p>
       )}
       <p className="access-board-hint">
-        A folder includes what's inside unless you move it out. Gray folders only show the path. Up to 5 levels deep.
+        폴더는 따로 옮기지 않는 한 안의 항목을 모두 포함해요. 회색 폴더는 경로만 보여 줘요. 최대 5단계까지 표시해요.
       </p>
       {dragRow && (
         <div ref={ghostRef} className="access-board-ghost" aria-hidden="true">
@@ -919,7 +919,7 @@ export const BoardRowItem = memo(function BoardRowItem({
     <button
       type="button"
       className={`member-access-twisty${expanded ? " is-open" : ""}`}
-      aria-label={expanded ? `Collapse ${row.name}` : `Expand ${row.name}`}
+      aria-label={expanded ? `${row.name} 접기` : `${row.name} 펼치기`}
       aria-expanded={expanded}
       onClick={() => onToggle(row.key)}
     >
@@ -952,7 +952,7 @@ export const BoardRowItem = memo(function BoardRowItem({
       <span className="access-board-icon" aria-hidden="true">{rowGlyph(row)}</span>
       <span className="access-board-name">{row.name}</span>
       {expandable && !expanded && descendants > 0 && (
-        <span className="access-board-count access-board-descendants" title={`${descendants} inside`}>{descendants}</span>
+        <span className="access-board-count access-board-descendants" title={`안에 ${descendants}개`}>{descendants}</span>
       )}
       {teamLocked && (
         <span className="access-board-lock" title={LOCKED_TITLE} aria-label={LOCKED_TITLE} role="img">
@@ -966,7 +966,7 @@ export const BoardRowItem = memo(function BoardRowItem({
         <button
           type="button"
           className="access-board-arrow"
-          aria-label={`Move ${row.name} left`}
+          aria-label={`${row.name} 왼쪽으로 이동`}
           disabled={disabled || !canLeft}
           onClick={() => onArrow(row, mode, -1)}
         >
@@ -975,7 +975,7 @@ export const BoardRowItem = memo(function BoardRowItem({
         <button
           type="button"
           className="access-board-arrow"
-          aria-label={`Move ${row.name} right`}
+          aria-label={`${row.name} 오른쪽으로 이동`}
           disabled={disabled || !canRight}
           onClick={() => onArrow(row, mode, 1)}
         >

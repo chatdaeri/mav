@@ -348,7 +348,7 @@ jobs:
         with:
           projectPath: app/apps/desktop
           tagName: v__VERSION__
-          releaseName: 'Baalda v__VERSION__'
+          releaseName: '마브 v__VERSION__'
           releaseBody: ${{ steps.relnotes.outputs.body }}
           releaseDraft: false
           prerelease: false
@@ -367,13 +367,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # 마브 ships without an Apple Developer ID: no APPLE_* variables at all
+          # (an empty APPLE_CERTIFICATE fails the macOS build). The app is
+          # unsigned; README.md explains the first-launch prompt.
         with:
           projectPath: app/apps/desktop
           tagName: v__VERSION__
-          releaseName: 'Baalda v__VERSION__'
+          releaseName: '마브 v__VERSION__'
           releaseBody: ${{ steps.relnotes.outputs.body }}
           releaseDraft: false
           prerelease: false

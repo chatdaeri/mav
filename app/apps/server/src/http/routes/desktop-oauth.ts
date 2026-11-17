@@ -61,7 +61,7 @@ function loopbackTarget(raw: string): URL | null {
 
 desktopOauthRoutes.get("/desktop-auth/finish", async (c) => {
   const target = loopbackTarget(c.req.query("redirect") ?? "");
-  if (!target) return c.text("Invalid redirect target", 400);
+  if (!target) return c.text("잘못된 리디렉션 대상이에요", 400);
 
   const result = await auth.api.getSession({ headers: c.req.raw.headers });
   const token = (result?.session as { token?: string } | undefined)?.token;

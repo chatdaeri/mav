@@ -23,12 +23,12 @@ import type { TreeNode } from "../ipc";
 export type TreeSort = "recent" | "name" | "name-desc";
 
 export const TREE_SORTS: Array<{ id: TreeSort; label: string; hint: string }> = [
-  { id: "recent", label: "Recently modified", hint: "Newest notes first" },
-  { id: "name", label: "Name (A–Z)", hint: "Alphabetical" },
+  { id: "recent", label: "최근 수정순", hint: "최신 노트가 먼저" },
+  { id: "name", label: "이름순 (가나다)", hint: "오름차순" },
   {
     id: "name-desc",
-    label: "Name (Z–A)",
-    hint: "Reverse alphabetical: dated notes like 2026-09-23 newest first",
+    label: "이름 역순",
+    hint: "내림차순: 2026-09-23처럼 날짜가 붙은 노트는 최신순",
   },
 ];
 

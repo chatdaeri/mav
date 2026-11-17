@@ -39,10 +39,10 @@ export function RemoteDashboardView({ path }: { path: string }) {
   return <div className={`dashboard-link-view${blocked ? " has-native-viewer" : ""}`}>
     <div className="dashboard-link-actions">
       <div className="dashboard-toolbar-actions">
-        {!isHome && <button type="button" className="ghost-pill sm" onClick={() => window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } }))}>Set as my home</button>}
-        <button type="button" className="primary sm" disabled={!url} onClick={() => { if (url) void ipc.openExternal(url).catch((e) => setError(String(e))); }}>Open in browser</button>
+        {!isHome && <button type="button" className="ghost-pill sm" onClick={() => window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } }))}>내 홈으로 설정</button>}
+        <button type="button" className="primary sm" disabled={!url} onClick={() => { if (url) void ipc.openExternal(url).catch((e) => setError(String(e))); }}>브라우저에서 열기</button>
       </div>
     </div>
-    {error ? <div className="dashboard-link-empty" role="alert">{error}</div> : !url ? <div className="dashboard-link-empty">Loading…</div> : blocked ? <NativeDashboardLink key={`${epoch}:${path}:${url}`} url={url} /> : <EmbeddedDashboardLink key={`${epoch}:${path}:${url}`} url={url} title={path} />}
+    {error ? <div className="dashboard-link-empty" role="alert">{error}</div> : !url ? <div className="dashboard-link-empty">불러오는 중…</div> : blocked ? <NativeDashboardLink key={`${epoch}:${path}:${url}`} url={url} /> : <EmbeddedDashboardLink key={`${epoch}:${path}:${url}`} url={url} title={path} />}
   </div>;
 }

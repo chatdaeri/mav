@@ -11,11 +11,11 @@ describe("portable linked dashboards", () => {
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict><key>URL</key><string>https://example.com/dashboard?a=1&amp;b=2</string></dict></plist>`;
     expect(readDashboardLink(plist, "Finder.webloc")).toBe("https://example.com/dashboard?a=1&b=2");
-    expect(() => readDashboardLink('<!ENTITY secret SYSTEM "file:///etc/passwd"><key>URL</key><string>https://example.com/&secret;</string>', "Unsafe.webloc")).toThrow("entities");
+    expect(() => readDashboardLink('<!ENTITY secret SYSTEM "file:///etc/passwd"><key>URL</key><string>https://example.com/&secret;</string>', "Unsafe.webloc")).toThrow("엔터티");
   });
   it("accepts HTTPS websites while refusing executable URLs and credentials", () => {
     for (const url of ["javascript:alert(1)", "file:///etc/passwd", "http://example.com", "https://user:pass@example.com"]) expect(() => internetShortcut(url)).toThrow();
-    expect(internetShortcut("https://baalda.com")).toContain("URL=https://baalda.com/");
+    expect(internetShortcut("https://github.com/chatdaeri/mav/")).toContain("URL=https://github.com/chatdaeri/mav/");
     expect(knownFrameBlocked("https://example.workspace.chatgpt.site")).toBe(false);
     expect(knownFrameBlocked("https://claude.ai/artifact/abc")).toBe(true);
   });

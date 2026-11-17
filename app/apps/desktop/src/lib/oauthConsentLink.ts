@@ -1,4 +1,4 @@
-// The `baalda://oauth-consent?id=<consent>&server=<url>` hand-off (W3, security
+// The `mav://oauth-consent?id=<consent>&server=<url>` hand-off (W3, security
 // rule 2). Connecting claude.ai or ChatGPT to a keyed vault is finished in the
 // app: the server's consent page cannot hand the vault key over itself, so it
 // bounces here. The link carries only an opaque consent id; the app reads the
@@ -26,7 +26,7 @@ export function parseOAuthConsentLink(url: string): OAuthConsentLink | null {
     return null;
   }
   if (!isAppProtocol(parsed.protocol)) return null;
-  // `baalda://evil.example@oauth-consent` only dresses the link up: refuse it.
+  // `mav://evil.example@oauth-consent` only dresses the link up: refuse it.
   if (parsed.username || parsed.password) return null;
   const segments = [parsed.host, ...parsed.pathname.split("/")].filter((s) => s.length > 0);
   if (segments.length !== 1 || segments[0] !== "oauth-consent") return null;

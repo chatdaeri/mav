@@ -120,7 +120,7 @@ export function XlsxView({ path, abs }: ViewerProps) {
       } catch (e) {
         if (!cancelled) {
           console.error("xlsx preview failed", e);
-          setError("Couldn't read this workbook.");
+          setError("이 통합 문서를 읽을 수 없어요.");
         }
       }
     })();
@@ -139,15 +139,15 @@ export function XlsxView({ path, abs }: ViewerProps) {
       <div className="file-preview-body">
         {askSize != null ? (
           <div className="file-ask">
-            <p>This workbook is {formatBytes(askSize)}. Reading it may take a few seconds.</p>
+            <p>이 통합 문서는 {formatBytes(askSize)}예요. 읽는 데 몇 초 걸릴 수 있어요.</p>
             <button type="button" className="primary sm" onClick={() => setConfirmed(true)}>
-              Open anyway
+              그래도 열기
             </button>
           </div>
         ) : sheets == null ? (
-          <div className="editor-empty">Loading…</div>
+          <div className="editor-empty">불러오는 중…</div>
         ) : sheet == null ? (
-          <div className="editor-empty">This workbook has no sheets.</div>
+          <div className="editor-empty">이 통합 문서에 시트가 없어요.</div>
         ) : (
           <>
             {sheets.length > 1 && (

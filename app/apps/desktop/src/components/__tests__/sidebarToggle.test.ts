@@ -32,7 +32,7 @@ describe("SidebarToggle", () => {
       hidden: false, onToggle, searchOpen: false, onSearch,
     })));
     const button = host.querySelector<HTMLButtonElement>(".sidebar-toggle")!;
-    expect(button.getAttribute("aria-label")).toBe("Hide sidebar");
+    expect(button.getAttribute("aria-label")).toBe("사이드바 숨기기");
     expect(button.getAttribute("aria-expanded")).toBe("true");
     expect(button.getAttribute("aria-controls")).toBe("vault-sidebar");
     expect(onToggle).not.toHaveBeenCalled();
@@ -40,11 +40,11 @@ describe("SidebarToggle", () => {
     act(() => root.render(createElement(SidebarToggle, {
       hidden: true, onToggle, searchOpen: true, onSearch,
     })));
-    expect(button.getAttribute("aria-label")).toBe("Show sidebar");
+    expect(button.getAttribute("aria-label")).toBe("사이드바 보기");
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(onToggle).not.toHaveBeenCalled();
     const search = host.querySelector<HTMLButtonElement>(".titlebar-search")!;
-    expect(search.title).toBe("Search notes (⌘F)");
+    expect(search.title).toBe("노트 검색 (⌘F)");
     expect(search.getAttribute("aria-pressed")).toBe("true");
     expect(onSearch).not.toHaveBeenCalled();
   });

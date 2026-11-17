@@ -156,6 +156,22 @@ fn set_disk_base_on(conn: &Connection, doc_id: &str, sha256: &str) -> AppResult<
 /// `한글.md` whichever form either side is in (#332). Only comparisons use it;
 /// stored paths and files on disk keep whatever form they arrived in. Mirrored
 /// by `linkKey` in `src/lib/editor/wikilinkResolve.ts`.
+/// `dir-of(note)/target`, with `.`/`..` resolved; `None` if it leaves the vault.
+fn resolve_relative(note_rel: &str, target: &str) -> Option<String> {
+    let mut parts: Vec<&str> = note_rel.split('/').collect();
+    parts.pop(); // the note's own file name
+    for seg in target.split(['/', '\\']) {
+        match seg {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            s => parts.push(s),
+        }
+    }
+    Some(parts.join("/"))
+}
+
 fn link_key(s: &str) -> String {
     s.nfc().collect::<String>().to_lowercase()
 }
@@ -392,7 +408,7 @@ impl Index {
             -- mirrors notes.rowid, and feed it explicitly on each write.
             CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
                 title, body,
-                tokenize='unicode61 remove_diacritics 2'
+                tokenize='trigram'
             );
 
             CREATE TABLE IF NOT EXISTS tags (
@@ -506,7 +522,7 @@ impl Index {
             -- by what it is called. rowid mirrors files.rowid.
             CREATE VIRTUAL TABLE IF NOT EXISTS files_fts USING fts5(
                 name, body,
-                tokenize='unicode61 remove_diacritics 2'
+                tokenize='trigram'
             );
 
             -- Extracted text, keyed by CONTENT. A rename, a copy or a file that
@@ -544,6 +560,39 @@ impl Index {
             );
             "#,
         )?;
+        self.migrate_fts_to_trigram()?;
+        Ok(())
+    }
+
+    /// 마브: both FTS tables moved from `unicode61` to `trigram`, so Korean
+    /// compounds and words with particles match by substring ("브레인" finds
+    /// "세컨브레인", "세컨브레인을" finds "세컨브레인" after the particle is
+    /// stripped). An index built before that is dropped and recreated, and every
+    /// note/file is marked stale so the next `rebuild` re-reads it — the FTS
+    /// bodies are derived, so nothing is lost.
+    fn migrate_fts_to_trigram(&self) -> AppResult<()> {
+        let sql: Option<String> = self
+            .conn
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE name = 'notes_fts'",
+                [],
+                |r| r.get(0),
+            )
+            .optional()?;
+        if sql.as_deref().map_or(true, |s| s.contains("trigram")) {
+            return Ok(());
+        }
+        self.conn.execute_batch(
+            r#"
+            DROP TABLE IF EXISTS notes_fts;
+            DROP TABLE IF EXISTS files_fts;
+            CREATE VIRTUAL TABLE notes_fts USING fts5(title, body, tokenize='trigram');
+            CREATE VIRTUAL TABLE files_fts USING fts5(name, body, tokenize='trigram');
+            UPDATE notes SET mtime = -1, sha256 = NULL;
+            UPDATE files SET mtime = -1, text_sha = NULL, text_status = 'pending';
+            "#,
+        )?;
+        log::info!("[index] search index moved to the trigram tokenizer; full re-index on next rebuild");
         Ok(())
     }
 
@@ -1590,10 +1639,21 @@ impl Index {
         // Links (dst resolved later in resolve_links).
         tx.execute("DELETE FROM links WHERE src_note_id = ?1", params![id])?;
         for link in &parsed.links {
+            // 마브: a Markdown link is stored as `md:<vault-relative path>`,
+            // resolved against this note's folder now, matched by exact path
+            // in `resolve_links`.
+            let dst_raw = if link.path_link {
+                match resolve_relative(&rel, &link.target) {
+                    Some(p) => format!("md:{p}"),
+                    None => continue,
+                }
+            } else {
+                link.target.clone()
+            };
             tx.execute(
                 "INSERT INTO links (src_note_id, dst_note_id, dst_path_raw, link_text, position)
                  VALUES (?1, NULL, ?2, ?3, ?4)",
-                params![id, link.target, link.raw, link.position],
+                params![id, dst_raw, link.raw, link.position],
             )?;
         }
 
@@ -1680,6 +1740,7 @@ impl Index {
         // Build lookup maps from all notes.
         let mut by_basename: HashMap<String, String> = HashMap::new();
         let mut by_title: HashMap<String, String> = HashMap::new();
+        let mut by_path: HashMap<String, String> = HashMap::new();
         {
             let mut stmt = tx.prepare("SELECT id, path, title FROM notes")?;
             let rows = stmt.query_map([], |r| {
@@ -1691,6 +1752,7 @@ impl Index {
             })?;
             for row in rows {
                 let (id, path, title) = row?;
+                by_path.entry(link_key(&path)).or_insert_with(|| id.clone());
                 let base = link_key(
                     path.rsplit('/')
                         .next()
@@ -1765,6 +1827,10 @@ impl Index {
         let mut update =
             tx.prepare("UPDATE links SET dst_note_id = ?1 WHERE id = ?2 AND dst_note_id IS NOT ?1")?;
         for (link_id, raw) in links {
+            if let Some(path) = raw.strip_prefix("md:") {
+                update.execute(params![by_path.get(&link_key(path)), link_id])?;
+                continue;
+            }
             // raw may contain alias/heading — strip for matching.
             let target = link_key(
                 raw.split('|')
@@ -1852,7 +1918,7 @@ impl Index {
     /// merged by score, which is the only way to rank a `.docx` paragraph
     /// against a note body at all.
     pub fn search_all(&self, query: &str) -> AppResult<Vec<SearchResult>> {
-        let match_query = build_fts_query(query);
+        let match_query = build_search_query(query);
         if match_query.is_empty() {
             return Ok(Vec::new());
         }
@@ -1865,7 +1931,7 @@ impl Index {
     /// body. Kept as its own entry point because most callers (and every test
     /// that predates tier 2) mean exactly this.
     pub fn search_notes(&self, query: &str) -> AppResult<Vec<SearchResult>> {
-        let match_query = build_fts_query(query);
+        let match_query = build_search_query(query);
         if match_query.is_empty() {
             return Ok(Vec::new());
         }
@@ -1884,18 +1950,10 @@ impl Index {
     /// though the body is raw markdown. Tier 2 goes through the SAME path, and
     /// `extract.rs` strips those two characters out of every extracted body so
     /// text pulled from a binary cannot forge a `<mark>`.
-    fn search_notes_ranked(&self, match_query: &str) -> AppResult<Vec<RankedHit>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT n.id, n.path, n.title,
-                    snippet(notes_fts, 1, char(1), char(2), '…', 12) AS snip,
-                    bm25(notes_fts) AS score
-             FROM notes_fts
-             JOIN notes n ON n.rowid = notes_fts.rowid
-             WHERE notes_fts MATCH ?1
-             ORDER BY bm25(notes_fts)
-             LIMIT 100",
-        )?;
-        let rows = stmt.query_map(params![match_query], |r| {
+    fn search_notes_ranked(&self, q: &SearchQuery) -> AppResult<Vec<RankedHit>> {
+        let sql = q.sql("notes_fts", "n.id, n.path, n.title", "JOIN notes n ON n.rowid = notes_fts.rowid", "title");
+        let mut stmt = self.conn.prepare(&sql)?;
+        let rows = stmt.query_map(rusqlite::params_from_iter(q.params()), |r| {
             let path: String = r.get(1)?;
             Ok(RankedHit {
                 score: r.get::<_, f64>(4)?,
@@ -1904,7 +1962,7 @@ impl Index {
                     ext: ext_of(&path),
                     path,
                     title: r.get(2)?,
-                    snippet: mark_snippet(r.get::<_, String>(3)?),
+                    snippet: q.snippet(r.get::<_, String>(3)?),
                     kind: "note".to_string(),
                 },
             })
@@ -1916,18 +1974,10 @@ impl Index {
     /// (`body`), so a hit that matched only the file NAME has an empty one —
     /// which is right: there is nothing to quote but the name the row already
     /// carries.
-    fn search_files_ranked(&self, match_query: &str) -> AppResult<Vec<RankedHit>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT f.id, f.path, f.ext,
-                    snippet(files_fts, 1, char(1), char(2), '…', 12) AS snip,
-                    bm25(files_fts) AS score
-             FROM files_fts
-             JOIN files f ON f.rowid = files_fts.rowid
-             WHERE files_fts MATCH ?1
-             ORDER BY bm25(files_fts)
-             LIMIT 100",
-        )?;
-        let rows = stmt.query_map(params![match_query], |r| {
+    fn search_files_ranked(&self, q: &SearchQuery) -> AppResult<Vec<RankedHit>> {
+        let sql = q.sql("files_fts", "f.id, f.path, f.ext", "JOIN files f ON f.rowid = files_fts.rowid", "name");
+        let mut stmt = self.conn.prepare(&sql)?;
+        let rows = stmt.query_map(rusqlite::params_from_iter(q.params()), |r| {
             let path: String = r.get(1)?;
             let title = path
                 .rsplit('/')
@@ -1943,7 +1993,7 @@ impl Index {
                     ext: r.get::<_, Option<String>>(2)?,
                     path,
                     title,
-                    snippet: mark_snippet(r.get::<_, String>(3)?),
+                    snippet: q.snippet(r.get::<_, String>(3)?),
                     kind: "file".to_string(),
                 },
             })
@@ -2107,7 +2157,7 @@ impl Index {
             })
         };
 
-        // 1. Full relative path (e.g. "Projects/Baalda").
+        // 1. Full relative path (e.g. "Projects/마브").
         let full_md = format!("{target_key}.md");
         if let Some(i) = path_keys.iter().position(|p| *p == full_md) {
             return Ok(hit(i));
@@ -3182,23 +3232,149 @@ fn log_batch(label: &str, files: usize, unchanged: usize, started: Instant) {
     );
 }
 
-/// Turn free-form user input into a safe FTS5 MATCH query: each term becomes a
-/// prefix match, joined by AND. Quotes special chars to avoid syntax errors.
-fn build_fts_query(input: &str) -> String {
-    let terms: Vec<String> = input
-        .split_whitespace()
-        .filter(|t| !t.is_empty())
-        .map(|t| {
-            let cleaned: String = t
-                .chars()
-                .filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
-                .collect();
-            cleaned
-        })
-        .filter(|t| !t.is_empty())
-        .map(|t| format!("\"{t}\"*"))
-        .collect();
-    terms.join(" AND ")
+/// Korean particles stripped from the END of a search term (longest first), so
+/// "세컨브레인을" searches "세컨브레인". The stem is always a substring of what
+/// was typed, so stripping can only widen the result set, never lose a hit.
+const KO_PARTICLES: &[&str] = &[
+    "에서는", "으로는", "에서", "으로", "에게", "께서", "까지", "부터", "처럼", "보다", "하고",
+    "이나", "이랑", "을", "를", "이", "가", "은", "는", "에", "의", "로", "와", "과", "도", "만", "랑",
+];
+
+fn is_hangul(c: char) -> bool {
+    ('\u{AC00}'..='\u{D7A3}').contains(&c)
+}
+
+fn strip_particle(term: &str) -> String {
+    if !term.chars().last().is_some_and(is_hangul) {
+        return term.to_string();
+    }
+    for p in KO_PARTICLES {
+        if let Some(stem) = term.strip_suffix(p) {
+            if stem.chars().count() >= 2 {
+                return stem.to_string();
+            }
+        }
+    }
+    term.to_string()
+}
+
+/// A parsed search box: terms of 3+ characters go to the trigram MATCH (ranked,
+/// snippeted by FTS5); 1–2 character terms — common in Korean ("회의", "강의")
+/// and below trigram's reach — become LIKE filters on the same columns.
+#[derive(Debug, Default, PartialEq)]
+struct SearchQuery {
+    fts: String,
+    likes: Vec<String>,
+}
+
+impl SearchQuery {
+    fn is_empty(&self) -> bool {
+        self.fts.is_empty() && self.likes.is_empty()
+    }
+
+    /// SQL for one FTS table. Parameters: `?1` = MATCH (when present), then one
+    /// LIKE pattern per short term. Without a MATCH there is no bm25 or snippet,
+    /// so the body itself is returned and [`Self::snippet`] cuts it.
+    fn sql(&self, table: &str, cols: &str, join: &str, name_col: &str) -> String {
+        let mut conds: Vec<String> = Vec::new();
+        let mut n = 0;
+        if !self.fts.is_empty() {
+            n += 1;
+            conds.push(format!("{table} MATCH ?{n}"));
+        }
+        for _ in &self.likes {
+            n += 1;
+            conds.push(format!(
+                "({table}.{name_col} LIKE ?{n} ESCAPE '\\' OR {table}.body LIKE ?{n} ESCAPE '\\')"
+            ));
+        }
+        let (snip, score, order) = if self.fts.is_empty() {
+            (format!("{table}.body"), "0.0".to_string(), String::new())
+        } else {
+            (
+                // Trigram tokens are ~1 character each, so the window is in trigrams:
+                // 48 ≈ the ~12 words the unicode61 index used to show.
+                format!("snippet({table}, 1, char(1), char(2), '…', 48)"),
+                format!("bm25({table})"),
+                format!("ORDER BY bm25({table})"),
+            )
+        };
+        format!(
+            "SELECT {cols}, {snip} AS snip, {score} AS score FROM {table} {join} WHERE {} {order} LIMIT 100",
+            conds.join(" AND ")
+        )
+    }
+
+    fn params(&self) -> Vec<String> {
+        let mut out = Vec::new();
+        if !self.fts.is_empty() {
+            out.push(self.fts.clone());
+        }
+        for t in &self.likes {
+            let esc = t.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_");
+            out.push(format!("%{esc}%"));
+        }
+        out
+    }
+
+    /// FTS5 snippets come back marked already; a LIKE-only hit returns the raw
+    /// body, cut here around the first short term with the same sentinels.
+    fn snippet(&self, raw: String) -> String {
+        if !self.fts.is_empty() {
+            return mark_snippet(raw);
+        }
+        let Some(term) = self.likes.first() else {
+            return String::new();
+        };
+        let lower = raw.to_lowercase();
+        let Some(byte) = lower.find(&term.to_lowercase()) else {
+            return String::new();
+        };
+        let chars: Vec<char> = raw.chars().collect();
+        let start = lower[..byte].chars().count();
+        let len = term.chars().count();
+        let from = start.saturating_sub(30);
+        let to = (start + len + 30).min(chars.len());
+        let mut out = String::new();
+        if from > 0 {
+            out.push('…');
+        }
+        out.extend(&chars[from..start]);
+        out.push('\u{1}');
+        out.extend(&chars[start..(start + len).min(chars.len())]);
+        out.push('\u{2}');
+        out.extend(&chars[(start + len).min(chars.len())..to]);
+        if to < chars.len() {
+            out.push('…');
+        }
+        mark_snippet(out.replace(['\n', '\r'], " "))
+    }
+}
+
+/// Turn free-form user input into a safe search: each term is cleaned to
+/// letters/digits/`_`/`-`, a trailing Korean particle is stripped, then terms
+/// of 3+ characters become quoted trigram phrases (substring match, AND-ed) and
+/// shorter ones become LIKE filters.
+fn build_search_query(input: &str) -> SearchQuery {
+    let mut q = SearchQuery::default();
+    let mut phrases = Vec::new();
+    for raw in input.split_whitespace() {
+        let cleaned: String = raw
+            .chars()
+            .filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
+            .collect();
+        if cleaned.is_empty() {
+            continue;
+        }
+        let term = strip_particle(&cleaned);
+        if term.chars().count() >= 3 {
+            phrases.push(format!("\"{term}\""));
+        } else {
+            q.likes.push(term);
+        }
+    }
+    q.fts = phrases.join(" AND ");
+    q
 }
 
 /// Escape an FTS snippet and turn the sentinels back into `<mark>` tags. The
@@ -4401,6 +4577,84 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].title, "Beta");
         assert!(results[0].snippet.contains("<mark>"));
+    }
+
+    #[test]
+    fn markdown_path_links_become_backlinks_and_graph_edges() {
+        let tmp = tempfile::tempdir().unwrap();
+        let v = tmp.path().to_path_buf();
+        std::fs::create_dir_all(v.join("콘텐츠/유튜브")).unwrap();
+        write_note(&v, "AGENTS.md", "# 라우터\n\n- [콘텐츠](<콘텐츠/content.md>) — 안내").unwrap();
+        write_note(&v, "콘텐츠/content.md", "# 콘텐츠\n\n- [유튜브](<유튜브/유튜브%20목차.md>)\n- [위로](../AGENTS.md)").unwrap();
+        write_note(&v, "콘텐츠/유튜브/유튜브 목차.md", "# 유튜브").unwrap();
+        let idx = Index::open(&v).unwrap();
+        idx.rebuild(&v).unwrap();
+        let id = |p: &str| -> String {
+            idx.conn.query_row("SELECT id FROM notes WHERE path = ?1", [p], |r| r.get(0)).unwrap()
+        };
+        let back = |p: &str| -> Vec<String> {
+            idx.get_backlinks(&id(p)).unwrap().into_iter().map(|b| b.path).collect()
+        };
+        assert_eq!(back("콘텐츠/content.md"), vec!["AGENTS.md"]);
+        assert_eq!(back("콘텐츠/유튜브/유튜브 목차.md"), vec!["콘텐츠/content.md"]);
+        assert_eq!(back("AGENTS.md"), vec!["콘텐츠/content.md"]);
+        assert_eq!(idx.graph_edges().unwrap().len(), 3);
+        assert_eq!(resolve_relative("a/b.md", "../../x.md"), None);
+        assert_eq!(resolve_relative("a/b.md", "./c/d.md").as_deref(), Some("a/c/d.md"));
+    }
+
+    #[test]
+    fn korean_search_matches_compounds_particles_and_two_letter_words() {
+        let tmp = tempfile::tempdir().unwrap();
+        let v = tmp.path().to_path_buf();
+        write_note(&v, "강의.md", "# 강의 계획\n\n세컨브레인 강의를 12월에 공개합니다. 주간 회의 메모.").unwrap();
+        write_note(&v, "기타.md", "# 기타\n\n관계없는 노트").unwrap();
+        let idx = Index::open(&v).unwrap();
+        idx.rebuild(&v).unwrap();
+        let paths = |q: &str| -> Vec<String> {
+            idx.search_notes(q).unwrap().into_iter().map(|r| r.path).collect()
+        };
+        // Middle of a compound word.
+        assert_eq!(paths("브레인"), vec!["강의.md"]);
+        // A trailing particle is stripped from the query.
+        assert_eq!(paths("세컨브레인을"), vec!["강의.md"]);
+        assert_eq!(paths("세컨브레인에서"), vec!["강의.md"]);
+        // Two-letter words fall back to LIKE, with a marked snippet.
+        let hits = idx.search_notes("회의").unwrap();
+        assert_eq!(hits.len(), 1);
+        assert!(hits[0].snippet.contains("<mark>회의</mark>"), "{}", hits[0].snippet);
+        // Mixed: one long term (MATCH) AND one short term (LIKE).
+        assert_eq!(paths("세컨브레인 회의"), vec!["강의.md"]);
+        assert!(paths("세컨브레인 없음").is_empty());
+        // A short particle-like ending is not stripped below two characters.
+        assert_eq!(strip_particle("회의"), "회의");
+        assert_eq!(strip_particle("고양이"), "고양");
+        assert_eq!(strip_particle("notes"), "notes");
+    }
+
+    #[test]
+    fn an_old_unicode61_index_is_rebuilt_as_trigram() {
+        let tmp = tempfile::tempdir().unwrap();
+        let v = tmp.path().to_path_buf();
+        write_note(&v, "A.md", "# A\n\n세컨브레인 노트").unwrap();
+        {
+            let idx = Index::open(&v).unwrap();
+            idx.rebuild(&v).unwrap();
+            // Simulate an index built by the original app.
+            idx.conn
+                .execute_batch(
+                    "DROP TABLE notes_fts; CREATE VIRTUAL TABLE notes_fts USING fts5(title, body, tokenize='unicode61 remove_diacritics 2');",
+                )
+                .unwrap();
+        }
+        let idx = Index::open(&v).unwrap();
+        let sql: String = idx
+            .conn
+            .query_row("SELECT sql FROM sqlite_master WHERE name='notes_fts'", [], |r| r.get(0))
+            .unwrap();
+        assert!(sql.contains("trigram"), "{sql}");
+        idx.rebuild(&v).unwrap();
+        assert_eq!(idx.search_notes("브레인").unwrap().len(), 1);
     }
 
     #[test]

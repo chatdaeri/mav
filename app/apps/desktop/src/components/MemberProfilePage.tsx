@@ -141,7 +141,7 @@ export function MemberProfilePage({
   return (
       <section className="member-profile" aria-label={name}>
         <button type="button" className="link-btn member-profile-back" onClick={onClose}>
-          ← Members and access
+          ← 멤버와 권한
         </button>
         <header className="member-profile-head">
           <Avatar label={name} image={member.image} userId={member.userId} />
@@ -150,7 +150,7 @@ export function MemberProfilePage({
             {member.email && <span className="muted">{member.email}</span>}
           </span>
         </header>
-        <div className="member-profile-tabs" role="tablist" aria-label="Profile">
+        <div className="member-profile-tabs" role="tablist" aria-label="프로필">
           {tabs.map((t) => (
             <button
               key={t}
@@ -159,7 +159,7 @@ export function MemberProfilePage({
               aria-selected={t === tab}
               className={`member-profile-tab${t === tab ? " active" : ""}`}
               disabled={t === "access" && !canSetAccess}
-              title={t === "access" && !canSetAccess ? "You can't change this person's access" : undefined}
+              title={t === "access" && !canSetAccess ? "이 사람의 권한을 바꿀 수 없어요" : undefined}
               onClick={() => setTab(t)}
             >
               {TAB_LABEL[t]}
@@ -169,28 +169,28 @@ export function MemberProfilePage({
         {tab === "info" ? (
           <>
             <dl className="member-profile-about">
-              <dt>Name</dt>
+              <dt>이름</dt>
               <dd>{member.name || "—"}</dd>
-              <dt>Email</dt>
+              <dt>이메일</dt>
               <dd>{member.email || "—"}</dd>
-              <dt>Role</dt>
+              <dt>역할</dt>
               <dd>
                 {canAct && (member.role === "member" || member.role === "admin") ? (
-                  <RoleSelect variant="field" value={member.role} ariaLabel={`Role of ${name}`} onSelect={onRoleChange} />
+                  <RoleSelect variant="field" value={member.role} ariaLabel={`${name}의 역할`} onSelect={onRoleChange} />
                 ) : (
                   ROLE_LABEL[member.role] ?? member.role
                 )}
               </dd>
-              <dt>Joined</dt>
+              <dt>참여일</dt>
               <dd>{joinedLabel(member)}</dd>
-              <dt>Last active</dt>
-              <dd>{present ? "Now" : dateWithAgo(member.lastActiveAt, Date.now()) || "—"}</dd>
-              <dt>Status</dt>
-              <dd>{present ? "Online" : "Away"}</dd>
+              <dt>마지막 활동</dt>
+              <dd>{present ? "지금" : dateWithAgo(member.lastActiveAt, Date.now()) || "—"}</dd>
+              <dt>상태</dt>
+              <dd>{present ? "온라인" : "자리 비움"}</dd>
             </dl>
             {canAct && (
               <div className="member-profile-remove">
-                <button className="link-btn danger" onClick={onRemove}>Remove from {vaultName}</button>
+                <button className="link-btn danger" onClick={onRemove}>{vaultName}에서 제거</button>
               </div>
             )}
           </>
@@ -222,7 +222,7 @@ export function MemberProfilePage({
             )}
           />
         ) : tab === "skills" ? (
-          <MemberSkillsTab orgId={orgId} userId={member.userId} name={member.name || member.email || "This person"} />
+          <MemberSkillsTab orgId={orgId} userId={member.userId} name={member.name || member.email || "이 사람"} />
         ) : (
           <PersonActivity orgId={orgId} member={member} vaultName={vaultName} isSelf={isSelf} onOpenNote={onOpenNote} />
         )}
@@ -230,7 +230,7 @@ export function MemberProfilePage({
   );
 }
 
-const TAB_LABEL: Record<ProfileTab, string> = { info: "Personal info", access: "Access", skills: "Skills", activity: "Activity" };
+const TAB_LABEL: Record<ProfileTab, string> = { info: "개인 정보", access: "권한", skills: "스킬", activity: "활동" };
 
 /** List (checkbox tree) or Board (three columns): two 28px icon buttons. */
 function AccessViewToggle({ value, onChange }: { value: AccessView; onChange: (view: AccessView) => void }) {
@@ -248,9 +248,9 @@ function AccessViewToggle({ value, onChange }: { value: AccessView; onChange: (v
     </button>
   );
   return (
-    <div className="member-access-view" role="radiogroup" aria-label="Access view">
-      {option("list", "List view", svg(<><path d="M8 6h12M8 12h12M8 18h12" /><path d="M4 6h.01M4 12h.01M4 18h.01" /></>))}
-      {option("board", "Board view", svg(<><rect x="3" y="4" width="5" height="16" rx="1" /><rect x="10" y="4" width="5" height="10" rx="1" /><rect x="17" y="4" width="4" height="13" rx="1" /></>))}
+    <div className="member-access-view" role="radiogroup" aria-label="권한 보기 방식">
+      {option("list", "목록 보기", svg(<><path d="M8 6h12M8 12h12M8 18h12" /><path d="M4 6h.01M4 12h.01M4 18h.01" /></>))}
+      {option("board", "보드 보기", svg(<><rect x="3" y="4" width="5" height="16" rx="1" /><rect x="10" y="4" width="5" height="10" rx="1" /><rect x="17" y="4" width="4" height="13" rx="1" /></>))}
     </div>
   );
 }
@@ -261,7 +261,7 @@ const personName = (p: { name: string | null; email: string | null; userId: stri
 function joinedLabel(member: MemberOverview): string {
   const date = dateWithAgo(member.joinedAt, Date.now());
   if (!date) return "—";
-  return member.invitedBy ? `${date}, invited by ${personName(member.invitedBy)}` : date;
+  return member.invitedBy ? `${date}, ${personName(member.invitedBy)}님이 초대` : date;
 }
 
 type ActivityState =
@@ -307,21 +307,21 @@ function PersonActivity({ orgId, member, vaultName, isSelf, onOpenNote }: {
   if (state.status === "forbidden") {
     return (
       <p className="member-activity-empty">
-        Only the vault owner or an admin can see another member's activity.
+        볼트 소유자나 관리자만 다른 멤버의 활동을 볼 수 있어요.
       </p>
     );
   }
-  if (state.status === "error") return <p className="member-activity-empty">Couldn't load activity.</p>;
+  if (state.status === "error") return <p className="member-activity-empty">활동을 불러올 수 없어요.</p>;
   const now = Date.now();
   const days = buildTimeline(state.events, now, { at: member.joinedAt, invitedBy: member.invitedBy ?? null });
-  if (days.length === 0) return <p className="member-activity-empty">No activity yet.</p>;
+  if (days.length === 0) return <p className="member-activity-empty">아직 활동이 없어요.</p>;
   const voice: Voice = { isSelf, vaultName, onOpenNote };
   const summary = activitySummary(state.events, member.joinedAt, now, ACTIVITY_LIMIT);
   return (
     <div className="member-activity">
       {summary && <p className="member-activity-summary">{summary}</p>}
       <ol className="member-activity-trail">
-        <li className="member-activity-now"><span className="member-activity-now-dot" aria-hidden="true" />Now</li>
+        <li className="member-activity-now"><span className="member-activity-now-dot" aria-hidden="true" />지금</li>
         {days.map((day) => (
           <Fragment key={day.key}>
             <li className="member-activity-day"><span className="member-activity-day-pill">{day.label}</span></li>
@@ -357,7 +357,7 @@ function TimelineItem({ entry, voice, now }: { entry: TimelineEntry; voice: Voic
         {entry.type === "run" && (
           <>
             <button type="button" className="link-btn member-activity-disclose" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-              {open ? "Show less" : "Show all"}
+              {open ? "접기" : "모두 보기"}
             </button>
             {open && (
               <ul className="member-activity-run">
@@ -386,45 +386,43 @@ function NoteName({ path, voice }: { path: string; voice: Voice }) {
   );
 }
 
-/** "You edited" for the viewer, "Edited" for anyone else. */
-const lead = (voice: Voice, verb: string) => (voice.isSelf ? `You ${verb}` : verb.charAt(0).toUpperCase() + verb.slice(1));
-
 function runSentence(run: Extract<TimelineEntry, { type: "run" }>, voice: Voice): React.ReactNode {
-  const count = `${run.events.length} notes`;
+  void voice;
+  const count = `노트 ${run.events.length}개`;
   if (run.kind === "created") {
     const folder = commonFolder(run.events);
     return folder
-      ? <>{lead(voice, "created")} <strong>{count}</strong> in {folder}</>
-      : <>{lead(voice, "created")} <strong>{count}</strong>: {runNames(run.events)}</>;
+      ? <>{folder}에 <strong>{count}</strong>를 만들었어요</>
+      : <><strong>{count}</strong>를 만들었어요: {runNames(run.events)}</>;
   }
-  return <>{lead(voice, "edited")} <strong>{count}</strong>: {runNames(run.events)}</>;
+  return <><strong>{count}</strong>를 편집했어요: {runNames(run.events)}</>;
 }
 
 /** One activity entry's sentence, told from the member's side, the item in bold. */
 export function activitySentence(event: MemberActivityEvent, voice: Voice): React.ReactNode {
   switch (event.kind) {
     case "joined":
-      return <>{lead(voice, event.rejoined ? "rejoined" : "joined")} {voice.vaultName}{event.invitedBy ? `, invited by ${personName(event.invitedBy)}` : ""}</>;
+      return <>{voice.vaultName}에 {event.rejoined ? "다시 " : ""}참여했어요{event.invitedBy ? ` · ${personName(event.invitedBy)}님이 초대` : ""}</>;
     case "edited":
-      return <>{lead(voice, "edited")} <NoteName path={event.path} voice={voice} /></>;
+      return <><NoteName path={event.path} voice={voice} />을(를) 편집했어요</>;
     case "created": {
       const { folders } = splitNotePath(event.path);
-      return <>{lead(voice, "created")} <NoteName path={event.path} voice={voice} />{folders.length ? ` in ${folders.join(" › ")}` : ""}</>;
+      return <>{folders.length ? `${folders.join(" › ")}에 ` : ""}<NoteName path={event.path} voice={voice} />을(를) 만들었어요</>;
     }
     case "accessGranted": {
       const item = event.resourceType === "vault"
         ? null
         : event.path
           ? (event.resourceType === "folder" ? event.path.split("/").filter(Boolean).pop() ?? event.path : splitNotePath(event.path).name)
-          : "an item";
+          : "항목";
       if (event.permission === "denied") {
-        return <>{lead(voice, "lost")} access to {item ? <strong>{item}</strong> : "the vault"}</>;
+        return <>{item ? <strong>{item}</strong> : "볼트"}에 대한 접근 권한을 잃었어요</>;
       }
       return (
         <>
-          {lead(voice, "got")} <strong>{GRANT_LABEL[event.permission]}</strong>{" "}
-          {item ? <>on <strong>{item}</strong></> : "across the vault"}
-          {event.by ? ` from ${personName(event.by)}` : ""}
+          {item ? <><strong>{item}</strong>에 대해 </> : "볼트 전체에 대해 "}
+          <strong>{GRANT_LABEL[event.permission]}</strong> 권한을 받았어요
+          {event.by ? ` · ${personName(event.by)}님이 부여` : ""}
         </>
       );
     }
@@ -589,7 +587,7 @@ function PersonAccess({ orgId, member, teamAccess, onChanged, onItemWritten, vie
         await onChanged();
         onVaultWide?.();
       } else onItemWritten();
-      toast(`${what}: ${mode === "open" ? "Can edit" : mode === "readonly" ? "Can view" : "No access"}`);
+      toast(`${what}: ${mode === "open" ? "편집 가능" : mode === "readonly" ? "보기 가능" : "접근 불가"}`);
     } catch (cause) {
       if (live.current) setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -612,8 +610,8 @@ function PersonAccess({ orgId, member, teamAccess, onChanged, onItemWritten, vie
       {error && <div className="auth-error">{error}</div>}
       <div className="members-access-row">
         <span className="members-access-row-copy">
-          <span className="members-access-row-title">Across the vault</span>
-          <span className="muted">{isSelf ? "Your" : "Their"} setting wins over the default setting</span>
+          <span className="members-access-row-title">볼트 전체</span>
+          <span className="muted">{isSelf ? "내" : "이 사람의"} 설정이 기본 설정보다 우선해요</span>
         </span>
         <MenuSelect<TeamAccessMode | "custom">
           value={vaultFrom ?? "custom"}
@@ -624,12 +622,12 @@ function PersonAccess({ orgId, member, teamAccess, onChanged, onItemWritten, vie
           ]}
           triggerContent={level ? PERSON_LEVEL_LABEL[level] : "—"}
           disabled={busy}
-          ariaLabel="Access across the vault"
+          ariaLabel="볼트 전체 권한"
           triggerClassName={`member-access-pill is-lg ${levelClass(level)}`}
                 menuClassName="access-menu"
           onSelect={(mode) => {
             if (mode === "custom") return;
-            guarded(vaultFrom, mode, () => apply({ resourceType: "vault", resourceId: orgId }, mode, "Whole vault", null), { kind: "person", name: member.name || member.email || member.userId, self: isSelf });
+            guarded(vaultFrom, mode, () => apply({ resourceType: "vault", resourceId: orgId }, mode, "볼트 전체", null), { kind: "person", name: member.name || member.email || member.userId, self: isSelf });
           }}
         />
         {viewToggle}
@@ -720,7 +718,7 @@ function PersonAccessRow({ row, mode, failed, teamMode, tickMode, locked, setFor
           <button
             type="button"
             className={`member-access-twisty${expanded ? " is-open" : ""}`}
-            aria-label={expanded ? `Collapse ${row.name}` : `Expand ${row.name}`}
+            aria-label={expanded ? `${row.name} 접기` : `${row.name} 펼치기`}
             onClick={onToggleExpand}
           >
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -733,7 +731,7 @@ function PersonAccessRow({ row, mode, failed, teamMode, tickMode, locked, setFor
         <label className="member-access-check">
           <input
             type="checkbox"
-            aria-label={`${row.name}: can open`}
+            aria-label={`${row.name}: 열 수 있음`}
             checked={checked}
             disabled={disabled || mode === null}
             onChange={(e) => onChoose(from, e.target.checked ? tickMode : "private")}
@@ -743,22 +741,22 @@ function PersonAccessRow({ row, mode, failed, teamMode, tickMode, locked, setFor
         <span className="member-access-name">{row.name}</span>
       </span>
       <span className="member-access-notes">
-        {setForEveryone && <span className="member-access-tag">Set for everyone</span>}
+        {setForEveryone && <span className="member-access-tag">모든 멤버에게 설정됨</span>}
         {mode === null ? (
-          failed ? <span className="member-access-note" title="Couldn't load">—</span> : <RowLevelSkeleton />
+          failed ? <span className="member-access-note" title="불러올 수 없어요">—</span> : <RowLevelSkeleton />
         ) : inherited ? (
-          <span className="member-access-note">Same as everyone</span>
+          <span className="member-access-note">모든 멤버와 동일</span>
         ) : null}
-        {checked && locked && mode === "readonly" && <span className="member-access-note">View (locked)</span>}
+        {checked && locked && mode === "readonly" && <span className="member-access-note">보기 (잠김)</span>}
       </span>
       <span className="member-access-level">
         {checked && !(locked && mode === "readonly") && (
           <MenuSelect<TeamAccessMode | "mixed">
             value={mode ?? "readonly"}
-            options={[{ value: "open", label: "Can edit" }, { value: "readonly", label: "Can view" }]}
-            triggerContent={mode === "mixed" ? "Mixed" : mode === "open" ? "Can edit" : "Can view"}
+            options={[{ value: "open", label: "편집 가능" }, { value: "readonly", label: "보기 가능" }]}
+            triggerContent={mode === "mixed" ? "혼합" : mode === "open" ? "편집 가능" : "보기 가능"}
             disabled={disabled}
-            ariaLabel={`${row.name}: level`}
+            ariaLabel={`${row.name}: 권한 수준`}
             triggerClassName={`member-access-pill ${levelClass(mode)}`}
             menuClassName="access-menu"
             onSelect={(m) => { if (m !== "mixed" && m !== mode) onChoose(from, m); }}

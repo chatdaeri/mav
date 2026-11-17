@@ -138,7 +138,7 @@ function NoteBreadcrumb() {
   const parts = path.split("/");
   const folders = parts.slice(0, -1);
   return (
-    <nav className="rd-crumbs" aria-label="Note location">
+    <nav className="rd-crumbs" aria-label="노트 위치">
       {folders.map((f, i) => (
         <span key={i} className="rd-crumb">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2h8.4A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" /></svg>
@@ -162,8 +162,8 @@ function RemovedBanner() {
   return (
     <Banner show={visible}>
       <span>
-        <strong>{openNote ? noteLabel(openNote.path) : ""}</strong> was deleted on disk
-        {synced ? " and permanently removed for the team." : "."}
+        <strong>{openNote ? noteLabel(openNote.path) : ""}</strong> 노트가 디스크에서 삭제됐어요
+        {synced ? ". 팀에서도 영구 삭제됐어요." : "."}
       </span>
       <div className="banner-actions">
         <button
@@ -176,7 +176,7 @@ function RemovedBanner() {
             else useStore.getState().closeNote();
           }}
         >
-          Close note
+          노트 닫기
         </button>
       </div>
     </Banner>
@@ -408,7 +408,7 @@ function VaultRootMissingBanner() {
     try {
       await fn();
     } catch (e) {
-      toast(`Couldn't recover the vault folder: ${e instanceof Error ? e.message : String(e)}`, "error");
+      toast(`볼트 폴더를 복구하지 못했어요: ${e instanceof Error ? e.message : String(e)}`, "error");
     } finally {
       setBusy(false);
     }
@@ -456,7 +456,7 @@ function VaultRootRestoredBanner() {
         <button className="secondary" onClick={locate}>
           {LOCATE_ORIGINAL}
         </button>
-        <button onClick={dismiss}>Dismiss</button>
+        <button onClick={dismiss}>닫기</button>
       </div>
     </Banner>
   );
@@ -474,11 +474,11 @@ function ClosedAppChangesBanner() {
   return (
     <Banner show={visible} role="status">
       <span>
-        Files changed while Baalda was closed. Edits were merged; renames, moves and deletes made
-        while closed were not applied. Keep Baalda open when reorganising.
+        마이 세컨드 브레인이 닫혀 있는 동안 파일이 바뀌었어요. 편집 내용은 병합했지만, 닫혀 있는 동안 한
+        이름 바꾸기·이동·삭제는 적용하지 않았어요. 정리할 때는 마이 세컨드 브레인을 열어 두세요.
       </span>
       <div className="banner-actions">
-        <button onClick={dismiss}>Dismiss</button>
+        <button onClick={dismiss}>닫기</button>
       </div>
     </Banner>
   );
@@ -562,14 +562,14 @@ function MemberJoinedBanner() {
       {memberJoined && <JoinAvatarDrop key={memberJoined.at} name={memberJoined.name} />}
       <Banner show={!!memberJoined} className="celebrate-banner" role="status">
         <span>
-          🎉 <strong>{memberJoined?.name}</strong> joined the vault
+          🎉 <strong>{memberJoined?.name}</strong> 님이 볼트에 참여했어요
         </span>
         <div className="banner-actions">
           <button
             className="secondary"
             onClick={() => useStore.getState().dismissMemberJoined()}
           >
-            Dismiss
+            닫기
           </button>
         </div>
       </Banner>
@@ -598,12 +598,12 @@ function VaultSwitchOverlay() {
         <Spinner size="md" tone="accent" />
         <div className="vault-switch-text">
           <span className="vault-switch-title">
-            Switching to <strong>{switching.name}</strong>
+            <strong>{switching.name}</strong> 볼트로 전환하는 중
           </span>
           <span className="vault-switch-sub">
             {switching.orgId
-              ? "Opening its folder and catching up on sync…"
-              : "Opening its folder…"}
+              ? "폴더를 열고 동기화를 따라잡는 중…"
+              : "폴더를 여는 중…"}
           </span>
         </div>
       </div>
@@ -647,7 +647,7 @@ function VaultFolderPrompt() {
       spinnerTone="on-accent"
       onClick={run(() => ipc.openExternal(FILES_AND_FOLDERS_SETTINGS_URL))}
     >
-      <span>Open System Settings</span>
+      <span>시스템 설정 열기</span>
     </AsyncButton>
   );
   const retryBtn = (
@@ -657,7 +657,7 @@ function VaultFolderPrompt() {
       disabled={busy}
       onClick={run(() => useStore.getState().startEmptyVault())}
     >
-      <span>Try again</span>
+      <span>다시 시도</span>
     </AsyncButton>
   );
 
@@ -673,7 +673,7 @@ function VaultFolderPrompt() {
         <path d="M3 7a2 2 0 0 1 2-2h3.6a2 2 0 0 1 1.6.8l.9 1.2a2 2 0 0 0 1.6.8H19a2 2 0 0 1 2 2" />
         <path d="M3 10h16.5a2 2 0 0 1 1.95 2.46l-1.1 5A2 2 0 0 1 18.4 19H5a2 2 0 0 1-2-2z" />
       </svg>
-      <span>{missing ? LOCATE_FOLDER : "Open a folder…"}</span>
+      <span>{missing ? LOCATE_FOLDER : "폴더 열기…"}</span>
     </AsyncButton>
   );
   const emptyBtn = (
@@ -687,7 +687,7 @@ function VaultFolderPrompt() {
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M12 5v14M5 12h14" />
       </svg>
-      <span>{missing ? RESTORE_HERE : "Start with an empty folder"}</span>
+      <span>{missing ? RESTORE_HERE : "빈 폴더로 시작"}</span>
     </AsyncButton>
   );
 
@@ -697,7 +697,7 @@ function VaultFolderPrompt() {
         <button
           className="icon-btn wf-close"
           disabled={busy}
-          aria-label="Close"
+          aria-label="닫기"
           onClick={run(() => useStore.getState().cancelVaultFolder())}
         >
           ✕
@@ -708,7 +708,7 @@ function VaultFolderPrompt() {
           </svg>
         </div>
         <h2 className="wf-title">
-          Set up <strong>{pending.orgName}</strong>
+          <strong>{pending.orgName}</strong> 설정
         </h2>
         {/* When there's a reason (folder moved / failed to open) it replaces the
             generic pitch — both at once read as a wall of text. */}
@@ -725,8 +725,8 @@ function VaultFolderPrompt() {
           </div>
         ) : (
           <p className="wf-desc">
-            Choose the local folder this vault syncs to. Each vault keeps its
-            own folder, separate from your other vaults.
+            이 볼트가 동기화할 로컬 폴더를 선택하세요. 볼트마다 다른 볼트와
+            분리된 자기만의 폴더를 사용해요.
           </p>
         )}
         <div className="vault-folder-actions">
@@ -746,7 +746,7 @@ function VaultFolderPrompt() {
             disabled={busy}
             onClick={run(() => useStore.getState().chooseVaultFolder())}
           >
-            Choose another folder…
+            다른 폴더 선택…
           </button>
         )}
         {missing && (
@@ -789,7 +789,7 @@ function VaultFolderPrompt() {
  * `launchVersion` is the other way in: the launch gate found an update before
  * sync started (`launchUpdateGate`, #255) and is installing it now, with sync
  * held until the restart. The same card shows the download as "Updating
- * Baalda" — it is not a failure, so there are no retry actions — and goes away
+ * 마브" — it is not a failure, so there are no retry actions — and goes away
  * if the gate gives up and lets this build open.
  */
 function UpdateGate({ launchVersion = null }: { launchVersion?: string | null }) {
@@ -848,7 +848,7 @@ function UpdateGate({ launchVersion = null }: { launchVersion?: string | null })
       className="update-gate"
       role="alertdialog"
       aria-modal="true"
-      aria-label={launching ? `Updating ${BRAND_NAME}` : "Update required"}
+      aria-label={launching ? `${BRAND_NAME} 업데이트 중` : "업데이트 필요"}
     >
       <div className="update-gate-card">
         <div className="update-gate-badge" aria-hidden="true">
@@ -859,19 +859,19 @@ function UpdateGate({ launchVersion = null }: { launchVersion?: string | null })
           </svg>
         </div>
         <div className="update-gate-heading">
-          <h1>{launching ? `Updating ${BRAND_NAME}` : "Update required"}</h1>
+          <h1>{launching ? `${BRAND_NAME} 업데이트 중` : "업데이트 필요"}</h1>
           {version && <span className="update-gate-version">v{version}</span>}
         </div>
         {working && (
           <>
             <p role="status">
               {update.phase === "checking"
-                ? "Checking for the update…"
+                ? "업데이트를 확인하는 중…"
                 : update.phase === "available"
-                  ? "Starting the download…"
+                  ? "다운로드를 시작하는 중…"
                   : update.phase === "downloading"
-                  ? `Downloading v${update.version}${pct != null ? `: ${pct}%` : "…"}`
-                  : "Installing. The app will restart itself…"}
+                  ? `v${update.version} 다운로드 중${pct != null ? `: ${pct}%` : "…"}`
+                  : "설치하는 중이에요. 앱이 저절로 다시 시작돼요…"}
             </p>
             {/* A determinate bar when the server sent a content length, an
                 indeterminate sweep when it didn't — a bar that fills to an
@@ -895,21 +895,21 @@ function UpdateGate({ launchVersion = null }: { launchVersion?: string | null })
           <>
             {required ? (
               <p>
-                {BRAND_NAME} couldn&rsquo;t install the update to <strong>v{required}</strong>
-                {"message" in update && update.message ? ` (${update.message})` : ""}. It tried
-                twice on its own. Check your connection and try again. Your notes stay right
-                where they are, on your disk.
+                {BRAND_NAME}이(가) <strong>v{required}</strong> 업데이트를 설치하지 못했어요
+                {"message" in update && update.message ? ` (${update.message})` : ""}. 자동으로
+                두 번 시도했어요. 연결을 확인한 뒤 다시 시도하세요. 노트는 디스크에 그대로
+                남아 있어요.
               </p>
             ) : (
               <p>
-                Your server needs a newer version of {BRAND_NAME} before this one can sync.
-                Your notes and edits stay right where they are, on your disk, and sync as
-                soon as the update is in.
+                이 버전이 동기화하려면 서버가 요구하는 더 새로운 {BRAND_NAME} 버전이 필요해요.
+                노트와 편집 내용은 디스크에 그대로 남아 있고, 업데이트가 끝나면 바로
+                동기화돼요.
               </p>
             )}
             <div className="update-gate-actions">
               <AsyncButton className="primary update-gate-cta" onClick={retry}>
-                Try again
+                다시 시도
               </AsyncButton>
               {/* For when the updater itself cannot install (#251): the same
                   release, fetched by hand. */}
@@ -917,10 +917,10 @@ function UpdateGate({ launchVersion = null }: { launchVersion?: string | null })
                 className="ghost-pill lg"
                 onClick={() => void ipc.openExternal(RELEASES_PAGE_URL).catch(() => {})}
               >
-                Download manually
+                직접 다운로드
               </button>
               <button className="ghost-pill lg" onClick={() => void reload()}>
-                Reload
+                새로고침
               </button>
             </div>
           </>
@@ -1027,7 +1027,7 @@ function WhatsNewModal() {
         <div
           className="modal whats-new"
           role="dialog"
-          aria-label="What's new"
+          aria-label="새로운 기능"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="whats-new-hero">
@@ -1042,7 +1042,7 @@ function WhatsNewModal() {
             <h2 className="whats-new-title">
               {BRAND_NAME} <span className="whats-new-title-version">v{updated.version}</span>
             </h2>
-            <p className="whats-new-sub">Updated and ready. Here&rsquo;s what&rsquo;s new.</p>
+            <p className="whats-new-sub">업데이트를 마쳤어요. 새로운 내용을 확인해 보세요.</p>
           </div>
           {updated.notes.length > 0 && (
             <ul className="whats-new-notes">
@@ -1057,13 +1057,13 @@ function WhatsNewModal() {
                     {n.title && <b>{n.title}</b>}
                     {n.detail && <span>{n.detail}</span>}
                   </span>
-                  {i === 0 && <span className="whats-new-tag">NEW</span>}
+                  {i === 0 && <span className="whats-new-tag">새 기능</span>}
                 </li>
               ))}
             </ul>
           )}
           <button className="primary whats-new-cta" autoFocus onClick={close}>
-            Awesome
+            좋아요
           </button>
         </div>
       </div>
@@ -1119,7 +1119,7 @@ function SyncIndicator({
 
 /**
  * Sign-in dialog raised by a flow, not by a click. Two flows use it, both
- * arriving as a `baalda://` deep link while the app is signed out:
+ * arriving as a `mav://` deep link while the app is signed out:
  *
  *   - "note-link": a shared note. The link is queued in lib/noteLinkFlow and
  *     signing in here opens it automatically.
@@ -1260,7 +1260,7 @@ export default function App() {
     else useStore.getState().closeVersionPanel();
   }, [versionsTabOpen, versionDocId]);
 
-  // `baalda://` links, from a teammate's chat window into this app. Mounted for
+  // `mav://` links, from a teammate's chat window into this app. Mounted for
   // the app's whole life (not gated on a vault being open) because the very
   // first thing a link may have to do is switch vaults.
   useEffect(() => listenForNoteLinks(), []);
@@ -1359,7 +1359,7 @@ export default function App() {
       // all — that is where the bugs the new build fixed still live. The tree
       // is already painted above; this only holds the network side. A found
       // update installs and restarts right here (the card says "Updating
-      // Baalda"); no update, an offline launch or a check slower than
+      // 마브"); no update, an offline launch or a check slower than
       // LAUNCH_CHECK_TIMEOUT_MS falls straight through. Not in a dev build —
       // see the note on the poll below.
       //
@@ -1578,7 +1578,7 @@ export default function App() {
         const vault = useStore.getState().vault;
         if (!vault || vault.epoch !== e.epoch) return;
         perf.mark("index-ready");
-        if (!e.ok) toast("Couldn't finish indexing this vault. Search and backlinks may be incomplete.", "error");
+        if (!e.ok) toast("이 볼트의 색인 작업을 끝내지 못했어요. 검색과 백링크가 완전하지 않을 수 있어요.", "error");
         void useStore.getState().refreshTitles();
         void useStore.getState().refreshBacklinks();
       });
@@ -1768,7 +1768,7 @@ export default function App() {
   // vault is known; keeping the `!vault` conjunct is what stops VaultPicker
   // flashing for the 10–50ms of `getLastVault` + `openVault` on a relaunch.
   if (openingLastVault && !vault) {
-    return <div className="booting">Loading…</div>;
+    return <div className="booting">불러오는 중…</div>;
   }
 
   if (!vault) {
@@ -1780,7 +1780,7 @@ export default function App() {
         <UpdateGate launchVersion={launchUpdating} />
         {/* Reusing `.booting` means the loading→welcome hand-off reads as one
             continuous boot rather than a flash of a second loader. */}
-        <Suspense fallback={<div className="booting">Loading…</div>}>
+        <Suspense fallback={<div className="booting">불러오는 중…</div>}>
           <VaultPicker />
         </Suspense>
         <VaultFolderPrompt />
@@ -1847,13 +1847,13 @@ export default function App() {
             {/* Capability check against `/health`: shown only when the
                 server is demonstrably older than this app (never on an
                 unreachable one). */}
-            <ErrorBoundary label="Backend status">
+            <ErrorBoundary label="서버 상태">
               <BackendBehindNotice />
             </ErrorBoundary>
             {/* Boundary so a crash here degrades to a visible fallback instead of
                 silently emptying the corner — the identity bar must never just
                 vanish. */}
-            <ErrorBoundary label="Account">
+            <ErrorBoundary label="계정">
               <AccountMenu />
             </ErrorBoundary>
           </div>
@@ -1897,8 +1897,8 @@ export default function App() {
               {versionDocId && !isPreview && (
                 <button
                   className={`icon-btn history-btn${versionsTabOpen ? " active" : ""}`}
-                  title="Version history"
-                  aria-label="Version history"
+                  title="버전 기록"
+                  aria-label="버전 기록"
                   aria-pressed={versionsTabOpen}
                   onClick={() => useStore.getState().toggleVersionsPanel()}
                 >
@@ -1925,8 +1925,8 @@ export default function App() {
                   its tab strip). */}
               <button
                 className={`icon-btn panel-btn${rightPanelOpen ? " active" : ""}`}
-                title={pendingReview > 0 ? `Panel (${pendingReview} to review)` : "Panel"}
-                aria-label={pendingReview > 0 ? `Panel, ${pendingReview} changes to review` : "Panel"}
+                title={pendingReview > 0 ? `패널 (검토할 항목 ${pendingReview}개)` : "패널"}
+                aria-label={pendingReview > 0 ? `패널, 검토할 변경 ${pendingReview}개` : "패널"}
                 aria-pressed={rightPanelOpen}
                 onClick={() => {
                   if (rightPanelOpen) useStore.getState().closeRightPanel();
@@ -2002,7 +2002,7 @@ export default function App() {
                     way, undiagnosable because release builds carry no logging.
                     `resetKeys` on the note path means switching notes (or
                     reopening this one) clears the fallback and tries again. */}
-                <ErrorBoundary label="Editor" resetKeys={[openNote.path]}>
+                <ErrorBoundary label="편집기" resetKeys={[openNote.path]}>
                   <Editor />
                 </ErrorBoundary>
               </Suspense>
@@ -2032,7 +2032,7 @@ export default function App() {
   
         {graphOpen && (
           <ErrorBoundary
-            label="Graph view"
+            label="그래프"
             resetKeys={[graphOpen]}
             onError={() => setGraphOpen(false)}
           >

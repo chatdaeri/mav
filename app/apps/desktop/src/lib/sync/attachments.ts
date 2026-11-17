@@ -806,6 +806,12 @@ function baseName(relPath: string): string {
 /** Injected I/O so the sync loop is testable without Tauri or a live server. */
 export interface AttachmentSyncDeps {
   /**
+   * 마브: files that stay on this device instead of uploading (videos and
+   * anything over 25MB — see `formats.ts isLocalOnlyBinary`). Production passes
+   * that rule; left out, every file uploads as before.
+   */
+  isLocalOnly?: (relPath: string, size: number | undefined) => boolean;
+  /**
    * Is the vault this sync was built for still the open one? Every pass and
    * every debounced fire consults it, so a reconcile that spans a vault switch
    * stops instead of uploading the NEW vault's attachments into the OLD vault's
@@ -1587,7 +1593,12 @@ export class AttachmentSync {
     // push, so it is settled, never registered and never queued.
     // An Office lock file never uploads (#265). Rust's listing already leaves
     // them out; this is the same rule held on the side that talks to the server.
-    const toUpload = plan.toUpload.filter((a) => a.size !== 0 && !isTransientPath(a.relPath));
+    // 마브: videos and files over 25MB stay on this device (the server's
+    // Postgres store refuses them); the file card offers a Drive link instead.
+    const toUpload = plan.toUpload.filter(
+      (a) =>
+        a.size !== 0 && !isTransientPath(a.relPath) && !this.deps.isLocalOnly?.(a.relPath, a.size),
+    );
     // Replacements grow during the upload phase: a 409 `stale_base` is one more.
     const replacements: BinaryReplace[] = [...plan.toReplace];
     for (const g of plan.agreed) {

@@ -38,9 +38,9 @@ describe("HealthActivity", () => {
     const html = render(census(371, { 0: 2 }));
     // 26 Jul (the first column's Sunday) → 31 Dec 2026.
     expect(html).toContain("--heat-cols:23");
-    expect(html).toMatch(/grid-row:3"[^>]*>Mon</);
-    expect(html).toMatch(/grid-row:5"[^>]*>Wed</);
-    expect(html).toMatch(/grid-row:7"[^>]*>Fri</);
+    expect(html).toMatch(/grid-row:3"[^>]*>월</);
+    expect(html).toMatch(/grid-row:5"[^>]*>수</);
+    expect(html).toMatch(/grid-row:7"[^>]*>금</);
   });
 
   it("labels every month in the window, last month first", () => {
@@ -68,22 +68,22 @@ describe("HealthActivity", () => {
   it("marks today once, and only today", () => {
     const html = render(census(371, { 0: 2 }));
     expect([...html.matchAll(/data-today=""/g)]).toHaveLength(1);
-    expect(html).toContain('title="Today · 2 notes"');
+    expect(html).toContain('title="오늘 · 노트 2개"');
   });
 
   it("keeps a tooltip on a future day", () => {
     const html = render(census(371));
-    expect(html).toContain('title="Thu 31 Dec · 0 notes"');
+    expect(html).toContain('title="12월 31일 (목) · 노트 0개"');
   });
 
   it("names the window and the active days for a screen reader", () => {
     const html = render(census(371, { 0: 2, 3: 1 }));
-    expect(html).toContain("Notes edited per day, Aug – Dec 2026: 2 active days");
+    expect(html).toContain("일별 노트 편집, Aug – Dec 2026: 활동한 날 2일");
   });
 
   it("says so when there is no per-day census", () => {
     const html = render([]);
-    expect(html).toContain("No per-day activity is available for this vault.");
+    expect(html).toContain("이 볼트에는 일별 활동 기록이 없어요.");
     expect(html).not.toContain("health-heatmap");
   });
 });

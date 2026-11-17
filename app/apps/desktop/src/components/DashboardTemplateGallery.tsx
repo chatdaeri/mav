@@ -42,9 +42,9 @@ export function DashboardTemplatePreview({ template, expanded = false }: { templ
   const frameWidth = expanded ? Math.max(720, width) : 1200;
   const scale = width / frameWidth;
   return <div ref={host} className={`dashboard-template-preview${expanded ? " expanded" : ""}`}>
-    {visible && (html || url) ? <iframe title={`${template.name} preview`} scrolling={expanded ? "auto" : "no"} sandbox="allow-scripts" referrerPolicy="no-referrer" src={url || undefined} srcDoc={url ? undefined : html ?? undefined} tabIndex={-1} aria-hidden={!expanded}
+    {visible && (html || url) ? <iframe title={`${template.name} 미리보기`} scrolling={expanded ? "auto" : "no"} sandbox="allow-scripts" referrerPolicy="no-referrer" src={url || undefined} srcDoc={url ? undefined : html ?? undefined} tabIndex={-1} aria-hidden={!expanded}
       style={{ width: frameWidth, height: expanded ? height / scale : 1200, transform: `scale(${scale})` }} />
-      : <div className="dashboard-preview-placeholder" style={{ background: template.palette?.[2] }}><span>{error ? "Preview unavailable" : "Loading preview…"}</span></div>}
+      : <div className="dashboard-preview-placeholder" style={{ background: template.palette?.[2] }}><span>{error ? "미리보기를 사용할 수 없어요" : "미리보기 불러오는 중…"}</span></div>}
   </div>;
 }
 
@@ -53,37 +53,37 @@ export function DashboardTemplateGallery({ selectedId, onUse, disabled = false, 
   saved?: Record<string, string>; currentId?: string; onOpen?: (path: string) => void; onUnset?: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All styles");
+  const [category, setCategory] = useState("모든 스타일");
   const [preview, setPreview] = useState<DashboardTemplate | null>(null);
-  const categories = ["All styles", ...new Set(DASHBOARD_TEMPLATES.map((t) => t.category).filter(Boolean))];
-  const templates = DASHBOARD_TEMPLATES.filter((t) => (category === "All styles" || t.category === category) && `${t.name} ${t.author ?? ""} ${t.description}`.toLowerCase().includes(query.toLowerCase()));
+  const categories = ["모든 스타일", ...new Set(DASHBOARD_TEMPLATES.map((t) => t.category).filter(Boolean))];
+  const templates = DASHBOARD_TEMPLATES.filter((t) => (category === "모든 스타일" || t.category === category) && `${t.name} ${t.author ?? ""} ${t.description}`.toLowerCase().includes(query.toLowerCase()));
   if (preview) return <div className="dashboard-gallery-expanded">
     <div className="dashboard-gallery-toolbar">
-      <button type="button" className="secondary" onClick={() => setPreview(null)}>← All templates</button>
+      <button type="button" className="secondary" onClick={() => setPreview(null)}>← 모든 템플릿</button>
       <span><strong>{preview.name}</strong> · {preview.author}</span>
       <div className="dashboard-gallery-preview-actions">
         {currentId === preview.id ? <>
-          {onOpen && <button type="button" className="primary" onClick={() => onOpen(saved[preview.id])}>Open</button>}
-          {onUnset && <button type="button" className="secondary" disabled={disabled} onClick={onUnset}>Unset Home</button>}
-        </> : <button type="button" className="primary" disabled={disabled} onClick={() => { onUse(preview); setPreview(null); }}>Use this template</button>}
+          {onOpen && <button type="button" className="primary" onClick={() => onOpen(saved[preview.id])}>열기</button>}
+          {onUnset && <button type="button" className="secondary" disabled={disabled} onClick={onUnset}>홈 해제</button>}
+        </> : <button type="button" className="primary" disabled={disabled} onClick={() => { onUse(preview); setPreview(null); }}>이 템플릿 사용</button>}
       </div>
     </div>
     {saved[preview.id] ? <VaultDashboardPreview path={saved[preview.id]} /> : <DashboardTemplatePreview template={preview} expanded />}
   </div>;
   return <div className="dashboard-gallery">
-    <div className="dashboard-gallery-toolbar"><div className="dashboard-gallery-filters" aria-label="Template styles">{categories.map((c) => <button key={c} type="button" aria-pressed={category === c} onClick={() => setCategory(c)}>{c}</button>)}</div><input aria-label="Search dashboard templates" placeholder="Search templates or designers…" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
-    <div className="dashboard-gallery-grid" role="group" aria-label="Dashboard template">
+    <div className="dashboard-gallery-toolbar"><div className="dashboard-gallery-filters" aria-label="템플릿 스타일">{categories.map((c) => <button key={c} type="button" aria-pressed={category === c} onClick={() => setCategory(c)}>{c}</button>)}</div><input aria-label="대시보드 템플릿 검색" placeholder="템플릿 또는 디자이너 검색…" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+    <div className="dashboard-gallery-grid" role="group" aria-label="대시보드 템플릿">
       {templates.map((template) => <article key={template.id} className={`dashboard-gallery-card${selectedId === template.id || currentId === template.id ? " selected" : ""}`}>
         <div className="dashboard-gallery-picture">
-          {template.thumbnailUrl ? <img className="dashboard-template-thumbnail" src={template.thumbnailUrl} alt="" width={900} height={900} loading="lazy" decoding="async" draggable={false} /> : <div className="dashboard-preview-placeholder" style={{ background: template.palette?.[2] }}>Preview available on click</div>}
+          {template.thumbnailUrl ? <img className="dashboard-template-thumbnail" src={template.thumbnailUrl} alt="" width={900} height={900} loading="lazy" decoding="async" draggable={false} /> : <div className="dashboard-preview-placeholder" style={{ background: template.palette?.[2] }}>클릭하면 미리볼 수 있어요</div>}
         </div>
-        <h3 className="dashboard-gallery-card-name">{template.name}{currentId === template.id && <span className="dashboard-current-badge">Current Home</span>}</h3>
+        <h3 className="dashboard-gallery-card-name">{template.name}{currentId === template.id && <span className="dashboard-current-badge">현재 홈</span>}</h3>
         <div className="dashboard-gallery-card-actions">
-          <button type="button" className="secondary" aria-label={`Show preview of ${template.name}`} onClick={() => setPreview(template)}>Show preview</button>
-          {currentId !== template.id && <button type="button" className="primary" disabled={disabled} aria-pressed={selectedId === template.id} aria-label={`Use ${template.name}`} onClick={() => onUse(template)}>{selectedId === template.id ? "Selected ✓" : "Use template"}</button>}
+          <button type="button" className="secondary" aria-label={`${template.name} 미리보기`} onClick={() => setPreview(template)}>미리보기</button>
+          {currentId !== template.id && <button type="button" className="primary" disabled={disabled} aria-pressed={selectedId === template.id} aria-label={`${template.name} 사용`} onClick={() => onUse(template)}>{selectedId === template.id ? "선택됨 ✓" : "템플릿 사용"}</button>}
         </div>
       </article>)}
-      {templates.length === 0 && <p className="dashboard-gallery-empty">No templates match. Try another style or search.</p>}
+      {templates.length === 0 && <p className="dashboard-gallery-empty">일치하는 템플릿이 없어요. 다른 스타일이나 검색어를 시도해 보세요.</p>}
     </div>
   </div>;
 }

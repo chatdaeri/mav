@@ -42,16 +42,16 @@ describe("WindowsControls", () => {
     await render();
     expect(host.querySelectorAll("button")).toHaveLength(3);
     await act(async () => {
-      host.querySelector<HTMLButtonElement>('[aria-label="Minimize"]')!.click();
-      host.querySelector<HTMLButtonElement>('[aria-label="Maximize"]')!.click();
-      host.querySelector<HTMLButtonElement>('[aria-label="Close window"]')!.click();
+      host.querySelector<HTMLButtonElement>('[aria-label="최소화"]')!.click();
+      host.querySelector<HTMLButtonElement>('[aria-label="최대화"]')!.click();
+      host.querySelector<HTMLButtonElement>('[aria-label="창 닫기"]')!.click();
     });
     expect(win.minimize).toHaveBeenCalledOnce();
     expect(win.toggleMaximize).toHaveBeenCalledOnce();
     expect(win.close).toHaveBeenCalledOnce();
     win.isMaximized.mockResolvedValue(true);
     await act(async () => win.onResized.mock.calls[0][0]());
-    expect(host.querySelector('[aria-label="Restore"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="이전 크기로"]')).not.toBeNull();
     act(() => root.unmount());
     expect(stop).toHaveBeenCalledOnce();
     root = createRoot(host);

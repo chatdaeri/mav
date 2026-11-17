@@ -89,8 +89,8 @@ export function ShareDialog({ target, onClose }: { target: ShareTarget; onClose:
       <div className="modal share-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <span>
-            Share <strong>{target.title}</strong>
-            <span className="muted"> ({target.resourceType})</span>
+            <strong>{target.title}</strong> 공유
+            <span className="muted"> ({target.resourceType === "folder" ? "폴더" : "파일"})</span>
           </span>
           <button className="icon-btn" onClick={onClose}>
             ✕
@@ -99,7 +99,7 @@ export function ShareDialog({ target, onClose }: { target: ShareTarget; onClose:
 
         <div className="share-add">
           <select value={principalId} onChange={(e) => setPrincipalId(e.target.value)}>
-            {shareableMembers.length === 0 && <option value="">No other members</option>}
+            {shareableMembers.length === 0 && <option value="">다른 멤버 없음</option>}
             {shareableMembers.map((m) => (
               <option key={m.userId} value={m.userId}>
                 {m.user?.name || m.user?.email || m.userId}
@@ -107,23 +107,23 @@ export function ShareDialog({ target, onClose }: { target: ShareTarget; onClose:
             ))}
           </select>
           <select value={permission} onChange={(e) => setPermission(e.target.value as Permission)}>
-            <option value="view">view</option>
-            <option value="edit">edit</option>
+            <option value="view">보기 가능</option>
+            <option value="edit">편집 가능</option>
           </select>
           <button
             className="primary"
             disabled={busy || !principalId}
             onClick={() => void addShare()}
           >
-            Share
+            공유
           </button>
         </div>
 
         {error && <div className="auth-error">{error}</div>}
 
-        <div className="subhead">People with access</div>
+        <div className="subhead">권한이 있는 사람</div>
         {shares.length === 0 ? (
-          <div className="muted">Not shared with anyone yet.</div>
+          <div className="muted">아직 공유한 사람이 없어요.</div>
         ) : (
           <ul className="share-list">
             {shares.map((s) => {
@@ -133,9 +133,9 @@ export function ShareDialog({ target, onClose }: { target: ShareTarget; onClose:
                 <li key={s.id}>
                   <Avatar label={name} userId={principal} />
                   <span className="member-name">{name}</span>
-                  <span className="member-role">{s.permission}</span>
+                  <span className="member-role">{s.permission === "edit" ? "편집 가능" : "보기 가능"}</span>
                   <button className="link-btn danger" onClick={() => void revoke(s.id)}>
-                    Revoke
+                    권한 취소
                   </button>
                 </li>
               );

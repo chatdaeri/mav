@@ -105,20 +105,20 @@ function configure(m: MermaidApi, theme: MermaidTheme): void {
 /** Trim mermaid's multi-line parser output down to one readable line. */
 function shortMessage(err: unknown): string {
   const raw = err instanceof Error ? err.message : String(err);
-  const first = raw.split("\n").find((l) => l.trim().length > 0) ?? "could not be drawn";
+  const first = raw.split("\n").find((l) => l.trim().length > 0) ?? "그릴 수 없어요";
   return first.trim().slice(0, 160);
 }
 
 const lazyRenderer: MermaidRenderer = {
   async render(source, theme) {
     if (source.length > MAX_MERMAID_CHARS) {
-      throw new MermaidError("Diagram too large to render");
+      throw new MermaidError("다이어그램이 너무 커서 표시할 수 없어요");
     }
     let m: MermaidApi;
     try {
       m = await loadMermaid();
     } catch {
-      throw new MermaidError("Diagram renderer could not be loaded");
+      throw new MermaidError("다이어그램 렌더러를 불러오지 못했어요");
     }
     configure(m, theme);
     // Validate FIRST, so a half-typed diagram never reaches the renderer.
@@ -127,10 +127,10 @@ const lazyRenderer: MermaidRenderer = {
     // syntax error.
     try {
       if ((await m.parse(source, { suppressErrors: true })) === false) {
-        throw new MermaidError("Diagram error: check the syntax");
+        throw new MermaidError("다이어그램 오류: 문법을 확인하세요");
       }
     } catch (err) {
-      throw err instanceof MermaidError ? err : new MermaidError(`Diagram error: ${shortMessage(err)}`);
+      throw err instanceof MermaidError ? err : new MermaidError(`다이어그램 오류: ${shortMessage(err)}`);
     }
     try {
       // The id must be a unique, valid CSS id: with no container argument
@@ -138,7 +138,7 @@ const lazyRenderer: MermaidRenderer = {
       const { svg } = await m.render(`baalda-mermaid-${++seq}`, source);
       return sanitizeMermaidSvg(svg);
     } catch (err) {
-      throw new MermaidError(`Diagram error: ${shortMessage(err)}`);
+      throw new MermaidError(`다이어그램 오류: ${shortMessage(err)}`);
     }
   },
 };

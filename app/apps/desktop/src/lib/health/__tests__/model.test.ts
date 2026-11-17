@@ -98,7 +98,7 @@ describe("verdict precedence", () => {
     expect(r.serverHost).toBeNull();
     expect(stage(r, "connection").state).toBe("off");
     expect(stage(r, "server").state).toBe("off");
-    expect(r.headline).toBe("Sync is off for this folder");
+    expect(r.headline).toBe("이 폴더는 동기화가 꺼져 있어요");
   });
 
   it("reports `signed-out` on a synced folder, ahead of the socket's own status", () => {
@@ -110,7 +110,7 @@ describe("verdict precedence", () => {
     );
     expect(r.verdict).toBe("signed-out");
     expect(stage(r, "connection").state).toBe("error");
-    expect(stage(r, "connection").headline).toBe("Signed out");
+    expect(stage(r, "connection").headline).toBe("로그아웃됨");
   });
 
   it("stays silent while auth is still loading, and on a folder that was never synced", () => {
@@ -156,7 +156,7 @@ describe("verdict precedence", () => {
       }),
     );
     expect(r.verdict).toBe("syncing");
-    expect(r.headline).toBe("Syncing: 40 of 100 updates");
+    expect(r.headline).toBe("동기화 중: 100개 중 40개 업데이트");
     expect(stage(r, "server").state).toBe("busy");
   });
 
@@ -169,7 +169,7 @@ describe("verdict precedence", () => {
       }),
     );
     expect(r.verdict).toBe("syncing");
-    expect(r.headline).toBe("Uploading: 60 notes not uploaded yet");
+    expect(r.headline).toBe("업로드 중: 노트 60개가 아직 업로드되지 않았어요");
   });
 
   it("reports `attention` for any error-severity issue", () => {
@@ -204,9 +204,9 @@ describe("verdict precedence", () => {
   it("reports `healthy` only when every note is confirmed", () => {
     const r = buildHealthReport(input(healthyVault(1204)));
     expect(r.verdict).toBe("healthy");
-    expect(r.headline).toBe("All 1,204 notes are on the Remote Vault");
+    expect(r.headline).toBe("노트 1,204개 모두 원격 볼트에 있어요");
     expect(r.detail).toContain("api.baalda.com");
-    expect(r.detail).toContain("2 min ago");
+    expect(r.detail).toContain("2분 전");
     expect(r.counts).toEqual({
       total: 1204,
       synced: 1204,
@@ -222,7 +222,7 @@ describe("verdict precedence", () => {
   it("does not call an empty vault 'all 0 notes synced'", () => {
     const r = buildHealthReport(input());
     expect(r.verdict).toBe("healthy");
-    expect(r.headline).toBe("This vault is empty");
+    expect(r.headline).toBe("이 볼트는 비어 있어요");
   });
 
   it("counts an unmapped note as unsynced, so a stranded note cannot read healthy", () => {
@@ -233,7 +233,7 @@ describe("verdict precedence", () => {
     expect(r.counts?.total).toBe(3);
     expect(r.counts?.synced).toBe(2);
     expect(r.verdict).toBe("attention");
-    expect(r.headline).toBe("1 note is not on the Remote Vault");
+    expect(r.headline).toBe("노트 1개가 원격 볼트에 없어요");
   });
 });
 
@@ -273,18 +273,18 @@ describe("content failures", () => {
     expect(i.remedies).not.toContain("retry");
     // The size and the cap, in the user's terms rather than the engineer's.
     expect(i.why).toContain("12.4 MB");
-    expect(i.why).toContain("10 MB");
+    expect(i.why).toContain("10MB");
   });
 
   it("tells the two too-large shapes apart: the FILE versus the edit HISTORY", () => {
     const r = buildHealthReport(
       input({ failures: { registry: [], content: [tooLargeHistory], limitCode: null } }),
     );
-    expect(r.issues[0].why).toContain("edit history is 17.2 MB");
-    expect(r.issues[0].why).toContain("The note's own text is not the problem");
+    expect(r.issues[0].why).toContain("편집 기록이 17.2 MB");
+    expect(r.issues[0].why).toContain("노트 본문은 문제가 아니에요");
     // History is the cause, so the fix that clears history leads.
     expect(r.issues[0].remedies[0]).toBe("reset-history");
-    expect(r.issues[0].explanation.fixes[0]).toContain("Reset this note's history");
+    expect(r.issues[0].explanation.fixes[0]).toContain("이 노트의 기록을 초기화하세요");
   });
 
   it("does not guess that an untyped permanent failure is too large", () => {
@@ -321,9 +321,9 @@ describe("content failures", () => {
       }),
     );
     expect(r.issues[0].kind).toBe("no-write-access");
-    expect(r.issues[0].title).toBe("Read-only sync needs review");
+    expect(r.issues[0].title).toBe("읽기 전용 동기화 확인 필요");
     expect(r.issues[0].remedies).toContain("retry");
-    expect(r.issues[0].why).toContain("recovery copy");
+    expect(r.issues[0].why).toContain("복구용 사본");
   });
 
   it("maps a transient failure to `upload-failed`, with a Retry", () => {
@@ -340,7 +340,7 @@ describe("content failures", () => {
     expect(i.kind).toBe("upload-failed");
     expect(i.remedies).toEqual(["retry", "open", "reveal", "export-copy", "copy-details"]);
     expect(i.why).toContain("Socket closed.");
-    expect(i.why).toContain("only copy is on this device");
+    expect(i.why).toContain("유일한 사본은 이 기기에 있어요");
   });
 });
 
@@ -395,7 +395,7 @@ describe("registry failures", () => {
     } }));
     const issue = r.issues.find((i) => i.path === "Campaigns")!;
     expect(issue.kind).toBe("inbound-blocked");
-    expect(issue.title).toBe("Local change held for safety");
+    expect(issue.title).toBe("안전을 위해 로컬 변경을 보류했어요");
     expect(issue.explanation.safety).toBe("unknown");
     expect(issue.why).not.toContain("could not be written");
   });
@@ -404,13 +404,13 @@ describe("registry failures", () => {
   it("says a linked path was refused in plain words", () => {
     const r = buildHealthReport(input({ failures: {
       registry: [{ kind: "inbound-blocked", path: "Old/n.md", docId: "old-id",
-        reason: "This path is a symbolic link. Baalda does not sync through links.", code: "symlink" }],
+        reason: "This path is a symbolic link. 마이 세컨드 브레인 does not sync through links.", code: "symlink" }],
       content: [], limitCode: null,
     } }));
     const issue = r.issues.find((i) => i.path === "Old/n.md")!;
     expect(issue.kind).toBe("inbound-blocked");
-    expect(issue.title).toBe("Linked path not synced");
-    expect(issue.why).toBe("This path is a symbolic link. Baalda does not sync through links.");
+    expect(issue.title).toBe("연결된 경로가 동기화되지 않았어요");
+    expect(issue.why).toBe("This path is a symbolic link. 마이 세컨드 브레인 does not sync through links.");
     expect(issue.code).toBe("symlink");
   });
 
@@ -424,7 +424,7 @@ describe("registry failures", () => {
     const issue = r.issues.find((i) => i.path === "Team/x.md")!;
     expect(issue.kind).toBe("inbound-blocked");
     expect(issue.severity).toBe("warn");
-    expect(issue.title).toBe("Removed on disk, being restored");
+    expect(issue.title).toBe("디스크에서 삭제돼 복원 중이에요");
     expect(JSON.stringify(issue.explanation)).not.toContain("Delete for everyone");
     expect(issue.remedies).not.toContain("retry");
     expect(issue.code).toBe("delete_decision");
@@ -448,11 +448,11 @@ describe("registry failures", () => {
     }));
     const linked = r.issues.find((i) => i.kind === "linked-paths")!;
     expect(linked.severity).toBe("warn");
-    expect(linked.title).toBe("2 linked paths are ignored by sync");
+    expect(linked.title).toBe("연결된 경로 2개가 동기화에서 제외됐어요");
     expect(linked.facts.map((f) => f.value)).toContain("Old (links to /v/Business/Old)");
     const shared = r.issues.find((i) => i.kind === "shared-file")!;
     expect(shared.severity).toBe("error");
-    expect(shared.title).toBe("Two notes share one file on disk");
+    expect(shared.title).toBe("노트 두 개가 디스크의 한 파일을 공유해요");
     expect(shared.why).toContain("Business/Old/n.md, Old/n.md");
     expect(r.verdict).toBe("attention");
     // Nothing to say for a vault without links.
@@ -526,7 +526,7 @@ describe("registry failures", () => {
       "delete",
       "copy-details",
     ]);
-    expect(i.why).toContain("may hold the only copy");
+    expect(i.why).toContain("유일한 사본이 있을 수 있어서");
   });
 });
 
@@ -579,7 +579,7 @@ describe("unregistered notes", () => {
     expect(r.issues.filter((i) => i.kind === "unregistered")).toHaveLength(
       MAX_UNREGISTERED_ISSUES,
     );
-    expect(r.detail).toContain(`first 50 of ${num(n)}`);
+    expect(r.detail).toContain(`등록되지 않은 노트 ${num(n)}개 중 처음 50개`);
   });
 
   it("says nothing while the server has not answered — the reason is the connection", () => {
@@ -643,7 +643,7 @@ describe("stats-derived issues and stages", () => {
     expect(r.issues.filter((x) => x.kind === "orphan-history")).toHaveLength(0);
     expect(r.issues.some((x) => x.remedies.some((m) => (m as string) === "reclaim"))).toBe(false);
     expect(stage(r, "history").state).toBe("ok");
-    expect(stage(r, "history").detail).toContain("of which 953 belong to notes this vault no longer has");
+    expect(stage(r, "history").detail).toContain("그중 953개는 이 볼트에 더 이상 없는 노트의 기록이에요");
     expect(r.verdict).toBe("healthy");
   });
 
@@ -657,14 +657,14 @@ describe("stats-derived issues and stages", () => {
     const r = buildHealthReport(input({ ...healthyVault(4), stats: stats() }));
     expect(stage(r, "disk").headline).toBe("1,204");
     expect(stage(r, "index").headline).toBe("1,204");
-    expect(stage(r, "index").detail).toContain("5 links that point at nothing");
+    expect(stage(r, "index").detail).toContain("대상이 없는 링크 5개");
     expect(stage(r, "history").headline).toBe("1,204");
   });
 
   it("falls back to the roll-up's own count with no census, and never shows a fake number", () => {
     const r = buildHealthReport(input(healthyVault(7)));
     expect(stage(r, "disk").headline).toBe("7");
-    expect(stage(r, "index").headline).toBe("Indexed");
+    expect(stage(r, "index").headline).toBe("인덱싱됨");
     expect(stage(r, "history").headline).toBe("—");
   });
 });
@@ -712,7 +712,7 @@ describe("stage error placement", () => {
   it("flags a view-only grant on the connection without calling it broken", () => {
     const r = buildHealthReport(input({ ...healthyVault(2), syncStatus: "read-only" }));
     expect(stage(r, "connection").state).toBe("warn");
-    expect(stage(r, "connection").headline).toBe("View only");
+    expect(stage(r, "connection").headline).toBe("보기 전용");
     expect(r.verdict).toBe("healthy");
   });
 });
@@ -787,8 +787,8 @@ describe("formatting helpers", () => {
     // One wording, one module. `format.relativeTime` has its own unit tests; this
     // only pins that the report reaches for it rather than rolling its own.
     const r = buildHealthReport(input({ lastSyncedAt: NOW - 3 * 86_400_000 }));
-    expect(r.detail).toContain("3 days ago");
-    expect(buildHealthReport(input({ lastSyncedAt: NOW })).detail).toContain("just now");
+    expect(r.detail).toContain("3일 전");
+    expect(buildHealthReport(input({ lastSyncedAt: NOW })).detail).toContain("방금 전");
   });
 
   it("degrades to no host rather than inventing one", () => {
@@ -802,7 +802,7 @@ describe("formatting helpers", () => {
 //
 // The page's whole point: a note that did not sync has to say WHY, in words
 // someone who does not know what a CRDT is can act on. Every kind gets the same
-// four promises — what this means, what Baalda does next, what you can do, where
+// four promises — what this means, what 마브 does next, what you can do, where
 // your content is — and the last one is a safety claim, so these tests are the
 // guard against the page ever saying "safe on the server" about a note nothing
 // confirmed.
@@ -909,7 +909,7 @@ describe("explanations", () => {
       "too-large",
     );
     expect(permanent.autoRetries).toBe(false);
-    expect(permanent.explanation.next).toContain("Nothing");
+    expect(permanent.explanation.next).toContain("할 일 없음");
 
     const transient = issueOf(
       {
@@ -946,7 +946,7 @@ describe("explanations", () => {
       "unregistered",
     );
     expect(unregistered.autoRetries).toBe(true);
-    expect(unregistered.explanation.next).toContain("next sync pass");
+    expect(unregistered.explanation.next).toContain("다음 동기화");
   });
 
   it("carries the copyable facts a bug report needs", () => {
@@ -968,15 +968,15 @@ describe("explanations", () => {
       "too-large",
     );
     const labels = i.facts.map((f) => f.label);
-    expect(labels).toContain("Path");
-    expect(labels).toContain("Size");
-    expect(labels).toContain("Limit");
-    expect(labels).toContain("Doc id");
-    expect(labels).toContain("Raw reason");
+    expect(labels).toContain("경로");
+    expect(labels).toContain("크기");
+    expect(labels).toContain("한도");
+    expect(labels).toContain("문서 ID");
+    expect(labels).toContain("원본 사유");
     // Ids and raw error text are the two things people paste into an issue.
-    expect(i.facts.find((f) => f.label === "Doc id")?.copyable).toBe(true);
-    expect(i.facts.find((f) => f.label === "Raw reason")?.copyable).toBe(true);
-    expect(i.facts.find((f) => f.label === "Limit")?.value).toBe("10 MB per note");
+    expect(i.facts.find((f) => f.label === "문서 ID")?.copyable).toBe(true);
+    expect(i.facts.find((f) => f.label === "원본 사유")?.copyable).toBe(true);
+    expect(i.facts.find((f) => f.label === "한도")?.value).toBe("노트당 10MB");
   });
 });
 
@@ -1009,10 +1009,10 @@ describe("too-large: file versus history", () => {
       }),
     );
     const i = r.issues[0];
-    expect(i.why).toContain("edit history");
+    expect(i.why).toContain("편집 기록");
     expect(i.remedies[0]).toBe("reset-history");
-    expect(i.explanation.fixes[0]).toContain("Reset this note's history");
-    expect(i.facts.find((f) => f.label === "History size")?.value).toBe("30.0 MB");
+    expect(i.explanation.fixes[0]).toContain("이 노트의 기록을 초기화하세요");
+    expect(i.facts.find((f) => f.label === "기록 크기")?.value).toBe("30.0 MB");
   });
 
   it("blames the file when the file itself is over the cap", () => {
@@ -1038,8 +1038,8 @@ describe("too-large: file versus history", () => {
     const i = r.issues[0];
     expect(i.why).toContain("12.4 MB");
     expect(i.remedies[0]).toBe("open");
-    expect(i.explanation.fixes[0]).toContain("attachments");
-    expect(i.explanation.fixes.join(" ")).toContain("Split the note");
+    expect(i.explanation.fixes[0]).toContain("첨부 파일");
+    expect(i.explanation.fixes.join(" ")).toContain("여러 개의 작은 노트로 나누세요");
   });
 
   it("never promotes the file to the cause just because the census didn't measure it", () => {
@@ -1062,7 +1062,7 @@ describe("too-large: file versus history", () => {
         },
       }),
     );
-    expect(r.issues[0].why).toContain("edit history");
+    expect(r.issues[0].why).toContain("편집 기록");
     expect(r.issues[0].remedies[0]).toBe("reset-history");
   });
 });
@@ -1074,7 +1074,7 @@ describe("naming the owner", () => {
     const r = buildHealthReport(input({ syncStatus: "no-access", members: [owner] }));
     const i = r.issues.find((x) => x.kind === "no-access");
     expect(i?.explanation.meaning).toContain("Sam (sam@example.com)");
-    expect(i?.facts.find((f) => f.label === "Owner")?.value).toBe("Sam (sam@example.com)");
+    expect(i?.facts.find((f) => f.label === "소유자")?.value).toBe("Sam (sam@example.com)");
   });
 
   it("picks the owner out of the roster, and falls back to the email for a blank name", () => {
@@ -1093,7 +1093,7 @@ describe("naming the owner", () => {
   it("falls back to 'the vault's owner' rather than guessing", () => {
     const r = buildHealthReport(input({ syncStatus: "no-access", members: [] }));
     const i = r.issues.find((x) => x.kind === "no-access");
-    expect(i?.explanation.meaning).toContain("the vault's owner");
+    expect(i?.explanation.meaning).toContain("볼트 소유자");
   });
 
   it("offers Contact owner on a view-only registration refusal, and only there", () => {
@@ -1113,16 +1113,16 @@ describe("naming the owner", () => {
     const byPath = new Map(r.issues.map((i) => [i.path, i]));
     // Grouped by folder (see `createRefusalIssue`).
     expect(byPath.get("Team")?.remedies).toContain("contact-owner");
-    expect(byPath.get("Team")?.explanation.meaning).toContain("but not add to it");
+    expect(byPath.get("Team")?.explanation.meaning).toContain("추가할 수는 없어서");
     expect(byPath.get("Team")?.explanation.fixes[0]).toContain("Sam");
     expect(byPath.get("Other/N.md")?.remedies).not.toContain("contact-owner");
   });
 
   it("explains each registration code in its own words", () => {
     const codes: Record<string, string> = {
-      root_frozen: "top level is locked",
-      path_folder_mismatch: "disagree",
-      doc_id_conflict: "already belongs to a different vault",
+      root_frozen: "최상위는 잠겨 있어서",
+      path_folder_mismatch: "서로 달라요",
+      doc_id_conflict: "다른 볼트에서 이미 쓰이고 있어서",
     };
     for (const [code, phrase] of Object.entries(codes)) {
       const r = buildHealthReport(
@@ -1142,19 +1142,19 @@ describe("naming the owner", () => {
 
 describe("classifyUploadReason", () => {
   it("turns the sync layer's own strings into a cause a person can read", () => {
-    expect(classifyUploadReason("open failed: ENOENT")).toContain("could not open");
+    expect(classifyUploadReason("open failed: ENOENT")).toContain("열지 못해서");
     expect(classifyUploadReason("server did not respond to the initial sync")).toContain(
-      "never sent back",
+      "보내오지 않았어요",
     );
     expect(classifyUploadReason("server did not acknowledge the content")).toContain(
-      "never confirmed",
+      "확인을 보내오지 않았어요",
     );
     // `syncManager.ts` rejects with the terminal status as the message.
-    expect(classifyUploadReason("no-access")).toContain("view-only");
-    expect(classifyUploadReason("deleted")).toContain("no record for this note");
-    expect(classifyUploadReason("error")).toContain("connection");
-    expect(classifyUploadReason("Failed to fetch")).toContain("could not reach the Remote Vault");
-    expect(classifyUploadReason("HTTP 503")).toContain("error of its own");
+    expect(classifyUploadReason("no-access")).toContain("보기 전용");
+    expect(classifyUploadReason("deleted")).toContain("이 노트의 기록이 더 이상 없어요");
+    expect(classifyUploadReason("error")).toContain("연결");
+    expect(classifyUploadReason("Failed to fetch")).toContain("원격 볼트에 연결하지 못해서");
+    expect(classifyUploadReason("HTTP 503")).toContain("자체 오류");
   });
 
   it("returns null rather than inventing a cause it doesn't know", () => {
@@ -1183,8 +1183,8 @@ describe("Health and header agreement during regrant", () => {
       const report = buildHealthReport(input({ ...healthyVault(6974), syncProgress: progress }));
       expect(report.verdict).toBe("syncing");
       const badge = syncBadgeLabel({ status: "synced", now: NOW, progress });
-      expect(badge).toContain(phase === "removing" ? "Updating access" : "Syncing");
-      expect(report.headline).toContain(phase === "removing" ? "Updating access" : "Syncing");
+      expect(badge).toContain(phase === "removing" ? "권한 업데이트" : "동기화 중");
+      expect(report.headline).toContain(phase === "removing" ? "권한 업데이트" : "동기화 중");
       const settled = buildHealthReport(input({ ...healthyVault(6974),
         syncProgress: { ...progress, phase: "done", done: 6628 } }));
       expect(settled.verdict).toBe("healthy");
@@ -1211,10 +1211,10 @@ describe("sync paused by the shrink burst brake (#252)", () => {
     expect(paused).toHaveLength(1);
     expect(paused[0].severity).toBe("warn");
     expect(paused[0].autoRetries).toBe(true);
-    expect(paused[0].why).toMatch(/12 notes were emptied at once/);
-    expect(paused[0].why).toMatch(/safe on this device/);
-    expect(paused[0].explanation.next).toMatch(/about 20 min/);
-    expect(paused[0].facts).toContainEqual({ label: "Notes waiting to sync", value: "2" });
+    expect(paused[0].why).toMatch(/노트 12개가 한꺼번에 비워져서/);
+    expect(paused[0].why).toMatch(/이 기기에 안전하게/);
+    expect(paused[0].explanation.next).toMatch(/약 20분/);
+    expect(paused[0].facts).toContainEqual({ label: "동기화 대기 중인 노트", value: "2" });
     expect(r.issues.some((i) => i.docId === "a" || i.docId === "b")).toBe(false);
   });
 

@@ -7,11 +7,11 @@ describe("ApproveDevicePrompt (one click, seamless keys E)", () => {
   it("shows the device's code read-only with Approve / Not me and no typing", () => {
     const device = { deviceId: "d1", publicKey: "AAAA", code: "c0de f00d", name: "MacBook Pro" };
     const html = renderToStaticMarkup(createElement(ApproveDevicePrompt, { device, done: () => {} }));
-    expect(html).toContain("MacBook Pro is signing in");
+    expect(html).toContain("MacBook Pro에서 로그인하려고 해요");
     expect(html).toContain("c0de f00d");
     expect(html).not.toContain("<input");
-    expect(html).toContain("Approve");
-    expect(html).toContain("Not me");
-    expect(html).not.toMatch(/<button[^>]*disabled[^>]*>[\s\S]*Approve/);
+    expect(html).toContain("승인");
+    expect(html).toContain("내가 아니에요");
+    expect(html).not.toMatch(/<button[^>]*disabled[^>]*>[\s\S]*승인/);
   });
 });

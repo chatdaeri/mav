@@ -21,31 +21,31 @@ export function RestoreVaultKeyDialog({ vaultId, onClose }: { vaultId: string; o
   const [words, setWords] = useState("");
   return (
     <ConfirmDialog
-      title="Restore with vault key"
+      title="볼트 키로 복원"
       tone="accent"
-      confirmLabel="Restore"
+      confirmLabel="복원"
       confirmDisabled={!words.trim()}
       onCancel={onClose}
       onConfirm={async () => {
         const result = await currentVaultKeySession()?.restoreWithVaultKey(vaultId, words);
         if (result === "restored") {
-          toast("Vault key restored on this computer.");
+          toast("이 컴퓨터에 볼트 키를 복원했어요.");
           setWords("");
           onClose();
           vaultKeysNudge();
         } else {
           toast(
             result === "wrong-key"
-              ? "That key does not belong to this vault. Nothing was changed."
+              ? "이 키는 이 볼트의 키가 아니에요. 아무것도 바뀌지 않았어요."
               : result === "invalid-words"
-                ? "Those are not 24 valid key words. Check each word."
-                : "The key could not be checked right now. Try again later.",
+                ? "올바른 키 단어 24개가 아니에요. 각 단어를 확인하세요."
+                : "지금은 키를 확인할 수 없어요. 나중에 다시 시도하세요.",
             "error",
           );
         }
       }}
     >
-      <p>Paste the 24 words of this vault's key.</p>
+      <p>이 볼트 키의 단어 24개를 붙여넣으세요.</p>
       <textarea
         value={words}
         rows={3}
@@ -60,7 +60,7 @@ export function RestoreVaultKeyDialog({ vaultId, onClose }: { vaultId: string; o
 /** The fresh-key wait: the code teammates must confirm. */
 export function FreshKeyWaitingDialog({ code, onClose }: { code: string; onClose: () => void }) {
   return (
-    <ConfirmDialog title="New security key created" tone="accent" confirmLabel="OK" cancelLabel="Close" onConfirm={onClose} onCancel={onClose}>
+    <ConfirmDialog title="새 보안 키를 만들었어요" tone="accent" confirmLabel="확인" cancelLabel="닫기" onConfirm={onClose} onCancel={onClose}>
       <p>
         {FRESH_KEY_WAITING_PREFIX} <strong>{code}</strong>
       </p>
@@ -95,9 +95,9 @@ export function LostDevicesFlow({
 
   return (
     <ConfirmDialog
-      title="Create a new security key"
+      title="새 보안 키 만들기"
       tone="accent"
-      confirmLabel="Create new key"
+      confirmLabel="새 키 만들기"
       onCancel={close}
       onConfirm={async () => {
         let next: LostDevicesStep;
@@ -107,12 +107,12 @@ export function LostDevicesFlow({
             next = lostDevicesStep(step, { type: "started", code: result.code });
           } else {
             if (result.kind === "not-allowed") {
-              toast("This computer already has a security key, or keys are off. Nothing was changed.", "error");
+              toast("이 컴퓨터에는 이미 보안 키가 있거나 키 기능이 꺼져 있어요. 아무것도 바뀌지 않았어요.", "error");
             }
             next = lostDevicesStep(step, { type: "refused" });
           }
         } catch {
-          toast("Could not create a new security key right now. Nothing was changed. Try again later.", "error");
+          toast("지금은 새 보안 키를 만들 수 없어요. 아무것도 바뀌지 않았어요. 나중에 다시 시도하세요.", "error");
           next = lostDevicesStep(step, { type: "refused" });
         }
         if (next.step === "closed") onClose();

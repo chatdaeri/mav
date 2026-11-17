@@ -235,7 +235,7 @@ function EditableTable({
     (r: number, c: number, text: string, extra?: (live: TableModel) => SpanChange[]) => {
       const live = liveModel();
       if (!live) {
-        setNote("This table moved while you were typing; the edit was not saved.");
+        setNote("입력하는 동안 표가 이동해서 수정 내용이 저장되지 않았어요.");
         return;
       }
       const changes: SpanChange[] = [];
@@ -243,7 +243,7 @@ function EditableTable({
       if (row) {
         const cell = row.cells[c];
         if (cell && cell.raw !== rawAtStart.current) {
-          setNote("Changed by someone else while you were typing.");
+          setNote("입력하는 동안 다른 사람이 내용을 바꿨어요.");
         }
         changes.push(...planFillCell(row, c, text));
       }
@@ -551,7 +551,7 @@ function EditableTable({
         className="cm-md-cell-input"
         value={draft}
         spellCheck
-        aria-label={`Row ${r + 1}, column ${c + 1}`}
+        aria-label={`${r + 1}행 ${c + 1}열`}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => {
           if (handledCell.current === `${r}:${c}`) {
@@ -625,7 +625,7 @@ function EditableTable({
           <button
             type="button"
             className="cm-md-add-col"
-            aria-label="Add column"
+            aria-label="열 추가"
             onClick={addColumnAtEnd}
           >
             +
@@ -633,7 +633,7 @@ function EditableTable({
         )}
       </div>
       {!readOnly && (
-        <button type="button" className="cm-md-add-row" aria-label="Add row" onClick={addRowAtEnd}>
+        <button type="button" className="cm-md-add-row" aria-label="행 추가" onClick={addRowAtEnd}>
           +
         </button>
       )}
@@ -793,15 +793,15 @@ function CellContextMenu({
           : { position: "fixed", left: 0, top: 0, right: "auto", visibility: "hidden" }
       }
     >
-      {item("row-above", "Insert row above", menu.row > 0)}
-      {item("row-below", "Insert row below")}
-      {item("col-left", "Insert column left")}
-      {item("col-right", "Insert column right")}
-      {item("row-delete", rows > 1 ? `Delete ${rows} rows` : "Delete row", canDeleteRow && rows > 0)}
-      {item("col-delete", cols > 1 ? `Delete ${cols} columns` : "Delete column", canDeleteColumn)}
-      {item("align-left", "Align left")}
-      {item("align-center", "Align center")}
-      {item("align-right", "Align right")}
+      {item("row-above", "위에 행 삽입", menu.row > 0)}
+      {item("row-below", "아래에 행 삽입")}
+      {item("col-left", "왼쪽에 열 삽입")}
+      {item("col-right", "오른쪽에 열 삽입")}
+      {item("row-delete", rows > 1 ? `행 ${rows}개 삭제` : "행 삭제", canDeleteRow && rows > 0)}
+      {item("col-delete", cols > 1 ? `열 ${cols}개 삭제` : "열 삭제", canDeleteColumn)}
+      {item("align-left", "왼쪽 정렬")}
+      {item("align-center", "가운데 정렬")}
+      {item("align-right", "오른쪽 정렬")}
     </ul>,
     document.body,
   );

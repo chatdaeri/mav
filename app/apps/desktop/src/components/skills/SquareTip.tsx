@@ -30,10 +30,10 @@ export function tipFromTitle(title: string): TipContent {
 /** The Required text: why it can't be removed, per-tool lines, and for admins where to change it. */
 export function requiredTip(lines: readonly string[], canManage: boolean): TipContent {
   return {
-    heading: "Required by your team",
-    body: "It's always installed on everyone's computer and can't be removed.",
+    heading: "팀에서 필수로 지정했어요",
+    body: "모든 멤버의 컴퓨터에 항상 설치되고 제거할 수 없어요.",
     lines,
-    note: canManage ? "Change it to Optional on the skill's page." : undefined,
+    note: canManage ? "스킬 페이지에서 선택으로 바꿀 수 있어요." : undefined,
   };
 }
 
@@ -172,15 +172,15 @@ export function RequiredActions({
               await onMakeOptional();
               onClose();
             } catch (e) {
-              toast(`Couldn't make ${name} optional: ${e instanceof Error ? e.message : String(e)}`, "error");
+              toast(`${name}을(를) 선택으로 바꿀 수 없어요: ${e instanceof Error ? e.message : String(e)}`, "error");
             }
           }}
         >
-          Make optional
+          선택으로 변경
         </AsyncButton>
       )}
       <button type="button" className={`${onMakeOptional ? "ghost-pill" : "secondary"} skills-btn-sm`} onClick={onClose}>
-        Got it
+        확인
       </button>
     </>
   );

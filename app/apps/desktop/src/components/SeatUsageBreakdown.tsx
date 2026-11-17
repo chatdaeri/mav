@@ -54,7 +54,7 @@ export function SeatUsageBreakdown({
           className="seat-ring-chart"
           viewBox="0 0 42 42"
           role="img"
-          aria-label={`${b.claimed + b.reserved} of ${b.purchased} seats taken`}
+          aria-label={`${b.purchased}석 중 ${b.claimed + b.reserved}석 사용 중`}
         >
           <circle className="seat-ring-track" cx="21" cy="21" r="16" />
           {invitedLen > 0 && (
@@ -84,7 +84,7 @@ export function SeatUsageBreakdown({
         </svg>
         <div className="seat-ring-legend">
           <span>
-            <b>{b.claimed}</b> claimed
+            <b>{b.claimed}</b> 사용 중
           </span>
           <span className="muted">
             {b.reserved > 0 && vaults.length > 0 ? (
@@ -92,10 +92,10 @@ export function SeatUsageBreakdown({
             ) : (
               <b>{b.reserved}</b>
             )}{" "}
-            invited
+            초대됨
           </span>
           <span className="muted">
-            <b>{b.available}</b> available
+            <b>{b.available}</b> 남음
           </span>
         </div>
       </div>
@@ -106,10 +106,10 @@ export function SeatUsageBreakdown({
       <table className="members-table seat-breakdown-table">
         <thead>
           <tr>
-            <th>Seats</th>
-            <th>Claimed</th>
-            <th>Invited</th>
-            <th>Available</th>
+            <th>좌석</th>
+            <th>사용 중</th>
+            <th>초대됨</th>
+            <th>남은 좌석</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +132,7 @@ export function SeatUsageBreakdown({
       {canManage && showManage && (
         <div className="vault-row-actions">
           <button className="secondary billing-action" onClick={onManage}>
-            Add or change seats
+            좌석 추가·변경
           </button>
         </div>
       )}
@@ -369,7 +369,7 @@ export function InvitedSeatsMenuItems({
   return (
     <>
       <li className="menu-heading" role="presentation">
-        <span>Invited</span>
+        <span>초대됨</span>
         <span className="seat-invited-total">{invitedTotalLabel(total)}</span>
       </li>
       {vaults.map((v) => (
@@ -378,7 +378,7 @@ export function InvitedSeatsMenuItems({
           role="menuitem"
           tabIndex={-1}
           className="seat-invited-row"
-          title={`Open ${v.name}'s members and invitations`}
+          title={`${v.name}의 멤버와 초대 열기`}
           onClick={() => onChoose(v)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -392,7 +392,7 @@ export function InvitedSeatsMenuItems({
         </li>
       ))}
       <li className="menu-note" role="presentation">
-        Pending invitations hold a seat until they're accepted or expire.
+        대기 중인 초대는 수락하거나 만료될 때까지 좌석을 차지해요.
       </li>
     </>
   );

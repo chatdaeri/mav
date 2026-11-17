@@ -49,13 +49,13 @@ export function NoteLimitBannerView({
   return (
     <Banner show={show} className="note-limit-banner" role="alert">
       <span>
-        <strong>This vault reached its sync limit.</strong> Upgrade to Team to keep syncing new notes. Additional notes stay on this device.
+        <strong>이 볼트가 동기화 한도에 도달했어요.</strong> 새 노트를 계속 동기화하려면 팀 요금제로 업그레이드하세요. 추가된 노트는 이 기기에만 저장돼요.
       </span>
       <div className="banner-actions">
         <button className="primary" onClick={onUpgrade}>
-          Upgrade to Team
+          팀 요금제로 업그레이드
         </button>
-        <button onClick={onDismiss}>Dismiss</button>
+        <button onClick={onDismiss}>닫기</button>
       </div>
     </Banner>
   );

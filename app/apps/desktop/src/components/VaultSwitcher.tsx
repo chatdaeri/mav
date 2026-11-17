@@ -41,7 +41,7 @@ export function useSwitcherRows(): VaultRow[] {
   const openPath = useStore((s) => s.vault?.path) ?? null;
   const recents = useRecentVaults();
   const allLocals = useLocalVaults();
-  // Owner rule 2026-10-07: only folders never synced to Baalda join the
+  // Owner rule 2026-10-07: only folders never synced to 마브 join the
   // account's own vaults here. A folder stamped for a vault this account is
   // not in (signed out: ANY stamped folder) is hidden, and a folder whose
   // stamp has not settled waits, so no row appears and then vanishes. The
@@ -165,9 +165,9 @@ export function VaultTile({ identity, name }: { identity: string; name: string }
 }
 
 function rowSubtitle(row: VaultRow): string {
-  if (row.kind === "local") return "Local";
+  if (row.kind === "local") return "이 기기에만";
   // A synced vault with no folder here has never been opened on this device.
-  return row.openedAt ? "Synced" : "Synced · not on this device yet";
+  return row.openedAt ? "동기화됨" : "동기화됨 · 이 기기에는 아직 없음";
 }
 
 /**
@@ -238,7 +238,7 @@ export function VaultSwitcherPopover({
               <rect x="14" y="14" width="7" height="7" rx="1.5" />
             </>
           }
-          label="Manage vaults"
+          label="볼트 관리"
           onClick={() => {
             onClose();
             const st = useStore.getState();
@@ -258,15 +258,15 @@ export function VaultSwitcherPopover({
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </>
             }
-            label="Vault settings"
+            label="볼트 설정"
             hint={
               !signedIn
-                ? "Turn on sync"
+                ? "동기화 켜기"
                 : activeOrgId
-                  ? `${members.length} member${members.length === 1 ? "" : "s"}${
+                  ? `멤버 ${members.length}명${
                       pendingInvitations.length > 0 ? ` +${pendingInvitations.length}` : ""
                     }`
-                  : "Local"
+                  : "이 기기에만"
             }
             onClick={() => {
               onClose();
@@ -282,8 +282,8 @@ export function VaultSwitcherPopover({
                 <path d="M9 22V12h6v10" />
               </>
             }
-            label="Home"
-            hint="Close vault"
+            label="홈"
+            hint="볼트 닫기"
             onClick={() => {
               useStore.getState().closeLocalVault();
               onClose();
@@ -357,7 +357,7 @@ function NewVaultItem({ onDone }: { onDone: () => void }) {
   if (!naming) return (
       <ActionRow
         icon={<path d="M12 5v14M5 12h14" />}
-        label="New vault"
+        label="새 볼트"
         onClick={() => setNaming(true)}
       />
     );
@@ -367,7 +367,7 @@ function NewVaultItem({ onDone }: { onDone: () => void }) {
       <div className="menu-create-org">
         <input
           autoFocus
-          placeholder="Vault name"
+          placeholder="볼트 이름"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
@@ -381,7 +381,7 @@ function NewVaultItem({ onDone }: { onDone: () => void }) {
           }}
         />
         <button className="primary sm" disabled={busy || !name.trim()} onClick={() => void create()}>
-          Create
+          만들기
         </button>
       </div>
       {error && <div className="auth-error">{error}</div>}
@@ -418,7 +418,7 @@ function JoinVaultItem({ onDone }: { onDone: () => void }) {
   if (!joining) return (
       <ActionRow
         icon={<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" />}
-        label="Join with code"
+        label="참여 코드로 참여"
         onClick={() => setJoining(true)}
       />
     );
@@ -428,7 +428,7 @@ function JoinVaultItem({ onDone }: { onDone: () => void }) {
       <div className="menu-create-org">
         <input
           autoFocus
-          placeholder="Join code, e.g. K7MPX2RA"
+          placeholder="참여 코드 (예: K7MPX2RA)"
           value={code}
           spellCheck={false}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -441,7 +441,7 @@ function JoinVaultItem({ onDone }: { onDone: () => void }) {
           }}
         />
         <button className="primary sm" disabled={busy} onClick={() => void join()}>
-          Join
+          참여
         </button>
       </div>
       {error && <div className="auth-error">{error}</div>}

@@ -95,20 +95,20 @@ export function NotSyncingBannerView({
         <span>
           <strong>
             {reason === "vault-no-access"
-              ? "You no longer have access to this vault"
-              : "You no longer have access to this note"}
-          </strong>: changes here are not syncing.
+              ? "이 볼트에 더 이상 접근할 수 없어요"
+              : "이 노트에 더 이상 접근할 수 없어요"}
+          </strong>: 여기서 바꾼 내용이 동기화되지 않아요.
         </span>
       ) : (
         <span>
-          <strong>Signed out</strong>. Your changes are not syncing. Edits stay on this
-          device until you sign in.
+          <strong>로그아웃됨</strong>. 변경 내용이 동기화되지 않아요. 로그인하기 전까지
+          수정 내용은 이 기기에만 남아요.
         </span>
       )}
       {reason === "signed-out" && (
         <div className="banner-actions">
           <button className="primary" onClick={onSignIn}>
-            Sign in
+            로그인
           </button>
         </div>
       )}

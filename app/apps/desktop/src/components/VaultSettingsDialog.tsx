@@ -87,7 +87,7 @@ const TEAM_TABS = new Set<SettingsTab>([
 /** General tab: name, folder, and sync state (incl. the Turn-on-sync CTA). */
 const GENERAL_TAB: { id: SettingsTab; label: string; icon: React.ReactNode } = {
   id: "general",
-  label: "General",
+  label: "일반",
   icon: (
     <MenuIcon>
       <circle cx="12" cy="12" r="3" />
@@ -99,7 +99,7 @@ const GENERAL_TAB: { id: SettingsTab; label: string; icon: React.ReactNode } = {
 const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNode }> = [
   {
     id: "vaults",
-    label: "Vaults",
+    label: "볼트",
     icon: (
       <MenuIcon>
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -111,7 +111,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
   },
   {
     id: "members",
-    label: "Members and access",
+    label: "멤버 및 권한",
     icon: (
       <MenuIcon>
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -120,7 +120,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
       </MenuIcon>
     ),
   },
-  { id: "dashboards", label: "Dashboards", icon: <MenuIcon><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></MenuIcon> },
+  { id: "dashboards", label: "대시보드", icon: <MenuIcon><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></MenuIcon> },
   {
     id: "mcp",
     label: "MCP",
@@ -133,7 +133,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
   },
   {
     id: "skills",
-    label: "Agent Skills",
+    label: "에이전트 스킬",
     icon: (
       <MenuIcon>
         <path d={AGENT_SKILLS_ICON_PATH} />
@@ -142,7 +142,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
   },
   {
     id: "versioning",
-    label: "Versioning",
+    label: "버전 관리",
     icon: (
       <MenuIcon>
         <path d="M3 12a9 9 0 1 0 2.6-6.4" />
@@ -153,7 +153,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
   },
   {
     id: "import-export",
-    label: "Import / Export",
+    label: "가져오기 / 내보내기",
     icon: (
       <MenuIcon>
         <path d="M12 3v10" />
@@ -164,7 +164,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
   },
   {
     id: "appearance",
-    label: "Appearance",
+    label: "화면",
     icon: (
       <MenuIcon>
         <circle cx="12" cy="12" r="10" />
@@ -177,7 +177,7 @@ const SETTINGS_TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNo
 /** The Billing tab, inserted after Members only when the server has billing on. */
 const BILLING_TAB: { id: SettingsTab; label: string; icon: React.ReactNode } = {
   id: "billing",
-  label: "Billing",
+  label: "결제",
   icon: (
     <MenuIcon>
       <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -194,9 +194,9 @@ const BILLING_TAB: { id: SettingsTab; label: string; icon: React.ReactNode } = {
  */
 /** Redesign preview: plain-word names for a few tabs. */
 const RD_LABEL: Partial<Record<string, string>> = {
-  members: "People and access",
-  versioning: "Version history",
-  "import-export": "Import and export",
+  members: "사람 및 권한",
+  versioning: "버전 기록",
+  "import-export": "가져오기 및 내보내기",
   mcp: "MCP",
 };
 const rdLabel = (t: { id: string; label: string }) => RD_LABEL[t.id] ?? t.label;
@@ -279,7 +279,7 @@ export function VaultSettingsDialog({
       out.splice(
         idx >= 0 ? idx + 1 : out.length,
         0,
-        teamBilling ? { ...BILLING_TAB, label: "Usage" } : BILLING_TAB,
+        teamBilling ? { ...BILLING_TAB, label: "사용량" } : BILLING_TAB,
       );
     }
     return out;
@@ -308,25 +308,25 @@ export function VaultSettingsDialog({
 
   return (
     <SettingsModal
-      label={isSynced ? "Vault settings" : "Local vault settings"}
+      label={isSynced ? "볼트 설정" : "로컬 볼트 설정"}
       onClose={onClose}
     >
       <header className="settings-page-header">
         <div className="settings-title">
           <span className="settings-eyebrow">
-            {isSynced ? "Vault settings" : "Local vault"}
+            {isSynced ? "볼트 설정" : "로컬 볼트"}
           </span>
           {/* The session's active org outlives a switch to a local folder, so
               its name only titles the dialog while that vault is the synced one. */}
-          <h1>{(isSynced ? activeOrg?.name : null) ?? vault?.name ?? "Vault"}</h1>
+          <h1>{(isSynced ? activeOrg?.name : null) ?? vault?.name ?? "볼트"}</h1>
         </div>
-        <button className="icon-btn" onClick={onClose} aria-label="Close settings" title="Close (Esc)">
+        <button className="icon-btn" onClick={onClose} aria-label="설정 닫기" title="닫기 (Esc)">
           ✕
         </button>
       </header>
 
       <div className="settings-body">
-        <nav className="settings-nav" aria-label="Settings sections">
+        <nav className="settings-nav" aria-label="설정 섹션">
           {tabs.map((t) => {
             const locked = TEAM_TABS.has(t.id) && !isSynced;
             return (
@@ -339,7 +339,7 @@ export function VaultSettingsDialog({
                   if (tab === t.id) setTabReset((n) => n + 1);
                   else setTab(t.id);
                 }}
-                title={locked ? "Turn on sync to unlock" : undefined}
+                title={locked ? "동기화를 켜면 사용할 수 있어요" : undefined}
               >
                 {t.icon}
                 <span className="menu-item-label">{rdLabel(t)}</span>
@@ -363,7 +363,7 @@ export function VaultSettingsDialog({
           })}
           {session && (
             <SettingsCrossLink
-              label="Account settings"
+              label="계정 설정"
               onOpen={() => useStore.getState().requestAccountSettings("profile")}
             />
           )}
@@ -482,7 +482,7 @@ function GeneralTab({
         // The inline line can be scrolled out of view, and the button simply
         // returns to idle — which reads as "nothing happened". A sticky toast is
         // always visible (#85).
-        toast(`Couldn't turn on sync: ${message}`, "error");
+        toast(`동기화를 켜지 못했어요: ${message}`, "error");
       }
     } finally {
       setBusy(false);
@@ -493,7 +493,7 @@ function GeneralTab({
     <>
       {/* Only an owner with no other way back sees it; it renders nothing otherwise. */}
       {isSynced && isOwner && syncManager.registry.vaultId && (
-        <SaveVaultKeyCard vaultId={syncManager.registry.vaultId} vaultName={activeOrgName ?? "Vault"} />
+        <SaveVaultKeyCard vaultId={syncManager.registry.vaultId} vaultName={activeOrgName ?? "볼트"} />
       )}
       {iconIdentity && (
         <>
@@ -512,20 +512,20 @@ function GeneralTab({
         <>
           <div className="muted">
             {activeOrgName
-              ? "You're viewing a local folder. Turn on sync to keep this vault on your account and across devices."
-              : "This vault lives only on this computer. Turn on sync to reach it from other devices, or invite people to it."}
+              ? "로컬 폴더를 보고 있어요. 동기화를 켜면 이 볼트를 내 계정에 보관하고 여러 기기에서 쓸 수 있어요."
+              : "이 볼트는 이 컴퓨터에만 있어요. 동기화를 켜면 다른 기기에서도 쓰고 사람을 초대할 수 있어요."}
           </div>
 
           <div className="sync-promo">
-            <h3 className="sync-promo-title">Turn on sync &amp; sharing</h3>
+            <h3 className="sync-promo-title">동기화 및 공유 켜기</h3>
             <p className="sync-promo-desc">
-              Keeps the notes and folders already here, so there's nothing to re-import.
-              Enables live collaboration and lets you invite people. Everyone in the
-              vault can edit by default; you choose who sees what.
+              이미 있는 노트와 폴더는 그대로 유지돼서 다시 가져올 필요가 없어요.
+              실시간 협업을 켜고 사람을 초대할 수 있어요. 기본적으로 볼트의 모든 멤버가
+              편집할 수 있고, 누가 무엇을 볼지는 직접 정해요.
             </p>
             <div className="row invite-bar">
               <input
-                placeholder="Vault name"
+                placeholder="볼트 이름"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => {
@@ -543,14 +543,14 @@ function GeneralTab({
                 {busy
                   ? "…"
                   : authPending
-                    ? "Checking your account…"
+                    ? "계정을 확인하는 중…"
                     : authStatus === "signed-in"
-                      ? "Turn on sync"
-                      : "Sign in to turn on"}
+                      ? "동기화 켜기"
+                      : "로그인하고 켜기"}
               </button>
             </div>
             {!authPending && authStatus !== "signed-in" && (
-              <div className="muted">You'll need to sign in first. This button will prompt you.</div>
+              <div className="muted">먼저 로그인해야 해요. 이 버튼을 누르면 안내해 드려요.</div>
             )}
             {error && <div className="auth-error">{error}</div>}
             {limitNudge && (
@@ -567,7 +567,7 @@ function GeneralTab({
       {isSynced && canManage && <FreezeRootRow canManage={canManage} />}
 
       <div className="menu-sep" />
-      <div className="subhead">Folder on disk</div>
+      <div className="subhead">디스크의 폴더</div>
       <div className="join-code-row">
         <code className="vault-root-path" title={vault?.path ?? ""}>
           {vault?.path ?? "—"}
@@ -579,7 +579,7 @@ function GeneralTab({
       {/* Security sits last; the card brings its own heading, so nothing shows
           for a vault that is not encrypted. */}
       {isSynced && canManage && (
-        <VaultKeySection vaultName={activeOrgName ?? "Vault"} isOwner={isOwner} canManage={canManage} />
+        <VaultKeySection vaultName={activeOrgName ?? "볼트"} isOwner={isOwner} canManage={canManage} />
       )}
 
       {upgradeOpen && <UpgradeDialog onClose={() => setUpgradeOpen(false)} />}
@@ -631,7 +631,7 @@ function UnsyncDangerZone() {
   return (
     <>
       <div className="menu-sep" />
-      <div className="subhead">Danger zone</div>
+      <div className="subhead">위험 영역</div>
       {reset.available && (
         <div className="vault-local-only-card">
           <span className="vault-local-only-icon" aria-hidden="true">
@@ -641,14 +641,14 @@ function UnsyncDangerZone() {
             </svg>
           </span>
           <div className="vault-local-only-copy">
-            <strong>Reset local copy</strong>
+            <strong>로컬 사본 초기화</strong>
             <span className="field-hint">
-              Delete {folder ? <>the <strong>{folder}</strong> folder</> : "this vault's folder"} on this
-              device and download a fresh copy from {serverHost(serverUrl)}. Nothing changes for your team.
+              이 기기의 {folder ? <><strong>{folder}</strong> 폴더</> : "이 볼트의 폴더"}를 삭제하고
+              {serverHost(serverUrl)}에서 새 사본을 내려받아요. 팀에는 아무 변화가 없어요.
             </span>
           </div>
           <button className="vault-local-only-action" onClick={reset.start}>
-            Reset
+            초기화
           </button>
         </div>
       )}
@@ -660,31 +660,31 @@ function UnsyncDangerZone() {
           </svg>
         </span>
         <div className="vault-local-only-copy">
-          <strong>Make this vault local only</strong>
+          <strong>이 볼트를 로컬 전용으로 바꾸기</strong>
           <span className="field-hint">
             {folder ? (
               <>
-                Keep the <strong>{folder}</strong> folder on this device and remove its synced copy
-                from {serverHost(serverUrl)}.
+                이 기기의 <strong>{folder}</strong> 폴더는 유지하고 {serverHost(serverUrl)}의
+                동기화 사본을 삭제해요.
               </>
             ) : (
-              <>Keep the local folder on this device and remove its synced copy from {serverHost(serverUrl)}.</>
+              <>이 기기의 로컬 폴더는 유지하고 {serverHost(serverUrl)}의 동기화 사본을 삭제해요.</>
             )}{" "}
             {preview ? (
               <>
-                The server copy of {preview.notes} note{plural(preview.notes)} and {preview.files} file
-                {plural(preview.files)}, version history, and sharing will be deleted.{" "}
+                노트 {preview.notes}개와 파일 {preview.files}개의 서버 사본, 버전 기록, 공유 설정이
+                삭제돼요.{" "}
                 {preview.members > 0
-                  ? `${preview.members} teammate${plural(preview.members)} lose access.`
-                  : "No teammates currently have access."}
+                  ? `팀원 ${preview.members}명이 접근 권한을 잃어요.`
+                  : "현재 접근 권한이 있는 팀원은 없어요."}
               </>
             ) : (
-              "Checking what will be removed…"
+              "삭제될 항목을 확인하는 중…"
             )}
           </span>
         </div>
         <button className="vault-local-only-action" onClick={() => setConfirming(true)}>
-          Make local only
+          로컬 전용으로 바꾸기
         </button>
       </div>
       {reset.dialog}
@@ -700,11 +700,6 @@ function UnsyncDangerZone() {
       )}
     </>
   );
-}
-
-/** "1 note" / "2 notes", without reaching for a formatting library. */
-function plural(n: number): string {
-  return n === 1 ? "" : "s";
 }
 
 /** Just the host of the server URL — the whole URL is noise inside a sentence. */
@@ -780,7 +775,7 @@ export function UnsyncConfirmDialog({
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
-      toast(`Couldn't make the vault local only: ${message}`, "error");
+      toast(`볼트를 로컬 전용으로 바꾸지 못했어요: ${message}`, "error");
     }
   };
 
@@ -791,8 +786,8 @@ export function UnsyncConfirmDialog({
 
   return (
     <ConfirmDialog
-      title={`Make ${orgName} local only?`}
-      confirmLabel="Make local only"
+      title={`${orgName}을(를) 로컬 전용으로 바꿀까요?`}
+      confirmLabel="로컬 전용으로 바꾸기"
       // The name has to match exactly. The server re-checks it too (409
       // `name_mismatch`), so a slip here can't get past either gate.
       confirmDisabled={loading || typed.trim() !== orgName}
@@ -800,46 +795,44 @@ export function UnsyncConfirmDialog({
       onConfirm={run}
     >
       <p>
-        Your files stay where they are.{" "}
+        파일은 그대로 남아요.{" "}
         {folderName ? (
           <>
-            <strong>{folderName}</strong> on this device keeps every note and
-            attachment as ordinary files.
+            이 기기의 <strong>{folderName}</strong>에는 모든 노트와 첨부 파일이
+            일반 파일로 남아요.
           </>
         ) : (
-          "This device keeps every note and attachment as ordinary files."
+          "이 기기에는 모든 노트와 첨부 파일이 일반 파일로 남아요."
         )}
       </p>
       <p>
-        <strong>Deleted from {serverHost(serverUrl)}, permanently:</strong>
+        <strong>{serverHost(serverUrl)}에서 영구 삭제돼요:</strong>
       </p>
       {loading && !preview ? (
-        <p className="muted">Counting what would be deleted…</p>
+        <p className="muted">삭제될 항목을 세는 중…</p>
       ) : preview ? (
         <ul className="confirm-list">
           <li>
-            {preview.notes} note{plural(preview.notes)} and {preview.files} file
-            {plural(preview.files)}, with all of their edit history
+            노트 {preview.notes}개와 파일 {preview.files}개, 그리고 모든 편집 기록
             {preview.checkpoints > 0
-              ? ` and ${preview.checkpoints} version checkpoint${plural(preview.checkpoints)}`
+              ? ` 및 버전 체크포인트 ${preview.checkpoints}개`
               : ""}
           </li>
           {preview.members > 0 && (
             <li>
-              {preview.members} teammate{plural(preview.members)} lose access
-              immediately; their own local copies are kept
+              팀원 {preview.members}명이 즉시 접근 권한을 잃어요. 각자의
+              로컬 사본은 유지돼요
             </li>
           )}
           {preview.publicLinks > 0 && (
             <li>
-              {preview.publicLinks} public share link{plural(preview.publicLinks)} stop
-              working
+              공개 공유 링크 {preview.publicLinks}개가 작동하지 않아요
             </li>
           )}
           {preview.mcpTokens > 0 && (
             <li>
-              {preview.mcpTokens} MCP token{plural(preview.mcpTokens)} stop working, and AI
-              clients lose access
+              MCP 토큰 {preview.mcpTokens}개가 작동하지 않고 AI
+              클라이언트가 접근 권한을 잃어요
             </li>
           )}
         </ul>
@@ -847,14 +840,14 @@ export function UnsyncConfirmDialog({
       {sub && (
         <p>
           {sub.currentPeriodEnd
-            ? `Pro ends on ${formatDate(sub.currentPeriodEnd)}. Until then you can move the subscription to another vault from Billing.`
-            : "Pro ends when the current period does. Until then you can move the subscription to another vault from Billing."}
+            ? `Pro는 ${formatDate(sub.currentPeriodEnd)}에 끝나요. 그때까지 결제에서 구독을 다른 볼트로 옮길 수 있어요.`
+            : "Pro는 현재 결제 기간이 끝나면 종료돼요. 그때까지 결제에서 구독을 다른 볼트로 옮길 수 있어요."}
         </p>
       )}
-      <p>This cannot be undone. Teammates cannot get the vault back from us.</p>
+      <p>되돌릴 수 없어요. 팀원은 우리에게서 볼트를 다시 받을 수 없어요.</p>
       <label className="confirm-type">
         <span>
-          Type <strong>{orgName}</strong> to confirm
+          확인하려면 <strong>{orgName}</strong>을(를) 입력하세요
         </span>
         <input
           autoFocus
@@ -904,19 +897,19 @@ function FreezeRootRow({ canManage }: { canManage: boolean }) {
       <div className="menu-sep" />
       <label className="menu-row toggle-row freeze-root-row">
         <span className="menu-row-label">
-          Freeze vault root
+          볼트 루트 고정
           <span className="field-hint">
-            Stops anything new being created at the top level of this vault:
-            new notes and folders have to go inside an existing folder. Applies
-            to everyone, including you; only an owner or admin can turn it off.
-            Nothing already at the root is moved, renamed, or hidden.
+            볼트 최상위에 새 항목이 만들어지지 않게 해요. 새 노트와 폴더는 기존
+            폴더 안에 만들어야 해요. 나를 포함한 모든 멤버에게 적용되고, 소유자나
+            관리자만 해제할 수 있어요. 이미 루트에 있는 항목은 옮기거나 이름을 바꾸거나
+            숨기지 않아요.
           </span>
         </span>
         <Switch
           checked={rootFrozen}
           disabled={!canManage || busy}
-          ariaLabel="Freeze vault root"
-          title={canManage ? undefined : "Only an owner or admin can change this"}
+          ariaLabel="볼트 루트 고정"
+          title={canManage ? undefined : "소유자나 관리자만 바꿀 수 있어요"}
           onChange={(next) => void flip(next)}
         />
       </label>
@@ -956,17 +949,17 @@ function SyncGate({ label, onRequestSignIn }: { label: string; onRequestSignIn?:
         <rect x="4" y="11" width="16" height="10" rx="2" />
         <path d="M8 11V7a4 4 0 0 1 8 0v4" />
       </svg>
-      <h3>{label} unlocks with sync</h3>
+      <h3>{label}은(는) 동기화를 켜면 사용할 수 있어요</h3>
       <p className="muted">
-        Turn on sync for this vault to invite people, set sharing and
-        permissions, and connect AI clients.
+        이 볼트의 동기화를 켜면 사람을 초대하고, 공유와 권한을 설정하고,
+        AI 클라이언트를 연결할 수 있어요.
       </p>
       <button
         className="primary"
         disabled={turningOnSync || authStatus === "unknown"}
         onClick={turnOn}
       >
-        {turningOnSync ? "Turning on sync…" : <>Turn on sync &amp; sharing →</>}
+        {turningOnSync ? "동기화를 켜는 중…" : <>동기화 및 공유 켜기 →</>}
       </button>
     </div>
   );
@@ -984,7 +977,7 @@ interface UsageTile {
 /** "1.2 MB" → { value: "1.2", unit: "MB" }; plain bytes read as "bytes". */
 function splitBytes(n: number): { value: string; unit: string } {
   const [value, unit] = formatBytes(n).split(" ");
-  return { value, unit: unit === "B" ? "bytes" : unit };
+  return { value, unit: unit === "B" ? "바이트" : unit };
 }
 
 /**
@@ -1066,7 +1059,7 @@ function TeamVaultBillingCard({
   });
 
   const elsewhere = isOwner && !!myAccountId && !!vaultAccountId && vaultAccountId !== myAccountId;
-  const label = vaultName ?? "this vault";
+  const label = vaultName ?? "이 볼트";
 
   const runMove = async () => {
     if (!orgId || !myAccountId) return;
@@ -1076,7 +1069,7 @@ function TeamVaultBillingCard({
       await authManager.api.moveVault(orgId, myAccountId);
       setConfirming(false);
       await onMoved();
-      toast(`${vaultName ?? "The vault"} is now on your account.`);
+      toast(`${vaultName ?? "이 볼트"}가 이제 내 계정에 속해요.`);
     } catch (e) {
       const body = e instanceof ApiError && e.body && typeof e.body === "object"
         ? (e.body as Record<string, unknown>)
@@ -1098,7 +1091,7 @@ function TeamVaultBillingCard({
       }
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
-      toast(`Couldn't move the vault: ${message}`, "error");
+      toast(`볼트를 옮기지 못했어요: ${message}`, "error");
     }
   };
 
@@ -1110,12 +1103,12 @@ function TeamVaultBillingCard({
   const tiles: UsageTile[] = [
     {
       key: "people",
-      caption: "People",
+      caption: "사람",
       value: loading ? "…" : String(usageRow?.people ?? 0),
       sub:
         usage?.limits.people != null
-          ? `of ${usage.limits.people} on this account`
-          : (usageRow?.people ?? 0) === 1 ? "person" : "people",
+          ? `이 계정에서 ${usage.limits.people}명 중`
+          : "명",
       meter:
         usage?.limits.people != null && usageRow
           ? { used: usageRow.people, limit: usage.limits.people }
@@ -1123,33 +1116,33 @@ function TeamVaultBillingCard({
     },
     {
       key: "notes",
-      caption: "Notes",
+      caption: "노트",
       value: loading ? "…" : String(usageRow?.notes ?? 0),
-      sub: "in this vault",
+      sub: "이 볼트",
     },
     {
       key: "attachments",
-      caption: "Attachments",
+      caption: "첨부 파일",
       value: loading ? "…" : (bytes?.value ?? "0"),
-      sub: bytes?.unit ?? "bytes",
+      sub: bytes?.unit ?? "바이트",
     },
     {
       key: "files",
-      caption: "Files",
+      caption: "파일",
       value: loading ? "…" : String(usageRow?.files ?? 0),
-      sub: "in this vault",
+      sub: "이 볼트",
     },
   ];
   const freeBase = useStore.getState().billingConfig?.free?.syncedVaults ?? null;
   if (usage?.limits.vaults != null) {
     tiles.push({
       key: "vaults",
-      caption: "Synced vaults",
+      caption: "동기화 볼트",
       value: String(syncedVaults),
       sub:
         freeBase != null && usage.limits.vaults > freeBase
-          ? `of ${usage.limits.vaults} on this account · includes vaults you had before`
-          : `of ${usage.limits.vaults} on this account`,
+          ? `이 계정에서 ${usage.limits.vaults}개 중 · 이전부터 있던 볼트 포함`
+          : `이 계정에서 ${usage.limits.vaults}개 중`,
       meter: { used: syncedVaults, limit: usage.limits.vaults },
     });
   }
@@ -1190,20 +1183,20 @@ function TeamVaultBillingCard({
             })}
           </div>
         ) : (
-          <div className="muted">Usage isn't available for this vault right now.</div>
+          <div className="muted">지금은 이 볼트의 사용량을 볼 수 없어요.</div>
         )}
         <div className="vault-usage-footer is-end">
           <button
             className="secondary billing-action"
             onClick={() => useStore.getState().requestAccountSettings("plan")}
           >
-            Open Plan &amp; Billing
+            요금제 및 결제 열기
           </button>
         </div>
         {elsewhere && (
           <div className="vault-usage-footer">
             <span className="vault-usage-footer-label">
-              Bill it on your own account instead.
+              대신 내 계정으로 결제하세요.
             </span>
             <button
               className="secondary billing-action"
@@ -1213,7 +1206,7 @@ function TeamVaultBillingCard({
                 setConfirming(true);
               }}
             >
-              Move to my account
+              내 계정으로 옮기기
             </button>
           </div>
         )}
@@ -1228,15 +1221,14 @@ function TeamVaultBillingCard({
         {confirming && (
           <ConfirmDialog
             tone="accent"
-            title={`Move ${label} to your account?`}
-            confirmLabel="Move to my account"
+            title={`${label}을(를) 내 계정으로 옮길까요?`}
+            confirmLabel="내 계정으로 옮기기"
             onCancel={() => setConfirming(false)}
             onConfirm={runMove}
           >
             <p>
-              Its people and limits will count on your account from now on, and it
-              stops counting on the account it is on today. Notes, members and access
-              stay exactly as they are.
+              이 볼트의 사람 수와 한도가 앞으로 내 계정에 합산되고, 지금 속한 계정에서는
+              빠져요. 노트, 멤버, 권한은 그대로예요.
             </p>
           </ConfirmDialog>
         )}
@@ -1319,17 +1311,17 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
   const runTransfer = async () => {
     if (!transfer || !transfer.targetOrgId) return;
     const { sourceOrgId, targetOrgId } = transfer;
-    const targetName = vaults.find((v) => v.orgId === targetOrgId)?.name ?? "the vault";
+    const targetName = vaults.find((v) => v.orgId === targetOrgId)?.name ?? "그 볼트";
     setError(null);
     try {
       await authManager.api.transferSubscription(sourceOrgId, targetOrgId);
       setTransfer(null);
       await refreshAll();
-      toast(`Pro moved to ${targetName}.`);
+      toast(`Pro를 ${targetName}(으)로 옮겼어요.`);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
-      toast(`Couldn't move the subscription: ${message}`, "error");
+      toast(`구독을 옮기지 못했어요: ${message}`, "error");
     }
   };
 
@@ -1341,17 +1333,17 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
       await authManager.api.cancelSubscription(target, "now");
       setCancelling(null);
       await refreshAll();
-      toast(`Subscription for ${label} canceled.`);
+      toast(`${label}의 구독을 취소했어요.`);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
-      toast(`Couldn't cancel the subscription: ${message}`, "error");
+      toast(`구독을 취소하지 못했어요: ${message}`, "error");
     }
   };
 
   if (!billingConfig?.enabled) {
     return (
-      <div className="muted perm-empty">Billing isn't enabled on this server.</div>
+      <div className="muted perm-empty">이 서버에서는 결제가 켜져 있지 않아요.</div>
     );
   }
 
@@ -1391,9 +1383,9 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
         <button
           className="link-btn"
           disabled
-          title="Nowhere to move it. You need another vault you own that isn't already on Pro."
+          title="옮길 곳이 없어요. 이미 Pro가 아닌 내 소유의 다른 볼트가 필요해요."
         >
-          Transfer
+          이전
         </button>
       );
     }
@@ -1402,7 +1394,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
         type="button"
         className="link-btn"
         disabled={busy}
-        aria-label={`Move ${sourceLabel}'s subscription to another vault`}
+        aria-label={`${sourceLabel}의 구독을 다른 볼트로 옮기기`}
         onClick={() => {
           setError(null);
           setTransfer({
@@ -1412,7 +1404,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
           });
         }}
       >
-        Transfer
+        이전
       </button>
     );
   };
@@ -1433,19 +1425,19 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
     return (
       <ConfirmDialog
         tone="accent"
-        title={`Move Pro from ${transfer.sourceLabel}`}
-        confirmLabel={target ? `Move Pro to ${target.name}` : "Move subscription"}
+        title={`${transfer.sourceLabel}의 Pro 옮기기`}
+        confirmLabel={target ? `Pro를 ${target.name}(으)로 옮기기` : "구독 옮기기"}
         confirmDisabled={!target}
         onCancel={() => setTransfer(null)}
         onConfirm={runTransfer}
       >
         <p>
-          Choose the vault that becomes Pro. It keeps the same billing period and
-          price. <strong>{transfer.sourceLabel}</strong> drops to Free. Its members
-          and notes stay, but its attachments stop syncing. Every local copy remains
-          available on its device.
+          Pro가 될 볼트를 고르세요. 결제 기간과 가격은 그대로예요.
+          <strong>{transfer.sourceLabel}</strong>은(는) Free로 바뀌어요. 멤버와 노트는
+          그대로이지만 첨부 파일은 동기화되지 않아요. 각 기기의 로컬 사본은 모두
+          그대로 사용할 수 있어요.
         </p>
-        <div className="transfer-targets" role="radiogroup" aria-label="Destination vault">
+        <div className="transfer-targets" role="radiogroup" aria-label="대상 볼트">
           {targets.map((t) => {
             const used = t.seats.members + t.seats.pendingInvitations;
             const selected = t.orgId === transfer.targetOrgId;
@@ -1460,7 +1452,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
               >
                 <span className="transfer-target-name">{t.name}</span>
                 <span className="transfer-target-meta">
-                  {used} of {t.seats.limit ?? "∞"} member{used === 1 ? "" : "s"} · Free
+                  멤버 {t.seats.limit ?? "∞"}명 중 {used}명 · Free
                 </span>
               </button>
             );
@@ -1468,7 +1460,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
         </div>
         {skipped > 0 && (
           <p className="transfer-targets-note">
-            Only vaults you own that aren't already on Pro are listed.
+            이미 Pro가 아닌 내 소유의 볼트만 표시돼요.
           </p>
         )}
         {error && <div className="auth-error">{error}</div>}
@@ -1487,8 +1479,8 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
       return (
         <div className="billing-card">
           <div className="muted">
-            This vault isn't synced, so it has no plan of its own. The vaults on
-            your account are listed below.
+            이 볼트는 동기화되지 않아서 자체 요금제가 없어요. 내 계정의 볼트는
+            아래에 표시돼요.
           </div>
         </div>
       );
@@ -1502,19 +1494,19 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
             <span className="billing-plan-name">Pro</span>
             <span className={`billing-status ${orgBilling.status}`}>
               {orgBilling.status === "past_due"
-                ? "Past due"
+                ? "결제 지연"
                 : orgBilling.status === "canceled"
-                  ? "Canceled"
-                  : "Active"}
+                  ? "취소됨"
+                  : "활성"}
             </span>
           </div>
           <div className="muted">
-            Attachment sync is active across devices and with your team.
+            첨부 파일 동기화가 여러 기기와 팀에서 켜져 있어요.
           </div>
           {orgBilling.currentPeriodEnd && (
             <div className="menu-row">
               <span className="menu-row-label">
-                {orgBilling.cancelAtPeriodEnd ? "Access until" : "Renews"}
+                {orgBilling.cancelAtPeriodEnd ? "이용 가능 기간" : "갱신일"}
               </span>
               <span>{formatDate(orgBilling.currentPeriodEnd)}</span>
             </div>
@@ -1522,7 +1514,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
           {orgBilling.cancelAtPeriodEnd && (
             <div className="limit-nudge">
               <span>
-                Your subscription is set to cancel at the end of the current period.
+                구독이 현재 결제 기간이 끝나면 취소되도록 설정돼 있어요.
               </span>
             </div>
           )}
@@ -1532,10 +1524,10 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
               disabled={busy}
               onClick={() => openPortal(orgId)}
             >
-              Manage subscription
+              구독 관리
             </AsyncButton>
           ) : (
-            <div className="muted">Ask an owner or admin to manage the subscription.</div>
+            <div className="muted">소유자나 관리자에게 구독 관리를 요청하세요.</div>
           )}
         </div>
       );
@@ -1549,20 +1541,19 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
           <span className="billing-plan-name">Free</span>
         </div>
         <div className="menu-row">
-          <span className="menu-row-label">Members</span>
+          <span className="menu-row-label">멤버</span>
           <span>
-            {used} of {limit ?? "∞"}
-            {limit != null && used >= limit ? " · full" : ""}
+            {limit ?? "∞"}명 중 {used}명
+            {limit != null && used >= limit ? " · 가득 참" : ""}
           </span>
         </div>
         {pendingInvitations > 0 && (
           <div className="muted">
-            Includes {pendingInvitations} pending invitation
-            {pendingInvitations === 1 ? "" : "s"}.
+            대기 중인 초대 {pendingInvitations}건이 포함돼 있어요.
           </div>
         )}
 
-        <div className="subhead">Upgrade to Pro unlocks</div>
+        <div className="subhead">Pro로 업그레이드하면 열려요</div>
         <div className="muted">{legacyFreePlanExplanation(billingConfig.freeLimits)}</div>
         <ul className="upgrade-features">
           {LEGACY_PRO_BENEFITS.map((benefit) => (
@@ -1572,10 +1563,10 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
 
         {canManage ? (
           <button className="primary billing-action" onClick={() => setUpgradeOrg(orgId)}>
-            Upgrade to Pro
+            Pro로 업그레이드
           </button>
         ) : (
-          <div className="muted">Ask an owner or admin to upgrade this vault.</div>
+          <div className="muted">소유자나 관리자에게 이 볼트의 업그레이드를 요청하세요.</div>
         )}
       </div>
     );
@@ -1589,8 +1580,8 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
     // reader. A row is a name and a fact line, so the list scans vertically.
     const meta = [
       subscriptionStatusLine(v, LINE_FORMAT),
-      `${seatsUsed} of ${v.seats.limit ?? "∞"} member${seatsUsed === 1 ? "" : "s"}`,
-      !v.canManage && v.billingOwner ? `Billed to ${v.billingOwner.name}` : null,
+      `멤버 ${v.seats.limit ?? "∞"}명 중 ${seatsUsed}명`,
+      !v.canManage && v.billingOwner ? `${v.billingOwner.name}님에게 청구` : null,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -1601,7 +1592,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
             <span className="billing-sub-vault">{v.name}</span>
             {/* A pill, not muted trailing text: it labels the row the reader
                 arrived from, so it has to survive the name's ellipsis. */}
-            {v.orgId === orgId && <span className="member-role">Current</span>}
+            {v.orgId === orgId && <span className="member-role">현재</span>}
           </span>
           {meta && <span className="billing-sub-meta">{meta}</span>}
         </span>
@@ -1617,7 +1608,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
               disabled={busy}
               onClick={() => setUpgradeOrg(v.orgId)}
             >
-              Upgrade
+              업그레이드
             </AsyncButton>
           )}
           {v.canManage && v.plan === "pro" && (
@@ -1626,7 +1617,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
               disabled={busy}
               onClick={() => openPortal(v.orgId)}
             >
-              Manage
+              관리
             </AsyncButton>
           )}
           {v.canTransfer && transferControl(v.orgId, v.name)}
@@ -1640,10 +1631,10 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
       {renderVaultCard()}
 
       {/* ---- 2. Every vault on the account ---- */}
-      <div className="subhead">Subscriptions</div>
+      <div className="subhead">구독</div>
       {vaults.length === 0 ? (
         <div className="muted perm-empty">
-          {myBilling ? "No vaults on this account yet." : "Loading…"}
+          {myBilling ? "이 계정에는 아직 볼트가 없어요." : "불러오는 중…"}
         </div>
       ) : (
         <ul className="member-list">{vaults.map(renderVaultRow)}</ul>
@@ -1652,20 +1643,19 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
       {/* ---- 3. Tombstones: paid time that outlived its vault ---- */}
       {orphaned.length > 0 && (
         <>
-          <div className="subhead">From deleted vaults</div>
+          <div className="subhead">삭제된 볼트의 구독</div>
           <div className="billing-section-note">
-            These subscriptions belonged to vaults that were deleted. They still
-            bill until they end. Move one to a vault to use the time you've paid
-            for, or cancel it now.
+            삭제된 볼트에 속했던 구독이에요. 종료될 때까지 계속 결제돼요. 결제한 기간을
+            쓰려면 다른 볼트로 옮기거나 지금 취소하세요.
           </div>
           <ul className="member-list">
             {orphaned.map((o) => {
-              const label = o.orgName ?? "Deleted vault";
+              const label = o.orgName ?? "삭제된 볼트";
               // Same two-line shape as a live vault row: the name leads, and
               // when it was deleted is a fact on the meta line, not a
               // parenthetical that competes with the name for the ellipsis.
               const meta = [
-                `Deleted ${formatDate(o.deletedAt)}`,
+                `${formatDate(o.deletedAt)}에 삭제됨`,
                 subscriptionStatusLine(o, LINE_FORMAT),
               ]
                 .filter(Boolean)
@@ -1679,7 +1669,7 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
                     <span className="billing-sub-meta">{meta}</span>
                   </span>
                   <span className={`billing-status ${o.status}`}>
-                    {o.status === "past_due" ? "Past due" : "Pro"}
+                    {o.status === "past_due" ? "결제 지연" : "Pro"}
                   </span>
                   <span className="vault-row-actions">
                     {transferControl(o.orgId, label)}
@@ -1691,14 +1681,14 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
                         setCancelling({ orgId: o.orgId, label });
                       }}
                     >
-                      Cancel now
+                      지금 취소
                     </AsyncButton>
                     <AsyncButton
                       className="link-btn"
                       disabled={busy}
                       onClick={() => openPortal(o.orgId)}
                     >
-                      Manage
+                      관리
                     </AsyncButton>
                   </span>
                 </li>
@@ -1711,9 +1701,9 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
       {/* ---- 4. What the free tier allows ---- */}
       {freeLimits && (
         <div className="menu-row settings-footer-row">
-          <span className="menu-row-label">Free vaults</span>
+          <span className="menu-row-label">무료 볼트</span>
           <span>
-            {freeLimits.freeVaultsUsed} of {freeLimits.vaultsPerUser} used
+            {freeLimits.vaultsPerUser}개 중 {freeLimits.freeVaultsUsed}개 사용
           </span>
         </div>
       )}
@@ -1728,19 +1718,18 @@ function BillingTab({ canManage, isSynced }: { canManage: boolean; isSynced: boo
 
       {cancelling && (
         <ConfirmDialog
-          title={`Cancel the subscription for ${cancelling.label}?`}
-          confirmLabel="Cancel subscription"
-          cancelLabel="Keep it"
+          title={`${cancelling.label}의 구독을 취소할까요?`}
+          confirmLabel="구독 취소"
+          cancelLabel="유지"
           onCancel={() => setCancelling(null)}
           onConfirm={runCancelNow}
         >
           <p>
-            Billing stops now and the rest of the period is given up. There is no
-            vault left to use it on, so nothing else is lost.
+            결제가 지금 중단되고 남은 기간은 포기돼요. 이 기간을 쓸 볼트가
+            남아 있지 않으므로 다른 손실은 없어요.
           </p>
           <p>
-            If you'd rather keep the time you've paid for, move it to another vault
-            instead.
+            결제한 기간을 유지하고 싶다면 대신 다른 볼트로 옮기세요.
           </p>
           {error && <div className="auth-error">{error}</div>}
         </ConfirmDialog>
@@ -1825,8 +1814,8 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
       const result = await useStore.getState().revertVaultToCheckpoint(cp.id);
       setConfirming(null);
       toast(
-        `Vault reverted: ${result.docsChanged} notes changed, ` +
-          `${result.docsRestored} restored, ${result.docsDeleted} removed`,
+        `볼트를 되돌렸어요: 노트 ${result.docsChanged}개 변경, ` +
+          `${result.docsRestored}개 복원, ${result.docsDeleted}개 제거`,
         "success",
       );
     } catch (e) {
@@ -1838,19 +1827,19 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
     <div className="versioning-tab">
       <p className="versioning-lede">
         {auto
-          ? "A checkpoint saves every note and folder in this vault. One is taken each day " +
-            "the vault changes, and the 5 most recent are kept. Reverting rolls back the " +
-            "vault for everyone."
-          : "A checkpoint saves every note and folder in this vault. You can create one a " +
-            "week, and the 5 most recent are kept. Reverting rolls back the vault for everyone."}
+          ? "체크포인트는 이 볼트의 모든 노트와 폴더를 저장해요. 볼트가 바뀐 날마다 " +
+            "하나씩 만들어지고, 최근 5개가 유지돼요. 되돌리면 모든 멤버의 " +
+            "볼트가 되돌아가요."
+          : "체크포인트는 이 볼트의 모든 노트와 폴더를 저장해요. 일주일에 한 번 만들 수 있고, " +
+            "최근 5개가 유지돼요. 되돌리면 모든 멤버의 볼트가 되돌아가요."}
       </p>
       {error && <div className="auth-error">{error}</div>}
       <div className="profile-rows versioning-rows">
         {canManage && (
           <div className="profile-row">
             <div className="profile-row-label">
-              <span className="profile-row-title">New checkpoint</span>
-              <span className="profile-row-hint">Save the vault as it is now, before a big change.</span>
+              <span className="profile-row-title">새 체크포인트</span>
+              <span className="profile-row-hint">큰 변경 전에 지금 상태의 볼트를 저장하세요.</span>
             </div>
             <div className="profile-row-control">
               <form
@@ -1862,23 +1851,22 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
               >
                 <input
                   type="text"
-                  placeholder="Label (optional), e.g. Before the big reorg"
+                  placeholder="라벨(선택), 예: 대규모 개편 전"
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                 />
                 <AsyncButton className="checkpoint-ink-btn" onClick={create} disabled={manualWaiting}>
-                  Create
+                  만들기
                 </AsyncButton>
               </form>
               {manualWaiting && (
                 <div className="muted checkpoint-note">
-                  You can create the next one on{" "}
+                  다음 체크포인트는{" "}
                   {new Date(nextManualMs).toLocaleDateString(undefined, {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
-                  })}
-                  .
+                  })}에 만들 수 있어요.
                 </div>
               )}
             </div>
@@ -1886,23 +1874,23 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
         )}
         <div className="profile-row profile-row-top">
           <div className="profile-row-label">
-            <span className="profile-row-title">Checkpoints</span>
+            <span className="profile-row-title">체크포인트</span>
             <span className="profile-row-hint">
-              Newest first. Reverting is itself saved as a checkpoint first, so it can be undone.
+              최신순이에요. 되돌리기 전에 현재 상태가 체크포인트로 먼저 저장돼서 되돌리기를 취소할 수 있어요.
             </span>
           </div>
           <div className="profile-row-control">
             {checkpoints == null ? (
-              <div className="muted perm-empty">Loading…</div>
+              <div className="muted perm-empty">불러오는 중…</div>
             ) : checkpoints.length === 0 ? (
               <div className="muted perm-empty">
                 {auto ? (
                   <>
-                    No checkpoints yet. One is captured automatically within a day of the
-                    vault changing{canManage ? ", or create one above" : ""}.
+                    아직 체크포인트가 없어요. 볼트가 바뀌면 하루 안에 자동으로 하나가
+                    만들어져요{canManage ? ". 위에서 직접 만들 수도 있어요" : ""}.
                   </>
                 ) : (
-                  <>No checkpoints yet{canManage ? ". Create one above" : ""}.</>
+                  <>아직 체크포인트가 없어요{canManage ? ". 위에서 만들어 보세요" : ""}.</>
                 )}
               </div>
             ) : (
@@ -1926,7 +1914,7 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
                       <span className="checkpoint-title">{checkpointName(cp)}</span>
                       <span className="checkpoint-sub">
                         {checkpointWhen(cp.createdAt, now)}
-                        {cp.createdByName ? ` · ${cp.createdByName}` : cp.kind === "auto" ? " · automatic" : ""}
+                        {cp.createdByName ? ` · ${cp.createdByName}` : cp.kind === "auto" ? " · 자동" : ""}
                         {" · "}
                         {noteCountLabel(cp.noteCount)}
                       </span>
@@ -1938,12 +1926,12 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
                             <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
                             <path d="M3 3v5h5" />
                           </svg>
-                          Revert
+                          되돌리기
                         </button>
                         <RowActionsMenu
-                          ariaLabel={`Actions for ${checkpointName(cp)}`}
+                          ariaLabel={`${checkpointName(cp)} 작업`}
                           actions={[
-                            { key: "delete", label: "Delete checkpoint", danger: true, onSelect: () => remove(cp.id) },
+                            { key: "delete", label: "체크포인트 삭제", danger: true, onSelect: () => remove(cp.id) },
                           ]}
                         />
                       </>
@@ -1957,32 +1945,32 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
       </div>
       {!canManage && (
         <div className="muted checkpoint-note">
-          Only a vault owner or admin can revert to a checkpoint.
+          볼트 소유자나 관리자만 체크포인트로 되돌릴 수 있어요.
         </div>
       )}
       {confirming && (
         <div className="modal-backdrop" onClick={() => setConfirming(null)}>
           <div className="modal checkpoint-confirm" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Revert the entire vault?</h2>
+              <h2>볼트 전체를 되돌릴까요?</h2>
             </div>
             <p className="muted">
-              Every note goes back to <strong>{checkpointName(confirming)}</strong> from{" "}
-              {checkpointWhen(confirming.createdAt, now)}: content, names and
-              folders, for every member, live. Notes created since then are
-              moved to trash. Attachments are not reverted. A checkpoint of the
-              current state is taken first, so this can be undone.
+              모든 노트가 {checkpointWhen(confirming.createdAt, now)}의{" "}
+              <strong>{checkpointName(confirming)}</strong> 상태로 돌아가요. 내용, 이름,
+              폴더가 모든 멤버에게 실시간으로 되돌아가요. 그 이후에 만든 노트는
+              휴지통으로 이동해요. 첨부 파일은 되돌리지 않아요. 현재 상태의 체크포인트를
+              먼저 저장하므로 되돌리기를 취소할 수 있어요.
             </p>
             <div className="banner-actions checkpoint-confirm-actions">
               <button className="secondary" onClick={() => setConfirming(null)}>
-                Cancel
+                취소
               </button>
               <AsyncButton
                 className="primary danger"
                 spinnerTone="on-accent"
                 onClick={() => revert(confirming)}
               >
-                Revert vault
+                볼트 되돌리기
               </AsyncButton>
             </div>
           </div>
@@ -1994,7 +1982,7 @@ function VersioningTab({ canManage }: { canManage: boolean }) {
 
 /** A checkpoint's name without its time: the label, or what made it. */
 function checkpointName(cp: VaultCheckpoint): string {
-  return cp.label?.trim() || (cp.kind === "manual" ? "Manual checkpoint" : "Daily checkpoint");
+  return cp.label?.trim() || (cp.kind === "manual" ? "수동 체크포인트" : "일일 체크포인트");
 }
 
 /** "Today, 3:02 PM", "Yesterday, 9:00 AM", or "Thu 29 Oct, 9:00 AM". */
@@ -2002,15 +1990,15 @@ function checkpointWhen(iso: string, now: number): string {
   const d = new Date(iso);
   const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
   const day = (t: number) => new Date(t).toDateString();
-  if (day(d.getTime()) === day(now)) return `Today, ${time}`;
-  if (day(d.getTime()) === day(now - 86_400_000)) return `Yesterday, ${time}`;
+  if (day(d.getTime()) === day(now)) return `오늘 ${time}`;
+  if (day(d.getTime()) === day(now - 86_400_000)) return `어제 ${time}`;
   const date = d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
   return `${date}, ${time}`;
 }
 
 function importSummaryText(s: ipc.ImportSummary): string {
-  const parts = [`Imported ${s.files} file${s.files === 1 ? "" : "s"}`];
-  if (s.skipped > 0) parts.push(`${s.skipped} skipped`);
+  const parts = [`파일 ${s.files}개를 가져왔어요`];
+  if (s.skipped > 0) parts.push(`${s.skipped}개 건너뜀`);
   return parts.join(" · ") + ".";
 }
 
@@ -2074,7 +2062,7 @@ function ImportExportTab() {
       const dest = await ipc.pickFolder();
       if (!dest) return null;
       await ipc.exportPath("", dest, epoch);
-      return "Exported the vault.";
+      return "볼트를 내보냈어요.";
     });
 
   return (
@@ -2085,11 +2073,11 @@ function ImportExportTab() {
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M12 18v-6M9 15l3 3 3-3" /></svg>
           </span>
           <span className="io-text">
-            Import files
-            <small>Markdown and text become notes; anything else is kept as is.</small>
+            파일 가져오기
+            <small>Markdown과 텍스트는 노트가 되고, 나머지는 그대로 보관돼요.</small>
           </span>
           <button className="ghost-pill" disabled={busy !== null} onClick={() => void importFiles()}>
-            {busy === "files" ? "Importing…" : "Choose files…"}
+            {busy === "files" ? "가져오는 중…" : "파일 선택…"}
           </button>
         </div>
         <div className="io-row">
@@ -2097,11 +2085,11 @@ function ImportExportTab() {
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M12 10v6M9 13l3 3 3-3" /></svg>
           </span>
           <span className="io-text">
-            Import a folder
-            <small>Keeps its folder structure. Existing names are never overwritten.</small>
+            폴더 가져오기
+            <small>폴더 구조를 유지해요. 기존 이름은 덮어쓰지 않아요.</small>
           </span>
           <button className="ghost-pill" disabled={busy !== null} onClick={() => void importFolder()}>
-            {busy === "folder" ? "Importing…" : "Choose folder…"}
+            {busy === "folder" ? "가져오는 중…" : "폴더 선택…"}
           </button>
         </div>
         <div className="io-row">
@@ -2109,15 +2097,15 @@ function ImportExportTab() {
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4M12 15V4M8 8l4-4 4 4" /></svg>
           </span>
           <span className="io-text">
-            Export this vault
-            <small>Saves a copy of every note and file to a folder on your computer.</small>
+            이 볼트 내보내기
+            <small>모든 노트와 파일의 사본을 컴퓨터의 폴더에 저장해요.</small>
           </span>
           <button className="ghost-pill" disabled={busy !== null} onClick={() => void exportVault()}>
-            {busy === "export" ? "Exporting…" : "Export…"}
+            {busy === "export" ? "내보내는 중…" : "내보내기…"}
           </button>
         </div>
       </div>
-      <p className="io-tip">Tip: drag files onto any folder in the sidebar, or right-click it to import there.</p>
+      <p className="io-tip">팁: 사이드바의 폴더에 파일을 끌어다 놓거나 폴더를 우클릭해서 그곳으로 가져올 수 있어요.</p>
 
       {error ? (
         <div className="auth-error">{error}</div>
@@ -2148,11 +2136,11 @@ function AppearanceTab({ canManage, isSynced }: { canManage: boolean; isSynced: 
       const body = e instanceof ApiError ? (e.body as { error?: string; key?: string } | undefined) : undefined;
       const reason =
         body?.error === "invalid_appearance"
-          ? `the server refused ${body.key ? `"${body.key}"` : "a value"}`
+          ? `서버가 ${body.key ? `"${body.key}"` : "값"}을(를) 거부했어요`
           : e instanceof Error
             ? e.message
             : String(e);
-      toast(`Couldn't save the vault's appearance, so it was put back: ${reason}.`, "error");
+      toast(`볼트 화면 설정을 저장하지 못해서 원래대로 되돌렸어요: ${reason}.`, "error");
     });
   }
   function flush() {
@@ -2192,11 +2180,11 @@ function AppearanceTab({ canManage, isSynced }: { canManage: boolean; isSynced: 
       {isSynced && orgId ? (
         <>
           <div className="subhead appearance-defaults-head">
-            Defaults for everyone in this vault
-            {!canManage && <span className="appearance-tag">Set by the vault owner</span>}
+            이 볼트 모든 멤버의 기본값
+            {!canManage && <span className="appearance-tag">볼트 소유자가 설정함</span>}
           </div>
           <div className="muted">
-            People can still override these in their own Appearance settings.
+            각자의 화면 설정에서 따로 바꿀 수 있어요.
           </div>
           <AppearanceRows
             mode="vault"
@@ -2206,13 +2194,13 @@ function AppearanceTab({ canManage, isSynced }: { canManage: boolean; isSynced: 
           />
           {canManage && (
             <button className="link-btn" onClick={resetToDefaults}>
-              Reset to defaults
+              기본값으로 되돌리기
             </button>
           )}
         </>
       ) : (
         <div className="menu-row">
-          <span className="menu-row-label">Theme</span>
+          <span className="menu-row-label">테마</span>
           <ThemeToggle />
         </div>
       )}

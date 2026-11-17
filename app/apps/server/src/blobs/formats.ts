@@ -1,5 +1,5 @@
 /**
- * The server's view of the file formats Baalda carries as attachments: which
+ * The server's view of the file formats 마브 carries as attachments: which
  * MIME types may be stored, how big each kind is allowed to get, which ones are
  * safe to render inline in a browser, and what the bytes say they actually are.
  *
@@ -107,6 +107,12 @@ export const EXT_MIME: Readonly<Record<string, string>> = {
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   xlsm: "application/vnd.ms-excel.sheet.macroEnabled.12",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  hwpx: "application/hwp+zip",
+  // legacy OLE binaries (HWP 5, Word/PowerPoint/Excel 97)
+  hwp: "application/x-hwp",
+  doc: "application/msword",
+  ppt: "application/vnd.ms-powerpoint",
+  xls: "application/vnd.ms-excel",
   // audio / video
   mp3: "audio/mpeg",
   wav: "audio/wav",
@@ -129,6 +135,11 @@ const MIME_CATEGORY: Readonly<Record<string, FormatCategory>> = {
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "document",
   "application/vnd.ms-excel.sheet.macroEnabled.12": "document",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation": "document",
+  "application/hwp+zip": "document",
+  "application/x-hwp": "document",
+  "application/msword": "document",
+  "application/vnd.ms-powerpoint": "document",
+  "application/vnd.ms-excel": "document",
   "application/zip": "archive",
   "application/json": "text",
   "application/yaml": "text",
@@ -255,6 +266,16 @@ const EQUIVALENT_MIME: ReadonlyArray<ReadonlySet<string>> = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-excel.sheet.macroEnabled.12",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/hwp+zip",
+  ]),
+  // OLE compound files: HWP 5 and the Office 97 formats share one container
+  // signature (`D0 CF 11 E0`), which `file-type` reports as `application/x-cfb`.
+  new Set([
+    "application/x-cfb",
+    "application/x-hwp",
+    "application/msword",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.ms-excel",
   ]),
   // ISO-BMFF `ftyp` containers: m4a, mp4 and mov differ only by brand, and
   // `file-type` reports the brand it sees rather than the one a client guessed.

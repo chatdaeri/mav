@@ -852,8 +852,13 @@ describe("tree binary path guard", () => {
     expect(isSafeTreeBinaryRelPath(".context/index.sqlite")).toBe(false);
     expect(isSafeTreeBinaryRelPath("Team/.hidden/x.png")).toBe(false);
     expect(isSafeTreeBinaryRelPath("Team/../escape.png")).toBe(false);
-    expect(isSafeTreeBinaryRelPath("src/app.js")).toBe(false);
+    // 마브 lists every type with a real extension (code included), never a
+    // name that could be a folder.
+    expect(isSafeTreeBinaryRelPath("src/app.js")).toBe(true);
+    expect(isSafeTreeBinaryRelPath("brand/logo.ai")).toBe(true);
     expect(isSafeTreeBinaryRelPath("Makefile")).toBe(false);
+    expect(isSafeTreeBinaryRelPath("assets/1.0.0")).toBe(false);
+    expect(isSafeTreeBinaryRelPath("x.tmp")).toBe(false);
     expect(isSafeTreeBinaryRelPath("")).toBe(false);
   });
 

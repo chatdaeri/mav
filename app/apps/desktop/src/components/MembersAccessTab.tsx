@@ -128,7 +128,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
   const serverUrl = useStore((s) => s.serverUrl);
   const orgId = session?.activeOrganizationId ?? null;
   const myUserId = session?.user.id;
-  const vaultName = organizations.find((o) => o.id === orgId)?.name ?? "this vault";
+  const vaultName = organizations.find((o) => o.id === orgId)?.name ?? "이 볼트";
 
   const [overview, setOverview] = useState<MembersOverview | null>(null);
   const [teamAccess, setTeamAccess] = useState<TeamAccess | null>(null);
@@ -171,7 +171,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
       accessDefault: joining ?? prev?.accessDefault ?? null,
     });
     if (!ov || (canManage && (!team || !joining))) {
-      setError("Couldn't load everything on this page. Check your connection and reopen it.");
+      setError("이 페이지의 일부를 불러올 수 없어요. 연결을 확인하고 다시 열어 주세요.");
     }
   }, [orgId, canManage]);
 
@@ -289,7 +289,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
     await authManager.api.setTeamAccess(orgId, mode);
     patchRoster((r) => ({ ...r, teamAccess: r.teamAccess ? patchedTeamAccess(r.teamAccess, mode) : r.teamAccess }));
     refreshBehind();
-    toast(`Everyone in ${vaultName}: ${EVERYONE_OPTIONS.find((o) => o.value === mode)?.label}`);
+    toast(`${vaultName}의 모든 멤버: ${EVERYONE_OPTIONS.find((o) => o.value === mode)?.label}`);
   });
 
   const chooseEveryone = (mode: TeamAccessMode) => {
@@ -306,14 +306,14 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
       label: copy.button,
       tone: mode === "private" ? "danger" : "accent",
       apply: () => writeEveryone(mode),
-      subtitle: <>People set by name keep their own setting.</>,
+      subtitle: <>이름으로 따로 설정한 사람은 자기 설정을 유지해요.</>,
       change: {
-        who: `Everyone in ${vaultName}`,
-        sub: "Default for every member",
+        who: `${vaultName}의 모든 멤버`,
+        sub: "모든 멤버의 기본값",
         from: teamAccess.posture === "none" ? "private" : teamAccess.mode,
         to: mode,
       },
-      cancelLabel: "Keep as is",
+      cancelLabel: "그대로 두기",
       body: <p className="confirm-note">{copy.outcome}</p>,
     });
   };
@@ -324,7 +324,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
     const next = await authManager.api.setAccessDefault(orgId, mode);
     setAccessDefault(next);
     patchRoster((r) => ({ ...r, accessDefault: next }));
-    toast(`New members: ${NEW_MEMBER_OPTIONS.find((o) => o.value === next.mode)?.label}`);
+    toast(`새 멤버: ${NEW_MEMBER_OPTIONS.find((o) => o.value === next.mode)?.label}`);
   });
 
   // ── One person ──────────────────────────────────────────────────────────
@@ -367,18 +367,18 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
       apply: () => writePerson(m, choice),
       subtitle: (
         <>
-          This applies across {vaultName}
-          {self ? ", and owners and admins are not exempt." : ", over the default for everyone."}
+          {vaultName} 전체에 적용돼요
+          {self ? ". 소유자와 관리자도 예외가 아니에요." : ". 모든 멤버의 기본값보다 우선해요."}
         </>
       ),
       change: {
-        who: self ? "You" : displayName(m),
+        who: self ? "나" : displayName(m),
         sub: self ? displayName(m) : m.email ?? undefined,
         avatar: <Avatar label={displayName(m)} image={m.image} userId={m.userId} />,
         from: from === null ? null : from,
         to: choice,
       },
-      cancelLabel: self ? "Keep my access" : "Keep as is",
+      cancelLabel: self ? "내 권한 유지" : "그대로 두기",
       body: <p className="confirm-note">{copy.outcome}</p>,
     });
   };
@@ -389,14 +389,14 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
   });
 
   const askRemove = (m: MemberOverview) => setConfirm({
-    title: `Remove ${displayName(m)} from ${vaultName}?`,
-    label: "Remove",
+    title: `${vaultName}에서 ${displayName(m)}을(를) 제거할까요?`,
+    label: "제거",
     tone: "danger",
     apply: () => run(async () => {
       await useStore.getState().removeMember(m.userId);
       await reload();
     }),
-    body: <p>They lose access on all their devices right away. You can invite them again later.</p>,
+    body: <p>모든 기기에서 즉시 접근할 수 없게 돼요. 나중에 다시 초대할 수 있어요.</p>,
   });
 
   // ── Invitations ─────────────────────────────────────────────────────────
@@ -405,7 +405,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
     if (!link) return;
     try {
       await navigator.clipboard.writeText(link);
-      toast("Invite link copied");
+      toast("초대 링크를 복사했어요");
     } catch { /* clipboard unavailable */ }
   };
 
@@ -420,12 +420,12 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
     const limit = result?.error ? inviteLimitError(result.error) : null;
     if (limit) setLimitCause(limit);
     else if (result?.error) setError(result.error);
-    else toast(result?.emailed ? `Invitation emailed to ${inv.email}` : `Invitation renewed. Copy its link for ${inv.email}`);
+    else toast(result?.emailed ? `${inv.email}(으)로 초대 메일을 보냈어요` : `초대를 갱신했어요. ${inv.email}의 링크를 복사하세요`);
   });
 
   const askRevoke = (inv: InvitationOverview) => setConfirm({
-    title: `Revoke the invitation to ${inv.email}?`,
-    label: "Revoke",
+    title: `${inv.email}에 보낸 초대를 취소할까요?`,
+    label: "초대 취소",
     tone: "danger",
     apply: () => run(async () => {
       await authManager.api.cancelInvitation(inv.id);
@@ -433,7 +433,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
       void reload();
       void useStore.getState().refreshVault();
     }),
-    body: <p>Its link stops working. You can invite them again later.</p>,
+    body: <p>링크가 더 이상 작동하지 않아요. 나중에 다시 초대할 수 있어요.</p>,
   });
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -507,12 +507,12 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
   return (
     <div className="members-access">
       <div className="members-access-header">
-        <h2 className="settings-section-title">Members and access</h2>
+        <h2 className="settings-section-title">멤버와 권한</h2>
         {manage && (
-          <button className="primary" onClick={() => setInviteOpen(true)}>Invite people</button>
+          <button className="primary" onClick={() => setInviteOpen(true)}>사람 초대</button>
         )}
       </div>
-      <p className="members-access-intro">Owners and admins can always manage access.</p>
+      <p className="members-access-intro">소유자와 관리자는 언제나 권한을 관리할 수 있어요.</p>
       {error && <div className="auth-error">{error}</div>}
       {limitCause != null && <PeopleLimitNotice error={limitCause} canManageBilling={myRole === "owner"} ownerName={ownerName(members)} freeLimit={seatAccount ? freeLimitOf(seatAccount) : null} />}
 
@@ -523,8 +523,8 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
               <PeopleIcon />
             </span>
             <span className="members-access-row-copy">
-              <span className="members-access-row-title">Everyone in {vaultName}</span>
-              <span className="muted">{everyone?.sub ?? "Default for every member"}</span>
+              <span className="members-access-row-title">{vaultName}의 모든 멤버</span>
+              <span className="muted">{everyone?.sub ?? "모든 멤버의 기본값"}</span>
             </span>
             {teamAccess ? (
               <MenuSelect
@@ -532,13 +532,13 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                 options={EVERYONE_OPTIONS}
                 onSelect={chooseEveryone}
                 disabled={busy}
-                ariaLabel={`Access for everyone in ${vaultName}`}
+                ariaLabel={`${vaultName}의 모든 멤버 권한`}
                 triggerClassName={`members-access-trigger is-level ${levelClass(teamAccess.posture === "none" ? "private" : teamAccess.mode)}`}
                 menuClassName="access-menu"
                 triggerContent={everyone?.label}
               />
             ) : (
-              <PillSkeleton label={`Loading access for everyone in ${vaultName}`} />
+              <PillSkeleton label={`${vaultName}의 모든 멤버 권한 불러오는 중`} />
             )}
           </div>
           <div className="members-access-row">
@@ -546,8 +546,8 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
               <ClockIcon />
             </span>
             <span className="members-access-row-copy">
-              <span className="members-access-row-title">New members</span>
-              <span className="muted">For notes made before they joined</span>
+              <span className="members-access-row-title">새 멤버</span>
+              <span className="muted">참여하기 전에 만든 노트 기준</span>
             </span>
             {accessDefault ? (
               <MenuSelect
@@ -555,30 +555,30 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                 options={NEW_MEMBER_OPTIONS}
                 onSelect={(m) => void chooseDefault(m)}
                 disabled={busy}
-                ariaLabel="Access for new members"
+                ariaLabel="새 멤버 권한"
                 triggerClassName={`members-access-trigger is-level ${levelClass(accessDefault.mode)}`}
                 menuClassName="access-menu"
               />
             ) : (
-              <PillSkeleton label="Loading access for new members" />
+              <PillSkeleton label="새 멤버 권한 불러오는 중" />
             )}
           </div>
         </div>
       )}
 
       <div className="members-access-list-heading">
-        <h3>People</h3>
+        <h3>사람</h3>
         <span className="members-access-count muted">
           {overview ? countLine(query, shown.members.length, shown.invitations.length) : <span className="skel-line members-skel-count" aria-hidden="true" />}
         </span>
       </div>
       <label className="members-access-search-field">
-        <span className="members-access-search-label">Search this list</span>
+        <span className="members-access-search-label">이 목록에서 검색</span>
         <span className="members-access-search">
           <SearchIcon />
           <input
             type="search"
-            placeholder="Name or email"
+            placeholder="이름 또는 이메일"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -591,11 +591,11 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
         <table className="members-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Role</th>
-              {manage && <th>Access</th>}
-              <th>Last active</th>
-              {manage && <th aria-label="Actions" />}
+              <th>이름</th>
+              <th>역할</th>
+              {manage && <th>권한</th>}
+              <th>마지막 활동</th>
+              {manage && <th aria-label="작업" />}
             </tr>
           </thead>
           <tbody>
@@ -603,16 +603,16 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
               const name = displayName(m);
               const isMe = m.userId === myUserId;
               const actions: RowAction[] = [
-                { key: "profile", label: "View profile", onSelect: () => setProfile({ userId: m.userId, tab: "info" }) },
+                { key: "profile", label: "프로필 보기", onSelect: () => setProfile({ userId: m.userId, tab: "info" }) },
               ];
               if (canSetAccess(m)) {
-                actions.push({ key: "access", label: "Manage access", onSelect: () => setProfile({ userId: m.userId, tab: "access" }) });
+                actions.push({ key: "access", label: "권한 관리", onSelect: () => setProfile({ userId: m.userId, tab: "access" }) });
               }
               if (canAct(m)) {
                 actions.push(m.role === "admin"
-                  ? { key: "role", label: "Make member", onSelect: () => changeRole(m, "member") }
-                  : { key: "role", label: "Make admin", onSelect: () => changeRole(m, "admin") });
-                actions.push({ key: "remove", label: `Remove from ${vaultName}`, danger: true, separated: true, onSelect: () => askRemove(m) });
+                  ? { key: "role", label: "멤버로 변경", onSelect: () => changeRole(m, "member") }
+                  : { key: "role", label: "관리자로 변경", onSelect: () => changeRole(m, "admin") });
+                actions.push({ key: "remove", label: `${vaultName}에서 제거`, danger: true, separated: true, onSelect: () => askRemove(m) });
               }
               return (
                 <tr
@@ -620,7 +620,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                   className="is-clickable"
                   tabIndex={0}
                   role="button"
-                  aria-label={`Open profile of ${name}`}
+                  aria-label={`${name}의 프로필 열기`}
                   onClick={(e) => { if (isRowOwnClick(e)) setProfile({ userId: m.userId, tab: "info" }); }}
                   onKeyDown={(e) => {
                     if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
@@ -632,7 +632,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                     <span className="members-table-person">
                       <Avatar label={name} image={m.image} userId={m.userId} />
                       <span className="members-table-names">
-                        <span className="members-table-name">{name}{isMe && <span className="muted"> (you)</span>}</span>
+                        <span className="members-table-name">{name}{isMe && <span className="muted"> (나)</span>}</span>
                         {m.email && m.name && <span className="muted">{m.email}</span>}
                       </span>
                     </span>
@@ -647,11 +647,11 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                             { value: "open", label: PERSON_LEVEL_LABEL.edit },
                             { value: "readonly", label: PERSON_LEVEL_LABEL.view },
                             { value: "private", label: PERSON_LEVEL_LABEL.none },
-                            { value: "manage", label: "Manage access…" },
+                            { value: "manage", label: "권한 관리…" },
                           ]}
                           onSelect={(c) => choosePerson(m, c)}
                           disabled={busy}
-                          ariaLabel={`Access for ${name}`}
+                          ariaLabel={`${name}의 권한`}
                           triggerClassName={`members-access-trigger is-level ${levelClass(m.access.level)}`}
                 menuClassName="access-menu"
                           triggerContent={PERSON_LEVEL_LABEL[m.access.level]}
@@ -666,7 +666,7 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                   <td>{lastActiveLabel(presentIds.has(m.userId), m.lastActiveAt, now)}</td>
                   {manage && (
                     <td className="members-table-actions">
-                      <RowActionsMenu actions={actions} ariaLabel={`Actions for ${name}`} disabled={busy} />
+                      <RowActionsMenu actions={actions} ariaLabel={`${name} 작업`} disabled={busy} />
                     </td>
                   )}
                 </tr>
@@ -682,23 +682,23 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
                       <span className="members-table-names">
                         <span className="members-table-name">{inv.email}</span>
                         <span className="muted">
-                          {expired ? "Invite expired" : `Invite sent ${shortDate(inv.createdAt)}`}
+                          {expired ? "초대 만료됨" : `${shortDate(inv.createdAt)} 초대 발송`}
                         </span>
                       </span>
                     </span>
                   </td>
-                  <td>Invited</td>
+                  <td>초대됨</td>
                   {manage && <td>{invitationAccessLabel(inv.access)}</td>}
-                  <td>Not joined yet</td>
+                  <td>아직 참여 안 함</td>
                   {manage && (
                     <td className="members-table-actions">
                       <RowActionsMenu
-                        ariaLabel={`Actions for the invitation to ${inv.email}`}
+                        ariaLabel={`${inv.email} 초대 작업`}
                         disabled={busy}
                         actions={[
-                          { key: "resend", label: "Resend", onSelect: () => resend(inv) },
-                          { key: "copy", label: "Copy link", onSelect: () => copyLink(inv) },
-                          { key: "revoke", label: "Revoke", danger: true, separated: true, onSelect: () => askRevoke(inv) },
+                          { key: "resend", label: "다시 보내기", onSelect: () => resend(inv) },
+                          { key: "copy", label: "링크 복사", onSelect: () => copyLink(inv) },
+                          { key: "revoke", label: "초대 취소", danger: true, separated: true, onSelect: () => askRevoke(inv) },
                         ]}
                       />
                     </td>
@@ -716,8 +716,8 @@ export function MembersAccessTab({ canManage, onOpenTab, onCloseSettings, resetT
         <p className="members-access-mcp-hint">
           <TerminalIcon />
           <span>
-            Tip: you can also manage access by chatting with Claude or ChatGPT through MCP.{" "}
-            <button type="button" className="link-btn" onClick={() => onOpenTab("mcp")}>Set it up →</button>
+            팁: MCP로 Claude나 ChatGPT와 대화하면서 권한을 관리할 수도 있어요.{" "}
+            <button type="button" className="link-btn" onClick={() => onOpenTab("mcp")}>설정하기 →</button>
           </span>
         </p>
       )}
@@ -847,14 +847,14 @@ function PillSkeleton({ label }: { label: string }) {
 
 function TableSkeleton({ manage }: { manage: boolean }) {
   return (
-    <table className="members-table members-table-skeleton" aria-busy="true" aria-label="Loading people">
+    <table className="members-table members-table-skeleton" aria-busy="true" aria-label="사람 불러오는 중">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Role</th>
-          {manage && <th>Access</th>}
-          <th>Last active</th>
-          {manage && <th aria-label="Actions" />}
+          <th>이름</th>
+          <th>역할</th>
+          {manage && <th>권한</th>}
+          <th>마지막 활동</th>
+          {manage && <th aria-label="작업" />}
         </tr>
       </thead>
       <tbody aria-hidden="true">

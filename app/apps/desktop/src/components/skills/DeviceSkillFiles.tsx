@@ -62,7 +62,7 @@ export function DeviceSkillFiles({ path }: { path: string }) {
 
   if (listing.status === "loading") return <EditorSkeleton />;
   if (listing.status === "error") {
-    return <LoadError message={`Couldn't list this skill's files: ${listing.message}`} onRetry={() => setAttempt((n) => n + 1)} />;
+    return <LoadError message={`이 스킬의 파일 목록을 불러오지 못했어요: ${listing.message}`} onRetry={() => setAttempt((n) => n + 1)} />;
   }
 
   const files = listing.files;
@@ -77,7 +77,7 @@ export function DeviceSkillFiles({ path }: { path: string }) {
     <div className="skills-editor">
       <div className="skills-tree">
         <div className="skills-tree-head">
-          <span>Files</span>
+          <span>파일</span>
         </div>
         <ul className="skills-tree-list" role="tree">
           {rows.map(({ node, depth }) => {
@@ -125,7 +125,7 @@ export function DeviceSkillFiles({ path }: { path: string }) {
             );
           })}
         </ul>
-        {listing.truncated && <div className="field-hint skills-tree-note">Showing the first {files.length} files.</div>}
+        {listing.truncated && <div className="field-hint skills-tree-note">처음 {files.length}개 파일만 표시해요.</div>}
       </div>
 
       <div className="skills-pane">
@@ -134,14 +134,14 @@ export function DeviceSkillFiles({ path }: { path: string }) {
             {selected}
             {current && <span className="skills-pane-size"> · {formatSize(current.size)}</span>}
           </span>
-          <span className="skills-save-status">Read only · edit it in its own folder</span>
+          <span className="skills-save-status">읽기 전용 · 해당 폴더에서 편집하세요</span>
         </div>
 
         {header && (
           <div className="skills-md-header">
-            <span className="skills-md-label">Name</span>
+            <span className="skills-md-label">이름</span>
             <span className="skills-md-name">{header.name ?? "—"}</span>
-            <span className="skills-md-label">Description</span>
+            <span className="skills-md-label">설명</span>
             <span className="skills-md-static">{header.description || "—"}</span>
           </div>
         )}
@@ -152,13 +152,13 @@ export function DeviceSkillFiles({ path }: { path: string }) {
           ) : state.status === "error" ? (
             <div className="skills-quiet">
               <LoadError
-                message={`Couldn't read ${selected}: ${state.message}`}
+                message={`${selected} 파일을 읽지 못했어요: ${state.message}`}
                 onRetry={() => setTexts(({ [selected]: _gone, ...rest }) => rest)}
               />
             </div>
           ) : state.file.binary || state.file.text === null ? (
             <div className="skills-quiet field-hint">
-              Binary file ·{" "}
+              바이너리 파일 ·{" "}
               <button className="link-btn skills-hint-link-inline" onClick={() => void ipc.revealInFileManager(`${path}/${selected}`)}>
                 {ipc.revealLabel()}
               </button>
@@ -175,7 +175,7 @@ export function DeviceSkillFiles({ path }: { path: string }) {
         </div>
 
         {text?.truncated && (
-          <div className="skills-pane-foot field-hint">Showing the start of this file; it's longer than what's shown here.</div>
+          <div className="skills-pane-foot field-hint">파일의 앞부분만 표시해요. 전체 내용은 이보다 길어요.</div>
         )}
       </div>
     </div>

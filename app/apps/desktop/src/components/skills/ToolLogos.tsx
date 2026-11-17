@@ -59,14 +59,14 @@ export function WorksWith() {
     <footer className="skills-works-with">
       <span
         className="skills-works-stack"
-        title="Your skills work in Claude, Codex, Cursor, Gemini, Copilot, OpenCode and any tool that reads ~/.agents/skills."
+        title="스킬은 Claude, Codex, Cursor, Gemini, Copilot, OpenCode와 ~/.agents/skills를 읽는 모든 도구에서 작동해요."
       >
         {(["claude", "codex", "cursor", "gemini"] as const).map((t) => (
           <span key={t} className="skills-works-coin" title={TOOL_NAME[t]}>
             <ToolLogo tool={t} size={16} title="" />
           </span>
         ))}
-        <span className="skills-works-coin is-more" title="Copilot, OpenCode and more">+3</span>
+        <span className="skills-works-coin is-more" title="Copilot, OpenCode 외">+3</span>
       </span>
     </footer>
   );
@@ -77,7 +77,7 @@ export function ToolMarks({ tools, names = true }: { tools: readonly ToolAvailab
   return (
     <span className="skills-tool-marks">
       {tools.map((t, i) => (
-        <span key={t.tool} className={`skills-available-tool${t.on ? "" : " is-off"}`} title={t.reason ?? t.note ?? `${AI_TOOL_NAME[t.tool]} can use this skill`}>
+        <span key={t.tool} className={`skills-available-tool${t.on ? "" : " is-off"}`} title={t.reason ?? t.note ?? `${AI_TOOL_NAME[t.tool]}에서 이 스킬을 쓸 수 있어요`}>
           {names && i > 0 && <span className="skills-available-sep" aria-hidden="true">·</span>}
           <ToolLogo tool={t.tool} size={16} faded={!t.on} title="" />
           {names && AI_TOOL_NAME[t.tool]}
@@ -91,7 +91,7 @@ export function ToolMarks({ tools, names = true }: { tools: readonly ToolAvailab
 export function AvailableIn({ tools }: { tools: readonly ToolAvailability[] }) {
   return (
     <div className="skills-available">
-      <span className="skills-available-label">{tools.every((t) => !t.on) ? "Not available in any AI tool here" : "Available in"}</span>
+      <span className="skills-available-label">{tools.every((t) => !t.on) ? "이 기기의 어떤 AI 도구에서도 쓸 수 없어요" : "사용 가능한 도구"}</span>
       <ToolMarks tools={tools} />
     </div>
   );

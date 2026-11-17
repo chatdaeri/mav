@@ -66,8 +66,8 @@ export function CodeView({ path, abs }: ViewerProps) {
         if (cancelled) return;
         if (stat.size > MAX_CODE_BYTES) {
           setError(
-            `This file is larger than ${Math.round(MAX_CODE_BYTES / (1024 * 1024))} MB, ` +
-              `too big to open here.`,
+            `이 파일은 ${Math.round(MAX_CODE_BYTES / (1024 * 1024))}MB보다 커서 ` +
+              `여기서 열 수 없어요.`,
           );
           return;
         }
@@ -77,7 +77,7 @@ export function CodeView({ path, abs }: ViewerProps) {
       } catch (e) {
         if (!cancelled) {
           console.error("code preview failed", e);
-          setError("Couldn't read this file.");
+          setError("이 파일을 읽을 수 없어요.");
         }
       }
     })();
@@ -131,7 +131,7 @@ export function CodeView({ path, abs }: ViewerProps) {
     <div className="file-preview file-preview-code" data-viewer="code">
       <div className="file-preview-body">
         {text == null ? (
-          <div className="editor-empty">Loading…</div>
+          <div className="editor-empty">불러오는 중…</div>
         ) : (
           <div className="file-code-host" ref={hostRef} />
         )}

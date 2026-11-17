@@ -43,7 +43,7 @@ function toBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result).replace(/^data:[^,]*,/, ""));
-    reader.onerror = () => reject(reader.error ?? new Error("Couldn't read the file"));
+    reader.onerror = () => reject(reader.error ?? new Error("파일을 읽을 수 없어요"));
     reader.readAsDataURL(file);
   });
 }
@@ -109,11 +109,11 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
     [serverUrl, vaultName, syncStatus],
   );
   const detailRows: Array<[string, string]> = [
-    ["App version", details.appVersion ?? ""],
-    ["Platform", details.platform ?? ""],
-    ["Server", details.serverUrl ?? ""],
-    ...(details.vault ? ([["Vault", details.vault]] as Array<[string, string]>) : []),
-    ["Sync status", details.syncStatus ?? ""],
+    ["앱 버전", details.appVersion ?? ""],
+    ["플랫폼", details.platform ?? ""],
+    ["서버", details.serverUrl ?? ""],
+    ...(details.vault ? ([["볼트", details.vault]] as Array<[string, string]>) : []),
+    ["동기화 상태", details.syncStatus ?? ""],
   ];
 
   const addFiles = (incoming: File[]) => {
@@ -121,20 +121,20 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
     const next = [...files];
     for (const file of incoming) {
       if (!ALLOWED_EXTS.includes(extOf(file.name))) {
-        setError(`${file.name} can't be attached. Use an image, PDF, text or log file, JSON, ZIP or a short video.`);
+        setError(`${file.name}은(는) 첨부할 수 없어요. 이미지, PDF, 텍스트·로그 파일, JSON, ZIP 또는 짧은 동영상을 사용하세요.`);
         continue;
       }
       if (next.length >= MAX_FILES) {
-        setError(`You can attach up to ${MAX_FILES} files.`);
+        setError(`파일은 최대 ${MAX_FILES}개까지 첨부할 수 있어요.`);
         break;
       }
       if (file.size > MAX_FILE_BYTES) {
-        setError(`${file.name} is over ${formatBytes(MAX_FILE_BYTES)}. For a longer recording, paste a Loom link instead.`);
+        setError(`${file.name}이(가) ${formatBytes(MAX_FILE_BYTES)}를 넘어요. 긴 녹화는 Loom 링크를 붙여 넣으세요.`);
         continue;
       }
       const total = next.reduce((n, f) => n + f.file.size, 0) + file.size;
       if (total > MAX_TOTAL_BYTES) {
-        setError(`Attachments can add up to ${formatBytes(MAX_TOTAL_BYTES)} in total.`);
+        setError(`첨부 파일은 합쳐서 ${formatBytes(MAX_TOTAL_BYTES)}까지 가능해요.`);
         continue;
       }
       next.push({
@@ -164,7 +164,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
     addFiles(
       images.map(
         (f, i) =>
-          new File([f], `Screenshot ${stamp}${images.length > 1 ? ` (${i + 1})` : ""}.${extOf(f.name) || "png"}`, {
+          new File([f], `스크린샷 ${stamp}${images.length > 1 ? ` (${i + 1})` : ""}.${extOf(f.name) || "png"}`, {
             type: f.type,
           }),
       ),
@@ -204,19 +204,19 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
       setError(
         e instanceof ApiError
           ? e.status === 429
-            ? "You've sent several reports in the last hour. Please try again a little later."
+            ? "최근 한 시간 동안 신고를 여러 번 보냈어요. 잠시 후 다시 시도해 주세요."
             : e.status === 404
-              ? "This server no longer takes bug reports."
+              ? "이 서버는 더 이상 버그 신고를 받지 않아요."
               : e.status === 413 || code === "attachments_too_large"
-                ? "The attachments are too large. Remove one, or share a Loom link instead."
+                ? "첨부 파일이 너무 커요. 하나를 제거하거나 Loom 링크를 공유하세요."
                 : code === "invalid_attachment"
-                  ? "One of the files can't be attached. Try a different file type."
+                  ? "첨부할 수 없는 파일이 있어요. 다른 형식의 파일을 사용해 보세요."
                   : code === "invalid_video_link"
-                    ? "That video link doesn't look right. Paste the full https:// address."
+                    ? "동영상 링크가 올바르지 않아요. https://로 시작하는 전체 주소를 붙여 넣으세요."
                     : e.status === 502
-                      ? "The report couldn't be emailed just now. Please try again in a minute."
+                      ? "지금은 신고를 이메일로 보낼 수 없어요. 잠시 후 다시 시도해 주세요."
                       : e.message
-          : "Couldn't reach the server. Check your connection and try again.",
+          : "서버에 연결할 수 없어요. 연결 상태를 확인하고 다시 시도해 주세요.",
       );
     }
   };
@@ -228,12 +228,12 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
         className="modal bug-report-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="Report a bug"
+        aria-label="버그 신고"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <span>Report a bug</span>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <span>버그 신고</span>
+          <button className="icon-btn" onClick={onClose} aria-label="닫기">
             ✕
           </button>
         </div>
@@ -245,24 +245,24 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
                 <path d="M5 12.5l4.5 4.5L19 7.5" />
               </svg>
             </span>
-            <strong>Thanks, your report was sent.</strong>
+            <strong>신고를 보냈어요. 감사합니다.</strong>
             <p>
               {email ? (
-                <>Sent to support. Any reply will come to {email}.</>
+                <>지원팀에 전달했어요. 답변은 {email}(으)로 보내드려요.</>
               ) : (
-                "Sent to support. Thanks for helping make Baalda better."
+                "지원팀에 전달했어요. 마이 세컨드 브레인을 더 좋게 만드는 데 도움 주셔서 감사해요."
               )}
             </p>
             <div className="bug-report-actions">
               <button type="button" className="primary" onClick={onClose}>
-                Done
+                완료
               </button>
             </div>
           </div>
         ) : (
           <>
             <label className="bug-report-label" htmlFor="bug-report-message">
-              What happened?
+              어떤 문제가 있었나요?
             </label>
             <textarea
               id="bug-report-message"
@@ -270,7 +270,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
               autoFocus
               rows={5}
               maxLength={MAX_CHARS}
-              placeholder="What you were doing, what you expected, and what happened instead. You can paste a screenshot here."
+              placeholder="무엇을 하고 있었는지, 어떻게 되길 기대했는지, 실제로 어떻게 됐는지 적어 주세요. 스크린샷을 붙여 넣을 수도 있어요."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onPaste={onPaste}
@@ -283,7 +283,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
             />
 
             <label className="bug-report-label" htmlFor="bug-report-video">
-              Loom or video link <span className="bug-report-optional">optional</span>
+              Loom 또는 동영상 링크 <span className="bug-report-optional">선택</span>
             </label>
             <input
               id="bug-report-video"
@@ -295,7 +295,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
               onChange={(e) => setVideoUrl(e.target.value)}
               aria-invalid={linkInvalid}
             />
-            {linkInvalid && <p className="bug-report-field-error">Paste the full link, starting with https://</p>}
+            {linkInvalid && <p className="bug-report-field-error">https://로 시작하는 전체 링크를 붙여 넣으세요</p>}
 
             <div className="bug-report-files">
               {files.map((f) => (
@@ -313,7 +313,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
                   <button
                     type="button"
                     className="bug-report-file-remove"
-                    aria-label={`Remove ${f.file.name}`}
+                    aria-label={`${f.file.name} 제거`}
                     onClick={() => removeFile(f.id)}
                   >
                     ✕
@@ -325,7 +325,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9" />
                   </svg>
-                  Attach files
+                  파일 첨부
                 </button>
               )}
               <input
@@ -347,7 +347,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
                 checked={includeDetails}
                 onChange={(e) => setIncludeDetails(e.target.checked)}
               />
-              Include app details
+              앱 정보 포함
             </label>
             {includeDetails && (
               <dl className="bug-report-details">
@@ -368,7 +368,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
 
             <div className="bug-report-actions bug-report-buttons">
               <button type="button" className="ghost-pill" onClick={onClose}>
-                Cancel
+                취소
               </button>
               <AsyncButton
                 className="primary"
@@ -376,7 +376,7 @@ export function BugReportDialog({ onClose }: { onClose: () => void }) {
                 disabled={!trimmed || linkInvalid}
                 onClick={send}
               >
-                Send report
+                신고 보내기
               </AsyncButton>
             </div>
           </>

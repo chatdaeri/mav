@@ -53,7 +53,7 @@ function canonicalSecret(secret: string | null | undefined): string | null {
   return out;
 }
 
-/** B5: the `k` of a `baalda://invite/<id>?k=…` link, until the invite is accepted. */
+/** B5: the `k` of a `mav://invite/<id>?k=…` link, until the invite is accepted. */
 export function rememberInviteSecret(invitationId: string, secret: string | null | undefined): void {
   const s = canonicalSecret(secret);
   if (s) inviteSecrets.set(invitationId, { secret: s, until: Date.now() + SECRET_HOLD_MS });

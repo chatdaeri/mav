@@ -30,6 +30,6 @@ export function lineChanges(left: string, right: string): LineChanges {
 
 /** `+12 −4 lines`, `No differences` when equal. */
 export function formatLineChanges({ added, removed }: LineChanges): string {
-  if (added === 0 && removed === 0) return "No differences";
-  return `+${added} −${removed} lines`;
+  if (added === 0 && removed === 0) return "차이 없음";
+  return `+${added} −${removed}줄`;
 }

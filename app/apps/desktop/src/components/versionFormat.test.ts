@@ -32,31 +32,31 @@ describe("parseIsoMs / agoFromIso", () => {
 
   it("degrades to a dash instead of 'NaNm ago'", () => {
     expect(agoFromIso("nope", NOW)).toBe("—");
-    expect(agoFromIso("2026-08-11T11:00:00.000Z", NOW)).toBe("1h ago");
-    expect(agoFromIso("2026-08-11T11:59:50.000Z", NOW)).toBe("just now");
+    expect(agoFromIso("2026-08-11T11:00:00.000Z", NOW)).toBe("1시간 전");
+    expect(agoFromIso("2026-08-11T11:59:50.000Z", NOW)).toBe("방금");
   });
 });
 
 describe("versionCauseLabel", () => {
   it("names the pre-revert safety copy distinctly", () => {
-    expect(versionCauseLabel("pre-revert")).toBe("Before revert");
+    expect(versionCauseLabel("pre-revert")).toBe("되돌리기 전");
   });
 
   it("names the copy kept before a large deletion", () => {
-    expect(versionCauseLabel("pre-shrink")).toBe("Before large deletion");
+    expect(versionCauseLabel("pre-shrink")).toBe("대량 삭제 전");
   });
 
   it("treats anything else as the ordinary idle capture", () => {
-    expect(versionCauseLabel("idle")).toBe("Auto-saved");
+    expect(versionCauseLabel("idle")).toBe("자동 저장");
     // A cause added server-side later must not render blank.
-    expect(versionCauseLabel("something-new")).toBe("Auto-saved");
+    expect(versionCauseLabel("something-new")).toBe("자동 저장");
   });
 });
 
 describe("versionAuthorLabel", () => {
   it("falls back when the author was deleted or never recorded", () => {
-    expect(versionAuthorLabel(null)).toBe("Unknown");
-    expect(versionAuthorLabel("   ")).toBe("Unknown");
+    expect(versionAuthorLabel(null)).toBe("알 수 없음");
+    expect(versionAuthorLabel("   ")).toBe("알 수 없음");
     expect(versionAuthorLabel("Ada")).toBe("Ada");
   });
 });
@@ -102,22 +102,22 @@ describe("nextActiveIndex", () => {
 describe("revertToastText", () => {
   it("says which version landed", () => {
     expect(revertToastText("2026-08-11T09:00:00.000Z", NOW)).toBe(
-      "Reverted to the version from 3h ago",
+      "3시간 전 버전으로 되돌렸어요",
     );
   });
 });
 
 describe("lastEditedTooltip", () => {
   it("accepts either a timestamp or an ISO string", () => {
-    expect(lastEditedTooltip("Ada", NOW - 120_000, NOW)).toBe("Edited by Ada · 2m ago");
+    expect(lastEditedTooltip("Ada", NOW - 120_000, NOW)).toBe("수정한 사람: Ada · 2분 전");
     expect(lastEditedTooltip("Ada", "2026-08-11T11:58:00.000Z", NOW)).toBe(
-      "Edited by Ada · 2m ago",
+      "수정한 사람: Ada · 2분 전",
     );
   });
 
   it("drops the time when there isn't one, and names an unknown editor", () => {
-    expect(lastEditedTooltip("Ada", null, NOW)).toBe("Edited by Ada");
-    expect(lastEditedTooltip(null, NOW, NOW)).toBe("Edited by Someone · just now");
+    expect(lastEditedTooltip("Ada", null, NOW)).toBe("수정한 사람: Ada");
+    expect(lastEditedTooltip(null, NOW, NOW)).toBe("수정한 사람: 누군가 · 방금");
   });
 });
 
@@ -130,18 +130,18 @@ describe("checkpointTitle", () => {
 
   it("describes an unlabelled checkpoint by kind and age", () => {
     expect(checkpointTitle(null, "auto", "2026-08-10T12:00:00.000Z", NOW)).toBe(
-      "Daily checkpoint · 1d ago",
+      "일일 체크포인트 · 1일 전",
     );
     expect(checkpointTitle("  ", "manual", "2026-08-11T11:00:00.000Z", NOW)).toBe(
-      "Manual checkpoint · 1h ago",
+      "수동 체크포인트 · 1시간 전",
     );
   });
 });
 
 describe("noteCountLabel", () => {
   it("pluralises", () => {
-    expect(noteCountLabel(1)).toBe("1 note");
-    expect(noteCountLabel(0)).toBe("0 notes");
-    expect(noteCountLabel(12)).toBe("12 notes");
+    expect(noteCountLabel(1)).toBe("노트 1개");
+    expect(noteCountLabel(0)).toBe("노트 0개");
+    expect(noteCountLabel(12)).toBe("노트 12개");
   });
 });

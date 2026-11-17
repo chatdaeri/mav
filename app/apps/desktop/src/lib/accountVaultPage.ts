@@ -22,29 +22,29 @@ export function vaultPageTiles(usage: BillingUsageVault | null): VaultPageTile[]
   const tiles: VaultPageTile[] = [
     {
       key: "people",
-      caption: "People",
+      caption: "멤버",
       value: usage ? String(usage.people) : null,
-      sub: usage && usage.people === 1 ? "person" : "people",
+      sub: "명",
     },
     {
       key: "notes",
-      caption: "Notes",
+      caption: "노트",
       value: usage ? String(usage.notes) : null,
-      sub: usage && usage.notes === 1 ? "note" : "notes",
+      sub: "개",
     },
     {
       key: "attachments",
-      caption: "Attachments",
+      caption: "첨부 파일",
       value: usage ? (bytesValue ?? "0") : null,
-      sub: usage ? (bytesUnit ?? "B") : "stored",
+      sub: usage ? (bytesUnit ?? "B") : "저장됨",
     },
   ];
   if (usage && typeof usage.files === "number") {
     tiles.push({
       key: "files",
-      caption: "Files",
+      caption: "파일",
       value: String(usage.files),
-      sub: usage.files === 1 ? "file" : "files",
+      sub: "개",
     });
   }
   return tiles;
@@ -53,9 +53,9 @@ export function vaultPageTiles(usage: BillingUsageVault | null): VaultPageTile[]
 export type VaultRole = "owner" | "admin" | "member";
 
 export const ROLE_TEXT: Record<VaultRole, string> = {
-  owner: "Owner",
-  admin: "Admin",
-  member: "Member",
+  owner: "소유자",
+  admin: "관리자",
+  member: "멤버",
 };
 
 /**
@@ -80,12 +80,12 @@ export function vaultPagePlanLine(input: {
 }): string {
   if (input.onMyAccount) {
     return input.accountPlan === "team"
-      ? "On your Team account"
+      ? "내 팀 계정"
       : input.accountPlan === "free"
-        ? "On your Free account"
-        : "On your account";
+        ? "내 무료 계정"
+        : "내 계정";
   }
-  return input.ownerName ? `On ${input.ownerName}'s account` : "On the owner's account";
+  return input.ownerName ? `${input.ownerName}님의 계정` : "소유자의 계정";
 }
 
 export interface VaultPageDetail {
@@ -103,16 +103,16 @@ export function vaultPageDetails(input: {
   formatDate: (iso: string) => string;
 }): VaultPageDetail[] {
   const rows: VaultPageDetail[] = [
-    { key: "role", label: "Your role", value: input.role ? ROLE_TEXT[input.role] : "—" },
+    { key: "role", label: "내 역할", value: input.role ? ROLE_TEXT[input.role] : "—" },
   ];
-  if (input.planLine) rows.push({ key: "plan", label: "Plan", value: input.planLine });
+  if (input.planLine) rows.push({ key: "plan", label: "플랜", value: input.planLine });
   rows.push({
     key: "folder",
-    label: "Folder on this device",
-    value: input.folderPath ?? "Not on this device",
+    label: "이 기기의 폴더",
+    value: input.folderPath ?? "이 기기에 없음",
   });
   if (input.createdAt && !Number.isNaN(Date.parse(input.createdAt))) {
-    rows.push({ key: "created", label: "Created", value: input.formatDate(input.createdAt) });
+    rows.push({ key: "created", label: "만든 날짜", value: input.formatDate(input.createdAt) });
   }
   return rows;
 }
@@ -132,7 +132,7 @@ export function vaultSettingsAction(input: {
 }
 
 export const VAULT_SETTINGS_UNAVAILABLE_HINT =
-  "Switch to this vault first: it has no folder on this device yet.";
+  "먼저 이 볼트로 전환하세요. 이 기기에 아직 폴더가 없어요.";
 
 /** Keep the menu's order, but every destructive action goes last. */
 export function orderPageActions<T extends { danger?: boolean }>(actions: T[]): T[] {

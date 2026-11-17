@@ -42,14 +42,14 @@ async function prompt() {
   });
 }
 it.each(["Claude", "Codex"])("runs the explicitly selected %s provider", async name => {
-  await click(`Update with ${name}`); await prompt(); await click(`Run ${name}`);
+  await click(`${name}로 업데이트`); await prompt(); await click(`${name} 실행`);
   expect(mocks.run).toHaveBeenCalledWith(expect.objectContaining({ agent: name.toLowerCase(), prompt: "Add hello world", dashboardPath: "Home.html", expectedEpoch: 1 }), expect.any(Function));
-  expect(document.querySelector('[role="status"]')?.textContent).toContain("Finished");
+  expect(document.querySelector('[role="status"]')?.textContent).toContain("완료했어요");
 });
 it("cancels an active run when the vault epoch changes and ignores late output", async () => {
   let finish!: () => void;
   mocks.run.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
-  await click("Update with Claude"); await prompt(); await click("Run Claude");
+  await click("Claude로 업데이트"); await prompt(); await click("Claude 실행");
   const id = mocks.run.mock.calls[0][0].runId;
   await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Other.html", expectedEpoch: 2 })));
   expect(mocks.cancel).toHaveBeenCalledWith(id);
@@ -60,16 +60,16 @@ it("keeps a hidden run alive across pages, reopens its captured request, and ret
   let emit!: (event: unknown) => void;
   let finish!: () => void;
   mocks.run.mockImplementation((_request, onEvent) => { emit = onEvent; return new Promise<void>(resolve => { finish = resolve; }); });
-  await click("Update with Claude"); await prompt(); await click("Run Claude");
+  await click("Claude로 업데이트"); await prompt(); await click("Claude 실행");
   expect(document.querySelector<HTMLButtonElement>('[data-agent="codex"]')?.disabled).toBe(true);
-  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="Close agent dialog"]')!.click());
+  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="에이전트 대화상자 닫기"]')!.click());
   expect(document.querySelector('[role="dialog"]')).toBeNull();
   await act(async () => root.render(createElement(DashboardAgentRunner, { path: null, expectedEpoch: 1, showLaunchers: false })));
   await act(async () => emit({ type: "text", text: "Updated the overview." }));
   expect(mocks.cancel).not.toHaveBeenCalled();
   expect(document.querySelector('[data-agent="claude"]')).toBeNull();
   await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Home.html", expectedEpoch: 1, showLaunchers: true })));
-  expect(document.querySelector('[data-agent="claude"]')?.getAttribute("aria-label")).toContain("running");
+  expect(document.querySelector('[data-agent="claude"]')?.getAttribute("aria-label")).toContain("작업 중");
   await act(async () => document.querySelector<HTMLButtonElement>('[data-agent="claude"]')!.click());
   expect(document.querySelector("textarea")?.value).toBe("");
   expect(document.querySelector(".dashboard-chat-user")?.textContent).toBe("Add hello world");
@@ -78,9 +78,9 @@ it("keeps a hidden run alive across pages, reopens its captured request, and ret
   await act(async () => {
     emit({ type: "finished", cancelled: false, success: true, exitCode: 0 }); finish();
   });
-  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="Close agent dialog"]')!.click());
-  expect(document.querySelector('[data-agent="claude"]')?.getAttribute("aria-label")).toContain("completed");
-  expect(document.querySelector('[role="status"]')?.textContent).toContain("Finished");
+  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="에이전트 대화상자 닫기"]')!.click());
+  expect(document.querySelector('[data-agent="claude"]')?.getAttribute("aria-label")).toContain("완료");
+  expect(document.querySelector('[role="status"]')?.textContent).toContain("완료했어요");
   expect(mocks.run).toHaveBeenCalledTimes(1);
 });
 it("reserves output before running and keeps repeated statuses out of the response", async () => {
@@ -90,10 +90,10 @@ it("reserves output before running and keeps repeated statuses out of the respon
     emit = onEvent;
     return new Promise<void>(resolve => { finish = resolve; });
   });
-  await click("Update with Claude");
+  await click("Claude로 업데이트");
   const output = document.querySelector(".dashboard-agent-output");
   expect(output).not.toBeNull();
-  await prompt(); await click("Run Claude");
+  await prompt(); await click("Claude 실행");
   await act(async () => {
     emit({ type: "status", text: "Editing dashboard…" });
     emit({ type: "status", text: "Editing dashboard…" });
@@ -116,13 +116,13 @@ it("keeps stopping visible despite late progress, then clearly marks the stopped
   mocks.run.mockImplementation((_request, onEvent) => {
     emit = onEvent; return new Promise<void>(resolve => { finish = resolve; });
   });
-  await click("Update with Codex"); await prompt(); await click("Run Codex"); await click("Stop");
+  await click("Codex로 업데이트"); await prompt(); await click("Codex 실행"); await click("중지");
   await act(async () => emit({ type: "status", text: "Editing dashboard…" }));
-  expect(document.querySelector('[role="status"]')?.textContent).toContain("Stopping Codex");
+  expect(document.querySelector('[role="status"]')?.textContent).toContain("Codex 중지하는 중");
   expect(mocks.cancel).toHaveBeenCalledWith(mocks.run.mock.calls[0][0].runId);
   await act(async () => { emit({ type: "finished", cancelled: true, success: false, exitCode: null }); finish(); });
   expect(document.querySelector(".phase-stopped")).not.toBeNull();
-  expect(document.querySelector('[role="status"]')?.textContent).toContain("Changes already written remain");
+  expect(document.querySelector('[role="status"]')?.textContent).toContain("이미 저장된 변경 사항은 볼트에 남아요");
 });
 it("attaches to a late header host and preserves an active run when that host is replaced", async () => {
   let finish!: () => void;
@@ -134,7 +134,7 @@ it("attaches to a late header host and preserves an active run when that host is
     expect(document.querySelector(".dashboard-agent-launch")).toBeNull();
     await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Home.html", expectedEpoch: 1, launchTarget: first })));
     expect(first.querySelectorAll(".dashboard-agent-launch")).toHaveLength(2);
-    await click("Update with Claude"); await prompt(); await click("Run Claude");
+    await click("Claude로 업데이트"); await prompt(); await click("Claude 실행");
     const dialog = document.querySelector('[role="dialog"]');
     first.remove();
     await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Home.html", expectedEpoch: 1, launchTarget: replacement })));
@@ -155,14 +155,14 @@ it("launches a newly created non-Home dashboard without showing header actions",
   await act(async () => requestDashboardAgent({ agent: "codex", path: "Created.html", expectedEpoch: 1 }));
   expect(document.querySelector(".dashboard-agent-path")?.textContent).toBe("Created.html");
   expect(document.querySelector(".dashboard-agent-launch")).toBeNull();
-  await prompt(); await click("Run Codex");
+  await prompt(); await click("Codex 실행");
   expect(mocks.run).toHaveBeenCalledWith(expect.objectContaining({ agent: "codex", dashboardPath: "Created.html", expectedEpoch: 1 }), expect.any(Function));
 });
 it("reopens an active run instead of replacing it from a creation request", async () => {
   let finish!: () => void;
   mocks.run.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
-  await click("Update with Claude"); await prompt(); await click("Run Claude");
-  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="Close agent dialog"]')!.click());
+  await click("Claude로 업데이트"); await prompt(); await click("Claude 실행");
+  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="에이전트 대화상자 닫기"]')!.click());
   await act(async () => requestDashboardAgent({ agent: "codex", path: "Created.html", expectedEpoch: 1 }));
   expect(document.querySelector(".dashboard-agent-path")?.textContent).toBe("Home.html");
   expect(document.querySelector("textarea")?.value).toBe("");
@@ -172,24 +172,24 @@ it("reopens an active run instead of replacing it from a creation request", asyn
   await act(async () => finish());
 });
 it("dismisses outside the chat while preserving the draft", async () => {
-  await click("Update with Codex"); await prompt();
+  await click("Codex로 업데이트"); await prompt();
   await act(async () => document.querySelector("textarea")!.dispatchEvent(new Event("pointerdown", { bubbles: true })));
   expect(document.querySelector(".dashboard-agent-dialog")).not.toBeNull();
   await act(async () => document.body.dispatchEvent(new Event("pointerdown", { bubbles: true })));
   expect(document.querySelector(".dashboard-agent-dialog")).toBeNull();
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   expect(document.querySelector("textarea")!.value).toBe("Add hello world");
 });
 it("closes for Activity and closes Activity before opening chat", async () => {
   const onOpen = vi.fn();
   await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Home.html", expectedEpoch: 1, onOpen })));
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   expect(onOpen).toHaveBeenCalledOnce();
   await act(async () => root.render(createElement(DashboardAgentRunner, { path: "Home.html", expectedEpoch: 1, onOpen, rightPanelOpen: true })));
   expect(document.querySelector(".dashboard-agent-dialog")).toBeNull();
 });
 it("dismisses when focus moves into the dashboard iframe", async () => {
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   const frame = document.createElement("iframe"); document.body.append(frame);
   await act(async () => {
     frame.focus(); window.dispatchEvent(new Event("blur"));
@@ -201,7 +201,7 @@ it("dismisses when focus moves into the dashboard iframe", async () => {
 it("clears a sent message and keeps the next draft editable during a run", async () => {
   let finish!: () => void;
   mocks.run.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
-  await click("Update with Codex"); await prompt(); await click("Run Codex");
+  await click("Codex로 업데이트"); await prompt(); await click("Codex 실행");
   expect(document.querySelector("textarea")!.value).toBe("");
   expect(document.querySelector("textarea")!.disabled).toBe(false);
   await prompt();
@@ -209,21 +209,21 @@ it("clears a sent message and keeps the next draft editable during a run", async
   expect(document.querySelector("textarea")!.value).toBe("Add hello world");
 });
 it("dismisses through the transparent backdrop around an embedded page", async () => {
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   await act(async () => document.querySelector(".dashboard-agent-backdrop")!.dispatchEvent(new Event("pointerdown", { bubbles: true })));
   expect(document.querySelector(".dashboard-agent-dialog")).toBeNull();
 });
 
 it("closes on app focus loss and keeps the draft when reopened", async () => {
-  await click("Update with Codex"); await prompt();
+  await click("Codex로 업데이트"); await prompt();
   await act(async () => nativeFocus.handler?.({ payload: false }));
   expect(document.querySelector(".dashboard-agent-dialog")).toBeNull();
   expect(nativeFocus.stop).toHaveBeenCalled();
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   expect(document.querySelector("textarea")!.value).toBe("Add hello world");
 });
 it("closes on browser window blur even when the composer retains focus", async () => {
-  await click("Update with Codex");
+  await click("Codex로 업데이트");
   await act(async () => window.dispatchEvent(new Event("blur")));
   expect(document.querySelector(".dashboard-agent-dialog")).toBeNull();
 });

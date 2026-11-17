@@ -43,10 +43,10 @@ function layout(opts: {
       : "";
   const fallback = opts.url
     ? `
-      <p style="font-size:12px;line-height:1.5;margin:18px 0 0;color:#8a8a84;word-break:break-all;">If the button doesn't work, paste this link into your browser:<br /><a href="${esc(opts.url)}" style="color:#6b6b66;">${esc(opts.url)}</a></p>`
+      <p style="font-size:12px;line-height:1.5;margin:18px 0 0;color:#8a8a84;word-break:break-all;">버튼이 동작하지 않으면 이 링크를 브라우저에 붙여넣으세요.<br /><a href="${esc(opts.url)}" style="color:#6b6b66;">${esc(opts.url)}</a></p>`
     : "";
   return `<!doctype html>
-<html lang="en">
+<html lang="ko">
 <body style="margin:0;padding:0;background:#f4f4f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1c1a;">
   <div style="max-width:520px;margin:0 auto;padding:40px 20px;">
     <div style="font-weight:700;letter-spacing:0.18em;font-size:13px;color:#6b6b66;margin-bottom:22px;">${esc(BRAND_NAME.toUpperCase())}</div>
@@ -61,39 +61,39 @@ function layout(opts: {
 }
 
 export function resetPasswordEmail(input: { to: string; url: string; validMinutes: number }): MailMessage {
-  const subject = `Reset your ${BRAND_NAME} password`;
+  const subject = `${BRAND_NAME} 비밀번호 재설정`;
   const text = [
-    `Someone asked to reset the password for the ${BRAND_NAME} account ${input.to}.`,
+    `${BRAND_NAME} 계정 ${input.to}의 비밀번호 재설정 요청이 있었어요.`,
     ``,
-    `Choose a new password here (the link is valid for ${input.validMinutes} minutes):`,
+    `아래 링크에서 새 비밀번호를 정하세요. 링크는 ${input.validMinutes}분 동안 유효해요.`,
     input.url,
     ``,
-    `If you didn't ask for this, you can ignore this email. Your password stays as it is.`,
+    `요청한 적이 없다면 이 메일을 무시하세요. 비밀번호는 그대로 유지돼요.`,
   ].join("\n");
   const html = layout({
-    title: "Reset your password",
-    intro: `Someone asked to reset the password for the ${esc(BRAND_NAME)} account <b>${esc(input.to)}</b>. Choose a new one below. The link is valid for ${input.validMinutes} minutes.`,
-    cta: "Choose a new password",
+    title: "비밀번호 재설정",
+    intro: `${esc(BRAND_NAME)} 계정 <b>${esc(input.to)}</b>의 비밀번호 재설정 요청이 있었어요. 아래에서 새 비밀번호를 정하세요. 링크는 ${input.validMinutes}분 동안 유효해요.`,
+    cta: "새 비밀번호 정하기",
     url: input.url,
-    outro: `If you didn't ask for this, you can ignore this email; your password stays as it is.`,
+    outro: `요청한 적이 없다면 이 메일을 무시하세요. 비밀번호는 그대로 유지돼요.`,
   });
   return { to: input.to, subject, text, html };
 }
 
 export function verifyEmailEmail(input: { to: string; url: string }): MailMessage {
-  const subject = `Confirm your email for ${BRAND_NAME}`;
+  const subject = `${BRAND_NAME} 이메일 확인`;
   const text = [
-    `Welcome to ${BRAND_NAME}. Please confirm that ${input.to} is yours:`,
+    `${BRAND_NAME}에 오신 것을 환영해요. ${input.to} 주소가 본인 것인지 확인해 주세요.`,
     input.url,
     ``,
-    `If you didn't create a ${BRAND_NAME} account, you can ignore this email.`,
+    `${BRAND_NAME} 계정을 만든 적이 없다면 이 메일을 무시하세요.`,
   ].join("\n");
   const html = layout({
-    title: "Confirm your email",
-    intro: `Welcome to ${esc(BRAND_NAME)}. Please confirm that <b>${esc(input.to)}</b> is yours.`,
-    cta: "Confirm email",
+    title: "이메일 확인",
+    intro: `${esc(BRAND_NAME)}에 오신 것을 환영해요. <b>${esc(input.to)}</b> 주소가 본인 것인지 확인해 주세요.`,
+    cta: "이메일 확인",
     url: input.url,
-    outro: `If you didn't create a ${esc(BRAND_NAME)} account, you can ignore this email.`,
+    outro: `${esc(BRAND_NAME)} 계정을 만든 적이 없다면 이 메일을 무시하세요.`,
   });
   return { to: input.to, subject, text, html };
 }
@@ -106,27 +106,27 @@ export function invitationEmail(input: {
   role: string;
   expiresAt: Date;
 }): MailMessage {
-  const who = input.inviterName?.trim() || "A teammate";
-  const subject = `${who} invited you to ${input.organizationName} on ${BRAND_NAME}`;
-  const roleNote = input.role === "admin" ? " as an admin" : "";
+  const who = input.inviterName?.trim() || "팀원";
+  const subject = `${who}님이 ${BRAND_NAME}에서 ${input.organizationName} 볼트에 초대했어요`;
+  const roleNote = input.role === "admin" ? " 관리자로" : "";
   const expires = input.expiresAt.toUTCString();
   const text = [
-    `${who} invited you to join the vault "${input.organizationName}" on ${BRAND_NAME}${roleNote}.`,
+    `${who}님이 ${BRAND_NAME}의 "${input.organizationName}" 볼트에${roleNote} 초대했어요.`,
     ``,
-    `Accept the invitation:`,
+    `아래 링크에서 초대를 수락하세요.`,
     input.url,
     ``,
-    `Sign in with ${input.to} (or create an account with that address) and you'll land in the vault.`,
-    `This invitation expires ${expires}.`,
+    `${input.to} 주소로 로그인하거나 가입하면 바로 볼트로 이동해요.`,
+    `이 초대는 ${expires}에 만료돼요.`,
     ``,
-    `Don't have ${BRAND_NAME} yet? Get it at https://baalda.com and then open the link again.`,
+    `아직 ${BRAND_NAME}이 없나요? https://github.com/chatdaeri/mav 에서 받은 뒤 링크를 다시 열어 주세요.`,
   ].join("\n");
   const html = layout({
-    title: `Join ${esc(input.organizationName)}`,
-    intro: `<b>${esc(who)}</b> invited you to join the vault <b>${esc(input.organizationName)}</b> on ${esc(BRAND_NAME)}${esc(roleNote)}. Sign in with <b>${esc(input.to)}</b> (or create an account with that address) and you'll land in the vault.`,
-    cta: "Accept invitation",
+    title: `${esc(input.organizationName)} 볼트 참여`,
+    intro: `<b>${esc(who)}</b>님이 ${esc(BRAND_NAME)}의 <b>${esc(input.organizationName)}</b> 볼트에${esc(roleNote)} 초대했어요. <b>${esc(input.to)}</b> 주소로 로그인하거나 가입하면 바로 볼트로 이동해요.`,
+    cta: "초대 수락",
     url: input.url,
-    outro: `This invitation expires ${esc(expires)}. Don't have ${esc(BRAND_NAME)} yet? <a href="https://baalda.com" style="color:#6b6b66;">Get it</a>, then open the link again.`,
+    outro: `이 초대는 ${esc(expires)}에 만료돼요. 아직 ${esc(BRAND_NAME)}이 없나요? <a href="https://github.com/chatdaeri/mav" style="color:#6b6b66;">받기</a> 후 링크를 다시 열어 주세요.`,
   });
   return { to: input.to, subject, text, html };
 }
@@ -144,25 +144,25 @@ export function invitationReminderEmail(input: {
   expiresAt: Date;
 }): MailMessage {
   const inviter = input.inviterName?.trim() || null;
-  const who = inviter ?? "A teammate";
-  const askWho = inviter ?? "the person who invited you";
-  const subject = `Reminder: your invitation to ${input.organizationName} expires soon`;
+  const who = inviter ?? "팀원";
+  const askWho = inviter ?? "초대한 사람";
+  const subject = `알림: ${input.organizationName} 볼트 초대가 곧 만료돼요`;
   const expires = input.expiresAt.toUTCString();
   const text = [
-    `${who} invited you to join the vault "${input.organizationName}" on ${BRAND_NAME}, and the invitation expires ${expires}.`,
+    `${who}님이 ${BRAND_NAME}의 "${input.organizationName}" 볼트에 초대했고, 이 초대는 ${expires}에 만료돼요.`,
     ``,
-    `Accept it before then:`,
+    `그 전에 아래 링크에서 수락하세요.`,
     input.url,
     ``,
-    `Sign in with ${input.to} (or create an account with that address) and you'll land in the vault.`,
-    `After it expires, ask ${askWho} to send a new one.`,
+    `${input.to} 주소로 로그인하거나 가입하면 바로 볼트로 이동해요.`,
+    `만료된 뒤에는 ${askWho}에게 새 초대를 요청하세요.`,
   ].join("\n");
   const html = layout({
-    title: `Your invitation to ${esc(input.organizationName)} expires soon`,
-    intro: `<b>${esc(who)}</b> invited you to join the vault <b>${esc(input.organizationName)}</b> on ${esc(BRAND_NAME)}. Sign in with <b>${esc(input.to)}</b> (or create an account with that address) and you'll land in the vault.`,
-    cta: "Accept invitation",
+    title: `${esc(input.organizationName)} 볼트 초대가 곧 만료돼요`,
+    intro: `<b>${esc(who)}</b>님이 ${esc(BRAND_NAME)}의 <b>${esc(input.organizationName)}</b> 볼트에 초대했어요. <b>${esc(input.to)}</b> 주소로 로그인하거나 가입하면 바로 볼트로 이동해요.`,
+    cta: "초대 수락",
     url: input.url,
-    outro: `This invitation expires ${esc(expires)}. After that, ask ${esc(askWho)} to send a new one.`,
+    outro: `이 초대는 ${esc(expires)}에 만료돼요. 만료된 뒤에는 ${esc(askWho)}에게 새 초대를 요청하세요.`,
   });
   return { to: input.to, subject, text, html };
 }
@@ -180,18 +180,18 @@ export function memberLeftEmail(input: {
   memberEmail: string;
 }): MailMessage {
   const who = input.memberName?.trim() || input.memberEmail;
-  const subject = `${who} left ${input.organizationName}`;
+  const subject = `${who}님이 ${input.organizationName} 볼트를 나갔어요`;
   const text = [
-    `${who} (${input.memberEmail}) left the vault "${input.organizationName}" on ${BRAND_NAME}.`,
+    `${who}님(${input.memberEmail})이 ${BRAND_NAME}의 "${input.organizationName}" 볼트를 나갔어요.`,
     ``,
-    `They no longer have access to any of its notes. Any folders or files that were shared with them directly have been un-shared.`,
+    `더 이상 이 볼트의 노트에 접근할 수 없고, 직접 공유했던 폴더와 파일은 공유가 해제됐어요.`,
     ``,
-    `If this wasn't expected, you can invite them again from the vault's Members page.`,
+    `예상하지 못한 일이라면 볼트의 멤버 페이지에서 다시 초대할 수 있어요.`,
   ].join("\n");
   const html = layout({
-    title: `${esc(who)} left ${esc(input.organizationName)}`,
-    intro: `<b>${esc(who)}</b> (${esc(input.memberEmail)}) left the vault <b>${esc(input.organizationName)}</b> on ${esc(BRAND_NAME)}. They no longer have access to any of its notes, and any folders or files that were shared with them directly have been un-shared.`,
-    outro: `If this wasn't expected, you can invite them again from the vault's Members page.`,
+    title: `${esc(who)}님이 ${esc(input.organizationName)} 볼트를 나갔어요`,
+    intro: `<b>${esc(who)}</b>님(${esc(input.memberEmail)})이 ${esc(BRAND_NAME)}의 <b>${esc(input.organizationName)}</b> 볼트를 나갔어요. 더 이상 이 볼트의 노트에 접근할 수 없고, 직접 공유했던 폴더와 파일은 공유가 해제됐어요.`,
+    outro: `예상하지 못한 일이라면 볼트의 멤버 페이지에서 다시 초대할 수 있어요.`,
   });
   return { to: input.to, subject, text, html };
 }
@@ -201,19 +201,19 @@ export function memberLeftEmail(input: {
  * their devices — removed, not kept — and how to come back.
  */
 export function youLeftVaultEmail(input: { to: string; organizationName: string }): MailMessage {
-  const subject = `You left ${input.organizationName}`;
+  const subject = `${input.organizationName} 볼트에서 나갔어요`;
   const text = [
-    `You left the vault "${input.organizationName}" on ${BRAND_NAME}.`,
+    `${BRAND_NAME}의 "${input.organizationName}" 볼트에서 나갔어요.`,
     ``,
-    `It has been removed from your devices and you no longer have access to its notes.`,
-    `To rejoin, ask the vault's owner for a new invitation or join code.`,
+    `내 기기에서 볼트가 삭제됐고, 더 이상 노트에 접근할 수 없어요.`,
+    `다시 참여하려면 볼트 소유자에게 새 초대나 참여 코드를 요청하세요.`,
     ``,
-    `If you didn't do this, change your password right away. Someone else may have access to your account.`,
+    `직접 한 일이 아니라면 바로 비밀번호를 바꾸세요. 다른 사람이 계정에 접근했을 수 있어요.`,
   ].join("\n");
   const html = layout({
-    title: `You left ${esc(input.organizationName)}`,
-    intro: `You left the vault <b>${esc(input.organizationName)}</b> on ${esc(BRAND_NAME)}. It has been removed from your devices and you no longer have access to its notes. To rejoin, ask the vault's owner for a new invitation or join code.`,
-    outro: `If you didn't do this, change your password right away. Someone else may have access to your account.`,
+    title: `${esc(input.organizationName)} 볼트에서 나갔어요`,
+    intro: `${esc(BRAND_NAME)}의 <b>${esc(input.organizationName)}</b> 볼트에서 나갔어요. 내 기기에서 볼트가 삭제됐고, 더 이상 노트에 접근할 수 없어요. 다시 참여하려면 볼트 소유자에게 새 초대나 참여 코드를 요청하세요.`,
+    outro: `직접 한 일이 아니라면 바로 비밀번호를 바꾸세요. 다른 사람이 계정에 접근했을 수 있어요.`,
   });
   return { to: input.to, subject, text, html };
 }
@@ -244,26 +244,26 @@ export function bugReportEmail(input: {
     )
     .join("");
   const files = input.attachments ?? [];
-  const filesLine = files.length ? `${files.length} attached: ${files.map((f) => f.filename).join(", ")}` : "";
+  const filesLine = files.length ? `첨부 ${files.length}개: ${files.map((f) => f.filename).join(", ")}` : "";
   return {
     to: input.to,
     replyTo: input.reporter.email,
-    subject: `Bug report: ${summary}`,
+    subject: `버그 제보: ${summary}`,
     ...(files.length ? { attachments: files } : {}),
-    text: `Bug report from ${who}\n\n${input.message}\n${input.videoUrl ? `\nVideo: ${input.videoUrl}\n` : ""}${
+    text: `${who}님의 버그 제보\n\n${input.message}\n${input.videoUrl ? `\n영상: ${input.videoUrl}\n` : ""}${
       filesLine ? `\n${filesLine}\n` : ""
     }${detailText ? `\n---\n${detailText}\n` : ""}`,
     html: `<!doctype html>
-<html lang="en">
+<html lang="ko">
 <body style="margin:0;padding:0;background:#f4f4f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1c1a;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
-    <div style="font-weight:700;letter-spacing:0.18em;font-size:13px;color:#6b6b66;margin-bottom:18px;">${esc(BRAND_NAME.toUpperCase())} · BUG REPORT</div>
+    <div style="font-weight:700;letter-spacing:0.18em;font-size:13px;color:#6b6b66;margin-bottom:18px;">${esc(BRAND_NAME.toUpperCase())} · 버그 제보</div>
     <div style="background:#ffffff;border:1px solid #e6e5df;border-radius:14px;padding:26px 24px;">
-      <p style="font-size:13px;margin:0 0 14px;color:#6b6b66;">From ${esc(who)}. Reply to this email to answer them.</p>
+      <p style="font-size:13px;margin:0 0 14px;color:#6b6b66;">보낸 사람: ${esc(who)}. 이 메일에 답장하면 제보자에게 전달돼요.</p>
       <div style="font-size:15px;line-height:1.55;color:#1c1c1a;white-space:pre-wrap;">${esc(input.message)}</div>${
         input.videoUrl
           ? `
-      <p style="margin:16px 0 0;font-size:14px;"><a href="${esc(input.videoUrl)}" style="color:#7c5cff;">Watch the recording</a> <span style="color:#8a8a84;word-break:break-all;">${esc(input.videoUrl)}</span></p>`
+      <p style="margin:16px 0 0;font-size:14px;"><a href="${esc(input.videoUrl)}" style="color:#7c5cff;">녹화 영상 보기</a> <span style="color:#8a8a84;word-break:break-all;">${esc(input.videoUrl)}</span></p>`
           : ""
       }${
         filesLine

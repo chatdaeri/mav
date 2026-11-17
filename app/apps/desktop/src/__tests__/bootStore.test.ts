@@ -436,7 +436,7 @@ describe("turnOnSyncNow — one click, with feedback", () => {
       }),
     });
     expect(await useStore.getState().turnOnSyncNow()).toBe(false);
-    expect(useStore.getState().upgradeDialogRequest?.reason).toMatch(/Free includes/);
+    expect(useStore.getState().upgradeDialogRequest?.reason).toMatch(/Free에는/);
     expect(useStore.getState().turningOnSync).toBe(false);
   });
 

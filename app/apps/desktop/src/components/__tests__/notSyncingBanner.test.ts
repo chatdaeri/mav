@@ -183,15 +183,15 @@ describe("NotSyncingBannerView", () => {
     expect(banner).not.toBeNull();
     // An alarm, not a status line — screen readers should interrupt for it.
     expect(banner?.getAttribute("role")).toBe("alert");
-    expect(banner?.textContent).toContain("Signed out");
-    expect(banner?.textContent).toContain("not syncing");
+    expect(banner?.textContent).toContain("로그아웃됨");
+    expect(banner?.textContent).toContain("동기화되지 않아요");
   });
 
   it("invokes the sign-in action when Sign in is clicked", () => {
     const onSignIn = vi.fn();
     const el = render({ reason: "signed-out", onSignIn });
     const button = [...el.querySelectorAll("button")].find(
-      (b) => b.textContent === "Sign in",
+      (b) => b.textContent === "로그인",
     );
     expect(button).toBeTruthy();
     act(() => {
@@ -203,9 +203,9 @@ describe("NotSyncingBannerView", () => {
   it("names a withdrawn grant without offering Sign in", () => {
     const el = render({ reason: "no-access", onSignIn: () => {} });
     const banner = el.querySelector(".not-syncing-banner");
-    expect(banner?.textContent).toContain("You no longer have access to this note");
-    expect(banner?.textContent).not.toContain("access to this vault");
-    expect(banner?.textContent).toContain("not syncing");
+    expect(banner?.textContent).toContain("이 노트에 더 이상 접근할 수 없어요");
+    expect(banner?.textContent).not.toContain("이 볼트에 더 이상 접근할 수 없어요");
+    expect(banner?.textContent).toContain("동기화되지 않아요");
     expect(banner?.querySelector("button")).toBeNull();
   });
 

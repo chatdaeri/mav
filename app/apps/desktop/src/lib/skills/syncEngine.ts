@@ -421,16 +421,16 @@ export async function forceInstallSkill(
 
 /** The toast lines for one run (§5.4). Removals and conflicts stay silent. */
 /** Codex lists a new or changed skill only in a chat started after it lands. */
-export const CODEX_NEW_CHAT_HINT = "Start a new Codex chat to see it";
+export const CODEX_NEW_CHAT_HINT = "새 Codex 채팅을 시작하면 보여요";
 
 export function runToasts(result: Pick<SkillsRunResult, "updated" | "added">): string[] {
   const hint = (codex: boolean) => (codex ? `. ${CODEX_NEW_CHAT_HINT}` : "");
-  const lines = result.updated.map((u) => `Updated ${skillDisplayName(u.name)} v${u.from} → v${u.to}${hint(u.codex)}`);
+  const lines = result.updated.map((u) => `스킬 업데이트: ${skillDisplayName(u.name)} v${u.from} → v${u.to}${hint(u.codex)}`);
   if (result.added.length === 1) {
     const a = result.added[0];
-    lines.push(`Added ${skillDisplayName(a.name)} v${a.version}${hint(a.codex)}`);
+    lines.push(`스킬 추가: ${skillDisplayName(a.name)} v${a.version}${hint(a.codex)}`);
   } else if (result.added.length > 1) {
-    lines.push(`Added ${result.added.length} team skills${hint(result.added.some((a) => a.codex))}`);
+    lines.push(`팀 스킬 ${result.added.length}개 추가${hint(result.added.some((a) => a.codex))}`);
   }
   return lines;
 }

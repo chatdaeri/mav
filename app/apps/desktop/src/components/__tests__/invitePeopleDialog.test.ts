@@ -35,9 +35,9 @@ describe("Invite people dialog", () => {
     host.remove();
   });
 
-  const send = () => [...document.body.querySelectorAll("button")].find((b) => b.textContent?.startsWith("Send"))!;
+  const send = () => [...document.body.querySelectorAll("button")].find((b) => b.textContent?.startsWith("초대"))!;
   const type = async (value: string) => {
-    const input = document.body.querySelector<HTMLInputElement>('input[aria-label="Email addresses"]')!;
+    const input = document.body.querySelector<HTMLInputElement>('input[aria-label="이메일 주소"]')!;
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
     await act(async () => {
       setter.call(input, value);
@@ -48,21 +48,21 @@ describe("Invite people dialog", () => {
   it("lays out Role and Access as labelled boxes and pluralises Send", async () => {
     await act(async () => root.render(createElement(InvitePeopleDialog, { orgId: "org-1", onClose: vi.fn(), onInvited: vi.fn() })));
     const fields = [...document.body.querySelectorAll(".invite-field")];
-    expect(fields.map((f) => f.querySelector(".invite-field-label")?.textContent)).toEqual(["Role", "Access"]);
-    expect(fields[1].querySelector(".invite-field-trigger")?.textContent).toContain("Vault default");
-    expect(send().textContent).toBe("Send invite");
+    expect(fields.map((f) => f.querySelector(".invite-field-label")?.textContent)).toEqual(["역할", "권한"]);
+    expect(fields[1].querySelector(".invite-field-trigger")?.textContent).toContain("볼트 기본값");
+    expect(send().textContent).toBe("초대 보내기");
     expect(send().disabled).toBe(true);
     await type("maya@team.com, jo@team.com ");
     expect(document.body.querySelectorAll(".invite-chip")).toHaveLength(2);
-    expect(send().textContent).toBe("Send 2 invites");
+    expect(send().textContent).toBe("초대 2건 보내기");
     expect(send().disabled).toBe(false);
   });
 
   it("shows the join code on its own tab", async () => {
     await act(async () => root.render(createElement(InvitePeopleDialog, { orgId: "org-1", onClose: vi.fn(), onInvited: vi.fn() })));
-    const codeTab = [...document.body.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((b) => b.textContent === "Join code")!;
+    const codeTab = [...document.body.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((b) => b.textContent === "참여 코드")!;
     await act(async () => codeTab.click());
-    expect(document.body.querySelector(".invite-code-tiles")?.getAttribute("aria-label")).toBe("Join code 2TG7KNEA");
-    expect(document.body.querySelector('input[aria-label="Email addresses"]')).toBeNull();
+    expect(document.body.querySelector(".invite-code-tiles")?.getAttribute("aria-label")).toBe("참여 코드 2TG7KNEA");
+    expect(document.body.querySelector('input[aria-label="이메일 주소"]')).toBeNull();
   });
 });

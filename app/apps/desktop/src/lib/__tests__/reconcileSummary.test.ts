@@ -23,11 +23,11 @@ describe("summarizeReconcile", () => {
       item({ kind: "folderKept", path: "Projects/Q3" }),
     ]);
     expect(lines.map((l) => l.text)).toEqual([
-      "2 notes you edited offline were deleted by a teammate. Your versions are in Trash.",
-      "1 note is kept on this device only: you no longer have access.",
-      "1 note you deleted didn't reach the server, so it was put back. Delete it again to remove it for everyone.",
-      "1 note was renamed to avoid a clash: plan.md → plan (2).md.",
-      "Folder Q3 was kept because you added notes to it.",
+      "오프라인에서 수정한 노트 2개를 팀원이 삭제했어요. 내 버전은 휴지통에 있어요.",
+      "노트 1개는 이 기기에만 남아 있어요. 더 이상 접근 권한이 없어요.",
+      "삭제한 노트 1개가 서버에 반영되지 않아 되돌려 놓았어요. 모두에게서 지우려면 다시 삭제하세요.",
+      "충돌을 피하려고 노트 1개의 이름을 바꿨어요: plan.md → plan (2).md",
+      "폴더 Q3에 노트를 추가해서 폴더를 유지했어요.",
     ]);
     expect(lines.map((l) => l.count)).toEqual([2, 1, 1, 1, 1]);
   });
@@ -35,7 +35,7 @@ describe("summarizeReconcile", () => {
   it("uses singular wording for one and plural for many", () => {
     const one = summarizeReconcile([item({ kind: "deletedByTeammate", path: "a.md", docId: "1" })]);
     expect(one[0].text).toBe(
-      "1 note you edited offline was deleted by a teammate. Your version is in Trash.",
+      "오프라인에서 수정한 노트 1개를 팀원이 삭제했어요. 내 버전은 휴지통에 있어요.",
     );
     const many = summarizeReconcile([
       item({ kind: "restoredFromServer", path: "a.md", docId: "1" }),
@@ -46,9 +46,9 @@ describe("summarizeReconcile", () => {
       item({ kind: "folderKept", path: "B" }),
     ]);
     expect(many.map((l) => l.text)).toEqual([
-      "2 notes you deleted didn't reach the server, so they were put back. Delete them again to remove them for everyone.",
-      "2 notes were renamed to avoid a clash with a teammate's note.",
-      "2 folders were kept because you added notes to them.",
+      "삭제한 노트 2개가 서버에 반영되지 않아 되돌려 놓았어요. 모두에게서 지우려면 다시 삭제하세요.",
+      "팀원의 노트와 충돌하지 않도록 노트 2개의 이름을 바꿨어요.",
+      "노트를 추가한 폴더 2개를 유지했어요.",
     ]);
   });
 
@@ -69,25 +69,25 @@ describe("keptLocally, read-only", () => {
       item({ kind: "keptLocally", path: "image.png", detail: ".context/trash/s/image.png" }),
     ]);
     expect(line.count).toBe(2);
-    expect(line.text).toContain("2 files were moved to .context/trash");
-    expect(line.text).toContain("Activity");
+    expect(line.text).toContain("파일 2개를 .context/trash로 옮겼어요");
+    expect(line.text).toContain("활동");
   });
   const RO = "read-only: your edit was not accepted; a copy is in .context/trash";
   it("does not claim lost access for a read-only rejection", () => {
     const [line] = summarizeReconcile([item({ kind: "keptLocally", path: "a.md", docId: "1", detail: RO })]);
     expect(line.text).toBe(
-      "1 note is read-only for you, so your edit was not accepted. A copy is in .context/trash.",
+      "노트 1개는 보기만 가능해서 내 수정이 반영되지 않았어요. 사본은 .context/trash에 있어요.",
     );
   });
   it("keeps the access wording when nothing was read-only, and blends a mixed group", () => {
     const [plain] = summarizeReconcile([item({ kind: "keptLocally", path: "a.md", docId: "1" })]);
-    expect(plain.text).toBe("1 note is kept on this device only: you no longer have access.");
+    expect(plain.text).toBe("노트 1개는 이 기기에만 남아 있어요. 더 이상 접근 권한이 없어요.");
     const [mixed] = summarizeReconcile([
       item({ kind: "keptLocally", path: "a.md", docId: "1" }),
       item({ kind: "keptLocally", path: "b.md", docId: "2", detail: RO }),
     ]);
     expect(mixed.text).toBe(
-      "2 notes are kept on this device only: you no longer have access, or can only read them. Copies are in .context/trash.",
+      "노트 2개는 이 기기에만 남아 있어요. 더 이상 접근 권한이 없거나 보기만 가능해요. 사본은 .context/trash에 있어요.",
     );
   });
   it("describes notes and binaries separately when one group mixes them", () => {
@@ -97,8 +97,8 @@ describe("keptLocally, read-only", () => {
     ]);
     expect(line.count).toBe(2);
     expect(line.text).toBe(
-      "1 note is read-only for you, so your edit was not accepted. A copy is in .context/trash. " +
-        "1 file was moved to .context/trash because access was removed. You can find the recovery copies in Activity.",
+      "노트 1개는 보기만 가능해서 내 수정이 반영되지 않았어요. 사본은 .context/trash에 있어요. " +
+        "접근 권한이 제거되어 파일 1개를 .context/trash로 옮겼어요. 복구용 사본은 활동에서 찾을 수 있어요.",
     );
   });
 });
@@ -109,14 +109,14 @@ describe("externalEditSaved", () => {
       item({ kind: "externalEditSaved", path: "a.md", detail: ".context/trash/x/a.md" }),
     ]);
     expect(one.map((l) => l.text)).toEqual([
-      "1 note changed by another app while you were offline could not be merged. Your version was saved to .context/trash.",
+      "오프라인 중 다른 앱에서 바뀐 노트 1개를 병합하지 못했어요. 내 버전은 .context/trash에 저장했어요.",
     ]);
     const two = summarizeReconcile([
       item({ kind: "externalEditSaved", path: "a.md" }),
       item({ kind: "externalEditSaved", path: "b.md" }),
     ]);
     expect(two[0].text).toBe(
-      "2 notes changed by another app while you were offline could not be merged. Your versions were saved to .context/trash.",
+      "오프라인 중 다른 앱에서 바뀐 노트 2개를 병합하지 못했어요. 내 버전은 .context/trash에 저장했어요.",
     );
   });
 

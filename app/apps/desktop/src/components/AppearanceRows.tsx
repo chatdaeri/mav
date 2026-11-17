@@ -22,9 +22,9 @@ import { Switch } from "./Switch";
 import { ThemeToggle } from "./ThemeToggle";
 
 const THEME_OPTIONS: ReadonlyArray<{ value: ThemeMode; label: string }> = [
-  { value: "system", label: "System" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
+  { value: "system", label: "시스템" },
+  { value: "light", label: "밝게" },
+  { value: "dark", label: "어둡게" },
 ];
 
 /**
@@ -53,7 +53,7 @@ export function AppearanceRows(props: {
   return (
     <>
       <div className="menu-row">
-        <span className="menu-row-label">Theme</span>
+        <span className="menu-row-label">테마</span>
         {tail("theme")}
         {vault ? (
           <MenuSelect<ThemeMode>
@@ -61,7 +61,7 @@ export function AppearanceRows(props: {
             options={THEME_OPTIONS}
             onSelect={(v) => onChange("theme", v)}
             disabled={readOnly}
-            ariaLabel="Theme"
+            ariaLabel="테마"
             triggerClassName="role-field-trigger"
           />
         ) : (
@@ -70,16 +70,16 @@ export function AppearanceRows(props: {
       </div>
       <label className="menu-row toggle-row">
         <span className="menu-row-label">
-          Automatic file colors
+          파일 자동 색상
           <span className="field-hint">
-            Give every uncoloured file and folder a personal, stable colour.
+            색이 없는 모든 파일과 폴더에 개인별로 고정된 색을 입혀요.
           </span>
         </span>
         {tail("autoColors")}
         <Switch
           checked={values.autoColors}
           disabled={readOnly}
-          ariaLabel="Automatic file colors"
+          ariaLabel="파일 자동 색상"
           onChange={(next) => onChange("autoColors", next)}
         />
       </label>
@@ -90,9 +90,9 @@ export function AppearanceRows(props: {
         {/* A real <label>, not the row: wrapping a range in one would hijack
             the drag. The row's text is still a click target for the slider. */}
         <label className="menu-row-label" htmlFor={`content-width-${mode}`}>
-          Content width
+          본문 너비
           <span className="field-hint">
-            How wide the text runs before it wraps. Drag to the end for the full window.
+            줄바꿈되기 전까지 텍스트가 차지하는 너비예요. 끝까지 끌면 창 전체를 써요.
           </span>
         </label>
         {tail("contentWidth")}
@@ -108,7 +108,7 @@ export function AppearanceRows(props: {
             disabled={readOnly}
             // The <label> also carries the hint line; name the control with the
             // row's title alone rather than reading the whole paragraph out.
-            aria-label="Content width"
+            aria-label="본문 너비"
             aria-valuetext={measureLabel(values.contentWidth)}
             onChange={(e) => onChange("contentWidth", sliderToMeasure(Number(e.target.value)))}
           />
@@ -118,8 +118,8 @@ export function AppearanceRows(props: {
       </div>
       <div className="menu-row measure-row">
         <label className="menu-row-label" htmlFor={`editor-text-size-${mode}`}>
-          Text size
-          <span className="field-hint">The size of note text in the editor.</span>
+          글자 크기
+          <span className="field-hint">편집기에서 노트 글자의 크기예요.</span>
         </label>
         {tail("textSize")}
         <span className="range-field">
@@ -132,8 +132,8 @@ export function AppearanceRows(props: {
             step={EDITOR_FONT_SIZE_STEP}
             value={values.textSize}
             disabled={readOnly}
-            aria-label="Text size"
-            aria-valuetext={`${values.textSize} pixels`}
+            aria-label="글자 크기"
+            aria-valuetext={`${values.textSize}픽셀`}
             onChange={(e) => onChange("textSize", Number(e.target.value))}
           />
           <span className="range-value">{values.textSize}px</span>
@@ -141,23 +141,23 @@ export function AppearanceRows(props: {
       </div>
       <label className="menu-row toggle-row">
         <span className="menu-row-label">
-          Line numbers
-          <span className="field-hint">Show a line-number gutter in the editor.</span>
+          줄 번호
+          <span className="field-hint">편집기에 줄 번호 영역을 보여줘요.</span>
         </span>
         {tail("lineNumbers")}
         <Switch
           checked={values.lineNumbers}
           disabled={readOnly}
-          ariaLabel="Line numbers"
+          ariaLabel="줄 번호"
           onChange={(next) => onChange("lineNumbers", next)}
         />
       </label>
       {/* How the editor draws, so device-local unless a vault sets a default. */}
       <div className="menu-row">
         <span className="menu-row-label">
-          Properties in document
+          문서 속성
           <span className="field-hint">
-            How a note's YAML frontmatter is shown at the top of the note.
+            노트 맨 위에 YAML 프런트매터를 보여주는 방식이에요.
           </span>
         </span>
         {tail("properties")}
@@ -166,7 +166,7 @@ export function AppearanceRows(props: {
           options={PROPERTIES_MODES.map((m) => ({ value: m.id, label: m.label, hint: m.hint }))}
           onSelect={(m) => onChange("properties", m)}
           disabled={readOnly}
-          ariaLabel="Properties in document"
+          ariaLabel="문서 속성"
           triggerClassName="role-field-trigger"
         />
       </div>

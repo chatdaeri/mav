@@ -40,11 +40,7 @@ import {
 } from "../lib/accountVaultPage";
 
 const CURRENT_LINK_TIP =
-  'The active vault is also linked at "current", so tools like Claude Desktop can point at one fixed path.';
-
-function plural(n: number, one: string, many: string): string {
-  return `${n} ${n === 1 ? one : many}`;
-}
+  '지금 열린 볼트는 "current" 경로로도 연결돼서, Claude Desktop 같은 도구가 고정된 한 경로를 가리킬 수 있어요.';
 
 /**
  * Vaults: switch between vaults, create/join, and manage where their
@@ -285,8 +281,8 @@ export function AccountVaultsTab() {
         const ends = result.subscription.currentPeriodEnd;
         toast(
           ends
-            ? `Vault deleted. Pro ends on ${formatDate(ends)}. Move it from Billing if you want to keep it.`
-            : "Vault deleted. Pro ends when the current period does. Move it from Billing if you want to keep it.",
+            ? `볼트를 삭제했어요. Pro는 ${formatDate(ends)}에 종료돼요. 유지하려면 결제에서 다른 볼트로 옮기세요.`
+            : "볼트를 삭제했어요. Pro는 현재 결제 기간이 끝나면 종료돼요. 유지하려면 결제에서 다른 볼트로 옮기세요.",
           "neutral",
         );
       }
@@ -300,7 +296,7 @@ export function AccountVaultsTab() {
       // The cancel-failed message is already a full sentence (#300).
       const cancelFailed =
         e instanceof ApiError && (e.body as { error?: unknown } | undefined)?.error === "subscription_cancel_failed";
-      toast(cancelFailed ? message : `Couldn't delete the vault: ${message}`, "error");
+      toast(cancelFailed ? message : `볼트를 삭제하지 못했어요: ${message}`, "error");
     } finally {
       setBusy(false);
     }
@@ -321,7 +317,7 @@ export function AccountVaultsTab() {
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setActionError(message);
-      toast(`Couldn't leave the vault: ${message}`, "error");
+      toast(`볼트에서 나가지 못했어요: ${message}`, "error");
     } finally {
       setBusy(false);
     }
@@ -346,16 +342,16 @@ export function AccountVaultsTab() {
   const localActions = (path: string, name: string): RowAction[] => [
     {
       key: "remove",
-      label: "Remove from list",
-      title: "Remove this folder from the list. Files stay on disk.",
+      label: "목록에서 제거",
+      title: "이 폴더를 목록에서 제거해요. 파일은 디스크에 그대로 남아요.",
       onSelect: () => removeLocalVaultRow(path),
     },
     {
       key: "delete",
-      label: "Delete vault",
+      label: "볼트 삭제",
       danger: true,
       separated: true,
-      title: "Delete this vault: moves its folder and all its notes to the Trash",
+      title: "이 볼트를 삭제해요: 폴더와 모든 노트를 휴지통으로 옮겨요",
       onSelect: () => {
         setActionError(null);
         setConfirmDeleteLocal({ path, name });
@@ -480,8 +476,8 @@ export function AccountVaultsTab() {
   const syncedActions = (o: { id: string; name: string }, isActive: boolean): RowAction[] => [
     {
       key: "remove",
-      label: "Remove from device",
-      title: "Stop syncing this vault here; server data is kept",
+      label: "이 기기에서 제거",
+      title: "이 기기에서 볼트 동기화를 멈춰요. 서버 데이터는 그대로 남아요",
       onSelect: () => removeLocal(o.id),
     },
     // Only the open synced vault, and only while its folder is
@@ -489,18 +485,18 @@ export function AccountVaultsTab() {
     ...(isActive && reset.available
       ? [{
           key: "reset",
-          label: "Reset local copy",
-          title: "Delete this device's copy of the vault and download a fresh one",
+          label: "로컬 사본 초기화",
+          title: "이 기기의 볼트 사본을 삭제하고 새로 내려받아요",
           onSelect: reset.start,
         }]
       : []),
     ...(canLeave(o.id)
       ? [{
           key: "leave",
-          label: "Leave vault",
+          label: "볼트 나가기",
           danger: true,
           separated: true,
-          title: "Leave this vault. You lose access and it is removed from this device",
+          title: "이 볼트에서 나가요. 접근 권한을 잃고 이 기기에서도 제거돼요",
           onSelect: () => {
             setActionError(null);
             setConfirmLeave({ orgId: o.id, name: o.name });
@@ -514,10 +510,10 @@ export function AccountVaultsTab() {
       ? [
           {
             key: "unsync",
-            label: "Make local only",
+            label: "이 기기에만 두기",
             danger: true,
             separated: !canLeave(o.id),
-            title: "Delete this vault from the server and keep its files on this device",
+            title: "서버에서 이 볼트를 삭제하고 파일은 이 기기에 남겨 둬요",
             onSelect: () => {
               setActionError(null);
               setConfirmUnsync({ orgId: o.id, name: o.name });
@@ -525,9 +521,9 @@ export function AccountVaultsTab() {
           },
           {
             key: "delete",
-            label: "Delete vault",
+            label: "볼트 삭제",
             danger: true,
-            title: "Permanently delete this vault and all its notes for everyone",
+            title: "이 볼트와 모든 노트를 모두에게서 영구 삭제해요",
             onSelect: () => askDelete(o.id, o.name),
           },
         ]
@@ -545,7 +541,7 @@ export function AccountVaultsTab() {
   ];
 
   // Owner rule 2026-10-07: this list shows only folders never synced to
-  // Baalda (`visibleFolders`). A folder stamped for a vault this account is a
+  // 마브 (`visibleFolders`). A folder stamped for a vault this account is a
   // member of is that vault's synced row already; one stamped for any other
   // vault is hidden (signed out: every stamped folder). Nothing renders until
   // EVERY folder's stamp has settled, so other accounts' vaults never flash.
@@ -562,7 +558,7 @@ export function AccountVaultsTab() {
   ];
 
   const scopeSwitch = (
-    <span className="vaults-scope" role="tablist" aria-label="Which vaults">
+    <span className="vaults-scope" role="tablist" aria-label="볼트 범위">
       <button
         type="button"
         role="tab"
@@ -570,7 +566,7 @@ export function AccountVaultsTab() {
         className={scope === "synced" ? "is-on" : undefined}
         onClick={() => setScope("synced")}
       >
-        Synced <b>{organizations.length}</b>
+        동기화됨 <b>{organizations.length}</b>
       </button>
       <button
         type="button"
@@ -579,7 +575,7 @@ export function AccountVaultsTab() {
         className={scope === "local" ? "is-on" : undefined}
         onClick={() => setScope("local")}
       >
-        Local <b>{localsOrdered.length}</b>
+        이 기기 <b>{localsOrdered.length}</b>
       </button>
     </span>
   );
@@ -657,7 +653,7 @@ export function AccountVaultsTab() {
         <>
       {session && userInvitations.length > 0 && (
         <>
-          <div className="subhead">Invitations ({userInvitations.length})</div>
+          <div className="subhead">초대 ({userInvitations.length})</div>
           <div className="account-vaults-invites">
             <InvitationRows invitations={userInvitations} freshIds={freshInviteIds} />
           </div>
@@ -679,7 +675,7 @@ export function AccountVaultsTab() {
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              <span>New vault</span>
+              <span>새 볼트</span>
             </button>
             <button
               type="button"
@@ -689,7 +685,7 @@ export function AccountVaultsTab() {
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18" />
               </svg>
-              <span>Join with code</span>
+              <span>참여 코드로 가입</span>
             </button>
           </>
           )}
@@ -706,7 +702,7 @@ export function AccountVaultsTab() {
               >
                 <input
                   autoFocus
-                  placeholder="Vault name"
+                  placeholder="볼트 이름"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   onKeyDown={(e) => {
@@ -718,7 +714,7 @@ export function AccountVaultsTab() {
                   className="primary"
                   disabled={busy || !orgName.trim()}
                 >
-                  Create
+                  만들기
                 </button>
                 <button
                   type="button"
@@ -726,7 +722,7 @@ export function AccountVaultsTab() {
                   disabled={busy}
                   onClick={() => setCreating(false)}
                 >
-                  Cancel
+                  취소
                 </button>
               </form>
             ) : joining ? (
@@ -740,7 +736,7 @@ export function AccountVaultsTab() {
                 <input
                   autoFocus
                   className="vault-tab-code"
-                  placeholder="Join code, e.g. K7MPX2RA"
+                  placeholder="참여 코드 (예: K7MPX2RA)"
                   value={joinCode}
                   spellCheck={false}
                   autoCapitalize="characters"
@@ -754,7 +750,7 @@ export function AccountVaultsTab() {
                   className="primary"
                   disabled={busy || !joinCode.trim()}
                 >
-                  Join
+                  참여
                 </button>
                 <button
                   type="button"
@@ -762,7 +758,7 @@ export function AccountVaultsTab() {
                   disabled={busy}
                   onClick={() => setJoining(false)}
                 >
-                  Cancel
+                  취소
                 </button>
               </form>
             ) : null}
@@ -778,12 +774,12 @@ export function AccountVaultsTab() {
           <input
             className="vaults-search"
             type="search"
-            placeholder="Search vaults"
-            aria-label="Search vaults"
+            placeholder="볼트 검색"
+            aria-label="볼트 검색"
             value={vaultQuery}
             onChange={(e) => setVaultQuery(e.target.value)}
           />
-          <ul className="vaults-split-items" role="listbox" aria-label="Synced vaults">
+          <ul className="vaults-split-items" role="listbox" aria-label="동기화된 볼트">
             {ordered
               .filter((o) => !vaultQuery.trim() || o.name.toLowerCase().includes(vaultQuery.trim().toLowerCase()))
               .map((o) => {
@@ -814,7 +810,7 @@ export function AccountVaultsTab() {
                         {labels.meta ?? ""}
                       </span>
                     </span>
-                    {isActive && <span className="vaults-split-open">Open now</span>}
+                    {isActive && <span className="vaults-split-open">열려 있음</span>}
                   </li>
                 );
               })}
@@ -823,15 +819,15 @@ export function AccountVaultsTab() {
         <div className="vaults-split-detail">
           {(() => {
             const sel = ordered.find((o) => o.id === (selectedOrgId ?? ordered[0]?.id));
-            return sel ? renderPage(sel, false) : <p className="muted">No synced vaults yet.</p>;
+            return sel ? renderPage(sel, false) : <p className="muted">아직 동기화된 볼트가 없어요.</p>;
           })()}
         </div>
       </div>
       {freeVaultLimit != null && (
         <p className="muted">
-          Free includes {plural(freeVaultLimit, "synced vault", "synced vaults")} on this account
+          무료 플랜은 계정당 동기화 볼트 {freeVaultLimit}개를 포함해요
           {baseFreeVaults != null && freeVaultLimit > baseFreeVaults
-            ? " (includes vaults you had before)"
+            ? " (이전에 쓰던 볼트 포함)"
             : ""}
           .
         </p>
@@ -851,7 +847,7 @@ export function AccountVaultsTab() {
       {(localsOrdered.length > 0 || session) && (!session || scope === "local") && (
         <>
           <div className="subhead account-vaults-head">
-            {session ? scopeSwitch : <span>Local folders on this computer ({localsOrdered.length})</span>}
+            {session ? scopeSwitch : <span>이 컴퓨터의 로컬 폴더 ({localsOrdered.length})</span>}
             {session && (
               <span className="account-vaults-head-actions">
                 <AsyncButton
@@ -859,18 +855,18 @@ export function AccountVaultsTab() {
                   disabled={busy}
                   onClick={openExisting}
                 >
-                  <span>Open existing</span>
+                  <span>기존 폴더 열기</span>
                 </AsyncButton>
               </span>
             )}
           </div>
           {localsOrdered.length === 0 ? (
             <div className="vaults-local-empty">
-              <b>No local folders yet</b>
-              <span>Folders you open on this computer without syncing show up here.</span>
+              <b>아직 로컬 폴더가 없어요</b>
+              <span>이 컴퓨터에서 동기화 없이 연 폴더가 여기에 표시돼요.</span>
             </div>
           ) : (
-            <ul className="vaults-split-items vaults-local-list" aria-label="Local folders on this computer">
+            <ul className="vaults-split-items vaults-local-list" aria-label="이 컴퓨터의 로컬 폴더">
               {localsOrdered.map((r) => {
                 const isCurrent = !syncEnabled && vault?.path === r.path;
                 const labels = localCardLabels(r);
@@ -891,18 +887,18 @@ export function AccountVaultsTab() {
                         onLocate={recover(() => useStore.getState().locateVaultFolder())}
                       />
                     ) : isCurrent ? (
-                      <span className="vaults-split-open">Open now</span>
+                      <span className="vaults-split-open">열려 있음</span>
                     ) : (
                       <AsyncButton
                         className="vault-switch-chip"
                         disabled={busy}
                         onClick={() => switchToLocal(r.path)}
                       >
-                        Open here
+                        여기서 열기
                       </AsyncButton>
                     )}
                     <RowActionsMenu
-                      ariaLabel={`More actions for ${r.name ?? r.path}`}
+                      ariaLabel={`${r.name ?? r.path} 추가 작업`}
                       disabled={busy}
                       actions={localActions(r.path, r.name ?? r.path)}
                     />
@@ -918,10 +914,10 @@ export function AccountVaultsTab() {
       {session && (
         <>
           <div className="menu-sep" />
-          <div className="subhead">Vault folder location</div>
+          <div className="subhead">볼트 폴더 위치</div>
           <div className="join-code-row">
             <code className="vault-root-path" title={root ?? rootError ?? ""}>
-              {root ?? (rootError ? "Not available" : "…")}
+              {root ?? (rootError ? "사용할 수 없음" : "…")}
             </code>
             <span
               className="account-vaults-info"
@@ -935,13 +931,13 @@ export function AccountVaultsTab() {
               </svg>
             </span>
             <button className="link-btn" onClick={() => void changeRoot()}>
-              Change…
+              변경…
             </button>
             <button className="link-btn" onClick={() => void resetRoot()}>
-              Reset to default
+              기본값으로 되돌리기
             </button>
           </div>
-          <div className="muted">New vaults are created inside this folder.</div>
+          <div className="muted">새 볼트는 이 폴더 안에 만들어져요.</div>
           {rootError && <p className="error">{rootError}</p>}
         </>
       )}
@@ -954,28 +950,28 @@ export function AccountVaultsTab() {
 
       {confirmLeave && (
         <ConfirmDialog
-          title={`Leave ${confirmLeave.name}?`}
-          confirmLabel="Leave vault"
+          title={`${confirmLeave.name} 볼트에서 나갈까요?`}
+          confirmLabel="볼트 나가기"
           onCancel={() => setConfirmLeave(null)}
           onConfirm={() => leaveVault(confirmLeave.orgId, confirmLeave.name)}
         >
           <p>
-            You lose access to this vault on all your devices right away, and the
-            owner is told that you left.
+            모든 기기에서 이 볼트에 바로 접근할 수 없게 되고, 소유자에게 나갔다는 알림이
+            가요.
           </p>
           <p>
             {bound[confirmLeave.orgId] ? (
               <>
-                Its folder on this device, <strong>{folderName(confirmLeave.orgId)}</strong>,
-                is permanently deleted, including any changes that haven't synced. It
-                does not go to the Trash.
+                이 기기의 볼트 폴더 <strong>{folderName(confirmLeave.orgId)}</strong>는 아직
+                동기화되지 않은 변경 사항까지 포함해 영구 삭제돼요. 휴지통으로 이동하지
+                않아요.
               </>
             ) : (
-              "Nothing from it is stored on this device."
+              "이 기기에는 이 볼트의 데이터가 저장돼 있지 않아요."
             )}{" "}
-            The vault itself and everyone else's access are unchanged.
+            볼트 자체와 다른 멤버의 권한은 그대로예요.
           </p>
-          <p>To come back later, you'll need a new invitation or join code.</p>
+          <p>나중에 다시 들어오려면 새 초대나 참여 코드가 필요해요.</p>
           {actionError && <div className="auth-error">{actionError}</div>}
         </ConfirmDialog>
       )}
@@ -995,15 +991,14 @@ export function AccountVaultsTab() {
 
       {confirmDelete && (
         <ConfirmDialog
-          title={`Delete ${confirmDelete.name}?`}
-          confirmLabel="Delete vault"
+          title={`${confirmDelete.name} 볼트를 삭제할까요?`}
+          confirmLabel="볼트 삭제"
           onCancel={() => setConfirmDelete(null)}
           onConfirm={() => deletePermanently(confirmDelete.orgId)}
         >
           <p>
-            Every note, folder and attachment in this vault is deleted for
-            everyone, and this device's folder moves to the Trash. This can't
-            be undone.
+            이 볼트의 모든 노트, 폴더, 첨부 파일이 모두에게서 삭제되고, 이 기기의 폴더는
+            휴지통으로 이동해요. 되돌릴 수 없어요.
           </p>
           {actionError && <div className="auth-error">{actionError}</div>}
         </ConfirmDialog>
@@ -1011,41 +1006,38 @@ export function AccountVaultsTab() {
 
       {confirmDeleteLocal && (
         <ConfirmDialog
-          title={`Delete ${confirmDeleteLocal.name}?`}
-          confirmLabel="Delete vault"
+          title={`${confirmDeleteLocal.name} 볼트를 삭제할까요?`}
+          confirmLabel="볼트 삭제"
           onCancel={() => setConfirmDeleteLocal(null)}
           onConfirm={() => deleteLocalFiles(confirmDeleteLocal.path)}
         >
-          <p>This vault's folder and all its notes move to the Trash.</p>
+          <p>이 볼트의 폴더와 모든 노트가 휴지통으로 이동해요.</p>
           {actionError && <div className="auth-error">{actionError}</div>}
         </ConfirmDialog>
       )}
 
       {subDelete && (
         <ConfirmDialog
-          title={`Delete ${subDelete.name}?`}
-          confirmLabel="Delete vault"
+          title={`${subDelete.name} 볼트를 삭제할까요?`}
+          confirmLabel="볼트 삭제"
           onCancel={() => setSubDelete(null)}
           onConfirm={() => deletePermanently(subDelete.orgId)}
         >
           <p>
-            This vault is on <strong>Pro</strong>
+            이 볼트는 <strong>Pro</strong> 플랜이에요
             {subDelete.billing.currentPeriodEnd
               ? subDelete.billing.cancelAtPeriodEnd
-                ? `, ending ${formatDate(subDelete.billing.currentPeriodEnd)}`
-                : `, renewing ${formatDate(subDelete.billing.currentPeriodEnd)}`
+                ? `. ${formatDate(subDelete.billing.currentPeriodEnd)}에 종료 예정`
+                : `. ${formatDate(subDelete.billing.currentPeriodEnd)}에 갱신 예정`
               : ""}
-            .
           </p>
           <p>
-            Deleting it stops the subscription at the end of the current period.
-            You won't be charged again, and until then you can move the
-            subscription to another vault from <strong>Billing</strong>.
+            삭제하면 현재 결제 기간이 끝날 때 구독이 중단돼요. 이후에는 요금이 청구되지
+            않고, 그때까지는 <strong>결제</strong>에서 구독을 다른 볼트로 옮길 수 있어요.
           </p>
           <p>
-            Every note, folder and attachment in this vault is deleted for
-            everyone, and this device's folder moves to the Trash. That part
-            can't be undone.
+            이 볼트의 모든 노트, 폴더, 첨부 파일이 모두에게서 삭제되고, 이 기기의 폴더는
+            휴지통으로 이동해요. 이 부분은 되돌릴 수 없어요.
           </p>
           {actionError && <div className="auth-error">{actionError}</div>}
         </ConfirmDialog>

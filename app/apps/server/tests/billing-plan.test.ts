@@ -205,7 +205,7 @@ describe("team model, enforced", () => {
     expect((await checkJoinSeat(pool, org, { userId: stranger }))?.code).toBe("seat_limit_reached");
     expect(await checkJoinSeat(pool, org, { userId: m1 })).toBeNull();
     expect(seatLimitMessage(3)).toBe(
-      "All 3 seats are in use. The vault owner can add seats in Baalda (update the app if you don't see Billing).",
+      "All 3 seats are in use. The vault owner can add seats in 마이 세컨드 브레인 (update the app if you don't see Billing).",
     );
   });
 

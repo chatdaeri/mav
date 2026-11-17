@@ -36,7 +36,9 @@ export type FormatCategory =
   | "data"
   | "audio"
   | "video"
-  | "archive";
+  | "archive"
+  /** 마브: a type the table has no entry for — still listed and synced. */
+  | "other";
 
 /** Which component opens the file in the main pane. `card` is the honest
  *  fallback: name, size, "Open externally". */
@@ -52,6 +54,8 @@ export type ViewerKind =
   | "csv"
   | "docx"
   | "xlsx"
+  | "hwpx"
+  | "pptx"
   | "card";
 
 /** How a drop/paste writes the file into the note:
@@ -77,7 +81,7 @@ export interface FormatDef {
   /** Drop/paste ceiling. PR2 raises this per storage provider. */
   readonly maxBytes: number;
   /** How PR3 will pull searchable text out. Unread in PR1. */
-  readonly textExtract: "none" | "utf8" | "docx" | "xlsx" | "csv" | "pdf";
+  readonly textExtract: "none" | "utf8" | "docx" | "xlsx" | "pptx" | "hwpx" | "csv" | "pdf";
   /** Formats no webview decodes everywhere — re-encoded on import. */
   readonly transcodeTo?: "png";
   /** Grammar for the read-only code viewer. ALWAYS a dynamic import: nothing
@@ -389,11 +393,75 @@ export const FORMATS: readonly FormatDef[] = [
     textExtract: "xlsx",
   },
   {
-    // No OSS pptx renderer is mature enough to trust with untrusted input, so
-    // this stays a card + "Open externally"; PR3 gives it a searchable outline.
+    // Rust builds a structured preview (`office_preview.rs`: text, tables,
+    // pictures, box positions) rendered as React elements — no HTML from the
+    // file ever reaches the DOM. Fonts, themes and charts are not drawn.
     exts: ["pptx"],
     mimes: ["application/vnd.openxmlformats-officedocument.presentationml.presentation"],
     category: "presentation",
+    viewer: "pptx",
+    embed: "chip",
+    surface: true,
+    openable: true,
+    syncAs: "attachment",
+    maxBytes: MAX_ATTACHMENT_BYTES,
+    textExtract: "pptx",
+  },
+  {
+    // Hancom HWPX (OWPML, a zip of XML). Same structured preview as pptx.
+    exts: ["hwpx"],
+    mimes: ["application/hwp+zip"],
+    category: "office-doc",
+    viewer: "hwpx",
+    embed: "chip",
+    surface: true,
+    openable: true,
+    syncAs: "attachment",
+    maxBytes: MAX_ATTACHMENT_BYTES,
+    textExtract: "hwpx",
+  },
+  // Legacy OLE binaries: listed and synced, opened in their own app. No
+  // preview and no text — searchable by name.
+  {
+    exts: ["hwp"],
+    mimes: ["application/x-hwp"],
+    category: "office-doc",
+    viewer: "card",
+    embed: "chip",
+    surface: true,
+    openable: true,
+    syncAs: "attachment",
+    maxBytes: MAX_ATTACHMENT_BYTES,
+    textExtract: "none",
+  },
+  {
+    exts: ["doc"],
+    mimes: ["application/msword"],
+    category: "office-doc",
+    viewer: "card",
+    embed: "chip",
+    surface: true,
+    openable: true,
+    syncAs: "attachment",
+    maxBytes: MAX_ATTACHMENT_BYTES,
+    textExtract: "none",
+  },
+  {
+    exts: ["ppt"],
+    mimes: ["application/vnd.ms-powerpoint"],
+    category: "presentation",
+    viewer: "card",
+    embed: "chip",
+    surface: true,
+    openable: true,
+    syncAs: "attachment",
+    maxBytes: MAX_ATTACHMENT_BYTES,
+    textExtract: "none",
+  },
+  {
+    exts: ["xls"],
+    mimes: ["application/vnd.ms-excel"],
+    category: "spreadsheet",
     viewer: "card",
     embed: "chip",
     surface: true,
@@ -798,10 +866,69 @@ function extOf(path: string): string {
   return name.slice(dot + 1).toLowerCase();
 }
 
-/** The format for a path, or `undefined` if the app knows nothing about it. */
+/** Temp/partial-download types never listed or synced. Same list as Rust
+ *  `vault.rs HIDDEN_EXTS` — see the lockstep test. */
+export const HIDDEN_EXTS: readonly string[] = ["tmp", "temp", "crdownload", "part", "partial", "swp", "swo", "download"];
+
+/** Server upload ceiling (`MAX_BLOB_BYTES`, Postgres store). A larger file —
+ *  and any video — stays on its device and is shared as a Google Drive link. */
+export const SYNC_MAX_BYTES = 25 * 1024 * 1024;
+
+/**
+ * 마브 lists EVERY file (Baalda listed only the table above): a type with no
+ * entry opens as a file card and syncs as an attachment like any other.
+ */
+const GENERIC_FORMAT: FormatDef = {
+  exts: [],
+  mimes: [OCTET_STREAM],
+  category: "other",
+  viewer: "card",
+  embed: "chip",
+  surface: true,
+  openable: true,
+  syncAs: "attachment",
+  maxBytes: MAX_ATTACHMENT_BYTES,
+  textExtract: "none",
+};
+
+/** The format for a path: its table entry, the generic file format for any
+ *  other listed file, or `undefined` for dotfiles and hidden temp types. */
 export function formatFor(path: string): FormatDef | undefined {
+  const name = path.split(/[\\/]/).pop() ?? "";
+  if (!name || name.startsWith(".")) return undefined;
   const ext = extOf(path);
-  return ext ? BY_EXT.get(ext) : undefined;
+  const known = ext ? BY_EXT.get(ext) : undefined;
+  // Known-but-hidden types (source code) surface too in 마브.
+  if (known) return known.surface ? known : surfacedCopy(known);
+  if (!hasWordExt(name) || HIDDEN_EXTS.includes(ext)) return undefined;
+  return GENERIC_FORMAT;
+}
+
+const SURFACED_COPIES = new Map<FormatDef, FormatDef>();
+function surfacedCopy(def: FormatDef): FormatDef {
+  let copy = SURFACED_COPIES.get(def);
+  if (!copy) {
+    copy = { ...def, surface: true, openable: true };
+    SURFACED_COPIES.set(def, copy);
+  }
+  return copy;
+}
+
+/** A real extension — a letter then up to nine letters/digits/`_`/`-`. A
+ *  version folder (`1.0.0`) or a dotted phrase is NOT a file type, which keeps
+ *  folder paths out of the generic format. Same rule as Rust `has_word_ext`. */
+export function hasWordExt(name: string): boolean {
+  const dot = name.lastIndexOf(".");
+  if (dot <= 0) return false;
+  return /^[A-Za-z][A-Za-z0-9_-]{0,9}$/.test(name.slice(dot + 1));
+}
+
+/** Does this file stay on its device instead of uploading? (25MB+ or video.)
+ *  The file card offers to paste a Google Drive link in its place. */
+export function isLocalOnlyBinary(path: string, size: number | undefined): boolean {
+  const f = formatFor(path);
+  if (!f || f.syncAs !== "attachment") return false;
+  return f.category === "video" || (size ?? 0) > SYNC_MAX_BYTES;
 }
 
 /** Can this path be opened into a pane at all? (The sidebar's activate gate.) */
@@ -810,6 +937,15 @@ export function isOpenable(path: string): boolean {
 }
 
 /** Which viewer opens this path. Unknown types get the card, never a dead click. */
+/** The "open in its own app" button label. Hangul documents name the app
+ *  people know them by; other office formats open in whatever the OS picks. */
+export function openAppLabel(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  if (ext === "hwp" || ext === "hwpx") return "한글에서 열기";
+  if (["doc", "ppt", "xls", "pptx"].includes(ext)) return "기본 앱에서 열기";
+  return "Open externally";
+}
+
 export function viewerFor(path: string): ViewerKind {
   return formatFor(path)?.viewer ?? "card";
 }

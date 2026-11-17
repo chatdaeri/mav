@@ -14,7 +14,7 @@ export interface SkillGroup {
   skills: SkillSummary[];
 }
 
-export const TEAM_GROUP_LABEL = "Shared with your team";
+export const TEAM_GROUP_LABEL = "팀과 공유됨";
 
 export function groupSkills(skills: readonly SkillSummary[], filter = ""): SkillGroup[] {
   const needle = filter.trim().toLowerCase();

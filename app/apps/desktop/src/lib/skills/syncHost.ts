@@ -462,9 +462,9 @@ export async function applyTeamSkillVersion(orgId: string, skillId: string, targ
           : r,
       ),
     });
-    toast(outcome.backupPath ? `Using the team version of ${skillDisplayName(skill.name)}. Your copy was backed up.` : `Using the team version of ${skillDisplayName(skill.name)}.`);
+    toast(outcome.backupPath ? `팀 버전 스킬을 쓰는 중이에요: ${skillDisplayName(skill.name)}. 기존 사본은 백업했어요.` : `팀 버전 스킬을 쓰는 중이에요: ${skillDisplayName(skill.name)}.`);
   } else if (outcome.status === "conflict") {
-    toast(`Couldn't replace ${skillDisplayName(skill.name)}: another skill uses that folder.`, "error");
+    toast(`스킬을 바꾸지 못했어요: ${skillDisplayName(skill.name)}. 다른 스킬이 그 폴더를 쓰고 있어요.`, "error");
   }
 }
 
@@ -483,7 +483,7 @@ export async function replaceNameTakenSkill(orgId: string, skillId: string, targ
   try {
     outcome = await replaceUnmanagedSkill(h.deps, target, orgId, skill);
   } catch (e) {
-    toast(`Couldn't use the team version of ${name}: ${message(e)}`, "error");
+    toast(`팀 버전 스킬을 쓰지 못했어요: ${name}. ${message(e)}`, "error");
     return;
   }
   if (outcome.status === "conflict") {
@@ -497,8 +497,8 @@ export async function replaceNameTakenSkill(orgId: string, skillId: string, targ
     // which is left untouched.
     toast(
       kind === "unmanaged"
-        ? `Couldn't replace ${name}: that folder is a link to another place, so it was left as it is.`
-        : `Couldn't replace ${name}: another skill uses that folder.`,
+        ? `스킬을 바꾸지 못했어요: ${name}. 그 폴더는 다른 곳을 가리키는 링크라서 그대로 두었어요.`
+        : `스킬을 바꾸지 못했어요: ${name}. 다른 스킬이 그 폴더를 쓰고 있어요.`,
       "error",
     );
     return;
@@ -515,8 +515,8 @@ export async function replaceNameTakenSkill(orgId: string, skillId: string, targ
   });
   toast(
     outcome.backupPath
-      ? `Using the team version of ${name}. Your copy was saved to the skill backups folder (AI tools → Open backups folder).`
-      : `Using the team version of ${name}.`,
+      ? `팀 버전 스킬을 쓰는 중이에요: ${name}. 기존 사본은 스킬 백업 폴더에 저장했어요 (AI 도구 → 백업 폴더 열기).`
+      : `팀 버전 스킬을 쓰는 중이에요: ${name}.`,
   );
 }
 

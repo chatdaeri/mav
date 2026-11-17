@@ -16,10 +16,10 @@ import { UpgradeDialog } from "./UpgradeDialog";
 type InviteAccess = TeamAccessMode | "default";
 
 const ACCESS_OPTIONS: ReadonlyArray<{ value: InviteAccess; label: string; hint?: string }> = [
-  { value: "open", label: "Can edit" },
-  { value: "readonly", label: "Can view" },
-  { value: "private", label: "No access" },
-  { value: "default", label: "Vault default", hint: "Whatever the New members setting says" },
+  { value: "open", label: "편집 가능" },
+  { value: "readonly", label: "보기 가능" },
+  { value: "private", label: "접근 불가" },
+  { value: "default", label: "볼트 기본값", hint: "새 멤버 설정을 따라요" },
 ];
 
 /** Add typed or pasted text to the chip list, de-duplicated case-insensitively. */
@@ -40,7 +40,7 @@ export function addChips(chips: readonly string[], text: string): string[] {
  * messages the old Members tab showed (emailed / no email server / email
  * failed, with the link to share).
  */
-export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembersAccess = null, onNewMembersAccess, canManageBilling = false, seatAccount = null, ownerName = null, onClose, onInvited }: {
+export function InvitePeopleDialog({ orgId, vaultName = "이 볼트", newMembersAccess = null, onNewMembersAccess, canManageBilling = false, seatAccount = null, ownerName = null, onClose, onInvited }: {
   orgId: string;
   /** For the join-code sentence. */
   vaultName?: string;
@@ -143,60 +143,60 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
 
   return createPortal(
     <div className="modal-backdrop" onClick={(e) => { e.stopPropagation(); onClose(); }}>
-      <div className="modal invite-people" role="dialog" aria-modal="true" aria-label="Invite people" onClick={(e) => e.stopPropagation()}>
+      <div className="modal invite-people" role="dialog" aria-modal="true" aria-label="사람 초대" onClick={(e) => e.stopPropagation()}>
         <div className="invite-head">
-          <h2 className="confirm-title">Invite people</h2>
-          <button type="button" className="invite-close" aria-label="Close" onClick={onClose}>×</button>
+          <h2 className="confirm-title">사람 초대</h2>
+          <button type="button" className="invite-close" aria-label="닫기" onClick={onClose}>×</button>
         </div>
-        <div className="invite-tabs" role="tablist" aria-label="How to invite">
-          <button type="button" role="tab" aria-selected={tab === "email"} className={tab === "email" ? "on" : ""} onClick={() => setTab("email")}>By email</button>
-          <button type="button" role="tab" aria-selected={tab === "code"} className={tab === "code" ? "on" : ""} onClick={() => setTab("code")}>Join code</button>
+        <div className="invite-tabs" role="tablist" aria-label="초대 방법">
+          <button type="button" role="tab" aria-selected={tab === "email"} className={tab === "email" ? "on" : ""} onClick={() => setTab("email")}>이메일로</button>
+          <button type="button" role="tab" aria-selected={tab === "code"} className={tab === "code" ? "on" : ""} onClick={() => setTab("code")}>참여 코드</button>
         </div>
         {tab === "code" ? (
           <>
             <div className="invite-code-card">
-              <p className="invite-code-lead">Anyone with this code can join {vaultName}</p>
+              <p className="invite-code-lead">이 코드가 있는 사람은 누구나 {vaultName}에 참여할 수 있어요</p>
               {code ? (
                 <>
                   {/* Tiles show the vault's 8-character code; a device that holds the
                       vault key appends `-<key>` (26 chars), which only travels by Copy. */}
-                  <div className="invite-code-tiles" aria-label={`Join code ${code}`}>
+                  <div className="invite-code-tiles" aria-label={`참여 코드 ${code}`}>
                     {shortCode.split("").map((ch, i) => (
                       <span key={i} className={i === Math.floor(shortCode.length / 2) ? "gap" : undefined}>{ch}</span>
                     ))}
                   </div>
                   {shortCode !== code && (
-                    <p className="invite-code-note">Copy it to share: the copied code includes a key, so they get in right away.</p>
+                    <p className="invite-code-note">복사해서 공유하세요. 복사한 코드에는 키가 포함되어 있어서 바로 들어올 수 있어요.</p>
                   )}
                 </>
               ) : (
-                <p className="invite-code-lead">Loading the code…</p>
+                <p className="invite-code-lead">코드를 불러오는 중…</p>
               )}
               <button type="button" className={`primary invite-copy${copied ? " is-copied" : ""}`} disabled={!code} onClick={() => void copyCode()}>
-                {copied ? "Copied" : "Copy code"}
+                {copied ? "복사됨" : "코드 복사"}
               </button>
             </div>
             <div className="invite-code-row">
               <span>
-                People who join get
-                <small>The vault's New members setting</small>
+                참여한 사람의 권한
+                <small>볼트의 새 멤버 설정</small>
               </span>
               {newMembersAccess && onNewMembersAccess ? (
                 <MenuSelect<TeamAccessMode>
                   value={newMembersAccess}
                   options={ACCESS_OPTIONS.filter((o): o is { value: TeamAccessMode; label: string } => o.value !== "default")}
                   onSelect={onNewMembersAccess}
-                  ariaLabel="People who join get"
+                  ariaLabel="참여한 사람의 권한"
                   triggerClassName="invite-field-trigger"
                   menuClassName="access-menu"
                 />
               ) : (
-                <span className="muted">{ACCESS_OPTIONS.find((o) => o.value === newMembersAccess)?.label ?? "The New members setting"}</span>
+                <span className="muted">{ACCESS_OPTIONS.find((o) => o.value === newMembersAccess)?.label ?? "새 멤버 설정"}</span>
               )}
             </div>
             <div className="invite-foot">
-              <span className="invite-foot-hint">They join as Members.</span>
-              <button type="button" className="ghost-pill" onClick={onClose}>Done</button>
+              <span className="invite-foot-hint">멤버로 참여해요.</span>
+              <button type="button" className="ghost-pill" onClick={onClose}>완료</button>
             </div>
           </>
         ) : (<>
@@ -204,15 +204,15 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
           {chips.map((c) => (
             <span key={c} className={`invite-chip${isValidEmail(c) ? "" : " is-invalid"}`}>
               {c}
-              <button type="button" aria-label={`Remove ${c}`} onClick={() => setChips((cs) => cs.filter((x) => x !== c))}>×</button>
+              <button type="button" aria-label={`${c} 제거`} onClick={() => setChips((cs) => cs.filter((x) => x !== c))}>×</button>
             </span>
           ))}
           <input
             type="text"
             autoFocus
             value={draft}
-            placeholder={chips.length ? "" : "Emails, separated by commas"}
-            aria-label="Email addresses"
+            placeholder={chips.length ? "" : "이메일 주소를 쉼표로 구분해 입력"}
+            aria-label="이메일 주소"
             onChange={(e) => {
               const v = e.target.value;
               if (/[\s,;]$/.test(v)) { setChips((c) => addChips(c, v)); setDraft(""); }
@@ -233,28 +233,28 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
           />
         </div>
         {invalid.length > 0 && (
-          <div className="auth-error">{invalid.length === 1 ? `“${invalid[0]}” isn't an email address.` : `${invalid.length} entries aren't email addresses.`}</div>
+          <div className="auth-error">{invalid.length === 1 ? `“${invalid[0]}”은(는) 이메일 주소가 아니에요.` : `이메일 주소가 아닌 항목이 ${invalid.length}개 있어요.`}</div>
         )}
         <div className="invite-people-fields">
           <label className="invite-field">
-            <span className="invite-field-label">Role</span>
+            <span className="invite-field-label">역할</span>
             <MenuSelect
               value={role}
-              options={[{ value: "member", label: "Member" }, { value: "admin", label: "Admin", hint: "Can manage people and access" }]}
+              options={[{ value: "member", label: "멤버" }, { value: "admin", label: "관리자", hint: "멤버와 권한을 관리할 수 있어요" }]}
               onSelect={setRole}
-              ariaLabel="Role"
+              ariaLabel="역할"
               triggerClassName="invite-field-trigger"
               menuClassName="access-menu"
               anchorClosest=".invite-field"
             />
           </label>
           <label className="invite-field">
-            <span className="invite-field-label">Access</span>
+            <span className="invite-field-label">권한</span>
             <MenuSelect
               value={access}
               options={ACCESS_OPTIONS}
               onSelect={setAccess}
-              ariaLabel="Access"
+              ariaLabel="권한"
               triggerClassName="invite-field-trigger"
               menuClassName="access-menu"
               anchorClosest=".invite-field"
@@ -268,7 +268,7 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
             <span>{prewarning.text}</span>
             {prewarning.action === "add-seats" && (
               <button type="button" className="link-btn" onClick={() => useStore.getState().requestAccountSettings("plan")}>
-                Add seats
+                좌석 추가
               </button>
             )}
             {prewarning.action === "upgrade" && (
@@ -277,7 +277,7 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
                 className="link-btn"
                 onClick={() => useStore.getState().requestUpgradeDialog({ reason: peopleLimitReason(seatAccount ? freeLimitOf(seatAccount) : null) })}
               >
-                Upgrade →
+                업그레이드 →
               </button>
             )}
           </div>
@@ -289,20 +289,20 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
           return (
             <div key={r.email} className={`invite-notice${r.error ? " is-warning" : ""}`}>
               {r.emailed ? (
-                <span>Invitation emailed to {r.email}.</span>
+                <span>{r.email}(으)로 초대 메일을 보냈어요.</span>
               ) : !r.invitationId ? (
-                <span>Couldn't invite {r.email}{r.error && !inviteLimitError(r.error) ? ` (${r.error})` : ""}.</span>
+                <span>{r.email}을(를) 초대하지 못했어요{r.error && !inviteLimitError(r.error) ? ` (${r.error})` : ""}.</span>
               ) : (
                 <>
                   <span>
                     {r.error
-                      ? `Invitation created, but the email to ${r.email} couldn't be sent (${r.error}). Share this link instead:`
-                      : `Invitation created. This server doesn't send email, so share this link with ${r.email}:`}
+                      ? `초대를 만들었지만 ${r.email}(으)로 메일을 보내지 못했어요 (${r.error}). 대신 이 링크를 공유하세요:`
+                      : `초대를 만들었어요. 이 서버는 메일을 보내지 않으므로 ${r.email}에게 이 링크를 공유하세요:`}
                   </span>
                   {link && (
                     <div className="invite-notice-link">
                       <code>{link}</code>
-                      <button className="link-btn" onClick={() => void copy(link)}>Copy</button>
+                      <button className="link-btn" onClick={() => void copy(link)}>복사</button>
                     </div>
                   )}
                 </>
@@ -311,16 +311,16 @@ export function InvitePeopleDialog({ orgId, vaultName = "this vault", newMembers
           );
         })}
         <div className="invite-foot">
-          <span className="invite-foot-hint">They get an email with a link.</span>
+          <span className="invite-foot-hint">링크가 담긴 메일이 전송돼요.</span>
           <div className="confirm-actions invite-people-actions">
-            <button type="button" className="ghost-pill" onClick={onClose}>{results ? "Done" : "Cancel"}</button>
+            <button type="button" className="ghost-pill" onClick={onClose}>{results ? "완료" : "취소"}</button>
             <AsyncButton
               className="primary"
               spinnerTone="on-accent"
               disabled={all.length === 0 || invalid.length > 0}
               onClick={send}
             >
-              {all.length >= 2 ? `Send ${all.length} invites` : "Send invite"}
+              {all.length >= 2 ? `초대 ${all.length}건 보내기` : "초대 보내기"}
             </AsyncButton>
           </div>
         </div>

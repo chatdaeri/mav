@@ -180,10 +180,10 @@ class InvalidWidget extends WidgetType {
     host.className = `cm-fm-banner ${INSET}`;
     // No innerHTML anywhere in this file (or any widget in this app).
     const strong = document.createElement("strong");
-    strong.textContent = "Properties can't be shown";
+    strong.textContent = "속성을 표시할 수 없어요";
     const rest = document.createElement("span");
     rest.textContent =
-      ". This note's YAML is outside what Baalda edits, so it is shown as text and never rewritten.";
+      "이 노트의 YAML은 마이 세컨드 브레인이 편집할 수 있는 범위를 벗어나서 텍스트로 보여 주고, 절대 다시 쓰지 않아요.";
     host.append(strong, rest);
     return host;
   }

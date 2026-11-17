@@ -4,43 +4,43 @@ import { consentKeyHeader, linkMatchesServer, parseOAuthConsentLink } from "./oa
 describe("oauth-consent deep link", () => {
   it("parses both foldings and every app scheme", () => {
     for (const url of [
-      "baalda://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
-      "baalda:///oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
-      "baalda-staging://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
-      "baalda-dev://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
+      "mav://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
+      "mav:///oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
+      "mav-staging://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
+      "mav-dev://oauth-consent?id=abcDEF123_-xyz&server=https%3A%2F%2Fapi.baalda.com",
     ]) {
       expect(parseOAuthConsentLink(url), url).toEqual({ id: "abcDEF123_-xyz", server: "https://api.baalda.com" });
     }
   });
 
   it("refuses other links, odd ids and other schemes", () => {
-    expect(parseOAuthConsentLink("baalda://billing/upgraded")).toBeNull();
-    expect(parseOAuthConsentLink("baalda://oauth-consent?id=a b")).toBeNull();
-    expect(parseOAuthConsentLink("baalda://oauth-consent")).toBeNull();
+    expect(parseOAuthConsentLink("mav://billing/upgraded")).toBeNull();
+    expect(parseOAuthConsentLink("mav://oauth-consent?id=a b")).toBeNull();
+    expect(parseOAuthConsentLink("mav://oauth-consent")).toBeNull();
     expect(parseOAuthConsentLink("https://oauth-consent?id=abcdefghij")).toBeNull();
   });
 
   it("only matches the server this app uses", () => {
-    const link = parseOAuthConsentLink("baalda://oauth-consent?id=abcdefghij&server=https%3A%2F%2Fapi.baalda.com")!;
+    const link = parseOAuthConsentLink("mav://oauth-consent?id=abcdefghij&server=https%3A%2F%2Fapi.baalda.com")!;
     expect(linkMatchesServer(link, "https://api.baalda.com")).toBe(true);
     expect(linkMatchesServer(link, "https://evil.example")).toBe(false);
   });
 
   it("red team 3: dressed-up, duplicated or misdirected consent links are refused", () => {
     for (const url of [
-      "baalda://evil.example@oauth-consent?id=abcdefghij",
-      "baalda://user:pw@oauth-consent?id=abcdefghij",
-      "baalda://oauth-consent?id=abcdefghij&id=zzzzzzzzzz",
-      "baalda://oauth-consent/extra?id=abcdefghij",
-      "baalda://oauth-consent?id=abcdefghij&server=javascript%3Aalert(1)",
-      "baalda://oauth-consent?id=abcdefghij&server=ftp%3A%2F%2Fevil.example",
-      "baalda://oauth-consent?id=..%2F..%2Fmcp%2Ftokens",
+      "mav://evil.example@oauth-consent?id=abcdefghij",
+      "mav://user:pw@oauth-consent?id=abcdefghij",
+      "mav://oauth-consent?id=abcdefghij&id=zzzzzzzzzz",
+      "mav://oauth-consent/extra?id=abcdefghij",
+      "mav://oauth-consent?id=abcdefghij&server=javascript%3Aalert(1)",
+      "mav://oauth-consent?id=abcdefghij&server=ftp%3A%2F%2Fevil.example",
+      "mav://oauth-consent?id=..%2F..%2Fmcp%2Ftokens",
     ]) {
       expect(parseOAuthConsentLink(url), url).toBeNull();
     }
     // A link naming another server never reaches that server: it is refused here,
     // and a link naming none is only ever resolved against the app's own server.
-    const other = parseOAuthConsentLink("baalda://oauth-consent?id=abcdefghij&server=https%3A%2F%2Fevil.example")!;
+    const other = parseOAuthConsentLink("mav://oauth-consent?id=abcdefghij&server=https%3A%2F%2Fevil.example")!;
     expect(linkMatchesServer(other, "https://api.baalda.com")).toBe(false);
   });
 

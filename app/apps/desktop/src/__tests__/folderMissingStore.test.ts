@@ -151,7 +151,7 @@ describe("Restore here", () => {
   });
 
   it("refuses for a local-only vault: there is nothing to restore from", async () => {
-    await expect(useStore.getState().restoreVaultFolder()).rejects.toThrow(/isn't synced/);
+    await expect(useStore.getState().restoreVaultFolder()).rejects.toThrow(/동기화되지 않아/);
     expect(applyVaultFolder).not.toHaveBeenCalled();
   });
 
@@ -245,7 +245,7 @@ describe("Reset local copy", () => {
 
   it("never deletes anything for a local-only vault", async () => {
     useStore.setState({ structureNotice: present });
-    await expect(useStore.getState().resetLocalVaultCopy()).rejects.toThrow(/synced vault/);
+    await expect(useStore.getState().resetLocalVaultCopy()).rejects.toThrow(/동기화된 볼트만/);
     expect(ipcMock.resetVaultLocalCopy).not.toHaveBeenCalled();
     expect(ipcMock.deleteVault).not.toHaveBeenCalled();
     expect(applyVaultFolder).not.toHaveBeenCalled();

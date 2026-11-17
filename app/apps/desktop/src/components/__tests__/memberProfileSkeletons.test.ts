@@ -78,7 +78,7 @@ describe("Member profile skeletons", () => {
     expect(spinners()).toBe(0);
     await act(async () => d.resolve([]));
     expect(skeletons()).toBe(0);
-    expect(host.textContent).toContain("No activity yet.");
+    expect(host.textContent).toContain("아직 활동이 없어요.");
   });
 
   it("Board view shows three skeleton columns until the tree arrives", async () => {
@@ -87,7 +87,7 @@ describe("Member profile skeletons", () => {
     api.listAccessTree.mockReturnValue(d.promise);
     await render("access");
     const cols = [...host.querySelectorAll(".member-skel-board .access-board-column")];
-    expect(cols.map((c) => c.querySelector(".access-board-column-title")?.textContent)).toEqual(["Can edit", "Can view", "No access"]);
+    expect(cols.map((c) => c.querySelector(".access-board-column-title")?.textContent)).toEqual(["편집 가능", "보기 가능", "접근 불가"]);
     for (const c of cols) expect(c.querySelectorAll(".member-skel-board-row").length).toBeGreaterThanOrEqual(4);
     expect(spinners()).toBe(0);
     await act(async () => d.resolve({ folders: [{ id: "f1", path: "Specs" }], notes: [] }));

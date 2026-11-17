@@ -133,7 +133,7 @@ export function createKeyRecoveryRoutes(): Hono {
       await client.query("DELETE FROM vault_key_requests WHERE vault_id = $1 AND user_id = $2", [vaultId, userId]);
       await client.query(
         `INSERT INTO access_audit (organization_id, actor_user_id, actor_name, entity_type, entity_id, action, before_state, after_state)
-         VALUES ($1, NULL, 'Baalda key recovery', 'vault', $2, 'key_recovered', NULL, $3::jsonb)`,
+         VALUES ($1, NULL, '마이 세컨드 브레인 key recovery', 'vault', $2, 'key_recovered', NULL, $3::jsonb)`,
         [orgId, vaultId, JSON.stringify({ userId, generation: state.generation })],
       );
       await client.query("COMMIT");

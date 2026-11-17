@@ -11,6 +11,7 @@ import {
   lastActiveLabel,
   splitEmails,
 } from "../membersAccess";
+import { relativeTime } from "../health/format";
 import { addChips } from "../../components/InvitePeopleDialog";
 
 describe("members and access rules", () => {
@@ -28,8 +29,8 @@ describe("members and access rules", () => {
   });
 
   it("a never-shared vault reads as No access and says authors keep their notes", () => {
-    expect(everyoneLabel("private", "none")).toEqual({ label: "No access", sub: "Members keep notes they wrote" });
-    expect(everyoneLabel("open", "edit")).toEqual({ label: "Can edit", sub: null });
+    expect(everyoneLabel("private", "none")).toEqual({ label: "접근 불가", sub: "멤버는 자신이 쓴 노트를 계속 볼 수 있어요" });
+    expect(everyoneLabel("open", "edit")).toEqual({ label: "편집 가능", sub: null });
   });
 
   it("filters by name or email and counts", () => {
@@ -40,17 +41,17 @@ describe("members and access rules", () => {
     const invitations = [{ id: "i", email: "maya@team.com", role: "member", status: "pending", createdAt: null, expiresAt: null, access: null }];
     expect(filterPeople("ANA", members, invitations).members.map((m) => m.userId)).toEqual(["a"]);
     expect(filterPeople("maya", members, invitations).invitations).toHaveLength(1);
-    expect(countLine("", 4, 1)).toBe("4 people · 1 invite pending");
-    expect(countLine("", 1, 0)).toBe("1 person");
-    expect(countLine("x", 1, 0)).toBe("1 person found");
-    expect(invitationAccessLabel(null)).toBe("Default");
+    expect(countLine("", 4, 1)).toBe("4명 · 초대 1건 대기 중");
+    expect(countLine("", 1, 0)).toBe("1명");
+    expect(countLine("x", 1, 0)).toBe("1명 검색됨");
+    expect(invitationAccessLabel(null)).toBe("기본값");
   });
 
   it("last active prefers live presence", () => {
     const now = Date.parse("2026-10-04T12:00:00Z");
-    expect(lastActiveLabel(true, null, now)).toBe("Now");
+    expect(lastActiveLabel(true, null, now)).toBe("지금");
     expect(lastActiveLabel(false, null, now)).toBe("—");
-    expect(lastActiveLabel(false, "2026-10-04T10:00:00Z", now)).toBe("2 hours ago");
+    expect(lastActiveLabel(false, "2026-10-04T10:00:00Z", now)).toBe(relativeTime(Date.parse("2026-10-04T10:00:00Z"), now));
   });
 
   it("splits, de-duplicates and validates invite emails", () => {
@@ -99,17 +100,17 @@ describe("what a tick grants", () => {
 
 describe("confirm copy for taking access away", () => {
   it("names the outcome in plain words", () => {
-    expect(reduceAccessCopy({ kind: "item", name: "Specs" }, "private")).toMatchObject({ title: "Remove access to “Specs”?", button: "Remove access" });
+    expect(reduceAccessCopy({ kind: "item", name: "Specs" }, "private")).toMatchObject({ title: "“Specs”의 권한을 제거할까요?", button: "권한 제거" });
     expect(reduceAccessCopy({ kind: "item", name: "Specs" }, "readonly")).toEqual({
-      title: "Make “Specs” view only?", button: "Make view only", outcome: "They can still read it but no longer edit.",
+      title: "“Specs”을(를) 보기 전용으로 바꿀까요?", button: "보기 전용으로 변경", outcome: "계속 읽을 수는 있지만 더 이상 편집할 수 없어요.",
     });
-    expect(reduceAccessCopy({ kind: "person", name: "Sara", self: false }, "private").title).toBe("Remove Sara's access to this vault?");
-    expect(reduceAccessCopy({ kind: "person", name: "Sara", self: false }, "readonly").title).toBe("Make Sara view only across the vault?");
+    expect(reduceAccessCopy({ kind: "person", name: "Sara", self: false }, "private").title).toBe("Sara님의 이 볼트 권한을 제거할까요?");
+    expect(reduceAccessCopy({ kind: "person", name: "Sara", self: false }, "readonly").title).toBe("볼트 전체에서 Sara님을 보기 전용으로 바꿀까요?");
     expect(reduceAccessCopy({ kind: "person", name: "Me", self: true }, "private")).toMatchObject({
-      title: "Remove your access to this vault?", outcome: expect.stringContaining("removed from your devices"),
+      title: "이 볼트에 대한 내 권한을 제거할까요?", outcome: expect.stringContaining("내 기기에서 삭제돼요"),
     });
-    expect(reduceAccessCopy({ kind: "everyone" }, "private").title).toBe("Set everyone to No access?");
-    expect(reduceAccessCopy({ kind: "everyone" }, "readonly").title).toBe("Make the vault view only for everyone?");
+    expect(reduceAccessCopy({ kind: "everyone" }, "private").title).toBe("모든 멤버를 접근 불가로 설정할까요?");
+    expect(reduceAccessCopy({ kind: "everyone" }, "readonly").title).toBe("모든 멤버에게 볼트를 보기 전용으로 바꿀까요?");
     for (const to of ["private", "readonly"] as const) {
       const c = reduceAccessCopy({ kind: "everyone" }, to);
       expect(`${c.title} ${c.button} ${c.outcome}`).not.toMatch(/narrow|apply/i);

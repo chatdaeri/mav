@@ -53,7 +53,7 @@ import { createVersionRoutes } from "./routes/versions.js";
 import { createTrashRoutes } from "./routes/trash.js";
 import { createShrinkBrakeRoutes } from "./routes/shrink-brake.js";
 import { createBillingRoutes } from "./routes/billing.js";
-import { PolarBillingProvider } from "../billing/polar.js";
+import { DisabledBillingProvider } from "../billing/disabled.js";
 import type { BillingProvider } from "../billing/provider.js";
 import type { DocWriter } from "../mcp/doc-writer.js";
 import { pool } from "../db/pool.js";
@@ -295,17 +295,17 @@ export function createApp(deps: AppDeps): Hono {
   app.get("/apple-touch-icon.png", (c) => c.body(siteIcon, 200, iconHeaders));
   app.get("/", (c) =>
     c.html(`<!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baalda</title>
+<title>마이 세컨드 브레인</title>
 <link rel="icon" type="image/png" sizes="256x256" href="/icon.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 </head>
 <body style="font-family: system-ui, sans-serif; margin: 3rem;">
-<p><img src="/icon.png" alt="Baalda" width="64" height="64" /></p>
-<p>This is the Baalda sync and MCP server. The app lives at <a href="https://baalda.com">baalda.com</a>.</p>
+<p><img src="/icon.png" alt="마이 세컨드 브레인" width="64" height="64" /></p>
+<p>마이 세컨드 브레인 동기화·MCP 서버예요. 앱은 <a href="https://github.com/chatdaeri/mav">github.com/chatdaeri/mav</a>에서 받을 수 있어요.</p>
 </body>
 </html>`),
   );
@@ -358,7 +358,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route("/", accountPageRoutes);
 
   // Clickable share links: https://<server>/open/note/… bounces into the app's
-  // baalda:// deep link. Public — the URL carries identity, never access.
+  // mav:// deep link. Public — the URL carries identity, never access.
   app.route("/", openLinkRoutes);
 
   // Public note pages: /p/<token> renders a note read-only for anyone with the
@@ -494,7 +494,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route("/api", createRepairRoutes({ evictDoc: deps.evictDoc }));
   app.route("/api", createShareRoutes(deps));
   app.route("/api", publicLinkApiRoutes);
-  const billingProvider = deps.billingProvider ?? new PolarBillingProvider();
+  const billingProvider = deps.billingProvider ?? new DisabledBillingProvider();
   app.route(
     "/api",
     createOrgRoutes({

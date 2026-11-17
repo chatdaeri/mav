@@ -1,4 +1,4 @@
-// Railway Infrastructure as Code for the Baalda server service.
+// Railway Infrastructure as Code for the 마브 server service (a fork of the Baalda server).
 //
 // Successor of the repo-root `railway.json`: Railway's legacy "Config as Code"
 // is no longer read by services created after mid-2026 and stops being read
@@ -25,7 +25,7 @@
 // the file changes — ordinary pushes deploy with whatever was last applied.
 import { defineRailway, github, preserve, project, service } from "railway/iac";
 
-export const partial = "baalda-server";
+export const partial = "mav-server";
 
 // Server env vars (see apps/server/.env.example and docs/DEPLOY.md). All optional
 // here: `preserve()` keeps an existing value and creates nothing.
@@ -165,8 +165,8 @@ export default defineRailway((ctx) => {
   // every other project deploys `main`.
   const branch = ctx.projectName.toLowerCase().includes("staging") ? "staging" : "main";
 
-  const server = service("baalda-server", {
-    source: github("naveedharri/baalda", { branch }),
+  const server = service("mav-server", {
+    source: github("chatdaeri/mav", { branch }),
     build: {
       builder: "DOCKERFILE",
       // Build context is the repo root (pnpm monorepo), so the path is from there.
@@ -181,7 +181,7 @@ export default defineRailway((ctx) => {
       healthcheckTimeout: 300,
       restartPolicyType: "ON_FAILURE",
       restartPolicyMaxRetries: 5,
-      limitOverride: { containers: { memoryBytes: 3000000000 } },
+      limitOverride: { containers: { memoryBytes: 1000000000 } },
     },
     env: Object.fromEntries(SERVER_ENV.map((name) => [name, preserve()])),
   });

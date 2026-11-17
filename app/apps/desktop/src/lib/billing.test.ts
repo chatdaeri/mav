@@ -51,11 +51,11 @@ import {
 
 describe("plan benefits copy", () => {
   it("explains the Free note allowance and Team benefits", () => {
-    expect(PRO_BENEFITS).toContain("Standalone file sync");
+    expect(PRO_BENEFITS).toContain("독립 파일 동기화");
     expect(PRO_BENEFITS.join(" ")).not.toMatch(/unlimited notes|AI edits/i);
-    expect(FREE_PLAN_EXPLANATION).toMatch(/note sync, embedded attachments/i);
-    expect(FREE_PLAN_EXPLANATION).toMatch(/embedded attachments/i);
-    expect(FREE_PLAN_EXPLANATION).toMatch(/standalone file sync/i);
+    expect(FREE_PLAN_EXPLANATION).toMatch(/노트 동기화, 포함된 첨부 파일/);
+    expect(FREE_PLAN_EXPLANATION).toMatch(/포함된 첨부 파일/);
+    expect(FREE_PLAN_EXPLANATION).toMatch(/독립 파일 동기화/);
   });
 });
 
@@ -143,42 +143,42 @@ describe("subscriptionStatusLine", () => {
 
   it("writes the renewal date and the price for a live subscription", () => {
     expect(subscriptionStatusLine(facts(), FMT)).toBe(
-      "Renews D(2026-10-03T00:00:00.000Z) · usd10month",
+      "D(2026-10-03T00:00:00.000Z) 갱신 · usd10month",
     );
   });
 
   it("writes an end date, never a renewal, once it is cancelling", () => {
     const line = subscriptionStatusLine(facts({ cancelAtPeriodEnd: true }), FMT);
-    expect(line).toBe("Ends D(2026-10-03T00:00:00.000Z)");
+    expect(line).toBe("D(2026-10-03T00:00:00.000Z) 종료 예정");
     expect(line).not.toContain("Renews");
   });
 
   it("falls back to prose when a cancelling subscription has no end date", () => {
     expect(
       subscriptionStatusLine(facts({ cancelAtPeriodEnd: true, currentPeriodEnd: null }), FMT),
-    ).toBe("Ends at the end of the current period");
+    ).toBe("현재 기간이 끝나면 종료돼요");
   });
 
   it("lets past_due outrank the date and the price", () => {
-    expect(subscriptionStatusLine(facts({ status: "past_due" }), FMT)).toBe("Past due");
+    expect(subscriptionStatusLine(facts({ status: "past_due" }), FMT)).toBe("결제 지연");
     // Even mid-cancellation: the money is the thing to say.
     expect(
       subscriptionStatusLine(facts({ status: "past_due", cancelAtPeriodEnd: true }), FMT),
-    ).toBe("Past due");
+    ).toBe("결제 지연");
   });
 
   it("reports a canceled subscription in the past tense", () => {
     expect(subscriptionStatusLine(facts({ status: "canceled" }), FMT)).toBe(
-      "Ended D(2026-10-03T00:00:00.000Z)",
+      "D(2026-10-03T00:00:00.000Z) 종료",
     );
     expect(
       subscriptionStatusLine(facts({ status: "canceled", currentPeriodEnd: null }), FMT),
-    ).toBe("Canceled");
+    ).toBe("해지됨");
   });
 
   it("omits the price when the provider gave us none", () => {
     expect(subscriptionStatusLine(facts({ amount: null, currency: null }), FMT)).toBe(
-      "Renews D(2026-10-03T00:00:00.000Z)",
+      "D(2026-10-03T00:00:00.000Z) 갱신",
     );
   });
 
@@ -214,8 +214,8 @@ describe("planPillLabel", () => {
   });
 
   it("surfaces the states worth interrupting for", () => {
-    expect(planPillLabel({ plan: "pro", status: "past_due" })).toBe("Past due");
-    expect(planPillLabel({ plan: "pro", status: "canceled" })).toBe("Canceled");
+    expect(planPillLabel({ plan: "pro", status: "past_due" })).toBe("결제 지연");
+    expect(planPillLabel({ plan: "pro", status: "canceled" })).toBe("해지됨");
   });
 });
 
@@ -275,23 +275,23 @@ describe("Team plan copy", () => {
   it("drops the stray line and keeps the old export as an alias", () => {
     expect(TEAM_BENEFITS.join(" ")).not.toMatch(/TypeSafe/);
     expect(PRO_BENEFITS).toBe(TEAM_BENEFITS);
-    expect(FREE_PLAN_LACKS).toContain("Standalone file sync");
+    expect(FREE_PLAN_LACKS).toContain("독립 파일 동기화");
     expect(TEAM_BENEFITS).toEqual([
-      "Unlimited people, one seat each",
-      "Unlimited synced vaults",
-      "Standalone file sync",
-      "Priority support",
+      "인원 무제한, 1인당 1좌석",
+      "동기화 볼트 무제한",
+      "독립 파일 동기화",
+      "우선 지원",
     ]);
     expect(FREE_PLAN_INCLUDES).toEqual([
-      "2 people",
-      "1 synced vault",
-      "Unlimited notes and attachments",
-      "MCP for your AI tools",
-      "Real-time collaboration",
+      "2명",
+      "동기화 볼트 1개",
+      "노트와 첨부 파일 무제한",
+      "AI 도구용 MCP",
+      "실시간 협업",
     ]);
-    expect(FREE_PLAN_EXPLANATION).toMatch(/2 people/);
-    expect(seatsFullCopy(5)).toBe("All 5 seats are in use.");
-    expect(seatsFullCopy(null)).toBe("All seats are in use.");
+    expect(FREE_PLAN_EXPLANATION).toMatch(/2명/);
+    expect(seatsFullCopy(5)).toBe("좌석 5개를 모두 사용 중이에요.");
+    expect(seatsFullCopy(null)).toBe("좌석을 모두 사용 중이에요.");
   });
 });
 
@@ -307,8 +307,8 @@ describe("seat helpers", () => {
   it("totals monthly and yearly prices", () => {
     expect(seatTotalCents(5, 1000)).toBe(5000);
     expect(seatTotalCents(5, 11000)).toBe(55000);
-    expect(seatTotalLine(5, 1000, "usd", "month")).toBe("5 seats × $10 = $50/mo");
-    expect(seatTotalLine(3, 11000, "usd", "year")).toBe("3 seats × $110 = $330/yr");
+    expect(seatTotalLine(5, 1000, "usd", "month")).toBe("좌석 5개 × $10 = $50/월");
+    expect(seatTotalLine(3, 11000, "usd", "year")).toBe("좌석 3개 × $110 = $330/년");
     expect(formatMoney(1050, "usd")).toBe("$10.50");
   });
 
@@ -318,10 +318,10 @@ describe("seat helpers", () => {
     });
     expect(
       yearlySavingsLabel(team([{ interval: "month", perSeat: 1000 }, { interval: "year", perSeat: 11000 }])),
-    ).toBe("Save 8%");
+    ).toBe("8% 절약");
     expect(
       yearlySavingsLabel(team([{ interval: "month", perSeat: 1000 }, { interval: "year", perSeat: 9600 }])),
-    ).toBe("Save 20%");
+    ).toBe("20% 절약");
     expect(yearlySavingsLabel(team([{ interval: "month", perSeat: 1000 }]))).toBeNull();
     expect(yearlySavingsLabel({})).toBeNull();
     expect(yearlySavingsLabel(null)).toBeNull();
@@ -330,16 +330,16 @@ describe("seat helpers", () => {
   it("writes one discount line with the saving only when charged is below list", () => {
     expect(
       discountLine({ interval: "month", price: { list: 1000, charged: 500, discountName: "legacy" } }),
-    ).toBe("Legacy price $5/mo · saving $5/mo");
+    ).toBe("기존 가격 $5/월 · $5/월 절약");
     expect(
       discountLine({ interval: "year", price: { list: 33000, charged: 0, discountName: "legacy-acc_1" } }),
-    ).toBe("Legacy price $0/yr · saving $330/yr");
+    ).toBe("기존 가격 $0/년 · $330/년 절약");
     expect(
       discountLine({ interval: "year", price: { list: 33000, charged: 0, discountName: "LAUNCH100" } }),
-    ).toBe("Discount LAUNCH100 · saving $330/yr");
+    ).toBe("할인 LAUNCH100 · $330/년 절약");
     expect(
       discountLine({ interval: "month", price: { list: 3000, charged: 1000, discountName: null } }),
-    ).toBe("Discounted · saving $20/mo");
+    ).toBe("할인 적용 · $20/월 절약");
   });
 
   it("omits the discount line when nothing is saved", () => {
@@ -356,18 +356,18 @@ describe("seat helpers", () => {
     const price = { list: 209000, charged: 0, discountName: "Team Ben" };
     expect(
       discountLine({ interval: "year", price: { ...price, discountDuration: "once", renewalAmount: 209000 } }),
-    ).toBe("Discount Team Ben applied to your first payment · renews at $2,090/yr");
+    ).toBe("첫 결제에 할인 Team Ben 적용 · 이후 $2,090/년");
     expect(
       discountLine({
         interval: "month",
         price: { list: 3000, charged: 1500, discountName: "HALF", discountDuration: "repeating", discountDurationMonths: 3, renewalAmount: 1500 },
       }),
-    ).toBe("Discount HALF for 3 months · then $15/mo");
+    ).toBe("할인 HALF 3개월 · 이후 $15/월");
     expect(
       discountLine({ interval: "year", price: { ...price, discountDuration: "forever", renewalAmount: 0 } }),
-    ).toBe("Discount Team Ben · saving $2,090/yr");
+    ).toBe("할인 Team Ben · $2,090/년 절약");
     // An older server sends no duration: today's wording.
-    expect(discountLine({ interval: "year", price })).toBe("Discount Team Ben · saving $2,090/yr");
+    expect(discountLine({ interval: "year", price })).toBe("할인 Team Ben · $2,090/년 절약");
   });
 });
 
@@ -399,10 +399,10 @@ describe("Team limit codes", () => {
   });
 
   it("labels the pill variants", () => {
-    expect(planPillLabel({ plan: "team", status: "active", complimentary: true })).toBe("Team (complimentary)");
-    expect(planPillLabel({ plan: "team", status: "canceled", lapsed: true })).toBe("Read-only");
-    expect(planPillLabel({ plan: "team", status: "active", readOnly: true })).toBe("Read-only");
-    expect(planPillLabel({ plan: "team", status: "past_due" })).toBe("Past due");
+    expect(planPillLabel({ plan: "team", status: "active", complimentary: true })).toBe("Team (무료 제공)");
+    expect(planPillLabel({ plan: "team", status: "canceled", lapsed: true })).toBe("읽기 전용");
+    expect(planPillLabel({ plan: "team", status: "active", readOnly: true })).toBe("읽기 전용");
+    expect(planPillLabel({ plan: "team", status: "past_due" })).toBe("결제 지연");
   });
 });
 
@@ -424,7 +424,7 @@ describe("Plan & Billing helpers", () => {
     const p = { ...preview, currentPeriodEnd: "2027-10-08T00:00:00Z" };
     expect(seatChangeSummary({ ...at, seats: 3, preview: p })).toEqual({ text: null, canConfirm: false });
     expect(seatChangeSummary({ ...at, seats: 4, preview: p })).toEqual({
-      text: "Goes down to 4 seats on 2027-10-08.",
+      text: "2027-10-08에 4좌석으로 줄어들어요.",
       canConfirm: true,
     });
     expect(seatChangeSummary({ ...at, seats: 19, preview: p })).toEqual({ text: null, canConfirm: false });
@@ -432,52 +432,52 @@ describe("Plan & Billing helpers", () => {
 
   it("seatsUpdatedToast: a decrease names its date, an increase applies now", () => {
     const end = "2027-10-08T00:00:00Z";
-    expect(seatsUpdatedToast(3, 19, end, fmt)).toBe("Seats drop to 3 on 2027-10-08.");
-    expect(seatsUpdatedToast(3, 19, null, fmt)).toBe("Seats drop to 3 at the end of this billing period.");
-    expect(seatsUpdatedToast(21, 19, end, fmt)).toBe("Seats updated to 21.");
-    expect(seatsUpdatedToast(5, null, end, fmt)).toBe("Seats updated to 5.");
+    expect(seatsUpdatedToast(3, 19, end, fmt)).toBe("2027-10-08에 좌석이 3개로 줄어들어요.");
+    expect(seatsUpdatedToast(3, 19, null, fmt)).toBe("이번 결제 기간이 끝나면 좌석이 3개로 줄어들어요.");
+    expect(seatsUpdatedToast(21, 19, end, fmt)).toBe("좌석을 21개로 변경했어요.");
+    expect(seatsUpdatedToast(5, null, end, fmt)).toBe("좌석을 5개로 변경했어요.");
   });
 
   it("seatChangeSummary: a zero charge today still reads as money, never NaN", () => {
     expect(seatChangeSummary({ ...base, seats: 6, preview: { ...preview, proratedNow: 0, newAmount: 0 } })).toEqual({
-      text: "You'll be charged about $0 today (prorated); then $0 per month.",
+      text: "오늘 약 $0이 일할 계산으로 청구되고, 이후 월 $0이 청구돼요.",
       canConfirm: true,
     });
   });
 
   it("seatChangeSummary: next amount missing falls back to a plain sentence", () => {
     const r = seatChangeSummary({ ...base, seats: 6, preview: { ...preview, newAmount: null } });
-    expect(r).toEqual({ text: "Your next invoice will show the exact amount.", canConfirm: true });
+    expect(r).toEqual({ text: "정확한 금액은 다음 청구서에 표시돼요.", canConfirm: true });
   });
 
   it("seatChangeSummary: both amounts missing or absent never render NaN", () => {
     const nulls = { proratedNow: null, newAmount: null, currentPeriodEnd: null };
     expect(seatChangeSummary({ ...base, seats: 6, preview: nulls }).text).toBe(
-      "Your next invoice will show the exact amount.",
+      "정확한 금액은 다음 청구서에 표시돼요.",
     );
     // An older server that answers other field names.
     const odd = {} as unknown as typeof nulls;
     expect(seatChangeSummary({ ...base, seats: 6, preview: odd }).text).not.toMatch(/NaN/);
     expect(seatChangeSummary({ ...base, seats: 4, preview: nulls }).text).toBe(
-      "Goes down to 4 seats at the end of this billing period.",
+      "이번 결제 기간이 끝나면 4좌석으로 줄어들어요.",
     );
   });
 
   it("seatChangeSummary: charge-now unknown still shows the next amount", () => {
     const r = seatChangeSummary({ ...base, seats: 6, preview: { ...preview, proratedNow: null } });
-    expect(r.text).toBe("Then $60 per month. Your next invoice will show the exact amount.");
+    expect(r.text).toBe("이후 월 $60이 청구돼요. 정확한 금액은 다음 청구서에 표시돼요.");
   });
 
   it("seatChangeSummary: increase says 'about' and the next amount", () => {
     expect(seatChangeSummary({ ...base, seats: 6, preview })).toEqual({
-      text: "You'll be charged about $12.50 today (prorated); then $60 per month.",
+      text: "오늘 약 $12.50이 일할 계산으로 청구되고, 이후 월 $60이 청구돼요.",
       canConfirm: true,
     });
   });
 
   it("seatChangeSummary: decrease names the effective date", () => {
     expect(seatChangeSummary({ ...base, seats: 4, preview })).toEqual({
-      text: "Goes down to 4 seats on 2026-11-01.",
+      text: "2026-11-01에 4좌석으로 줄어들어요.",
       canConfirm: true,
     });
   });
@@ -486,7 +486,7 @@ describe("Plan & Billing helpers", () => {
     const r = seatChangeSummary({ ...base, seats: 3, preview });
     expect(r.canConfirm).toBe(false);
     expect(r.text).toBe(
-      "You can't go below the people already on your account (4) or the 3-seat minimum.",
+      "계정에 이미 있는 인원(4명)이나 최소 3좌석보다 적게 줄일 수 없어요.",
     );
   });
 
@@ -503,16 +503,16 @@ describe("Plan & Billing helpers", () => {
   });
 
   it("usageAgainstLimit shows the ceiling only when one applies", () => {
-    expect(usageAgainstLimit(2, 2, "person", "people")).toBe("2 of 2 people");
-    expect(usageAgainstLimit(1, 1, "synced vault", "synced vaults")).toBe("1 of 1 synced vault");
-    expect(usageAgainstLimit(7, null, "person", "people")).toBe("7 people");
+    expect(usageAgainstLimit(2, 2, "명", "명")).toBe("2명 중 2명");
+    expect(usageAgainstLimit(1, 1, "개", "개")).toBe("1개 중 1개");
+    expect(usageAgainstLimit(7, null, "명", "명")).toBe("7명");
   });
 
   it("planPriceLine prices Team per seat by interval", () => {
     const team = { currency: "usd", prices: [{ interval: "month" as const, perSeat: 1000 }, { interval: "year" as const, perSeat: 11000 }] };
     expect(planPriceLine("free", null, team)).toBe("Free");
-    expect(planPriceLine("team", "month", team)).toBe("$10 per seat / month");
-    expect(planPriceLine("team", "year", team)).toBe("$110 per seat / year");
+    expect(planPriceLine("team", "month", team)).toBe("좌석당 월 $10");
+    expect(planPriceLine("team", "year", team)).toBe("좌석당 연 $110");
   });
 
   it("seatUsageLines adds reserved and pending-decrease lines", () => {
@@ -521,9 +521,9 @@ describe("Plan & Billing helpers", () => {
         { purchased: 5, used: 4, reserved: 1, pendingDecrease: { to: 4, effectiveAt: "2026-11-01T00:00:00Z" } },
         fmt,
       ),
-    ).toEqual(["4 of 5 seats used", "1 invited", "Goes down to 4 on 2026-11-01"]);
+    ).toEqual(["좌석 5개 중 4개 사용", "초대 1명", "2026-11-01에 4좌석으로 줄어들어요"]);
     expect(seatUsageLines({ purchased: null, used: 2, reserved: 0, pendingDecrease: null }, fmt)).toEqual([
-      "2 people",
+      "2명",
     ]);
   });
 });
@@ -558,13 +558,13 @@ describe("seatBreakdown", () => {
 describe("membersSeatLine", () => {
   const team = { plan: "team" as const, seats: { purchased: 5, used: 3, reserved: 1 } };
   it("names the owner's account on Team", () => {
-    expect(membersSeatLine(team, "Sara")).toBe("Uses 3 of 5 seats on Sara's account · 1 invited");
-    expect(membersSeatLine(team, null)).toBe("Uses 3 of 5 seats on the owner's account · 1 invited");
-    expect(membersSeatLine(team, "Sara", true)).toBe("Uses 3 of 5 seats on your account · 1 invited");
+    expect(membersSeatLine(team, "Sara")).toBe("Sara님의 계정의 좌석 5개 중 3개 사용 · 초대 1명");
+    expect(membersSeatLine(team, null)).toBe("소유자의 계정의 좌석 5개 중 3개 사용 · 초대 1명");
+    expect(membersSeatLine(team, "Sara", true)).toBe("내 계정의 좌석 5개 중 3개 사용 · 초대 1명");
   });
   it("uses the Free wording without purchased seats", () => {
     expect(membersSeatLine({ plan: "free", seats: { purchased: null, used: 1, reserved: 0 } }, "Sara")).toBe(
-      "Free includes 2 people on this account (1 of 2 used)",
+      "이 계정의 Free에는 2명이 포함돼요 (2명 중 1명 사용)",
     );
   });
 });
@@ -572,11 +572,11 @@ describe("membersSeatLine", () => {
 describe("membersSeatLine on Team without seats", () => {
   const unlimited = { plan: "team" as const, seats: { purchased: null, used: 7, reserved: 0 } };
   it("reads unlimited people, never the Free copy", () => {
-    expect(membersSeatLine(unlimited, "Sara", true)).toBe("Team · unlimited people on your account (7 people)");
-    expect(membersSeatLine(unlimited, "Sara")).toBe("Team · unlimited people on Sara's account (7 people)");
-    expect(membersSeatLine(unlimited, null)).toBe("Team · unlimited people on the owner's account (7 people)");
+    expect(membersSeatLine(unlimited, "Sara", true)).toBe("Team · 내 계정에서 인원 무제한 (7명)");
+    expect(membersSeatLine(unlimited, "Sara")).toBe("Team · Sara님의 계정에서 인원 무제한 (7명)");
+    expect(membersSeatLine(unlimited, null)).toBe("Team · 소유자의 계정에서 인원 무제한 (7명)");
     expect(membersSeatLine({ ...unlimited, seats: { purchased: null, used: 1, reserved: 0 } }, null, true)).toBe(
-      "Team · unlimited people on your account (1 person)",
+      "Team · 내 계정에서 인원 무제한 (1명)",
     );
   });
 });
@@ -608,16 +608,16 @@ describe("legacy plan", () => {
   });
   it("shows the real charged price, monthly and yearly, renewing or canceling", () => {
     expect(legacyPlanLine(legacy, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $10/mo · renews 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $10/월 · 2026-11-03 갱신",
     );
     expect(legacyPlanLine({ ...legacy, interval: "year", price: { charged: 9900 } }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $99/yr · renews 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $99/년 · 2026-11-03 갱신",
     );
     expect(legacyPlanLine({ ...legacy, cancelAtPeriodEnd: true }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $10/mo · cancels on 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $10/월 · 2026-11-03 해지 예정",
     );
     expect(legacyPlanLine({ ...legacy, price: null, currentPeriodEnd: null }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price",
+      "기존 요금제 · 기존 가격으로 인원 무제한",
     );
   });
   it("sums several legacy subscriptions on one interval", () => {
@@ -626,7 +626,7 @@ describe("legacy plan", () => {
       { amount: 1000, interval: "month" as const },
     ];
     expect(legacyPlanLine({ ...legacy, legacyCharges: charges }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $20/mo · renews 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $20/월 · 2026-11-03 갱신",
     );
   });
   it("sums per interval when the legacy subscriptions differ", () => {
@@ -635,28 +635,28 @@ describe("legacy plan", () => {
       { amount: 1000, interval: "month" as const },
     ];
     expect(legacyPlanLine({ ...legacy, legacyCharges: charges }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $10/mo + $0/yr · renews 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $10/월 + $0/년 · 2026-11-03 갱신",
     );
   });
   it("one legacy charge reads like the single price; no field falls back to price.charged", () => {
     expect(
       legacyPlanLine({ ...legacy, legacyCharges: [{ amount: 1000, interval: "month" }] }, "usd", fmt),
-    ).toBe("Legacy plan · unlimited people at your original price · $10/mo · renews 2026-11-03");
+    ).toBe("기존 요금제 · 기존 가격으로 인원 무제한 · $10/월 · 2026-11-03 갱신");
     expect(legacyPlanLine({ ...legacy, legacyCharges: [] }, "usd", fmt)).toBe(
-      "Legacy plan · unlimited people at your original price · $10/mo · renews 2026-11-03",
+      "기존 요금제 · 기존 가격으로 인원 무제한 · $10/월 · 2026-11-03 갱신",
     );
   });
   it("people table: no Seat column for legacy or complimentary Team, one seat each when seats are bought", () => {
     expect(peopleTableCopy({ plan: "team", seats: { purchased: null }, legacyPlan: true })).toEqual({
-      note: "Everyone on your account, across all your vaults.",
+      note: "내 계정의 모든 볼트에 있는 모든 사람이에요.",
       seatColumn: false,
     });
     expect(peopleTableCopy({ plan: "team", seats: { purchased: null } })).toEqual({
-      note: "Everyone on your account, across all your vaults.",
+      note: "내 계정의 모든 볼트에 있는 모든 사람이에요.",
       seatColumn: false,
     });
     expect(peopleTableCopy({ plan: "team", seats: { purchased: 5 } })).toEqual({
-      note: "Each person uses one seat, whichever vaults they're in.",
+      note: "어느 볼트에 있든 한 사람이 좌석 하나를 사용해요.",
       seatColumn: true,
     });
     expect(peopleTableCopy({ plan: "free", seats: { purchased: null } })).toEqual({ note: null, seatColumn: false });
@@ -667,14 +667,14 @@ describe("team-model vault limit copy", () => {
   it("names the account's synced-vault allowance and the Team upgrade", async () => {
     const { teamVaultLimitCopy, vaultLimitReason, PEOPLE_LIMIT_REASON } = await import("./billing");
     expect(teamVaultLimitCopy(1)).toBe(
-      "Free includes 1 synced vault on your account. Upgrade to Team for unlimited synced vaults.",
+      "Free 계정에는 동기화 볼트 1개가 포함돼요. 동기화 볼트를 무제한으로 쓰려면 Team으로 업그레이드하세요.",
     );
     // A grandfathered account's server limit is above the default.
     expect(teamVaultLimitCopy(3)).toBe(
-      "Free includes 3 synced vaults on your account. Upgrade to Team for unlimited synced vaults.",
+      "Free 계정에는 동기화 볼트 3개가 포함돼요. 동기화 볼트를 무제한으로 쓰려면 Team으로 업그레이드하세요.",
     );
-    expect(vaultLimitReason(1)).toBe("Free includes 1 synced vault. Team has no limit.");
-    expect(PEOPLE_LIMIT_REASON).toBe("Free includes 2 people. Team has no limit.");
+    expect(vaultLimitReason(1)).toBe("Free에는 동기화 볼트 1개가 포함돼요. Team은 제한이 없어요.");
+    expect(PEOPLE_LIMIT_REASON).toBe("Free에는 2명이 포함돼요. Team은 제한이 없어요.");
   });
 });
 
@@ -721,22 +721,22 @@ describe("legacy (per-vault) plan copy", () => {
   it("keeps the old Pro promise apart from Team's", async () => {
     const { LEGACY_PRO_BENEFITS, TEAM_BENEFITS } = await import("./billing");
     expect(LEGACY_PRO_BENEFITS).toEqual([
-      "Unlimited team members",
-      "Standalone file sync",
-      "Doesn't count toward your free vaults",
+      "팀 멤버 무제한",
+      "독립 파일 동기화",
+      "무료 볼트 개수에 포함되지 않음",
     ]);
     expect(LEGACY_PRO_BENEFITS).not.toEqual(TEAM_BENEFITS);
   });
   it("defaults to 3 members per vault and 2 free vaults", async () => {
     const { LEGACY_FREE_PLAN_EXPLANATION } = await import("./billing");
     expect(LEGACY_FREE_PLAN_EXPLANATION).toBe(
-      "Free includes 3 members per vault, 2 free vaults, note sync, embedded attachments and MCP. Pro adds unlimited members and standalone file sync.",
+      "Free에는 볼트당 멤버 3명, 무료 볼트 2개, 노트 동기화, 포함된 첨부 파일, MCP가 들어 있어요. Pro는 멤버 무제한과 독립 파일 동기화를 더해요.",
     );
   });
   it("reads the numbers from the server's freeLimits", async () => {
     const { legacyFreePlanExplanation } = await import("./billing");
     const line = legacyFreePlanExplanation({ vaultsPerUser: 1, membersPerVault: 5 });
-    expect(line).toMatch(/^Free includes 5 members per vault, 1 free vault, /);
+    expect(line).toMatch(/^Free에는 볼트당 멤버 5명, 무료 볼트 1개, /);
     expect(line).not.toMatch(/Team/);
   });
 });
@@ -752,24 +752,24 @@ describe("planStatusPill", () => {
   };
 
   it("says Active for a healthy Team plan and nothing for Free", () => {
-    expect(planStatusPill(team, fmt)).toEqual({ label: "Active", tone: "active" });
+    expect(planStatusPill(team, fmt)).toEqual({ label: "사용 중", tone: "active" });
     expect(planStatusPill({ ...team, plan: "free", status: "none" }, fmt)).toBeNull();
   });
 
   it("says when a cancelling plan ends, in amber", () => {
     expect(planStatusPill({ ...team, cancelAtPeriodEnd: true }, fmt)).toEqual({
-      label: "Cancels on D(2027-10-08)",
+      label: "D(2027-10-08) 해지 예정",
       tone: "past_due",
     });
   });
 
   it("says Past due in amber", () => {
-    expect(planStatusPill({ ...team, status: "past_due" }, fmt)).toEqual({ label: "Past due", tone: "past_due" });
+    expect(planStatusPill({ ...team, status: "past_due" }, fmt)).toEqual({ label: "결제 지연", tone: "past_due" });
   });
 
   it("says Read-only for a lapsed account, Free included", () => {
-    expect(planStatusPill({ ...team, lapsed: true }, fmt)).toEqual({ label: "Read-only", tone: "canceled" });
-    expect(planStatusPill({ ...team, plan: "free", status: "none", lapsed: true }, fmt)?.label).toBe("Read-only");
+    expect(planStatusPill({ ...team, lapsed: true }, fmt)).toEqual({ label: "읽기 전용", tone: "canceled" });
+    expect(planStatusPill({ ...team, plan: "free", status: "none", lapsed: true }, fmt)?.label).toBe("읽기 전용");
   });
 });
 
@@ -787,7 +787,7 @@ describe("vaultPlanLine", () => {
   it("names the plan like Plan & Billing on the owner's own account, Active pill included", () => {
     expect(
       vaultPlanLine({ account, vaultAccountId: "acc_me", fallbackPlan: "free", isOwner: true, fmtDate: fmt }),
-    ).toEqual({ plan: "Team", status: { label: "Active", tone: "active" }, billedOn: null });
+    ).toEqual({ plan: "Team", status: { label: "사용 중", tone: "active" }, billedOn: null });
     expect(
       vaultPlanLine({ account: { ...account, plan: "free", status: "none" }, vaultAccountId: null, fallbackPlan: "team", isOwner: true, fmtDate: fmt }),
     ).toEqual({ plan: "Free", status: null, billedOn: null });
@@ -796,25 +796,25 @@ describe("vaultPlanLine", () => {
   it("shows the status pill when there is something to say", () => {
     expect(
       vaultPlanLine({ account: { ...account, cancelAtPeriodEnd: true }, vaultAccountId: null, fallbackPlan: "free", isOwner: true, fmtDate: fmt }).status,
-    ).toEqual({ label: "Cancels on D(2027-10-08)", tone: "past_due" });
+    ).toEqual({ label: "D(2027-10-08) 해지 예정", tone: "past_due" });
     expect(
       vaultPlanLine({ account: { ...account, lapsed: true }, vaultAccountId: null, fallbackPlan: "team", isOwner: true, fmtDate: fmt }).status,
-    ).toEqual({ label: "Read-only", tone: "canceled" });
+    ).toEqual({ label: "읽기 전용", tone: "canceled" });
   });
 
   it("names the owner's account for a member", () => {
     expect(
       vaultPlanLine({ account: null, vaultAccountId: "acc_o", fallbackPlan: "team", isOwner: false, ownerName: "Sara", fmtDate: fmt }),
-    ).toEqual({ plan: "Team", status: { label: "Active", tone: "active" }, billedOn: "Billed on Sara's account" });
+    ).toEqual({ plan: "Team", status: { label: "사용 중", tone: "active" }, billedOn: "Sara님의 계정으로 결제돼요" });
     expect(
       vaultPlanLine({ account: null, vaultAccountId: null, fallbackPlan: "free", isOwner: false, fmtDate: fmt }).billedOn,
-    ).toBe("Billed on the owner's account");
+    ).toBe("소유자의 계정으로 결제돼요");
   });
 
   it("uses the vault's resolved plan when an owner's vault is billed on another account", () => {
     expect(
       vaultPlanLine({ account, vaultAccountId: "acc_other", fallbackPlan: "free", isOwner: true, fmtDate: fmt }),
-    ).toEqual({ plan: "Free", status: null, billedOn: "Billed on another account" });
+    ).toEqual({ plan: "Free", status: null, billedOn: "다른 계정으로 결제돼요" });
   });
 });
 
@@ -874,16 +874,16 @@ describe("invitePrewarning", () => {
   it("warns the owner with Add seats when every seat is taken", () => {
     const w = invitePrewarning(team(19, 17, 2), "Sara", true);
     expect(w?.action).toBe("add-seats");
-    expect(w?.text).toContain("All 19 seats are in use.");
-    expect(w?.text).toContain("2 reserved");
+    expect(w?.text).toContain("좌석 19개를 모두 사용 중이에요.");
+    expect(w?.text).toContain("2좌석이 예약");
   });
   it("tells an admin whom to ask, with no action", () => {
-    expect(invitePrewarning(team(3, 3, 0), "Sara", false)).toEqual({ text: "All 3 seats are in use. Ask Sara to add seats.", action: null });
+    expect(invitePrewarning(team(3, 3, 0), "Sara", false)).toEqual({ text: "좌석 3개를 모두 사용 중이에요. Sara에게 좌석 추가 요청하세요.", action: null });
   });
   it("Free at 2 people: owner gets Upgrade, admin is told to ask", () => {
     const free = { plan: "free" as const, seats: { purchased: null, used: 1, reserved: 1 } };
     expect(invitePrewarning(free, "Sara", true)?.action).toBe("upgrade");
-    expect(invitePrewarning(free, null, false)?.text).toBe("Free includes 2 people. Ask the vault owner to upgrade to Team.");
+    expect(invitePrewarning(free, null, false)?.text).toBe("Free에는 2명이 포함돼요. 볼트 소유자에게 Team 업그레이드 요청하세요.");
     expect(invitePrewarning({ ...free, seats: { purchased: null, used: 1, reserved: 0 } }, "Sara", true)).toBeNull();
   });
 });
@@ -891,25 +891,25 @@ describe("invitePrewarning", () => {
 describe("grandfathered Free limit in the copy", () => {
   const free3 = { plan: "free" as const, seats: { purchased: null, used: 3, reserved: 0 }, limits: { people: 3 } };
   it("reads the account's own limit", () => {
-    expect(membersSeatLine(free3, "Sara")).toBe("Free includes 3 people on this account (3 of 3 used)");
-    expect(invitePrewarning(free3, "Sara", true)).toEqual({ text: "Free includes 3 people. Upgrade to Team to add more.", action: "upgrade" });
+    expect(membersSeatLine(free3, "Sara")).toBe("이 계정의 Free에는 3명이 포함돼요 (3명 중 3명 사용)");
+    expect(invitePrewarning(free3, "Sara", true)).toEqual({ text: "Free에는 3명이 포함돼요. 더 추가하려면 Team으로 업그레이드하세요.", action: "upgrade" });
     expect(invitePrewarning({ ...free3, seats: { purchased: null, used: 2, reserved: 0 } }, "Sara", true)).toBeNull();
-    expect(freePeopleCopy(3)).toBe("Free includes 3 people. Upgrade to Team to add more.");
+    expect(freePeopleCopy(3)).toBe("Free에는 3명이 포함돼요. 더 추가하려면 Team으로 업그레이드하세요.");
   });
   it("keeps 2 when the account carries no limit", () => {
     expect(membersSeatLine({ plan: "free", seats: { purchased: null, used: 1, reserved: 0 } }, null)).toBe(
-      "Free includes 2 people on this account (1 of 2 used)",
+      "이 계정의 Free에는 2명이 포함돼요 (2명 중 1명 사용)",
     );
   });
 });
 
 describe("seatsDialogSubtitle", () => {
   it("names seats and people with singular forms", () => {
-    expect(seatsDialogSubtitle(19, 1)).toBe("19 seats · 1 person on your account");
-    expect(seatsDialogSubtitle(1, 3)).toBe("1 seat · 3 people on your account");
+    expect(seatsDialogSubtitle(19, 1)).toBe("좌석 19개 · 내 계정에 1명");
+    expect(seatsDialogSubtitle(1, 3)).toBe("좌석 1개 · 내 계정에 3명");
   });
   it("reads as people only before a first purchase", () => {
-    expect(seatsDialogSubtitle(null, 2)).toBe("2 people on your account");
+    expect(seatsDialogSubtitle(null, 2)).toBe("내 계정에 2명");
   });
 });
 
@@ -935,11 +935,11 @@ describe("invited-seat vaults", () => {
   });
 
   it("labels the total and names the vaults for assistive tech", () => {
-    expect(invitedTotalLabel(2)).toBe("2 invited");
+    expect(invitedTotalLabel(2)).toBe("초대 2명");
     const one = [{ orgId: "a", name: "Hello 4", count: 2 }];
-    expect(invitedCountAriaLabel(2, one)).toBe("2 invited in Hello 4");
+    expect(invitedCountAriaLabel(2, one)).toBe("Hello 4에 초대 2명");
     const two = [...one, { orgId: "b", name: "Sales", count: 1 }];
-    expect(invitedCountAriaLabel(3, two)).toBe("3 invited across 2 vaults");
+    expect(invitedCountAriaLabel(3, two)).toBe("볼트 2개에 초대 3명");
   });
 
   it("opens Members and access for the open vault, switches to a bound one, else the Vaults tab", () => {
@@ -955,6 +955,6 @@ describe("invited-seat vaults", () => {
   });
 
   it("tells the user to open the vault when it is not on this device", () => {
-    expect(invitedVaultFallbackToast("Design")).toBe("Open Design to manage its invitations.");
+    expect(invitedVaultFallbackToast("Design")).toBe("Design을(를) 열어 초대를 관리하세요.");
   });
 });

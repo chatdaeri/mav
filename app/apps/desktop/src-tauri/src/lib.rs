@@ -1,4 +1,4 @@
-//! Baalda — desktop Rust core (Phase 0).
+//! 마브 — desktop Rust core (Phase 0).
 //! Rust owns all disk I/O; the React UI talks to it through the typed commands
 //! registered here and reacts to `files-changed` / `vault-opened` events.
 
@@ -22,6 +22,7 @@ pub mod index;
 pub mod keychain;
 pub mod text_export;
 pub mod notefile;
+pub mod office_preview;
 pub mod oauth;
 pub mod parse;
 mod relaunch;
@@ -75,7 +76,7 @@ pub fn run() {
     let builder = tauri::Builder::default();
 
     // Single-instance FIRST, and only on desktop. Without it, clicking a
-    // `baalda://` link on Windows/Linux spawns a SECOND copy of the app with
+    // `mav://` link on Windows/Linux spawns a SECOND copy of the app with
     // the URL as an argv entry — two windows, two vault locks, one confused
     // user. With it the running instance is handed the URL and the duplicate
     // exits. On macOS the OS already routes links to the running app; the
@@ -111,9 +112,9 @@ pub fn run() {
     // the dialog, and the errors that matter most are the ones that happen on
     // machines we cannot reproduce.
     //
-    //   macOS   ~/Library/Logs/com.baalda.context/baalda.log
-    //   Windows %LOCALAPPDATA%\com.baalda.context\logs\baalda.log
-    //   Linux   ~/.local/share/com.baalda.context/logs/baalda.log
+    //   macOS   ~/Library/Logs/com.chatdaeri.mav/baalda.log
+    //   Windows %LOCALAPPDATA%\com.chatdaeri.mav\logs\baalda.log
+    //   Linux   ~/.local/share/com.chatdaeri.mav/logs/baalda.log
     //
     // Bounded on purpose: 2 MB per file, KeepOne (the rotated file replaces the
     // previous one), so the app can never cost more than ~4 MB of disk here. At
@@ -127,11 +128,11 @@ pub fn run() {
             .max_file_size(2_000_000)
             .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
             .targets([
-                // Kept so `open -a Baalda` / a terminal launch still shows the
+                // Kept so `open -a 마브` / a terminal launch still shows the
                 // same lines live; it is a no-op where nothing is attached.
                 tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
                 tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
-                    file_name: Some("baalda".into()),
+                    file_name: Some("mav".into()),
                 }),
             ])
             .build(),
@@ -144,7 +145,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init())
-        // `baalda://` links. A teammate pastes one into chat; clicking it hands
+        // `mav://` links. A teammate pastes one into chat; clicking it hands
         // the URL to this app, which resolves it against the *recipient's* own
         // account and access — the link carries ids, never content or a grant.
         .plugin(tauri_plugin_deep_link::init())
@@ -289,6 +290,7 @@ pub fn run() {
             commands::list_disk_drift,
             commands::read_binary_file,
             commands::file_stat,
+            commands::office_preview,
             commands::binary_exists,
             commands::write_binary_file,
             commands::write_tree_binary,

@@ -31,7 +31,7 @@ describe("parseHealth", () => {
     });
   });
 
-  it("answers null for anything that is not a Baalda health body", () => {
+  it("answers null for anything that is not a 마이 세컨드 브레인 health body", () => {
     expect(parseHealth(null)).toBeNull();
     expect(parseHealth("ok")).toBeNull();
     expect(parseHealth({ ok: false })).toBeNull();
@@ -69,19 +69,19 @@ describe("backendStatus", () => {
 
   it("fetch failure / unreachable (null) ⇒ not outdated", () => {
     expect(backendStatus(null, SELF)).toEqual({ outdated: false, missing: [], managed: false });
-    expect(backendStatus(null, MANAGED)).toEqual({ outdated: false, missing: [], managed: true });
+    // 마브 has no managed instance: the old managed host is just another server.
+    expect(backendStatus(null, MANAGED)).toEqual({ outdated: false, missing: [], managed: false });
   });
 
-  it("flags the managed host", () => {
-    expect(backendStatus(parseHealth({ ok: true }), MANAGED).managed).toBe(true);
+  it("never flags a host as managed (마이 세컨드 브레인 has no managed instance)", () => {
+    expect(backendStatus(parseHealth({ ok: true }), MANAGED).managed).toBe(false);
   });
 });
 
 describe("isManagedServer", () => {
-  it("matches api.baalda.com only, case-insensitively, any path or port", () => {
-    expect(isManagedServer("https://api.baalda.com")).toBe(true);
-    expect(isManagedServer("https://API.Baalda.com/")).toBe(true);
-    expect(isManagedServer(" https://api.baalda.com/sync ")).toBe(true);
+  it("is false for every server: 마이 세컨드 브레인 has no managed instance", () => {
+    expect(isManagedServer("https://api.baalda.com")).toBe(false);
+    expect(isManagedServer("https://mav.up.railway.app")).toBe(false);
     expect(isManagedServer("https://api.baalda.com.evil.example")).toBe(false);
     expect(isManagedServer("https://staging.baalda.com")).toBe(false);
     expect(isManagedServer("http://localhost:3010")).toBe(false);

@@ -216,7 +216,7 @@ describe("revertToVersion", () => {
 
   it("throws when no note is open", async () => {
     synced();
-    await expect(useStore.getState().revertToVersion(7)).rejects.toThrow(/no note/i);
+    await expect(useStore.getState().revertToVersion(7)).rejects.toThrow(/열린 노트가 없어요/);
   });
 });
 
@@ -269,9 +269,9 @@ describe("checkpoints", () => {
   });
 
   it("refuses the write actions without a synced vault", async () => {
-    await expect(useStore.getState().createCheckpoint()).rejects.toThrow(/sync/i);
-    await expect(useStore.getState().deleteCheckpoint("cp-1")).rejects.toThrow(/sync/i);
-    await expect(useStore.getState().revertVaultToCheckpoint("cp-1")).rejects.toThrow(/sync/i);
+    await expect(useStore.getState().createCheckpoint()).rejects.toThrow(/동기화/);
+    await expect(useStore.getState().deleteCheckpoint("cp-1")).rejects.toThrow(/동기화/);
+    await expect(useStore.getState().revertVaultToCheckpoint("cp-1")).rejects.toThrow(/동기화/);
     expect(api.createCheckpoint).not.toHaveBeenCalled();
   });
 

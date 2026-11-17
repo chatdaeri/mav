@@ -70,7 +70,7 @@ function readPeers(awareness: Awareness): Peer[] {
     if (!prev) {
       seen.set(u.id, {
         id: u.id,
-        name: u.name ?? "Someone",
+        name: u.name ?? "누군가",
         color: u.color ?? colorForUser(u.id),
         ...(typeof u.image === "string" && u.image ? { image: u.image } : {}),
         status: statusFromWire(u.status, u.moment),
@@ -175,11 +175,11 @@ function RosterRecent({ notePath, now }: { notePath: string; now: number }) {
   if (!name || !at) return null;
   return (
     <>
-      <div className="peer-roster-title roster-recent-title">Recent activity</div>
+      <div className="peer-roster-title roster-recent-title">최근 활동</div>
       <div className="roster-recent-row" title={lastEditedTooltip(name, at, now)}>
         <FaceSvg userId={userId} name={name} className="roster-recent-avatar" ariaHidden />
         <span className="roster-recent-name">{name}</span>
-        <span className="roster-recent-when">edited {agoFromIso(at, now)}</span>
+        <span className="roster-recent-when">{agoFromIso(at, now)} 편집</span>
       </div>
     </>
   );
@@ -214,7 +214,7 @@ function PresenceBar({
       type="button"
       className={`presence-bar${open ? " open" : ""}`}
       onClick={onOpen}
-      aria-label={`${peers.length} here: ${names}`}
+      aria-label={`${peers.length}명 접속 중: ${names}`}
       aria-expanded={open}
     >
       {shown.map((p) => (
@@ -244,19 +244,19 @@ function PeerRow({
   // away/busy even if their caret is still parked on a line.
   const statusLabel =
     tone === "away" || tone === "offline"
-      ? "Away"
+      ? "자리 비움"
       : tone === "busy"
-        ? "Busy"
+        ? "바쁨"
         : editing
-          ? `Editing line ${peer.line}`
-          : "Viewing";
+          ? `${peer.line}번째 줄 편집 중`
+          : "보는 중";
   return (
     <div className="peer-row">
       <PresenceAvatar peer={peer} className="sm" />
       <div className="peer-row-meta">
         <span className="peer-row-name">
           {peer.name}
-          {isSelf && <span className="muted"> (you)</span>}
+          {isSelf && <span className="muted"> (나)</span>}
         </span>
         <span className="peer-row-status">
           <span className={`peer-dot tone-${tone}${editing && tone === "online" ? " active" : ""}`} />
@@ -271,14 +271,14 @@ function PeerRow({
           type="button"
           className="peer-ping"
           disabled={pinged}
-          title="Send a ping"
+          title="알림 보내기"
           onClick={(e) => {
             e.stopPropagation();
             onPing(peer);
             setPinged(true);
           }}
         >
-          {pinged ? "✓" : "Ping"}
+          {pinged ? "✓" : "알림"}
         </button>
       )}
     </div>
@@ -310,7 +310,7 @@ function PeerRoster({
   return (
     <div className="peer-roster">
       <div className="peer-roster-title">
-        {peers.length} {peers.length === 1 ? "person" : "people"} here
+        {peers.length}명 접속 중
       </div>
       {peers.map((p) => (
         <PeerRow
@@ -351,7 +351,7 @@ function ViewOnlyChip({
   const ownerName = owner?.user?.name || owner?.user?.email?.split("@")[0] || null;
   const ownerHere = owner ? peers.find((p) => p.id === owner.userId) : undefined;
   const [asked, setAsked] = useState(false);
-  const label = reason === "removed" ? "Access removed" : reason === "lapsed" ? "Read only" : "View only";
+  const label = reason === "removed" ? "권한 제거됨" : reason === "lapsed" ? "읽기 전용" : "보기 전용";
   return (
     <div className="rd-viewonly" role="status">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -361,20 +361,20 @@ function ViewOnlyChip({
       <span className="rd-viewonly-label">{label}</span>
       <span className="rd-viewonly-msg">
         {reason === "removed"
-          ? "This local copy is not syncing. Editing is disabled."
+          ? "이 로컬 사본은 동기화되지 않아요. 편집할 수 없어요."
           : reason === "lapsed"
-            ? "The Team subscription for this vault ended."
-            : "You can read this note, but you can’t edit it."}
+            ? "이 볼트의 Team 구독이 끝났어요."
+            : "이 노트를 읽을 수는 있지만 편집할 수는 없어요."}
       </span>
       {reason === "view" && ownerName && (
         <span className="rd-viewonly-who">
           <span className="rd-viewonly-dot">{ownerName.slice(0, 1).toUpperCase()}</span>
-          {ownerName} can edit
+          {ownerName} 편집 가능
         </span>
       )}
       {reason === "view" && ownerHere && (
         <button type="button" className="rd-viewonly-ask" disabled={asked} onClick={() => { onAsk(ownerHere); setAsked(true); }}>
-          {asked ? "Asked" : "Ask"}
+          {asked ? "요청함" : "요청"}
         </button>
       )}
     </div>
@@ -641,7 +641,7 @@ export function Editor() {
               return null;
             } catch (e) {
               console.error("rename from inline title failed", e);
-              return "That name couldn't be saved.";
+              return "그 이름을 저장할 수 없어요.";
             }
           },
           noteExists: (p) => ipc.noteExists(p, useStore.getState().vault?.epoch),
@@ -793,7 +793,7 @@ export function Editor() {
           if (seenPingsRef.current.has(key) || Date.now() - ping.at > 10_000) return;
           seenPingsRef.current.add(key);
           if (useStore.getState().mentionSound) playPingSound();
-          setPingFrom(ping.name ?? "Someone");
+          setPingFrom(ping.name ?? "누군가");
           window.setTimeout(() => setPingFrom(null), 4000);
         });
       };
@@ -962,7 +962,7 @@ export function Editor() {
     const me = useStore.getState().session?.user;
     awarenessRef.current?.setLocalStateField("ping", {
       to: peer.id,
-      name: me?.name || me?.email || "Someone",
+      name: me?.name || me?.email || "누군가",
       at: Date.now(),
     });
   };
@@ -1036,7 +1036,7 @@ export function Editor() {
               </div>
               {pingFrom && (
                 <span className="ping-toast" role="status">
-                  🔔 {pingFrom} pinged you
+                  {pingFrom}님이 알림을 보냈어요
                 </span>
               )}
             </div>

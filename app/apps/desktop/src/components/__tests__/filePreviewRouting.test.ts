@@ -24,10 +24,20 @@ const fileStat = vi.fn(async () => ({ size: 1234, modified: null }));
 const readBinaryFile = vi.fn(async () => new TextEncoder().encode("a,b\n1,2"));
 const openInFileManager = vi.fn(async () => {});
 const revealInFileManager = vi.fn(async () => {});
+const officePreview = vi.fn(async () => ({
+  kind: "slides",
+  blocks: [],
+  slides: [{ shapes: [{ x: 0, y: 0, w: 1, h: 0.2, blocks: [{ type: "para", text: "제목", bold: true, size: 40, align: null }] }] }],
+  slideWidthPt: 960,
+  aspect: 16 / 9,
+  skippedImages: 0,
+  truncated: false,
+}));
 
 vi.mock("../../lib/ipc", () => ({
   fileStat: (...a: unknown[]) => fileStat(...(a as [])),
   readBinaryFile: (...a: unknown[]) => readBinaryFile(...(a as [])),
+  officePreview: (...a: unknown[]) => officePreview(...(a as [])),
   openInFileManager: (...a: unknown[]) => openInFileManager(...(a as [])),
   revealInFileManager: (...a: unknown[]) => revealInFileManager(...(a as [])),
   revealLabel: () => "Reveal in Finder",
@@ -134,7 +144,10 @@ describe("FilePreview routing", () => {
     ["Data/config.json", "code"],
     ["Docs/brief.docx", "docx"],
     ["Data/book.xlsx", "xlsx"],
-    ["Decks/pitch.pptx", "card"],
+    ["Decks/pitch.pptx", "pptx"],
+    ["Docs/공문.hwpx", "hwpx"],
+    ["Docs/옛날공문.hwp", "card"],
+    ["Docs/old.doc", "card"],
   ];
 
   for (const [path, viewer] of cases) {
@@ -145,9 +158,11 @@ describe("FilePreview routing", () => {
   }
 
   it("gives an unknown type the card rather than a dead pane", async () => {
-    await mount(createElement(FilePreview, { path: "misc/thing.wat" }));
+    // `.wat` became a code-viewer type once 마브 surfaced source files; use a
+    // type with no entry at all.
+    await mount(createElement(FilePreview, { path: "misc/thing.qqq" }));
     expect(viewerOf()).toBe("card");
-    expect(host.textContent).toContain("thing.wat");
+    expect(host.textContent).toContain("thing.qqq");
   });
 
   it("keeps HtmlView for an .html page", async () => {
@@ -186,7 +201,7 @@ describe("FileCard", () => {
 
     const buttons = [...host.querySelectorAll("button")];
     expect(buttons.map((b) => b.textContent)).toEqual([
-      "Open externally",
+      "기본 앱에서 열기",
       "Reveal in Finder",
     ]);
     await act(async () => {

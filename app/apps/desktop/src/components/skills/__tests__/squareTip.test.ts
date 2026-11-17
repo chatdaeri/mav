@@ -12,12 +12,12 @@ describe("install square tips", () => {
 
   it("Required says why it can't be removed, and where admins change it", () => {
     const member = requiredTip(["Claude: Installed v1"], false);
-    expect(member.heading).toBe("Required by your team");
-    expect(member.body).toBe("It's always installed on everyone's computer and can't be removed.");
+    expect(member.heading).toBe("팀에서 필수로 지정했어요");
+    expect(member.body).toBe("모든 멤버의 컴퓨터에 항상 설치되고 제거할 수 없어요.");
     expect(member.note).toBeUndefined();
-    expect(requiredTip([], true).note).toBe("Change it to Optional on the skill's page.");
+    expect(requiredTip([], true).note).toBe("스킬 페이지에서 선택으로 바꿀 수 있어요.");
     expect(tipText(member)).toBe(
-      "Required by your team. It's always installed on everyone's computer and can't be removed. Claude: Installed v1",
+      "팀에서 필수로 지정했어요. 모든 멤버의 컴퓨터에 항상 설치되고 제거할 수 없어요. Claude: Installed v1",
     );
   });
 });

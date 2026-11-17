@@ -100,10 +100,10 @@ export function ReconcileBanner() {
       className={quiet ? "reconcile-banner reconcile-banner--quiet" : "reconcile-banner"}
     >
       <span className="reconcile-banner-lines">
-        {allResolved && <span className="reconcile-banner-line">All resolved.</span>}
+        {allResolved && <span className="reconcile-banner-line">모두 처리했어요.</span>}
         {pendingReview > 0 && (
           <span className="reconcile-banner-line">
-            {`${pendingReview.toLocaleString()} ${pendingReview === 1 ? "change" : "changes"} to review.`}
+            {`검토할 변경 사항 ${pendingReview.toLocaleString()}건이 있어요.`}
           </span>
         )}
         {lines.map((l) => (
@@ -113,9 +113,9 @@ export function ReconcileBanner() {
         ))}
       </span>
       <div className="banner-actions">
-        <button onClick={details}>Details</button>
+        <button onClick={details}>자세히</button>
         <button className="secondary" onClick={dismiss}>
-          Dismiss
+          닫기
         </button>
       </div>
     </Banner>

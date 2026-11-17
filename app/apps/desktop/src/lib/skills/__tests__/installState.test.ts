@@ -23,8 +23,8 @@ describe("targetStates / overallState", () => {
 
   it("writes one tooltip line per tool", () => {
     expect(stateLines({ claude: "installed", agents: "off" }, 2)).toEqual([
-      "Claude: Installed v2",
-      "Codex & other tools: Off",
+      "Claude: 설치됨 v2",
+      "Codex 및 기타 도구: 꺼짐",
     ]);
   });
 });
@@ -34,13 +34,13 @@ describe("teamAvailability", () => {
   it("maps folders to tools; Cursor reads both", () => {
     const a = teamAvailability({ claude: "installed", agents: "off" }, true, all);
     expect(a.map((x) => [x.tool, x.on])).toEqual([["claude", true], ["codex", false], ["cursor", true], ["gemini", false]]);
-    expect(a[1].reason).toBe("Codex & other tools folder is off in AI tools");
+    expect(a[1].reason).toBe("Codex 및 기타 도구 폴더가 AI 도구에서 꺼져 있어요");
   });
   it("explains why not", () => {
-    expect(teamAvailability({ claude: "missing", agents: "missing" }, false, all)[0].reason).toMatch(/Not on this computer/);
-    expect(teamAvailability({ claude: "installed", agents: "installed" }, true, { ...all, gemini: false })[3].reason).toBe("Gemini isn't installed");
+    expect(teamAvailability({ claude: "missing", agents: "missing" }, false, all)[0].reason).toMatch(/이 컴퓨터에 없음/);
+    expect(teamAvailability({ claude: "installed", agents: "installed" }, true, { ...all, gemini: false })[3].reason).toBe("Gemini가 설치되어 있지 않아요");
     expect(teamAvailability({ claude: "edited", agents: "conflict" }, true, all).map((x) => x.reason)).toEqual([
-      "Edited here", "Name taken by another skill", "Edited here", "Name taken by another skill",
+      "여기서 수정됨", "다른 스킬이 이름을 사용 중", "여기서 수정됨", "다른 스킬이 이름을 사용 중",
     ]);
   });
 });

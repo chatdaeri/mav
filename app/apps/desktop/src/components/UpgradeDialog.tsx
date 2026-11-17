@@ -42,7 +42,7 @@ export function formatPrice(money: { amount: number; currency: string }): string
 }
 
 export const perLabel = (interval: "month" | "year") =>
-  interval === "month" ? "/mo" : "/yr";
+  interval === "month" ? "/월" : "/년";
 
 /**
  * Upgrade-to-Team flow (ShareDialog modal pattern). Shows the plan card with a
@@ -137,7 +137,7 @@ export function UpgradeDialog({
   const saveLabel = teamMode
     ? yearlySavingsLabel(billingConfig)
     : monthly && yearly && monthly.amount > 0 && yearly.amount < monthly.amount * 12
-      ? `Save ${Math.round((1 - yearly.amount / (monthly.amount * 12)) * 100)}%`
+      ? `${Math.round((1 - yearly.amount / (monthly.amount * 12)) * 100)}% 절약`
       : null;
 
   useEffect(() => {
@@ -297,8 +297,8 @@ export function UpgradeDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <span>{teamMode ? "Upgrade" : "Upgrade to Pro"}</span>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <span>{teamMode ? "업그레이드" : "Pro로 업그레이드"}</span>
+          <button className="icon-btn" onClick={onClose} aria-label="닫기">
             ✕
           </button>
         </div>
@@ -307,10 +307,10 @@ export function UpgradeDialog({
 
         {phase === "plan" && teamMode && (
           <>
-            <h2 className="upgrade-tiers-heading">Plans that grow with your team</h2>
+            <h2 className="upgrade-tiers-heading">팀과 함께 성장하는 요금제</h2>
             {reason && <p className="upgrade-reason muted">{reason}</p>}
             <div className="upgrade-tiers">
-              <section className="upgrade-tier" aria-label="Free plan">
+              <section className="upgrade-tier" aria-label="무료 요금제">
                 {/* Every card has the same eight rows (icon, head, tagline,
                     price, controls, action, list head, list) so the subgrid
                     lines them up; Free fills Team-only rows with placeholders. */}
@@ -318,22 +318,22 @@ export function UpgradeDialog({
                   <TierIcon kind="free" />
                 </div>
                 <div className="upgrade-tier-head">
-                  <span className="upgrade-tier-name">Free</span>
+                  <span className="upgrade-tier-name">무료</span>
                 </div>
-                <div className="upgrade-tier-tagline">For you and one teammate</div>
+                <div className="upgrade-tier-tagline">나와 팀원 한 명을 위한 요금제</div>
                 <div className="upgrade-tier-price">
                   <span className="upgrade-amount">{formatMoney(0, currency)}</span>
                   <span className="upgrade-tier-unit">
                     <span>{currency.toUpperCase()}</span>
-                    <span>/ month</span>
+                    <span>/ 월</span>
                   </span>
                 </div>
                 <div className="upgrade-tier-controls upgrade-tier-muted">
-                  Up to 2 people · 1 synced vault
+                  최대 2명 · 동기화 볼트 1개
                 </div>
                 <div className="upgrade-tier-action">
                   <button type="button" className="ghost-pill upgrade-tier-cta" disabled>
-                    Your current plan
+                    현재 요금제
                   </button>
                   <div className="upgrade-tier-footnote upgrade-tier-centered" aria-hidden="true">
                     {"\u00a0"}
@@ -349,14 +349,14 @@ export function UpgradeDialog({
                 </ul>
               </section>
 
-              <section className="upgrade-tier is-featured" aria-label="Team plan">
+              <section className="upgrade-tier is-featured" aria-label="팀 요금제">
                 <div className="upgrade-tier-icon">
                   <TierIcon kind="team" />
                 </div>
                 <div className="upgrade-tier-head">
-                  <span className="upgrade-tier-name">Team</span>
+                  <span className="upgrade-tier-name">팀</span>
                   {monthly && yearly && (
-                    <div className="segmented upgrade-tier-toggle" role="radiogroup" aria-label="Billing interval">
+                    <div className="segmented upgrade-tier-toggle" role="radiogroup" aria-label="결제 주기">
                       <button
                         type="button"
                         role="radio"
@@ -364,7 +364,7 @@ export function UpgradeDialog({
                         className={interval === "month" ? "active" : ""}
                         onClick={() => setInterval("month")}
                       >
-                        Monthly
+                        월간
                       </button>
                       <button
                         type="button"
@@ -373,20 +373,20 @@ export function UpgradeDialog({
                         className={interval === "year" ? "active" : ""}
                         onClick={() => setInterval("year")}
                       >
-                        Yearly
+                        연간
                         {saveLabel && <span className="upgrade-tier-save"> · {saveLabel}</span>}
                       </button>
                     </div>
                   )}
                 </div>
-                <div className="upgrade-tier-tagline">For teams of {minSeats} or more</div>
+                <div className="upgrade-tier-tagline">{minSeats}명 이상의 팀을 위한 요금제</div>
                 <div className="upgrade-tier-price">
                   {selected && (
                     <>
                       <span className="upgrade-amount">{formatMoney(selected.amount, currency)}</span>
                       <span className="upgrade-tier-unit">
                         <span>{currency.toUpperCase()}</span>
-                        <span>/ seat / {selected.interval === "year" ? "year" : "month"}</span>
+                        <span>/ 좌석 / {selected.interval === "year" ? "년" : "월"}</span>
                       </span>
                     </>
                   )}
@@ -395,7 +395,7 @@ export function UpgradeDialog({
                 {/* The seat count is picked on the checkout page, which also
                     shows the total; this row only keeps the subgrid aligned. */}
                 <div className="upgrade-tier-controls upgrade-tier-muted">
-                  Choose the number of seats at checkout
+                  좌석 수는 결제 화면에서 선택해요
                 </div>
 
                 <div className="upgrade-tier-action">
@@ -407,21 +407,21 @@ export function UpgradeDialog({
                   >
                     {busy && <span className="btn-spinner" aria-hidden="true" />}
                     <span>
-                      Get Team
+                      팀 요금제 시작
                     </span>
                   </button>
                   <div className="upgrade-tier-footnote upgrade-tier-centered">
-                    No commitment · Cancel anytime
+                    약정 없음 · 언제든 해지
                   </div>
                   {used > 0 && (
                     <div className="upgrade-tier-footnote upgrade-tier-centered">
-                      Includes the {used} {used === 1 ? "person" : "people"} already in your vaults
+                      볼트에 이미 있는 {used}명이 포함돼요
                     </div>
                   )}
                   {error && <div className="auth-error">{error}</div>}
                 </div>
 
-                <div className="upgrade-tier-list-head">Everything in Free, and:</div>
+                <div className="upgrade-tier-list-head">무료 요금제의 모든 기능과 함께:</div>
                 <ul className="upgrade-features">
                   {TEAM_BENEFITS.map((benefit) => (
                     <li key={benefit}>{benefit}</li>
@@ -436,15 +436,15 @@ export function UpgradeDialog({
           <>
             {reason && <p className="upgrade-reason muted">{reason}</p>}
             <p className="upgrade-lead">
-              <strong>Pro</strong> adds unlimited members and standalone file sync to this
-              vault. Pick how you'd like to pay.
+              <strong>Pro</strong>는 이 볼트에 멤버 수 제한 없이 추가하고 개별 파일을
+              동기화할 수 있어요. 결제 방식을 선택하세요.
             </p>
             <p className="muted">{legacyFreePlanExplanation(billingConfig?.freeLimits)}</p>
 
             <div
               className="upgrade-plans"
               role="radiogroup"
-              aria-label="Billing interval"
+              aria-label="결제 주기"
             >
               {monthly && (
                 <button
@@ -455,7 +455,7 @@ export function UpgradeDialog({
                   onClick={() => setInterval("month")}
                 >
                   <span className="upgrade-plan-head">
-                    <span className="upgrade-plan-cadence">Monthly</span>
+                    <span className="upgrade-plan-cadence">월간</span>
                   </span>
                   <span className="upgrade-price">
                     <span className="upgrade-amount">{formatPrice(monthly)}</span>
@@ -473,7 +473,7 @@ export function UpgradeDialog({
                   onClick={() => setInterval("year")}
                 >
                   <span className="upgrade-plan-head">
-                    <span className="upgrade-plan-cadence">Yearly</span>
+                    <span className="upgrade-plan-cadence">연간</span>
                     {saveLabel && <span className="upgrade-save-badge">{saveLabel}</span>}
                   </span>
                   <span className="upgrade-price">
@@ -500,7 +500,7 @@ export function UpgradeDialog({
             >
               {busy && <span className="btn-spinner" aria-hidden="true" />}
               <span>
-                Upgrade
+                업그레이드
                 {selected ? `, ${formatPrice(selected)}${perLabel(selected.interval)}` : ""}
               </span>
             </button>
@@ -510,20 +510,20 @@ export function UpgradeDialog({
         {phase === "waiting" && (
           <div className="upgrade-waiting">
             <span className="btn-spinner accent" aria-hidden="true" />
-            <div className="subhead">Waiting for payment…</div>
+            <div className="subhead">결제를 기다리는 중…</div>
             <div className="muted">
-              Complete the checkout in your browser. This unlocks automatically once
-              your payment is confirmed. You can leave this open.
+              브라우저에서 결제를 완료해 주세요. 결제가 확인되면 자동으로 잠금이 풀려요.
+              이 창은 열어 두어도 돼요.
             </div>
             {error && <div className="auth-error">{error}</div>}
             <div className="upgrade-waiting-actions">
               {checkoutUrl && (
                 <button className="primary sm" onClick={() => void reopenCheckout()}>
-                  Open checkout again
+                  결제 화면 다시 열기
                 </button>
               )}
               <button className="ghost-pill sm" onClick={backToPlans}>
-                Cancel
+                취소
               </button>
             </div>
           </div>
@@ -531,10 +531,10 @@ export function UpgradeDialog({
 
         {phase === "timeout" && (
           <div className="upgrade-waiting">
-            <div className="subhead">Still waiting on payment</div>
+            <div className="subhead">아직 결제를 기다리고 있어요</div>
             <div className="muted">
-              We haven't seen the payment confirmed yet. If you finished checkout, it
-              can take a moment. Check again below.
+              아직 결제가 확인되지 않았어요. 결제를 마쳤다면 잠시 걸릴 수 있어요.
+              아래에서 다시 확인해 보세요.
             </div>
             {error && <div className="auth-error">{error}</div>}
             <div className="upgrade-waiting-actions">
@@ -545,10 +545,10 @@ export function UpgradeDialog({
                 onClick={() => void checkAgain()}
               >
                 {checking && <span className="btn-spinner" aria-hidden="true" />}
-                <span>Check again</span>
+                <span>다시 확인</span>
               </button>
               <button className="ghost-pill sm" onClick={backToPlans}>
-                Back
+                뒤로
               </button>
             </div>
           </div>
@@ -559,14 +559,14 @@ export function UpgradeDialog({
             <div className="upgrade-success-mark" aria-hidden="true">
               ✓
             </div>
-            <div className="subhead">{teamMode ? "You're on Team" : "You're on Pro"}</div>
+            <div className="subhead">{teamMode ? "팀 요금제를 사용 중이에요" : "Pro를 사용 중이에요"}</div>
             <div className="muted">
               {teamMode
-                ? "Your vaults now sync standalone files, and your seats are ready for your team."
-                : "This vault now has unlimited members and standalone file sync."}
+                ? "이제 볼트에서 개별 파일이 동기화되고, 팀을 위한 좌석도 준비됐어요."
+                : "이제 이 볼트에는 멤버 수 제한이 없고 개별 파일도 동기화돼요."}
             </div>
             <button className="primary sm" onClick={onClose}>
-              Done
+              완료
             </button>
           </div>
         )}

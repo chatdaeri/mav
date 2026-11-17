@@ -98,7 +98,7 @@ describe("requestDiagram", () => {
   it("refuses an oversize source without scheduling anything", async () => {
     const { renderer, calls } = fakeRenderer();
     const req = requestDiagram("x".repeat(MAX_MERMAID_CHARS + 1), "light", renderer);
-    expect(req.cached).toEqual({ error: "Diagram too large to render" });
+    expect(req.cached).toEqual({ error: "다이어그램이 너무 커서 그릴 수 없어요" });
     await vi.advanceTimersByTimeAsync(1000);
     expect(calls).toHaveLength(0);
   });

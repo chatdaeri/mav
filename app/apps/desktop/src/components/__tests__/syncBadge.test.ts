@@ -12,15 +12,15 @@ import {
 import type { SyncProgress } from "../../lib/sync/vaultScope";
 
 // The sync pill is the user-facing "is my work safe?" signal. These lock in the
-// fix for the bug where it drifted to "Synced · 5m ago" while actively editing:
-// pending edits must read "Syncing…", and a fresh flush must read "just now".
+// fix for the bug where it drifted to "동기화됨 · 5분 전" while actively editing:
+// pending edits must read "동기화 중…", and a fresh flush must read "just now".
 describe("syncBadgeLabel", () => {
   const now = 1_000_000_000_000;
 
   it("counts remaining access cleanup even while the open note is denied", () => {
     const progress: SyncProgress = { phase: "removing", done: 64, total: 130, failed: 0 };
-    expect(syncBadgeLabel({ status: "no-access", now, progress })).toBe("Updating access · 66 remaining");
-    expect(syncBadgeLabel({ status: "no-access", now, progress: { ...progress, done: 128 } })).toBe("Updating access · 2 remaining");
+    expect(syncBadgeLabel({ status: "no-access", now, progress })).toBe("권한 업데이트 중 · 66개 남음");
+    expect(syncBadgeLabel({ status: "no-access", now, progress: { ...progress, done: 128 } })).toBe("권한 업데이트 중 · 2개 남음");
     expect(syncBadgeTone({ status: "no-access", progress })).toBe("connecting");
     expect(isSyncRunActive(progress)).toBe(true);
   });
@@ -34,65 +34,65 @@ describe("syncBadgeLabel", () => {
       failed: 0,
       notUploaded: 412,
     };
-    expect(syncBadgeLabel({ status: "synced", now, progress })).toBe("Uploading · 412 notes left");
+    expect(syncBadgeLabel({ status: "synced", now, progress })).toBe("업로드 중 · 노트 412개 남음");
     expect(syncBadgeLabel({ status: "synced", now, progress: { ...progress, notUploaded: 1 } })).toBe(
-      "Uploading · 1 note left",
+      "업로드 중 · 노트 1개 남음",
     );
     // Nothing missing: the ordinary counter, so a synced vault never reads "Uploading".
     expect(syncBadgeLabel({ status: "synced", now, progress: { ...progress, notUploaded: undefined } })).toBe(
-      "Syncing 10/500 updates",
+      "동기화 중 10/500",
     );
     // Only while uploading: the download half of the run keeps its own counter.
     expect(syncBadgeLabel({ status: "synced", now, progress: { ...progress, phase: "downloading" } })).toBe(
-      "Syncing 10/500 updates",
+      "동기화 중 10/500",
     );
   });
 
   it("never reads 'Sync incomplete': a stopped run falls back to the connection", () => {
     const stalled: SyncProgress = { phase: "error", done: 0, total: 0, failed: 0 };
-    expect(syncBadgeLabel({ status: "connecting", now, progress: stalled })).toBe("Syncing…");
-    expect(syncBadgeLabel({ status: "error", now, progress: stalled })).toBe("Retrying…");
+    expect(syncBadgeLabel({ status: "connecting", now, progress: stalled })).toBe("동기화 중…");
+    expect(syncBadgeLabel({ status: "error", now, progress: stalled })).toBe("다시 시도 중…");
     expect(
       syncBadgeLabel({ status: "synced", now, progress: { ...stalled, failed: 2 } }),
-    ).toBe("Synced");
-    expect(syncBadgeLabel({ status: "synced", now, progress: stalled })).toBe("Synced");
+    ).toBe("동기화됨");
+    expect(syncBadgeLabel({ status: "synced", now, progress: stalled })).toBe("동기화됨");
     expect(syncBadgeTone({ status: "synced", progress: stalled })).toBe("synced");
   });
 
   it("shows Syncing… while local edits are pending, ignoring the timestamp", () => {
     expect(
       syncBadgeLabel({ status: "synced", pending: true, lastSyncedAt: now - 300_000, now }),
-    ).toBe("Syncing…");
+    ).toBe("동기화 중…");
   });
 
   it("reads 'Synced · just now' immediately after a flush", () => {
     expect(
       syncBadgeLabel({ status: "synced", pending: false, lastSyncedAt: now, now }),
-    ).toBe("Synced · just now");
+    ).toBe("동기화됨 · 방금");
   });
 
   it("counts up from the last flush once settled", () => {
     expect(
       syncBadgeLabel({ status: "synced", pending: false, lastSyncedAt: now - 300_000, now }),
-    ).toBe("Synced · 5m ago");
+    ).toBe("동기화됨 · 5분 전");
   });
 
   it("falls back to 'Synced' when there is no timestamp yet", () => {
-    expect(syncBadgeLabel({ status: "synced", lastSyncedAt: null, now })).toBe("Synced");
+    expect(syncBadgeLabel({ status: "synced", lastSyncedAt: null, now })).toBe("동기화됨");
   });
 
   it("maps the non-synced statuses to fixed labels", () => {
-    expect(syncBadgeLabel({ status: "read-only", now })).toBe("Read-only");
-    expect(syncBadgeLabel({ status: "connecting", now })).toBe("Syncing…");
-    expect(syncBadgeLabel({ status: "no-access", now })).toBe("No access");
-    expect(syncBadgeLabel({ status: "error", now })).toBe("Retrying…");
-    expect(syncBadgeLabel({ status: "offline", now })).toBe("Offline");
-    expect(syncBadgeLabel({ status: "offline", enabled: false, now })).toBe("Local only");
+    expect(syncBadgeLabel({ status: "read-only", now })).toBe("읽기 전용");
+    expect(syncBadgeLabel({ status: "connecting", now })).toBe("동기화 중…");
+    expect(syncBadgeLabel({ status: "no-access", now })).toBe("접근 불가");
+    expect(syncBadgeLabel({ status: "error", now })).toBe("다시 시도 중…");
+    expect(syncBadgeLabel({ status: "offline", now })).toBe("오프라인");
+    expect(syncBadgeLabel({ status: "offline", enabled: false, now })).toBe("이 기기에만");
   });
 });
 
 /** The vault's bulk-run progress is independent of the socket status: these lock
- *  in that a live run is never allowed to read as "Synced". */
+ *  in that a live run is never allowed to read as "동기화됨". */
 describe("syncBadgeLabel with a bulk sync run", () => {
   const now = 1_000_000_000_000;
   const run = (p: Partial<SyncProgress>): SyncProgress => ({
@@ -113,7 +113,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         now,
         progress: run({ phase: "uploading", done: 128, total: 500 }),
       }),
-    ).toBe("Syncing 128/500 updates");
+    ).toBe("동기화 중 128/500");
   });
 
   it("clamps a racing counter so it can never read 585/164", () => {
@@ -123,7 +123,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         now,
         progress: run({ phase: "registering", done: 585, total: 164 }),
       }),
-    ).toBe("Syncing 164/164 updates");
+    ).toBe("동기화 중 164/164");
   });
 
   it("counts the registering and downloading phases too, all under one verb", () => {
@@ -133,7 +133,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         now,
         progress: run({ phase: "registering", done: 3, total: 40 }),
       }),
-    ).toBe("Syncing 3/40 updates");
+    ).toBe("동기화 중 3/40");
     // Every phase reads "Syncing" — the per-phase verbs described mechanism,
     // not the user's situation ("Uploading files" on an already-synced vault
     // read as "my vault is being re-sent").
@@ -143,7 +143,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         now,
         progress: run({ phase: "downloading", done: 9, total: 10 }),
       }),
-    ).toBe("Syncing 9/10 updates");
+    ).toBe("동기화 중 9/10");
   });
 
   it("stays green while a run has opened a phase with nothing to do yet", () => {
@@ -152,9 +152,9 @@ describe("syncBadgeLabel with a bulk sync run", () => {
     for (const phase of ["registering", "downloading", "uploading"] as const) {
       const progress = run({ phase, done: 0, total: 0 });
       expect(isSyncRunActive(progress)).toBe(false);
-      expect(syncBadgeLabel({ status: "synced", now, progress })).not.toMatch(/^Syncing/);
+      expect(syncBadgeLabel({ status: "synced", now, progress })).not.toMatch(/^동기화 중/);
       expect(syncBadgeTone({ status: "synced", progress })).toBe("synced");
-      expect(syncBadgeLabel({ status: "synced", now, progress, noteOpen: false, vaultStatus: "synced" })).toBe("Synced");
+      expect(syncBadgeLabel({ status: "synced", now, progress, noteOpen: false, vaultStatus: "synced" })).toBe("동기화됨");
       expect(syncBadgeTone({ status: "synced", progress, noteOpen: false, vaultStatus: "synced" })).toBe("synced");
     }
   });
@@ -162,7 +162,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
   it("still shows counts once a phase has real work outstanding", () => {
     const progress = run({ phase: "downloading", done: 3, total: 40 });
     expect(isSyncRunActive(progress)).toBe(true);
-    expect(syncBadgeLabel({ status: "synced", now, progress })).toBe("Syncing 3/40 updates");
+    expect(syncBadgeLabel({ status: "synced", now, progress })).toBe("동기화 중 3/40");
     expect(syncBadgeTone({ status: "synced", progress })).toBe("connecting");
     // A phase whose work is all done is settled again.
     expect(isSyncRunActive(run({ phase: "downloading", done: 40, total: 40 }))).toBe(false);
@@ -176,20 +176,20 @@ describe("syncBadgeLabel with a bulk sync run", () => {
     const failedRun = run({ phase: "error", done: 500, total: 500, failed: 20 });
     expect(
       syncBadgeLabel({ status: "synced", lastSyncedAt: now, now, progress: failedRun }),
-    ).toBe("Synced · just now");
+    ).toBe("동기화됨 · 방금");
     expect(syncBadgeTone({ status: "synced", progress: failedRun })).toBe("synced");
     expect(
       syncBadgeLabel({ status: "offline", now, noteOpen: false, vaultStatus: "synced", progress: failedRun }),
-    ).toBe("Synced");
+    ).toBe("동기화됨");
     expect(
       syncBadgeTone({ status: "offline", noteOpen: false, vaultStatus: "synced", progress: failedRun }),
     ).toBe("synced");
     // Genuine connectivity states still win over the settled run.
-    expect(syncBadgeLabel({ status: "error", now, progress: failedRun })).toBe("Retrying…");
-    expect(syncBadgeLabel({ status: "offline", now, progress: failedRun })).toBe("Offline");
+    expect(syncBadgeLabel({ status: "error", now, progress: failedRun })).toBe("다시 시도 중…");
+    expect(syncBadgeLabel({ status: "offline", now, progress: failedRun })).toBe("오프라인");
     expect(
       syncBadgeLabel({ status: "synced", now, progress: run({ phase: "error" }) }),
-    ).toBe("Synced");
+    ).toBe("동기화됨");
   });
 
   it("goes back to the connection label once the run is done", () => {
@@ -200,16 +200,16 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         now,
         progress: run({ phase: "done", done: 500, total: 500 }),
       }),
-    ).toBe("Synced · just now");
+    ).toBe("동기화됨 · 방금");
     expect(
       syncBadgeLabel({ status: "offline", enabled: false, now, progress: null }),
-    ).toBe("Local only");
+    ).toBe("이 기기에만");
   });
 
   it("lets a grant fact about the open note outrank the run", () => {
     const progress = run({ done: 1, total: 9 });
-    expect(syncBadgeLabel({ status: "no-access", now, progress })).toBe("No access");
-    expect(syncBadgeLabel({ status: "read-only", now, progress })).toBe("Read-only");
+    expect(syncBadgeLabel({ status: "no-access", now, progress })).toBe("접근 불가");
+    expect(syncBadgeLabel({ status: "read-only", now, progress })).toBe("읽기 전용");
   });
 
   it("keeps the tone consistent with the words", () => {
@@ -249,7 +249,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         noteOpen: false,
         progress: run({ phase: "downloading", done: 128, total: 500 }),
       }),
-    ).toBe("Syncing 128/500 updates");
+    ).toBe("동기화 중 128/500");
     expect(
       syncBadgeLabel({
         status: "offline",
@@ -258,7 +258,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         vaultStatus: "synced",
         progress: run({ phase: "done", done: 500, total: 500 }),
       }),
-    ).toBe("Synced");
+    ).toBe("동기화됨");
     expect(
       syncBadgeLabel({
         status: "synced",
@@ -267,7 +267,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         vaultStatus: "synced",
         progress: run({ phase: "error", done: 480, total: 500, failed: 20 }),
       }),
-    ).toBe("Synced");
+    ).toBe("동기화됨");
     // Stale grant facts from the last open note don't apply either.
     expect(
       syncBadgeLabel({
@@ -276,7 +276,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         noteOpen: false,
         progress: run({ phase: "uploading", done: 1, total: 9 }),
       }),
-    ).toBe("Syncing 1/9 updates");
+    ).toBe("동기화 중 1/9");
   });
 
   it("keeps the vault-wide tone consistent with the vault-wide words", () => {
@@ -322,19 +322,19 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         syncBadgeLabel({ status: "synced", now, noteOpen: false, vaultStatus, enabled, progress });
       const tone = (vaultStatus?: string) =>
         syncBadgeTone({ status: "synced", noteOpen: false, vaultStatus, progress });
-      expect(label("synced")).toBe("Synced");
+      expect(label("synced")).toBe("동기화됨");
       expect(tone("synced")).toBe("synced");
-      expect(label("connecting")).toBe("Syncing…");
+      expect(label("connecting")).toBe("동기화 중…");
       expect(tone("connecting")).toBe("connecting");
-      expect(label("error")).toBe("Retrying…");
+      expect(label("error")).toBe("다시 시도 중…");
       expect(tone("error")).toBe("error");
-      expect(label("no-access")).toBe("No access");
+      expect(label("no-access")).toBe("접근 불가");
       expect(tone("no-access")).toBe("no-access");
-      expect(label("offline")).toBe("Offline");
-      expect(label("offline", false)).toBe("Local only");
+      expect(label("offline")).toBe("오프라인");
+      expect(label("offline", false)).toBe("이 기기에만");
       expect(tone("offline")).toBe("offline");
       // No channel status known: not Synced.
-      expect(label(undefined)).toBe("Offline");
+      expect(label(undefined)).toBe("오프라인");
       expect(tone(undefined)).toBe("offline");
     }
     // A live run still reports its counter, whatever the channel says.
@@ -346,7 +346,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
         vaultStatus: "connecting",
         progress: run({ phase: "downloading", done: 3, total: 9 }),
       }),
-    ).toBe("Syncing 3/9 updates");
+    ).toBe("동기화 중 3/9");
   });
 
   it("floors the bar's percentage and clamps it", () => {
@@ -361,7 +361,7 @@ describe("syncBadgeLabel with a bulk sync run", () => {
 
 // #273: a vault-wide hold outranks every per-note/per-run state, in every badge
 // that renders through SyncBadge — Vault Settings once read "Synced · 9m ago"
-// while the tab-bar pill said "Sync paused".
+// while the tab-bar pill said "동기화 일시 중지".
 describe("syncBadgeHold", () => {
   const now = 1_000_000_000_000;
 
@@ -374,16 +374,16 @@ describe("syncBadgeHold", () => {
     const hold = syncBadgeHold({ rootMissing: true, enabled: true, pause: { until: null }, now });
     expect(hold).toEqual({
       tone: "offline",
-      label: "Paused",
-      title: "Sync is paused until the vault folder is back",
+      label: "일시 중지됨",
+      title: "볼트 폴더가 돌아올 때까지 동기화가 일시 중지돼요",
     });
   });
 
   it("reads an amber Sync paused while the shrink brake holds writes (#252)", () => {
     const hold = syncBadgeHold({ enabled: true, pause: { until: now + 10 * 60_000 }, now });
     expect(hold?.tone).toBe("connecting");
-    expect(hold?.label).toBe("Sync paused");
-    expect(hold?.title).toContain("(in about 10 min)");
+    expect(hold?.label).toBe("동기화 일시 중지");
+    expect(hold?.title).toContain("(남은 시간: ");
     expect(syncBadgeHold({ enabled: true, pause: { until: null }, now })?.title).not.toContain("(in ");
   });
 
@@ -407,21 +407,21 @@ describe("a stopped run with refusals or a failing pull", () => {
 
   it("reads the connection's label, never Sync incomplete", () => {
     for (const progress of runs) {
-      expect(syncBadgeLabel({ status: "synced", now, progress, lastSyncedAt: now })).toBe("Synced · just now");
+      expect(syncBadgeLabel({ status: "synced", now, progress, lastSyncedAt: now })).toBe("동기화됨 · 방금");
       expect(syncBadgeLabel({ status: "synced", now, progress })).not.toBe("Sync incomplete");
       expect(syncBadgeTone({ status: "synced", progress })).toBe("synced");
       expect(
         syncBadgeLabel({ status: "offline", now, noteOpen: false, vaultStatus: "synced", progress }),
-      ).toBe("Synced");
+      ).toBe("동기화됨");
       expect(
         syncBadgeLabel({ status: "offline", now, noteOpen: false, vaultStatus: "error", progress }),
-      ).toBe("Retrying…");
+      ).toBe("다시 시도 중…");
     }
   });
 
   it("still lets a grant fact about the open note win", () => {
     for (const progress of runs) {
-      expect(syncBadgeLabel({ status: "read-only", now, progress })).toBe("Read-only");
+      expect(syncBadgeLabel({ status: "read-only", now, progress })).toBe("읽기 전용");
       expect(syncBadgeTone({ status: "read-only", progress })).toBe("read-only");
     }
   });

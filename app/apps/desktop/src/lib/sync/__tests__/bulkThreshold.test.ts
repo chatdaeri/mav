@@ -280,7 +280,7 @@ describe("site 3 — materializing server-only notes", () => {
               relPath: i.relPath,
               created: false,
               rebound: false,
-              error: "This path is a symbolic link. Baalda does not sync through links. (Remote7.md)",
+              error: "This path is a symbolic link. 마이 세컨드 브레인 does not sync through links. (Remote7.md)",
             }
           : { relPath: i.relPath, created: true, rebound: true },
       ),

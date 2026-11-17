@@ -188,7 +188,7 @@ export const ENCRYPTION_NOT_REQUESTED = {
  * database writer cannot fake away without destroying the data itself.
  */
 export const KEY_MATERIAL_EXISTS = {
-  error: "This vault already holds encrypted data. Open Baalda on a device that has its key, or restore it with the vault key.",
+  error: "This vault already holds encrypted data. Open 마이 세컨드 브레인 on a device that has its key, or restore it with the vault key.",
   code: "key_material_exists",
 } as const;
 

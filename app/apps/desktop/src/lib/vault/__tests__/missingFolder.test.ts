@@ -6,7 +6,7 @@ import {
   reboundToastText,
 } from "../missingFolder";
 
-const root = "/Users/me/Documents/Baalda Vaults";
+const root = "/Users/me/Documents/mav";
 
 describe("planMissingFolder", () => {
   it("recreates a folder that lived inside the vaults root", () => {
@@ -41,12 +41,12 @@ describe("planMissingFolder", () => {
   it("compares paths case-insensitively and normalised", () => {
     expect(
       planMissingFolder({
-        path: "/users/ME/documents/baalda vaults/Hello 4/",
+        path: "/users/ME/documents/mav/Hello 4/",
         root: `${root}/`,
         stampMatches: null,
       }),
     ).toEqual({ kind: "recreate" });
-    expect(isInsideVaultsRoot("C:\\Users\\Me\\Baalda Vaults\\A", "c:/users/me/baalda vaults")).toBe(
+    expect(isInsideVaultsRoot("C:\\Users\\Me\\mav\\A", "c:/users/me/mav")).toBe(
       true,
     );
   });
@@ -75,7 +75,7 @@ describe("planMissingFolder", () => {
 describe("copy", () => {
   it("says what happened", () => {
     expect(autoRestoredNoticeText("Hello 4")).toBe(
-      "Hello 4's folder was missing, so Baalda restored it in Baalda Vaults and is syncing it.",
+      "Hello 4 폴더가 없어져서 mav 폴더 안에 다시 만들고 동기화하고 있어요.",
     );
     expect(reboundToastText("Hello 4", `${root}/Hello Renamed/`)).toBe(
       "Hello 4 moved to Hello Renamed.",

@@ -39,10 +39,10 @@ import type { TextSource } from "./virtualTabs";
 const COUNT_LIMIT = 200;
 
 const RESOLUTION_LABEL: Record<Resolution, string> = {
-  kept: "Kept current",
-  restored: "Copy restored",
-  restoredSibling: "Restored as new note",
-  skipped: "Skipped",
+  kept: "현재 버전 유지",
+  restored: "사본 복원됨",
+  restoredSibling: "새 노트로 복원됨",
+  skipped: "건너뜀",
 };
 
 export function useReviewState(): ResolvedMap {
@@ -121,7 +121,7 @@ function ItemView({
       <CompareBody
         key={item.key}
         left={{ label: copyTabTitle(item.copy.relPath, at), source: { type: "copy", ...item.copy } }}
-        right={{ label: `Current: ${noteLabel(item.path)}`, source: { type: "note", path: item.path } }}
+        right={{ label: `현재: ${noteLabel(item.path)}`, source: { type: "note", path: item.path } }}
         nonce={nonce}
       />
     );
@@ -131,7 +131,7 @@ function ItemView({
         <div className="vtab-header">
           <span className="vtab-label">
             <strong>{copyTabTitle(item.copy.relPath, at)}</strong>
-            {noteExists === false ? " · The note no longer exists here. This is your version." : ""}
+            {noteExists === false ? " · 이 노트는 여기에 더 이상 없어요. 내 버전이에요." : ""}
           </span>
         </div>
         <ReadOnlyText source={{ type: "copy", ...item.copy }} nonce={nonce} />
@@ -160,7 +160,7 @@ function ItemView({
           <>
             <AsyncButton
               className="ghost-pill sm"
-              title="Keep the note as it is and delete this copy."
+              title="노트를 그대로 두고 이 사본을 삭제해요."
               onClick={() =>
                 run(async () => {
                   await deleteCopy(copy);
@@ -168,12 +168,12 @@ function ItemView({
                 })
               }
             >
-              Keep current
+              현재 버전 유지
             </AsyncButton>
             {noteExists && (
               <AsyncButton
                 className="ghost-pill sm"
-                title="Put this copy's text into the note, then delete the copy."
+                title="이 사본의 텍스트를 노트에 넣고 사본을 삭제해요."
                 onClick={() =>
                   run(async () => {
                     await restoreCopyReplace(copy, item.path);
@@ -183,12 +183,12 @@ function ItemView({
                   })
                 }
               >
-                Restore this copy
+                이 사본 복원
               </AsyncButton>
             )}
             <AsyncButton
               className="ghost-pill sm"
-              title="Create a new note beside the original with this copy's text."
+              title="이 사본의 텍스트로 원본 옆에 새 노트를 만들어요."
               onClick={() =>
                 run(async () => {
                   await restoreCopyAsSibling(copy);
@@ -197,10 +197,10 @@ function ItemView({
                 })
               }
             >
-              Restore as sibling
+              새 노트로 복원
             </AsyncButton>
             <button type="button" className="ghost-pill sm" onClick={() => openCopy(copy)}>
-              Open copy
+              사본 열기
             </button>
           </>
         ) : (
@@ -210,7 +210,7 @@ function ItemView({
               className="ghost-pill sm"
               onClick={() => void useStore.getState().openNoteByPath(item.path)}
             >
-              Open note
+              노트 열기
             </button>
             {item.otherPath && (
               <button
@@ -218,17 +218,17 @@ function ItemView({
                 className="ghost-pill sm"
                 onClick={() => void useStore.getState().openNoteByPath(item.otherPath!)}
               >
-                Open other note
+                다른 노트 열기
               </button>
             )}
             <AsyncButton className="ghost-pill sm" onClick={() => run(async () => "kept")}>
-              Keep both
+              둘 다 유지
             </AsyncButton>
           </>
         )}
         <AsyncButton
           className="ghost-pill sm"
-          title={copy ? "Mark as reviewed and keep the copy in .context/trash." : "Mark as reviewed."}
+          title={copy ? "검토 완료로 표시하고 사본은 .context/trash에 보관해요." : "검토 완료로 표시해요."}
           onClick={() => run(async () => "skipped")}
         >
           Skip
@@ -284,7 +284,7 @@ export function ReviewTab() {
     }
     reviewState.set(next);
     setConfirmAll(false);
-    if (failed.length) setAllError(`Some copies could not be deleted. ${failed.join(" · ")}`);
+    if (failed.length) setAllError(`일부 사본을 삭제하지 못했어요. ${failed.join(" · ")}`);
   };
 
   return (
@@ -298,19 +298,19 @@ export function ReviewTab() {
             onResolved={resolveCurrent}
           />
         ) : (
-          <p className="muted vtab-status">Nothing to review from this session.</p>
+          <p className="muted vtab-status">이번 세션에서 검토할 항목이 없어요.</p>
         )}
       </div>
-      <aside className="review-list" aria-label="Changes to review">
+      <aside className="review-list" aria-label="검토할 변경 사항">
         <div className="review-list-header">
           <span>
             {pending.length === 0
-              ? "All resolved"
-              : `${pending.length.toLocaleString()} of ${items.length.toLocaleString()} to review`}
+              ? "모두 처리됨"
+              : `검토할 항목 ${items.length.toLocaleString()}개 중 ${pending.length.toLocaleString()}개`}
           </span>
           {pending.length > 0 && (
             <button type="button" className="ghost-pill sm" onClick={() => setConfirmAll(true)}>
-              Resolve all
+              모두 처리
             </button>
           )}
         </div>
@@ -336,7 +336,7 @@ export function ReviewTab() {
                   <span className="review-row-meta muted">
                     {c ? formatLineChanges(c) : ""}
                     {c ? " · " : ""}
-                    {how ? RESOLUTION_LABEL[how] : "Pending"}
+                    {how ? RESOLUTION_LABEL[how] : "대기 중"}
                   </span>
                 </button>
               </li>
@@ -346,15 +346,15 @@ export function ReviewTab() {
       </aside>
       {confirmAll && (
         <ConfirmDialog
-          title="Resolve all changes?"
-          confirmLabel="Resolve all"
+          title="모든 변경 사항을 처리할까요?"
+          confirmLabel="모두 처리"
           tone="danger"
           onConfirm={resolveAll}
           onCancel={() => setConfirmAll(false)}
         >
           {plan.copiesToDelete.length === 0
-            ? `Keep the current version of ${pending.length === 1 ? "1 note" : `${pending.length.toLocaleString()} notes`}. No copies will be deleted.`
-            : `Keep the current version of every pending note. ${plan.copiesToDelete.length === 1 ? "1 copy" : `${plan.copiesToDelete.length.toLocaleString()} copies`} in .context/trash will be deleted from this device.`}
+            ? `노트 ${pending.length.toLocaleString()}개의 현재 버전을 유지해요. 삭제되는 사본은 없어요.`
+            : `대기 중인 모든 노트의 현재 버전을 유지해요. .context/trash에 있는 사본 ${plan.copiesToDelete.length.toLocaleString()}개는 이 기기에서 삭제돼요.`}
         </ConfirmDialog>
       )}
     </div>

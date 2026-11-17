@@ -232,7 +232,7 @@ export function requireSupportedClient(): MiddlewareHandler {
     if (verdict.ok) return next();
     return c.json(
       {
-        error: "This version of Baalda is too old to sync. Update the app to continue.",
+        error: "This version of 마이 세컨드 브레인 is too old to sync. Update the app to continue.",
         code: CLIENT_OUTDATED_CODE,
         reason: verdict.reason,
         minVersion: verdict.minVersion,
@@ -284,7 +284,7 @@ export function vaultKeysOutdatedBody(): {
   minVersion: string;
 } {
   return {
-    error: "This vault needs a newer version of Baalda. Update the app to continue.",
+    error: "This vault needs a newer version of 마이 세컨드 브레인. Update the app to continue.",
     code: CLIENT_OUTDATED_CODE,
     reason: "vault_keys",
     minVersion: VAULT_KEYS_MIN_DESKTOP,

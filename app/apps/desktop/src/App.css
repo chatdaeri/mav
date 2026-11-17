@@ -1,5 +1,5 @@
 /* ============================================================
-   Baalda — App shell styles
+   마이 세컨드 브레인 — App shell styles
    Atomize PLUS: light-first layered surfaces, pill actions,
    violet accent, soft diffuse shadows, 4pt grid.
    Every value consumes a token from styles/tokens.css.
@@ -323,7 +323,7 @@ button.primary.hero:hover:not(:disabled) {
   cursor: default;
   user-select: none;
 }
-/* Baalda wordmark — ink on light theme, silver on dark. One background image
+/* 마브 wordmark — ink on light theme, silver on dark. One background image
    per theme, so the splash fetches only the PNG it actually shows. */
 .wordmark {
   display: inline-block;
@@ -3145,6 +3145,148 @@ html[data-platform="macos"] .sidebar-hidden .main-header {
 }
 .file-doc-warnings summary {
   cursor: pointer;
+}
+
+/* ---- Drive link for local-only files (viewers/DriveLinkPaste) ---- */
+.file-preview-stack {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.file-preview-stack > .file-preview {
+  flex: 1;
+  min-height: 0;
+}
+.local-only-bar {
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.local-only-bar .drive-link-paste {
+  margin-top: 0;
+  max-width: 640px;
+}
+.drive-link-paste {
+  margin-top: var(--sp-4);
+  max-width: 420px;
+  text-align: left;
+}
+.drive-link-lede {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--sp-2);
+}
+.drive-link-row input {
+  flex: 1;
+  min-width: 0;
+}
+.drive-link-ok,
+.drive-link-error {
+  font-size: var(--fs-xs);
+  margin: var(--sp-2) 0 0;
+}
+.drive-link-ok {
+  color: var(--text-secondary);
+}
+.drive-link-error {
+  color: var(--danger, #c0392b);
+}
+
+/* ---- HWPX / PPTX preview (viewers/OfficeView) ---- */
+.office-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+.office-bar-note {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+.file-preview-office .file-preview-body {
+  padding: var(--sp-6) var(--sp-4);
+}
+.office-para {
+  margin: 0 0 0.5em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.office-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--sp-2) 0;
+}
+.office-table {
+  border-collapse: collapse;
+  margin: var(--sp-2) 0;
+  width: 100%;
+}
+.office-table td {
+  border: 1px solid var(--border);
+  padding: var(--sp-1) var(--sp-2);
+  vertical-align: top;
+}
+.office-table .office-para {
+  margin: 0;
+}
+.office-slides {
+  display: grid;
+  gap: var(--sp-6);
+  max-width: 960px;
+  margin: 0 auto;
+}
+.office-slide-wrap {
+  margin: 0;
+}
+/* Always a white page with dark ink, like the deck itself — not themed. */
+.office-slide {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  container-type: inline-size;
+  /* 18pt on a 960pt-wide slide: the PowerPoint default body size. */
+  font-size: 1.875cqw;
+  line-height: 1.25;
+}
+.office-shape {
+  position: absolute;
+}
+.office-shape-pic {
+  overflow: hidden;
+}
+.office-shape-pic .office-img,
+.office-shape-flow .office-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 0;
+}
+.office-shape .office-para,
+.office-shape-flow .office-para {
+  margin: 0 0 0.2em;
+}
+.office-shape .office-table td {
+  border-color: #c8c8c8;
+}
+.office-flow {
+  position: absolute;
+  inset: 4%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+.office-slide-num {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  text-align: center;
 }
 
 /* The inline "large file — render anyway?" prompt (docx / xlsx). A button, not

@@ -24,15 +24,15 @@ export function isUpdateBusy(state: UpdateState): boolean {
 export function updateRowHint(state: UpdateState, version: string | null): string {
   switch (state.phase) {
     case "checking":
-      return "Checking…";
+      return "확인 중…";
     case "available":
     case "downloading":
     case "installing":
-      return "Updating…";
+      return "업데이트 중…";
     case "pending":
-      return "Update on its way";
+      return "업데이트 준비 중";
     case "ready":
-      return "Restart to update";
+      return "다시 시작하여 업데이트";
     default:
       return version ?? "…";
   }
@@ -45,16 +45,16 @@ export function updateRowHint(state: UpdateState, version: string | null): strin
 export function updateCheckToast(state: UpdateState): { text: string; tone: ToastTone } | null {
   switch (state.phase) {
     case "uptodate":
-      return { text: "You're on the latest version.", tone: "success" };
+      return { text: "최신 버전을 사용 중이에요.", tone: "success" };
     case "pending":
-      return { text: "An update is on its way.", tone: "neutral" };
+      return { text: "업데이트가 곧 도착해요.", tone: "neutral" };
     case "available":
-      return { text: `Version ${state.version} found. Starting the download…`, tone: "neutral" };
+      return { text: `버전 ${state.version}을(를) 찾았어요. 다운로드를 시작해요…`, tone: "neutral" };
     case "error":
-      return { text: `Couldn't check for updates: ${state.message}`, tone: "error" };
+      return { text: `업데이트를 확인하지 못했어요: ${state.message}`, tone: "error" };
     case "failed":
       return {
-        text: `Couldn't install version ${state.version}${state.message ? `: ${state.message}` : ""}`,
+        text: `버전 ${state.version} 설치에 실패했어요${state.message ? `: ${state.message}` : ""}`,
         tone: "error",
       };
     default:
