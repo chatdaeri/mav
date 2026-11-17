@@ -1,6 +1,6 @@
 import { BILLING_UI } from "../lib/brand";
 import { useEffect, useRef, useState } from "react";
-import { DEFAULT_SERVER_URL } from "../lib/api";
+import { DEFAULT_SERVER_URL, PRODUCTION_SERVER_URL } from "../lib/api";
 import type { AccountSettingsTab } from "../lib/settingsTabs";
 import { authManager } from "../lib/auth/authManager";
 import { readRecentServers, switchServer } from "../lib/auth/recentServers";
@@ -734,8 +734,11 @@ export function ConnectionTab() {
 
   // Redesign: two clear choices. 마브 Cloud is the managed server; anything
   // else is "your own", which is the only case that needs an address typed.
+  // 마브 has no managed server (PRODUCTION_SERVER_URL is empty): no Cloud
+  // card, and the address box is always the one choice.
+  const hasCloud = Boolean(PRODUCTION_SERVER_URL);
   const cloudUrl = normalizeServerUrl(DEFAULT_SERVER_URL);
-  const isCloud = draftUrl === cloudUrl;
+  const isCloud = hasCloud && draftUrl === cloudUrl;
   const pick = (url: string) => {
     setDraft(url);
     setSaved(false);
@@ -744,8 +747,11 @@ export function ConnectionTab() {
 
   return (
     <div className="connection-tab conn-b">
-      <p className="field-hint">노트를 동기화할 위치를 선택하세요. 서버마다 따로 로그인해요.</p>
+      <p className="field-hint">
+        {hasCloud ? "노트를 동기화할 위치를 선택하세요. 서버마다 따로 로그인해요." : "노트를 동기화할 팀 서버예요. 서버마다 따로 로그인해요."}
+      </p>
       <div className="conn-options" role="radiogroup" aria-label="서버">
+        {hasCloud && (
         <button
           type="button"
           role="radio"
@@ -761,6 +767,7 @@ export function ConnectionTab() {
           <b>마이 세컨드 브레인 Cloud</b>
           <span className="conn-option-hint">마이 세컨드 브레인이 관리해요. 따로 설정할 게 없어요.</span>
         </button>
+        )}
         <div
           role="radio"
           aria-checked={!isCloud}
@@ -782,8 +789,8 @@ export function ConnectionTab() {
           <span className="conn-tile is-own" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.01M7 16.5h.01" /></svg>
           </span>
-          <b>내 서버</b>
-          <span className="conn-option-hint">직접 설치한 마이 세컨드 브레인이에요. 데이터는 내 기기에 있어요.</span>
+          <b>팀 서버</b>
+          <span className="conn-option-hint">팀이 띄운 서버 주소를 넣어요. 노트는 그 서버와 각 기기에 저장돼요.</span>
         </div>
       </div>
       {/* Below the two cards, not inside one: growing a card made both

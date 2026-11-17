@@ -1,3 +1,4 @@
+import { LinkContextMenu } from "./components/LinkContextMenu";
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { EditorView } from "@codemirror/view";
 import "./App.css";
@@ -111,6 +112,8 @@ import { createMemberPicturesLoader } from "./lib/memberPictures";
    editor right after the first paint, so the first note click is still
    instant. */
 const Editor = lazy(() => import("./components/Editor").then((m) => ({ default: m.Editor })));
+// 마브: the read-only side pane shares the editor's chunk; loaded on first use.
+const SplitPane = lazy(() => import("./components/SplitPane").then((m) => ({ default: m.SplitPane })));
 const GraphView = lazy(() =>
   import("./components/GraphView").then((m) => ({ default: m.GraphView })),
 );
@@ -1177,6 +1180,7 @@ export default function App() {
     (s) => s.virtualTabs.find((t) => t.id === s.activeVirtualTab) ?? null,
   );
   const openingNotePath = useStore((s) => s.openingNotePath);
+  const splitPath = useStore((s) => s.splitPath);
   const switchingVault = useStore((s) => s.switchingVault);
   // Version history is a synced-vault feature: it needs the note's docId on the
   // server. No mapping (local vault, unregistered note) → no history button.
@@ -1974,6 +1978,7 @@ export default function App() {
           <CreateRefusalBanner />
           <RemovedBanner />
           {attachmentLocalOnly && <AttachmentSyncNotice />}
+          <div className="editor-split-row">
           <div className="editor-wrap">
             {!activeVirtual && <NoteBreadcrumb />}
             {activeVirtual && <VirtualTabHost tab={activeVirtual} />}
@@ -2019,6 +2024,15 @@ export default function App() {
             )}
             </div>
           </div>
+          {splitPath && !activeVirtual && (
+            <Suspense fallback={null}>
+              <ErrorBoundary label="옆 창" resetKeys={[splitPath]}>
+                <SplitPane />
+              </ErrorBoundary>
+            </Suspense>
+          )}
+          </div>
+          <LinkContextMenu />
           <BacklinksPanel />
           {/* Slides in over the editor from the right; anchored to .main. */}
           <SilentBoundary label="Activity host">

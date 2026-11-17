@@ -791,6 +791,16 @@ interface AppStore {
   /** Close one tab. Closing the active one activates its right-hand neighbour
    *  (left-hand when it was last); closing the only tab clears the editor. */
   closeTab: (path: string) => void;
+  /**
+   * 마브: the side pane — a READ-ONLY live view of one file next to the
+   * editor (links open here by default). It never binds a CRDT session; to
+   * edit, the file is opened in the main editor. `null` = no side pane.
+   */
+  splitPath: string | null;
+  openSplit: (path: string) => void;
+  closeSplit: () => void;
+  /** Open a note in place of the current tab ("지금 탭에서 열기"). */
+  openInCurrentTab: (path: string) => Promise<void>;
   /** Drop the tabs at (or under — folders) the given deleted paths. */
   pruneTabs: (paths: string[]) => void;
   /** Re-point tabs across a rename/move of a file or a folder subtree. */
@@ -2034,6 +2044,7 @@ function vaultScopedSyncReset() {
     openNote: null,
     openingNotePath: null,
     openTabs: [] as string[],
+    splitPath: null as string | null,
     virtualTabs: [] as VirtualTab[],
     activeVirtualTab: null as string | null,
     // A folder's own stamp says nothing about the next folder.
@@ -3219,6 +3230,24 @@ export const useStore = create<AppStore>((set, get) => ({
   closeAllTabs: () => {
     set({ openTabs: [] });
     get().closeNote();
+  },
+
+  openSplit: (path) => {
+    // The note already in the editor is not opened twice.
+    if (get().openNote?.path === path) return;
+    set({ splitPath: path });
+  },
+
+  closeSplit: () => set({ splitPath: null }),
+
+  openInCurrentTab: async (path) => {
+    const current = get().openNote?.path;
+    set((s) =>
+      !current || s.openTabs.includes(path)
+        ? {}
+        : { openTabs: s.openTabs.map((t) => (t === current ? path : t)) },
+    );
+    await get().openNoteByPath(path);
   },
 
   // ---- Auth ----

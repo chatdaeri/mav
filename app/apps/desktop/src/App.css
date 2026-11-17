@@ -11880,3 +11880,70 @@ body.access-board-grabbing * {
     width: 100%;
   }
 }
+
+/* ---- 마브: side pane (components/SplitPane) and link menu ---- */
+.editor-split-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.editor-split-row > .editor-wrap {
+  flex: 1;
+  min-width: 0;
+}
+.mav-split-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.split-pane-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.split-pane-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.split-pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.split-pane-note {
+  padding: var(--sp-4) var(--sp-6);
+}
+.link-context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+.link-context-menu button {
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: none;
+  border: 0;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.link-context-menu button:hover {
+  background: var(--bg-hover);
+}

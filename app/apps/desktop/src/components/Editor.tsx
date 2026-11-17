@@ -95,7 +95,7 @@ function readPeers(awareness: Awareness): Peer[] {
  * `asset:` URLs the webview can stream; already-loadable URLs pass through. The
  * vault dir is granted to the asset-protocol scope on open (Rust side).
  */
-function makeResolveAsset(vaultPath: string | null, notePath: string) {
+export function makeResolveAsset(vaultPath: string | null, notePath: string) {
   return (src: string): string => {
     if (!src || /^(https?:|data:|blob:|asset:|tauri:|mailto:)/i.test(src)) return src;
     if (!vaultPath) return src;

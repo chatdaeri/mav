@@ -32,6 +32,7 @@
 // table, because their widget is editable (./table/TableWidget). Clicking a
 // cell types into the cell, so there is no source to fall back to.
 
+import { requestLinkMenu, splitPathOf } from "./linkEvents";
 import { onAttachmentArrived, wantAttachment } from "../attachmentArrivals";
 import { openImageLightbox } from "../imageLightbox";
 import { ensureSyntaxTree, syntaxTree } from "@codemirror/language";
@@ -1128,19 +1129,32 @@ export function livePreview(
       decorations: (v) => v.decorations,
       eventHandlers: {
         mousedown(event) {
+          // Only a plain left click opens; the right button is `contextmenu`.
+          if (event.button !== 0) return false;
           const el = (event.target as HTMLElement).closest(".cm-md-link");
           const href = el?.getAttribute("data-href");
           if (!href) return false;
           event.preventDefault();
           // 마브: vault-relative Markdown links open inside the app (see
-          // mdLinkTarget.ts); URLs still go to the OS. Loaded lazily so this
-          // extension never imports the store.
+          // mdLinkTarget.ts) — in the side pane by default, a new tab with
+          // Cmd/Ctrl. URLs still go to the OS. Loaded lazily so this extension
+          // never imports the store.
+          const from = splitPathOf(event.target);
+          const target = event.metaKey || event.ctrlKey ? "tab" : "split";
           void import("./openMdLink")
-            .then((m) => m.openMdLink(href))
+            .then((m) => m.openMdLink(href, { from, target }))
             .catch((e) => {
               console.warn("[md-link] open failed", e);
               void ipc.openExternal(href);
             });
+          return true;
+        },
+        contextmenu(event) {
+          const el = (event.target as HTMLElement).closest(".cm-md-link");
+          const href = el?.getAttribute("data-href");
+          if (!href) return false;
+          event.preventDefault();
+          requestLinkMenu(href, splitPathOf(event.target), event.clientX, event.clientY);
           return true;
         },
       },

@@ -29,6 +29,7 @@
  *    inserting a paragraph above cannot make a cell edit land at a stale offset.
  */
 
+import { requestLinkMenu, splitPathOf } from "../linkEvents";
 import { syntaxTree } from "@codemirror/language";
 import { type EditorState, Text, Transaction } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
@@ -529,7 +530,17 @@ function EditableTable({
     const link = target.closest<HTMLElement>(".cm-md-link");
     if (link?.dataset.href) {
       e.preventDefault();
-      void openExternal(link.dataset.href);
+      // 마브: a vault-relative link in a table cell opens in the app, like the
+      // same link in a paragraph (see mdLinkTarget.ts); URLs still go out.
+      const href = link.dataset.href;
+      const from = splitPathOf(e.target);
+      const target = e.metaKey || e.ctrlKey ? "tab" : "split";
+      void import("../openMdLink")
+        .then((m) => m.openMdLink(href, { from, target }))
+        .catch((err) => {
+          console.warn("[md-link] open failed", err);
+          void openExternal(href);
+        });
       return;
     }
     const wiki = target.closest<HTMLElement>(".cm-wikilink");
@@ -578,6 +589,14 @@ function EditableTable({
     onMouseEnter: (e: React.MouseEvent) => onCellMouseEnter(e, r, c),
     style: model.aligns[c] ? { textAlign: model.aligns[c]! } : undefined,
     onContextMenu: (e: React.MouseEvent) => {
+      // A link in the cell gets the link menu, not the table menu.
+      const link = (e.target as HTMLElement).closest<HTMLElement>(".cm-md-link");
+      if (link?.dataset.href) {
+        e.preventDefault();
+        e.stopPropagation();
+        requestLinkMenu(link.dataset.href, splitPathOf(e.target), e.clientX, e.clientY);
+        return;
+      }
       if (readOnly) return;
       e.preventDefault();
       e.stopPropagation();

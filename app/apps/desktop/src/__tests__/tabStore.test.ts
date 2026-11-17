@@ -339,3 +339,35 @@ it("a note-open response from the previous vault cannot replace or clear the nex
   expect(useStore.getState().openTabs).toEqual(["B.md"]);
   expect(useStore.getState().openingNotePath).toBe("Same.md");
 });
+
+describe("마브 side pane and open-in-current-tab", () => {
+  it("opens a file in the side pane, but never the note already in the editor", async () => {
+    await open("a.md");
+    useStore.getState().openSplit("b.md");
+    expect(useStore.getState().splitPath).toBe("b.md");
+    useStore.getState().openSplit("a.md");
+    expect(useStore.getState().splitPath).toBe("b.md");
+    useStore.getState().closeSplit();
+    expect(useStore.getState().splitPath).toBeNull();
+    // The side pane never touches the tabs.
+    expect(useStore.getState().openTabs).toEqual(["a.md"]);
+  });
+
+  it("replaces the current tab in place instead of adding one", async () => {
+    await open("a.md");
+    await open("b.md");
+    await open("c.md");
+    await open("b.md");
+    await useStore.getState().openInCurrentTab("x.md");
+    expect(useStore.getState().openTabs).toEqual(["a.md", "x.md", "c.md"]);
+    expect(useStore.getState().openNote?.path).toBe("x.md");
+  });
+
+  it("just switches to a note that already has a tab", async () => {
+    await open("a.md");
+    await open("b.md");
+    await useStore.getState().openInCurrentTab("a.md");
+    expect(useStore.getState().openTabs).toEqual(["a.md", "b.md"]);
+    expect(useStore.getState().openNote?.path).toBe("a.md");
+  });
+});
