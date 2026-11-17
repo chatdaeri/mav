@@ -49,8 +49,8 @@ export const APPEARANCE_KEYS: readonly AppearanceKey[] = [
  *  Mirrors the readers in `prefs.ts` / `theme.ts`. */
 export const APPEARANCE_DEFAULTS: ResolvedAppearance = {
   theme: "system",
-  autoColors: true,
-  contentWidth: "full",
+  autoColors: false,
+  contentWidth: 76,
   textSize: 16,
   lineNumbers: false,
   properties: "visible",

@@ -147,7 +147,9 @@ export function dashboardHost(epoch: number, docId: string, focusHost: () => voi
     "notes.list": async (value) => {
       current(); const query = object(value);
       const count = limit(query.limit);
-      return rows(queryNotes({ ...query, limit: count } as NoteQuery, epoch));
+      const offset = query.offset === undefined ? undefined : Number(query.offset);
+      if (offset !== undefined && (!Number.isInteger(offset) || offset < 0 || offset > 10_000_000)) throw new Error("Invalid offset");
+      return rows(queryNotes({ ...query, limit: count, offset } as NoteQuery, epoch));
     },
     "notes.read": async (value) => {
       const note = await resolve(value);

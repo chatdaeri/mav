@@ -221,6 +221,52 @@ pub struct SearchResult {
     pub ext: Option<String>,
 }
 
+/// Structured search filters, already parsed on the TS side.
+#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct SearchFilters {
+    /// Lowercase extensions without a dot.
+    pub exts: Vec<String>,
+    /// Vault-relative folder prefix; matches the folder and everything below it.
+    pub path: Option<String>,
+    /// Unix seconds, inclusive.
+    pub after: Option<i64>,
+    /// Unix seconds, exclusive.
+    pub before: Option<i64>,
+    /// "note" | "file".
+    pub kind: Option<String>,
+}
+
+impl SearchFilters {
+    pub fn is_empty(&self) -> bool {
+        self.exts.is_empty() && self.path.as_deref().map_or(true, |p| p.trim().is_empty()) && self.after.is_none() && self.before.is_none() && self.kind.is_none()
+    }
+
+    /// One SQL condition. Values are sanitised/escaped here (exts keep only
+    /// [a-z0-9], the path is quote-doubled and LIKE-escaped), so nothing from
+    /// the webview reaches SQL raw.
+    fn condition(&self, path_col: &str, ext_col: Option<&str>, mtime_col: &str) -> String {
+        let mut c: Vec<String> = vec!["1=1".into()];
+        let exts: Vec<String> = self.exts.iter()
+            .map(|e| e.trim_start_matches('.').to_lowercase().chars().filter(|ch| ch.is_ascii_alphanumeric()).collect::<String>())
+            .filter(|e| !e.is_empty()).collect();
+        if !exts.is_empty() {
+            let parts: Vec<String> = exts.iter().map(|e| match ext_col {
+                Some(col) => format!("lower({col}) = '{e}'"),
+                None => format!("lower({path_col}) LIKE '%.{e}'"),
+            }).collect();
+            c.push(format!("({})", parts.join(" OR ")));
+        }
+        if let Some(p) = self.path.as_deref().map(|p| p.trim().trim_matches('/')).filter(|p| !p.is_empty()) {
+            let esc = p.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_").replace('\'', "''");
+            c.push(format!("({path_col} LIKE '{esc}/%' ESCAPE '\\')"));
+        }
+        if let Some(a) = self.after { c.push(format!("{mtime_col} >= {a}")); }
+        if let Some(b) = self.before { c.push(format!("{mtime_col} < {b}")); }
+        c.join(" AND ")
+    }
+}
+
 /// A hit plus its raw bm25 score, before the two tiers are merged. SQLite's
 /// bm25() is NEGATIVE and sorts ascending (more negative = better match), which
 /// is why the file penalty below is added rather than subtracted.
@@ -1927,6 +1973,76 @@ impl Index {
         Ok(merge_ranked(hits, SEARCH_LIMIT))
     }
 
+    /// Search with structured filters (extension, folder, edited date, kind).
+    /// An empty text query with at least one filter lists matching items by
+    /// newest edit instead of ranking.
+    pub fn search_filtered(&self, query: &str, f: &SearchFilters) -> AppResult<Vec<SearchResult>> {
+        if f.is_empty() {
+            return self.search_all(query);
+        }
+        let want_notes = f.kind.as_deref() != Some("file");
+        let want_files = f.kind.as_deref() != Some("note");
+        let note_cond = f.condition("n.path", None, "n.mtime");
+        let file_cond = f.condition("f.path", Some("f.ext"), "f.mtime");
+        let match_query = build_search_query(query);
+        if match_query.is_empty() {
+            if !query.trim().is_empty() {
+                return Ok(Vec::new());
+            }
+            let mut out: Vec<(i64, SearchResult)> = Vec::new();
+            if want_notes {
+                let sql = format!("SELECT n.id, n.path, n.title, COALESCE(n.mtime,0) FROM notes n WHERE {note_cond} ORDER BY n.mtime DESC LIMIT {SEARCH_LIMIT}");
+                let mut stmt = self.conn.prepare(&sql)?;
+                let rows = stmt.query_map([], |r| {
+                    let path: String = r.get(1)?;
+                    Ok((r.get::<_, i64>(3)?, SearchResult { id: r.get(0)?, ext: ext_of(&path), path, title: r.get::<_, Option<String>>(2)?.unwrap_or_default(), snippet: String::new(), kind: "note".into() }))
+                })?;
+                for row in rows { out.push(row?); }
+            }
+            if want_files {
+                let sql = format!("SELECT f.id, f.path, f.ext, COALESCE(f.mtime,0) FROM files f WHERE {file_cond} ORDER BY f.mtime DESC LIMIT {SEARCH_LIMIT}");
+                let mut stmt = self.conn.prepare(&sql)?;
+                let rows = stmt.query_map([], |r| {
+                    let path: String = r.get(1)?;
+                    let title = path.rsplit('/').next().unwrap_or(&path).to_string();
+                    Ok((r.get::<_, i64>(3)?, SearchResult { id: r.get(0)?, ext: r.get(2)?, path, title, snippet: String::new(), kind: "file".into() }))
+                })?;
+                for row in rows { out.push(row?); }
+            }
+            out.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.path.cmp(&b.1.path)));
+            out.truncate(SEARCH_LIMIT);
+            return Ok(out.into_iter().map(|(_, r)| r).collect());
+        }
+        let mut hits = Vec::new();
+        if want_notes {
+            let sql = match_query.sql_where("notes_fts", "n.id, n.path, n.title", "JOIN notes n ON n.rowid = notes_fts.rowid", "title", &note_cond);
+            hits.extend(self.ranked_rows(&sql, &match_query, "note")?);
+        }
+        if want_files {
+            let sql = match_query.sql_where("files_fts", "f.id, f.path, f.ext", "JOIN files f ON f.rowid = files_fts.rowid", "name", &file_cond);
+            hits.extend(self.ranked_rows(&sql, &match_query, "file")?);
+        }
+        Ok(merge_ranked(hits, SEARCH_LIMIT))
+    }
+
+    fn ranked_rows(&self, sql: &str, q: &SearchQuery, kind: &str) -> AppResult<Vec<RankedHit>> {
+        let mut stmt = self.conn.prepare(sql)?;
+        let rows = stmt.query_map(rusqlite::params_from_iter(q.params()), |r| {
+            let path: String = r.get(1)?;
+            let (title, ext, penalty) = if kind == "file" {
+                let t = path.rsplit('/').next().unwrap_or(&path).rsplit_once('.').map(|(s, _)| s.to_string()).unwrap_or_else(|| path.clone());
+                (t, r.get::<_, Option<String>>(2)?, FILE_RANK_PENALTY)
+            } else {
+                (r.get::<_, Option<String>>(2)?.unwrap_or_default(), ext_of(&path), 0.0)
+            };
+            Ok(RankedHit {
+                score: r.get::<_, f64>(4)? + penalty,
+                result: SearchResult { id: r.get(0)?, ext, path, title, snippet: q.snippet(r.get::<_, String>(3)?), kind: kind.to_string() },
+            })
+        })?;
+        Ok(rows.collect::<Result<Vec<_>, _>>()?)
+    }
+
     /// FTS5 MATCH search over NOTES only, with a highlighted snippet of the
     /// body. Kept as its own entry point because most callers (and every test
     /// that predates tier 2) mean exactly this.
@@ -3276,7 +3392,14 @@ impl SearchQuery {
     /// LIKE pattern per short term. Without a MATCH there is no bm25 or snippet,
     /// so the body itself is returned and [`Self::snippet`] cuts it.
     fn sql(&self, table: &str, cols: &str, join: &str, name_col: &str) -> String {
+        self.sql_where(table, cols, join, name_col, "")
+    }
+
+    fn sql_where(&self, table: &str, cols: &str, join: &str, name_col: &str, extra: &str) -> String {
         let mut conds: Vec<String> = Vec::new();
+        if !extra.is_empty() {
+            conds.push(extra.to_string());
+        }
         let mut n = 0;
         if !self.fts.is_empty() {
             n += 1;
@@ -4601,6 +4724,36 @@ mod tests {
         assert_eq!(idx.graph_edges().unwrap().len(), 3);
         assert_eq!(resolve_relative("a/b.md", "../../x.md"), None);
         assert_eq!(resolve_relative("a/b.md", "./c/d.md").as_deref(), Some("a/c/d.md"));
+    }
+
+    #[test]
+    fn search_filters_narrow_by_folder_ext_kind_and_date() {
+        let tmp = tempfile::tempdir().unwrap();
+        let v = tmp.path().to_path_buf();
+        std::fs::create_dir_all(v.join("콘텐츠/유튜브")).unwrap();
+        std::fs::create_dir_all(v.join("재무")).unwrap();
+        write_note(&v, "콘텐츠/유튜브/대본.md", "# 대본\n\n세컨브레인 강의 대본").unwrap();
+        write_note(&v, "재무/정산.md", "# 정산\n\n세컨브레인 강의 정산").unwrap();
+        write_note(&v, "콘텐츠메모.txt", "세컨브레인 강의 메모").unwrap();
+        let idx = Index::open(&v).unwrap();
+        idx.rebuild(&v).unwrap();
+        let paths = |q: &str, f: SearchFilters| -> Vec<String> {
+            let mut p: Vec<String> = idx.search_filtered(q, &f).unwrap().into_iter().map(|r| r.path).collect();
+            p.sort();
+            p
+        };
+        // Folder prefix covers sub-folders but not a sibling sharing the prefix.
+        assert_eq!(paths("세컨브레인", SearchFilters { path: Some("콘텐츠/".into()), ..Default::default() }), vec!["콘텐츠/유튜브/대본.md"]);
+        assert_eq!(paths("세컨브레인", SearchFilters { exts: vec!["txt".into()], ..Default::default() }), vec!["콘텐츠메모.txt"]);
+        assert_eq!(paths("세컨브레인", SearchFilters { exts: vec!["md".into(), ".TXT".into()], ..Default::default() }).len(), 3);
+        assert!(paths("세컨브레인", SearchFilters { kind: Some("file".into()), ..Default::default() }).is_empty());
+        // Filter-only (no text) lists matches.
+        assert_eq!(paths("", SearchFilters { path: Some("재무".into()), ..Default::default() }), vec!["재무/정산.md"]);
+        // Dates: everything was written just now.
+        assert_eq!(paths("세컨브레인", SearchFilters { after: Some(0), ..Default::default() }).len(), 3);
+        assert!(paths("세컨브레인", SearchFilters { before: Some(1), ..Default::default() }).is_empty());
+        // Quotes in a path can't break the SQL.
+        assert!(paths("세컨브레인", SearchFilters { path: Some("a' OR 1=1 --".into()), ..Default::default() }).is_empty());
     }
 
     #[test]

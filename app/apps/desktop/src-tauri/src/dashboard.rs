@@ -66,34 +66,7 @@ pub fn handle_request<R: tauri::Runtime>(
     });
 }
 
-const TEMPLATE_IDS: &[&str] = &[
-    "orbit-agentic-os",
-    "waystation-agentic-os",
-    "meridian-agentic-os",
-    "cosmos-agentic-os",
-    "sales-os",
-    "marketing-os",
-    "startbootstrap-sb-admin",
-    "material-dashboard-v3",
-    "mazer",
-    "corona-free-dark-bootstrap-admin-template",
-    "StarAdmin-Free-Bootstrap-Admin-Template",
-    "materio-bootstrap-html-admin-template-free",
-    "sneat-html-admin-template-free",
-    "PurpleAdmin-Free-Admin-Template",
-    "startbootstrap-sb-admin-2",
-    "light-bootstrap-dashboard",
-    "AdminLTE",
-    "plainadmin",
-    "argon-dashboard",
-    "tabler",
-    "now-ui-dashboard",
-    "paper-dashboard",
-    "adminkit",
-    "MajesticAdmin-Free-Bootstrap-Admin-Template",
-    "soft-ui-dashboard",
-    "black-dashboard"
-];
+const TEMPLATE_IDS: &[&str] = &["mav-overview", "mav-graph"];
 
 fn serve_template<R: tauri::Runtime>(app: &tauri::AppHandle<R>, id: &str, method: &str) -> AppResult<Response<Vec<u8>>> {
     if method != "GET" || !TEMPLATE_IDS.contains(&id) { return Err(AppError::new("unknown template")); }

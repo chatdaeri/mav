@@ -1677,8 +1677,8 @@ export function FileTree() {
     const personalHome = !!docId && state.personalHomeDocId === docId;
     const sharedHome = !!docId && appearance?.homeDocId === docId;
     return [
-      { label: personalHome ? appearance?.homeDocId ? "볼트 홈으로 대체" : "내 홈 해제" : "내 홈으로 설정", run: () => void state.setHome(personalHome ? null : path, "personal").catch(fail) },
-      ...(canManage && orgId ? [{ label: sharedHome ? "모든 멤버의 볼트 홈 해제" : "볼트 홈으로 설정", run: () => void state.setHome(sharedHome ? null : path, "vault").catch(fail) }] : []),
+      { label: personalHome ? appearance?.homeDocId ? "볼트 대시보드로 대체" : "내 대시보드 해제" : "내 대시보드로 설정", run: () => void state.setHome(personalHome ? null : path, "personal").catch(fail) },
+      ...(canManage && orgId ? [{ label: sharedHome ? "모든 멤버의 볼트 대시보드 해제" : "볼트 대시보드로 설정", run: () => void state.setHome(sharedHome ? null : path, "vault").catch(fail) }] : []),
     ];
   };
 
@@ -2051,7 +2051,7 @@ export function FileTree() {
               onMouseEnter={(event) => openSub(kind, event.currentTarget)}
               onMouseLeave={closeSubSoon}
               onClick={(event) => { event.stopPropagation(); openSub(kind, event.currentTarget); }}>
-              <span className="menu-sub-label">{kind === "dashboard" ? "대시보드" : kind === "pin" ? "고정" : "홈"}</span>
+              <span className="menu-sub-label">{kind === "dashboard" ? "대시보드" : kind === "pin" ? "고정" : "대시보드"}</span>
               <span className="menu-sub-chevron" aria-hidden="true">›</span>
             </li>
           ))}

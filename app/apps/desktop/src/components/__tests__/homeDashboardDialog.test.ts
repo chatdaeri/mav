@@ -25,7 +25,7 @@ beforeEach(async () => {
 afterEach(()=>{act(()=>root.unmount());host.remove();vi.unstubAllGlobals();});
 const input=()=>document.querySelector<HTMLInputElement>(".dashboard-name-input input")!;
 async function name(value:string){await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!.call(input(),value);input().dispatchEvent(new Event("input",{bubbles:true}));});}
-async function create(){await act(async()=>[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>["볼트에 추가", "홈으로 설정"].includes(b.textContent ?? ""))!.click());}
+async function create(){await act(async()=>[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>["볼트에 추가", "대시보드로 설정"].includes(b.textContent ?? ""))!.click());}
 it("suggests an available name without overwriting an existing case variant",async()=>{expect(input().value).toBe("Home 2");await name("Home");await create();expect(document.querySelector('[role="alert"]')?.textContent).toContain("이미 있어요");expect(mocks.write).not.toHaveBeenCalled();});
 it.each([" .hidden", ".html", "\u007fInvalid"])("rejects invalid normalized name %j without writing",async value=>{await name(value);await create();expect(document.querySelector('[role="alert"]')).not.toBeNull();expect(mocks.write).not.toHaveBeenCalled();expect(document.activeElement).toBe(input());});
 it("focuses the editable name after an atomic create collision",async()=>{mocks.write.mockResolvedValue(false);await create();expect(mocks.write).toHaveBeenCalledOnce();expect(input().disabled).toBe(false);expect(document.activeElement).toBe(input());expect(document.querySelector('[role="alert"]')?.textContent).toContain("이미 있어요");});
@@ -45,7 +45,7 @@ it("retries assignment without writing the created file again", async () => {
  mocks.state.setHome.mockRejectedValueOnce(new Error("Try again"));
  await create();
  expect(document.querySelector('[role="alert"]')?.textContent).toContain("Try again");
- await act(async()=>[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent==="홈 설정 다시 시도")!.click());
+ await act(async()=>[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent==="대시보드 설정 다시 시도")!.click());
  expect(mocks.write).toHaveBeenCalledOnce();
  expect(mocks.state.setHome).toHaveBeenCalledTimes(2);
  expect(mocks.state.openHome).not.toHaveBeenCalled();
@@ -56,7 +56,7 @@ it("keeps ordinary dashboard creation optional and does not assign Home", async 
  await create();
  expect(mocks.state.setHome).not.toHaveBeenCalled();
  expect(mocks.state.openNoteByPath).toHaveBeenCalledWith("Dashboards/Home 2.html");
- expect(document.querySelector(".dashboard-dialog")?.textContent).toContain("내 홈으로 설정");
+ expect(document.querySelector(".dashboard-dialog")?.textContent).toContain("내 대시보드로 설정");
 });
 it("does not assign Home after the captured vault changes", async () => {
  await act(async()=>window.dispatchEvent(new CustomEvent("baalda:new-dashboard", { detail: { setAsHome: true, templateId:"daily" } })));

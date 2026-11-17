@@ -478,7 +478,7 @@ export function HomeDashboardDialog() {
               ? "대시보드가 준비됐어요"
               : kind === "link"
                 ? "링크로 대시보드 추가"
-                : manage ? "홈 및 대시보드" : configuring ? `${selected.name} 설정` : "새 대시보드"}
+                : manage ? "대시보드" : configuring ? `${selected.name} 설정` : "새 대시보드"}
           </h2>
           <button
             type="button"
@@ -502,11 +502,11 @@ export function HomeDashboardDialog() {
         {manage ? <VaultDashboardsTab onClose={close} onNew={(id) => { if (id) setTemplateId(id); setManage(false); setConfiguring(true); }} /> : created && setAsHome ? (
           <>
             <p className="dashboard-dialog-description">
-              {busy ? "홈을 설정하는 중…" : `${created}을(를) 만들었어요. 홈으로 설정을 마무리하세요.`}
+              {busy ? "대시보드를 설정하는 중…" : `${created}을(를) 만들었어요. 대시보드로 설정을 마무리하세요.`}
             </p>
             <div className="dashboard-dialog-footer">
               <button type="button" className="primary" disabled={busy} onClick={() => void create()}>
-                {busy ? "홈을 설정하는 중…" : "홈 설정 다시 시도"}
+                {busy ? "대시보드를 설정하는 중…" : "대시보드 설정 다시 시도"}
               </button>
             </div>
           </>
@@ -561,7 +561,7 @@ export function HomeDashboardDialog() {
                     .catch((e) => setError(String(e)))
                 }
               >
-                내 홈으로 설정
+                내 대시보드로 설정
               </button>
               <button type="button" className="primary" disabled={busy} onClick={close}>
                 완료
@@ -664,7 +664,7 @@ export function HomeDashboardDialog() {
                 }
                 onClick={() => void create()}
               >
-                {busy ? "추가하는 중…" : setAsHome ? "홈으로 설정" : "볼트에 추가"}
+                {busy ? "추가하는 중…" : setAsHome ? "대시보드로 설정" : "볼트에 추가"}
               </button>}
             </div>
           </>

@@ -1,0 +1,198 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0
+마이 세컨드 브레인 연결 지도. 노트 사이 링크를 점과 선으로 그린다(/__baalda/sdk.js, 읽기만).
+배치는 Orbit(가운데 큰 원 + 둘레 카드)을 참고했다. 점을 누르면 그 노트가 열린다.
+미리보기(SDK 없음)에서는 예시 그래프를 보여 준다.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="baalda-template" content="mav-graph">
+<title>연결 지도</title>
+<style>
+*{box-sizing:border-box}
+:root{--tone:#FF7E5F;--line:var(--border,#ebebeb);--ink:var(--fg,#1a1a1a);--sub:var(--muted,#6b6b6b);--card:var(--surface,#fff)}
+body{margin:0;background:var(--bg,#fafafa);color:var(--ink);font:14px/1.55 Pretendard,"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1180px;margin:0 auto;padding:32px clamp(16px,4vw,40px) 48px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 20px}
+h2{font-size:13px;font-weight:600;color:var(--sub);margin:0 0 10px}
+.orbit{display:grid;grid-template-columns:220px 1fr 220px;gap:12px;align-items:stretch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.stage{position:relative;padding:0;overflow:hidden;min-height:440px}
+canvas{display:block;width:100%;height:100%;cursor:default}
+.hover{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--sub);pointer-events:none}
+.bottom{margin-top:12px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+li:first-child{border-top:0}
+li button{all:unset;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+li button:hover{color:var(--tone)}
+li button:focus-visible{outline:2px solid var(--tone);outline-offset:2px;border-radius:3px}
+li small{color:var(--sub);font-variant-numeric:tabular-nums}
+.row{display:flex;flex-wrap:wrap;gap:6px 14px}
+.row li{border:0;padding:2px 0}
+.row li + li::before{content:"·";margin-right:14px;color:var(--sub)}
+.empty{color:var(--sub)}
+@media(max-width:860px){.orbit{grid-template-columns:1fr}.stage{min-height:360px;order:-1}}
+</style>
+<script src="/__baalda/sdk.js"></script>
+</head>
+<body>
+<main>
+  <h1>연결 지도</h1>
+  <div class="orbit">
+    <section class="card"><h2>연결 많은 노트</h2><ul id="hubs"></ul></section>
+    <section class="card stage"><canvas id="c" aria-label="노트 연결 그래프"></canvas><div class="hover" id="hover"></div></section>
+    <section class="card"><h2>연결 없는 노트</h2><ul id="orphans"></ul></section>
+  </div>
+  <section class="card bottom"><h2>최근 노트</h2><ul class="row" id="recent"></ul></section>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var label = function (p) { return p.split("/").pop().replace(/\.(md|markdown|mdx|txt)$/i, ""); };
+  var open = function () {};
+
+  function list(el, items, right) {
+    el.textContent = "";
+    if (!items.length) { var e = document.createElement("li"); e.className = "empty"; e.textContent = "없음"; el.append(e); return; }
+    items.forEach(function (n) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.textContent = label(n.path); b.title = n.path; b.onclick = function () { open(n); };
+      li.append(b);
+      if (right) { var s = document.createElement("small"); s.textContent = right(n); li.append(s); }
+      el.append(li);
+    });
+  }
+
+  function draw(nodes, edges) {
+    var canvas = $("c"), ctx = canvas.getContext("2d"), hover = $("hover");
+    var css = getComputedStyle(document.documentElement);
+    var ink = css.getPropertyValue("--ink").trim() || "#1a1a1a";
+    var line = css.getPropertyValue("--line").trim() || "#ebebeb";
+    var tone = "#FF7E5F";
+    var byId = {}; nodes.forEach(function (n) { byId[n.id] = n; });
+    edges = edges.filter(function (e) { return byId[e.source] && byId[e.target]; });
+    var W = 0, H = 0, dpr = window.devicePixelRatio || 1;
+    function size() {
+      var r = canvas.parentElement.getBoundingClientRect();
+      W = r.width; H = r.height;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    nodes.forEach(function (n, i) {
+      var a = i * 2.399963, r = 14 * Math.sqrt(i + 1);
+      n.x = W / 2 + Math.cos(a) * r; n.y = H / 2 + Math.sin(a) * r; n.vx = 0; n.vy = 0;
+      n.r = (nodes.length > 300 ? 1.2 : 2.5) + Math.min(nodes.length > 300 ? 4 : 7, Math.sqrt(n.deg || 0) * (nodes.length > 300 ? 0.7 : 1.6));
+    });
+    var maxDeg = nodes.reduce(function (m, n) { return Math.max(m, n.deg || 0); }, 0);
+    var hot = null, ticks = 0;
+    // Spread scales with node count so a big vault still fits the panel.
+    var big = nodes.length > 300, cut = big ? 60 : 200, rep = big ? 40 : 220, rest = big ? 14 : 52;
+    function step() {
+      // Repulsion only between nodes in neighbouring grid cells: O(n) per tick.
+      var grid = {};
+      nodes.forEach(function (n) { var key = Math.floor(n.x / cut) + "," + Math.floor(n.y / cut); (grid[key] || (grid[key] = [])).push(n); });
+      nodes.forEach(function (a) {
+        var gx = Math.floor(a.x / cut), gy = Math.floor(a.y / cut);
+        for (var ox = -1; ox <= 1; ox++) for (var oy = -1; oy <= 1; oy++) {
+          var cell = grid[(gx + ox) + "," + (gy + oy)]; if (!cell) continue;
+          for (var j = 0; j < cell.length; j++) {
+            var b = cell[j]; if (b === a) continue;
+            var dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy + 0.01;
+            if (d2 > cut * cut) continue;
+            var f = rep / d2; a.vx += dx * f * 0.5; a.vy += dy * f * 0.5;
+          }
+        }
+      });
+      edges.forEach(function (e) {
+        var a = byId[e.source], b = byId[e.target], dx = b.x - a.x, dy = b.y - a.y;
+        var d = Math.sqrt(dx * dx + dy * dy) || 1, f = (d - rest) * 0.08 / d;
+        a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
+      });
+      nodes.forEach(function (n) {
+        n.vx += (W / 2 - n.x) * 0.01; n.vy += (H / 2 - n.y) * 0.01;
+        n.vx *= 0.82; n.vy *= 0.82; n.x += n.vx; n.y += n.vy;
+        n.x = Math.max(n.r + 4, Math.min(W - n.r - 4, n.x)); n.y = Math.max(n.r + 4, Math.min(H - n.r - 4, n.y));
+      });
+    }
+    function paint() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1; ctx.strokeStyle = line;
+      ctx.beginPath();
+      edges.forEach(function (e) { var a = byId[e.source], b = byId[e.target]; ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); });
+      ctx.stroke();
+      if (hot) {
+        ctx.strokeStyle = tone; ctx.beginPath();
+        edges.forEach(function (e) { if (e.source === hot.id || e.target === hot.id) { var a = byId[e.source], b = byId[e.target]; ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); } });
+        ctx.stroke();
+      }
+      nodes.forEach(function (n) {
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n === hot ? tone : ink;
+        ctx.globalAlpha = n === hot ? 1 : 0.78; ctx.fill(); ctx.globalAlpha = 1;
+      });
+    }
+    var total = nodes.length > 2000 ? 150 : nodes.length > 300 ? 260 : 500;
+    for (ticks = 0; ticks < total; ticks++) step();
+    paint();
+    function at(ev) {
+      var r = canvas.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, best = null, bd = 144;
+      nodes.forEach(function (n) { var d = (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y); if (d < bd) { bd = d; best = n; } });
+      return best;
+    }
+    canvas.addEventListener("mousemove", function (ev) {
+      var n = at(ev); if (n === hot) return; hot = n;
+      canvas.style.cursor = n ? "pointer" : "default";
+      hover.textContent = n ? label(n.path) + " · 연결 " + (n.deg || 0) : "";
+      paint();
+    });
+    canvas.addEventListener("click", function (ev) { var n = at(ev); if (n) open(n); });
+    window.addEventListener("resize", function () { size(); paint(); });
+  }
+
+  function render(notes, edges) {
+    var deg = {};
+    edges.forEach(function (e) { deg[e.source] = (deg[e.source] || 0) + 1; deg[e.target] = (deg[e.target] || 0) + 1; });
+    notes.forEach(function (n) { n.deg = deg[n.id] || 0; });
+    list($("hubs"), notes.filter(function (n) { return n.deg; }).sort(function (a, b) { return b.deg - a.deg; }).slice(0, 8), function (n) { return n.deg; });
+    var orphans = notes.filter(function (n) { return !n.deg; });
+    list($("orphans"), orphans.slice(0, 8), null);
+    if (orphans.length > 8) { var more = document.createElement("li"); more.className = "empty"; more.textContent = "외 " + (orphans.length - 8) + "개"; $("orphans").append(more); }
+    list($("recent"), notes.slice().sort(function (a, b) { return (b.mtime || 0) - (a.mtime || 0); }).slice(0, 8), null);
+    draw(notes.filter(function (n) { return n.deg; }), edges);
+  }
+
+  function sample() {
+    var names = ["캠페인/봄 시즌 캠페인 기획안", "캠페인/SNS 콘텐츠 캘린더", "캠페인/인플루언서 협업 목록", "보고서/주간 성과 리포트", "보고서/월간 KPI 정리", "리서치/경쟁사 동향 정리", "리서치/고객 인터뷰 요약", "리서치/시장 규모 추정", "브랜드/톤앤매너 가이드", "브랜드/로고 사용 규칙", "회의록/1월 마케팅 회의", "회의록/2월 마케팅 회의", "보도자료/신제품 출시", "보도자료/파트너십 발표", "캠페인/랜딩페이지 카피", "보고서/광고비 집행 내역", "리서치/검색 키워드 조사", "브랜드/슬로건 후보", "회의록/에이전시 미팅", "캠페인/이벤트 경품 안내"];
+    var now = Date.now() / 1000;
+    var notes = names.map(function (n, i) { return { id: "s" + i, path: n + ".md", mtime: now - i * 5400 }; });
+    notes.push({ id: "o1", path: "메모/아이디어 메모.md", mtime: now - 900 }, { id: "o2", path: "메모/읽을거리.md", mtime: now - 99999 });
+    var pairs = [[0,1],[0,2],[0,3],[0,8],[0,14],[0,19],[1,8],[1,16],[3,4],[3,15],[4,15],[5,6],[5,7],[5,16],[6,0],[8,9],[8,17],[10,0],[10,3],[11,4],[11,12],[12,13],[12,8],[18,2],[18,14],[7,4],[13,9]];
+    return { notes: notes, edges: pairs.map(function (p) { return { source: "s" + p[0], target: "s" + p[1] }; }) };
+  }
+
+  async function listAll(query) {
+    var out = [], offset = 0;
+    for (;;) {
+      var page = await baalda.notes.list(Object.assign({}, query, { limit: 200, offset: offset }));
+      if (!page.length) return out;
+      out = out.concat(page);
+      offset += 200;
+    }
+  }
+  if (!window.baalda) { var s = sample(); render(s.notes, s.edges); return; }
+  baalda.ready.then(async function () {
+    open = function (n) { baalda.app.open({ docId: n.id }); };
+    var r = await Promise.all([listAll({ sort: "modified-desc" }), baalda.graph.edges()]);
+    var notes = r[0], byId = {};
+    notes.forEach(function (n) { byId[n.id] = 1; });
+    render(notes, r[1].filter(function (e) { return byId[e.source] && byId[e.target]; }));
+  }).catch(console.error);
+})();
+</script>
+</body>
+</html>

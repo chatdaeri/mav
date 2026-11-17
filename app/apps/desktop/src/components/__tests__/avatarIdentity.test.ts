@@ -49,7 +49,7 @@ describe("one avatar rule on every surface", () => {
     const host = document.createElement("div");
     host.innerHTML = html;
     const ids = [...host.querySelectorAll("svg [id]")].map((element) => element.id);
-    expect(ids.length).toBeGreaterThanOrEqual(5);
+    expect(ids.length).toBeGreaterThanOrEqual(1); // pixel avatars carry no ids; the vault icon does
     expect(new Set(ids).size).toBe(ids.length);
     for (const svg of host.querySelectorAll("svg")) {
       const localIds = new Set([...svg.querySelectorAll("[id]")].map((element) => element.id));

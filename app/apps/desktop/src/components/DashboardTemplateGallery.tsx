@@ -64,7 +64,7 @@ export function DashboardTemplateGallery({ selectedId, onUse, disabled = false, 
       <div className="dashboard-gallery-preview-actions">
         {currentId === preview.id ? <>
           {onOpen && <button type="button" className="primary" onClick={() => onOpen(saved[preview.id])}>열기</button>}
-          {onUnset && <button type="button" className="secondary" disabled={disabled} onClick={onUnset}>홈 해제</button>}
+          {onUnset && <button type="button" className="secondary" disabled={disabled} onClick={onUnset}>대시보드 해제</button>}
         </> : <button type="button" className="primary" disabled={disabled} onClick={() => { onUse(preview); setPreview(null); }}>이 템플릿 사용</button>}
       </div>
     </div>
@@ -77,7 +77,7 @@ export function DashboardTemplateGallery({ selectedId, onUse, disabled = false, 
         <div className="dashboard-gallery-picture">
           {template.thumbnailUrl ? <img className="dashboard-template-thumbnail" src={template.thumbnailUrl} alt="" width={900} height={900} loading="lazy" decoding="async" draggable={false} /> : <div className="dashboard-preview-placeholder" style={{ background: template.palette?.[2] }}>클릭하면 미리볼 수 있어요</div>}
         </div>
-        <h3 className="dashboard-gallery-card-name">{template.name}{currentId === template.id && <span className="dashboard-current-badge">현재 홈</span>}</h3>
+        <h3 className="dashboard-gallery-card-name">{template.name}{currentId === template.id && <span className="dashboard-current-badge">현재 대시보드</span>}</h3>
         <div className="dashboard-gallery-card-actions">
           <button type="button" className="secondary" aria-label={`${template.name} 미리보기`} onClick={() => setPreview(template)}>미리보기</button>
           {currentId !== template.id && <button type="button" className="primary" disabled={disabled} aria-pressed={selectedId === template.id} aria-label={`${template.name} 사용`} onClick={() => onUse(template)}>{selectedId === template.id ? "선택됨 ✓" : "템플릿 사용"}</button>}

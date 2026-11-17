@@ -282,7 +282,7 @@ export function VaultSwitcherPopover({
                 <path d="M9 22V12h6v10" />
               </>
             }
-            label="홈"
+            label="대시보드"
             hint="볼트 닫기"
             onClick={() => {
               useStore.getState().closeLocalVault();

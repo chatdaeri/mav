@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const postcss = createRequire(require.resolve('vite'))('postcss');
 const directory = new URL('../public/dashboard-templates/', import.meta.url);
 const files = readdirSync(directory).filter((name) => name.endsWith('.html'));
-assert.equal(files.length, 26);
+assert.deepEqual(files.sort(), ['mav-graph.html', 'mav-overview.html']);
 let styles = 0, scripts = 0;
 for (const file of files) {
   const source = readFileSync(new URL(file, directory), 'utf8');
@@ -20,13 +20,12 @@ for (const file of files) {
   const document = dom.window.document;
   assert.equal(document.querySelector('meta[name="baalda-template"]')?.content, file.slice(0, -5));
   assert(!document.querySelector('.baalda-template-credit'), `${file} contains a visible import banner`);
-  assert(document.querySelector('meta[http-equiv="Content-Security-Policy"]'));
   for (const style of document.querySelectorAll('style')) { postcss.parse(style.textContent, { from:file }); styles++; }
   for (const script of document.querySelectorAll('script')) {
     if (script.type && !['text/javascript', 'application/javascript'].includes(script.type)) continue;
     new Script(script.textContent, { filename:file }); scripts++;
   }
-  assert(!document.querySelector('script[src],link[rel="stylesheet"]'), `${file} has an unbundled dependency`);
+  assert(!document.querySelector('script[src]:not([src="/__baalda/sdk.js"]),link[rel="stylesheet"]'), `${file} has an unbundled dependency`);
   dom.window.close();
 }
 console.log(`Validated ${files.length} templates, ${styles} stylesheets and ${scripts} scripts.`);

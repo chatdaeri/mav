@@ -123,7 +123,7 @@ export function HtmlView({ path }: { path: string }) {
             <summary className="icon-btn" aria-label="대시보드 옵션" title="대시보드 옵션" onMouseDown={(event) => event.stopPropagation()}>···</summary>
             <div className="dashboard-header-menu-items">
               <button type="button" onClick={(event) => { setMode(mode === "preview" ? "source" : "preview"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{mode === "preview" ? "소스 보기" : "대시보드 보기"}</button>
-              {!isHome && <button type="button" onClick={(event) => { window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } })); event.currentTarget.closest("details")?.removeAttribute("open"); }}>내 홈으로 설정</button>}
+              {!isHome && <button type="button" onClick={(event) => { window.dispatchEvent(new CustomEvent("baalda:set-home", { detail: { path, scope: "personal" } })); event.currentTarget.closest("details")?.removeAttribute("open"); }}>내 대시보드로 설정</button>}
             </div>
           </details>
       </>, headerActions)}

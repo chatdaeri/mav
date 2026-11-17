@@ -609,10 +609,10 @@ function AppearanceTab() {
   return (
     <>
     <label className="menu-row toggle-row">
-      <span className="menu-row-label">홈 섹션 표시
-        <span className="field-hint">끄면 홈 설정이 해제되고 이 기기에서 시작할 때 홈이 열리지 않아요.</span>
+      <span className="menu-row-label">대시보드 섹션 표시
+        <span className="field-hint">끄면 대시보드 설정이 해제되고 이 기기에서 시작할 때 대시보드가 열리지 않아요.</span>
       </span>
-      <Switch checked={!homeSectionHidden} ariaLabel="홈 섹션 표시"
+      <Switch checked={!homeSectionHidden} ariaLabel="대시보드 섹션 표시"
         onChange={(show) => useStore.getState().setHomeSectionHidden(!show)} />
     </label>
     <AppearanceRows

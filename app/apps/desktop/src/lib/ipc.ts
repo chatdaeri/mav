@@ -3,6 +3,7 @@
 // `@tauri-apps/api` directly. This keeps later phases (a Yjs sync layer) able to
 // swap the transport without hunting invoke() calls across components.
 
+import type { SearchFilters } from "./search/filters";
 import { invoke, Channel } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { openPath, openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
@@ -591,8 +592,8 @@ export const exportPath = (rel: string, dest: string, expectedEpoch?: VaultEpoch
 
 // ---- Queries --------------------------------------------------------------
 
-export const searchNotes = (query: string) =>
-  invoke<SearchResult[]>("search_notes", { query });
+export const searchNotes = (query: string, filters?: SearchFilters) =>
+  invoke<SearchResult[]>("search_notes", filters ? { query, filters } : { query });
 /** The extracted text of a tree binary, or null when it has no `files` row
  *  (a note, an attachment, or something the walk ignores). */
 export const getFileText = (path: string) =>

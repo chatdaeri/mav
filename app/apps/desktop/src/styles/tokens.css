@@ -17,13 +17,13 @@
   --z-toast: 1100;
 
   /* Surfaces (light) */
-  --bg-app: #faf9f8;            /* app background / canvas — baalda.com's beige (#fcf9f7), cooled a touch */
+  --bg-app: #fafafa;            /* app background / canvas — baalda.com's beige (#fcf9f7), cooled a touch */
   --bg-surface: #ffffff;        /* cards, editor sheet, dialogs — Notion's page white */
   /* The neutral fills share --bg-app's slight warmth (red a hair above blue);
      the old lavender-cool greys read blue against the beige. */
-  --bg-subtle: #f5f4f2;         /* subtle wells, input fills */
-  --bg-card: #faf9f8;           /* panel cards in settings/health — the brand beige, same as --bg-app */
-  --bg-hover: color-mix(in srgb, var(--accent-soft) 60%, transparent); /* hover fills: the one app-wide hover, a light accent tint */
+  --bg-subtle: #f4f4f5;         /* subtle wells, input fills */
+  --bg-card: #fafafa;           /* panel cards in settings/health — the brand beige, same as --bg-app */
+  --bg-hover: #f1f1f2; /* hover fills: the one app-wide hover, a light accent tint */
   --bg-active: var(--accent-soft-hover); /* pressed / selected fills: a deeper step of the hover tint */
   --members-row-hover: color-mix(in srgb, var(--accent-soft) 18%, transparent); /* member table rows: lighter than --bg-hover */
 
@@ -40,24 +40,24 @@
   --text-on-accent: #ffffff;
 
   /* Accent (Atomize violet — from the Figma kit) */
-  --accent: #7f73ff;
-  --accent-hover: #6a5cf5;
-  --accent-soft: #efedff;       /* soft fills, selection tints */
-  --accent-soft-hover: #e4e0ff;
-  --accent-gradient: linear-gradient(135deg, #9a8fff 0%, #7f73ff 100%);
+  --accent: #FF7E5F;
+  --accent-hover: #f2694a;
+  --accent-soft: #fff1ec;       /* soft fills, selection tints */
+  --accent-soft-hover: #ffe4da;
+  --accent-gradient: linear-gradient(135deg, #FF7E5F 0%, #FF7E5F 100%);
   /* Rare decorative-only partner (hero art), never for controls */
-  --decor-gradient: linear-gradient(135deg, #7f73ff 0%, #ff6a3d 120%);
+  --decor-gradient: linear-gradient(135deg, #FF7E5F 0%, #FF7E5F 100%);
 
   /* Links (secondary accent) */
-  --link: #3b82f6;
+  --link: #c2410c;
 
   /* Text selection is its own interaction colour. Our editor lifts
      drawSelection's wash above rich content, while native selection paints
      behind text, so they need separate values for the two rendering paths. */
-  --selection-bg: #d8d3ff;
+  --selection-bg: #ffd9cd;
   --selection-text: var(--text-primary);
-  --editor-selection-bg: rgba(127, 115, 255, 0.28);
-  --editor-selection-bg-inactive: rgba(127, 115, 255, 0.28);
+  --editor-selection-bg: rgba(255, 126, 95, 0.26);
+  --editor-selection-bg-inactive: rgba(255, 126, 95, 0.26);
 
   /* Brand — 마브 logo. Fixed identity colors (not themed): the
      bracket mark's dot + wordmark brackets are green; the mark tile is a
@@ -67,8 +67,8 @@
   --brand-ink: #ededea;         /* off-white brackets on the dark tile */
   --brand-tile: linear-gradient(155deg, #23232b 0%, #111116 100%);
   /* baalda.com's violet and its lavender tint (violet at ~12%). */
-  --brand-violet: #7c5cff;
-  --brand-violet-tint: #f0ebfd;
+  --brand-violet: #FF7E5F;
+  --brand-violet-tint: #fff1ec;
 
   /* Semantic */
   /* baalda.com pairs each tone with a deep, slightly earthy text colour
@@ -94,7 +94,7 @@
   /* Borders */
   --border: rgba(30, 27, 24, 0.09);
   --border-strong: rgba(30, 27, 24, 0.15);
-  --focus-ring: 0 0 0 3px rgba(127, 115, 255, 0.30);
+  --focus-ring: 0 0 0 3px rgba(255, 126, 95, 0.32);
 
   /* Radii (generously rounded, pills for actions/chips) */
   --radius-sm: 8px;
@@ -155,8 +155,8 @@
   --chrome-row-h: 48px;
 
   /* Typography */
-  --font-body: "Open Sauce Two", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: "Radio Canada Big", "Open Sauce Two", -apple-system, sans-serif;
+  --font-body: "Pretendard Variable", "Open Sauce Two", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Pretendard Variable", -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
   --fs-xs: 11px;
   --fs-sm: 12.5px;
@@ -244,9 +244,9 @@
   --bg-surface: #1c1c20;
   --bg-subtle: #242429;
   --bg-card: #242429;
-  --bg-hover: #29273d;          /* hover: the accent at 13% over --bg-surface (solid, so contrast is checkable) */
-  --bg-active: #343156;         /* pressed / selected: the accent at 24% over --bg-surface; text-tertiary stays ≥ 4.5:1 */
-  --members-row-hover: #201f29; /* member table rows: the accent at ~4% over --bg-surface */
+  --bg-hover: #26262b;          /* hover: the accent at 13% over --bg-surface (solid, so contrast is checkable) */
+  --bg-active: #3b2a25;         /* pressed / selected: the accent at 24% over --bg-surface; text-tertiary stays ≥ 4.5:1 */
+  --members-row-hover: #222226; /* member table rows: the accent at ~4% over --bg-surface */
 
   /* Off-white body copy is comfortable over long sessions. Secondary and
      tertiary copy remain above 4.5:1 even on the lighter interaction layers. */
@@ -255,12 +255,12 @@
   --text-tertiary: #9d9da7;
   --text-faint: #85858f;
 
-  --accent: #a69cff;
-  --accent-hover: #bbb4ff;
-  --accent-soft: rgba(127, 115, 255, 0.18);
-  --accent-soft-hover: rgba(127, 115, 255, 0.26);
-  --accent-gradient: linear-gradient(135deg, #9a8fff 0%, #7f73ff 100%);
-  --decor-gradient: linear-gradient(135deg, #7f73ff 0%, #ff6a3d 120%);
+  --accent: #ff9a80;
+  --accent-hover: #ffb19d;
+  --accent-soft: rgba(255, 126, 95, 0.18);
+  --accent-soft-hover: rgba(255, 126, 95, 0.26);
+  --accent-gradient: linear-gradient(135deg, #FF7E5F 0%, #FF7E5F 100%);
+  --decor-gradient: linear-gradient(135deg, #FF7E5F 0%, #FF7E5F 100%);
 
   --link: #82b7ff;
 
@@ -306,19 +306,19 @@
     --bg-surface: #1c1c20;
     --bg-subtle: #242429;
     --bg-card: #242429;
-    --bg-hover: #29273d;          /* hover: the accent at 13% over --bg-surface (solid, so contrast is checkable) */
-    --bg-active: #343156;         /* pressed / selected: the accent at 24% over --bg-surface; text-tertiary stays ≥ 4.5:1 */
-  --members-row-hover: #201f29; /* member table rows: the accent at ~4% over --bg-surface */
+    --bg-hover: #26262b;          /* hover: the accent at 13% over --bg-surface (solid, so contrast is checkable) */
+    --bg-active: #3b2a25;         /* pressed / selected: the accent at 24% over --bg-surface; text-tertiary stays ≥ 4.5:1 */
+  --members-row-hover: #222226; /* member table rows: the accent at ~4% over --bg-surface */
 
     --text-primary: #ececf1;
     --text-secondary: #b8b8c0;
     --text-tertiary: #9d9da7;
     --text-faint: #85858f;
 
-    --accent: #a69cff;
-    --accent-hover: #bbb4ff;
-    --accent-soft: rgba(127, 115, 255, 0.18);
-    --accent-soft-hover: rgba(127, 115, 255, 0.26);
+    --accent: #ff9a80;
+    --accent-hover: #ffb19d;
+    --accent-soft: rgba(255, 126, 95, 0.18);
+    --accent-soft-hover: rgba(255, 126, 95, 0.26);
     --link: #82b7ff;
 
     --selection-bg: #384f83;

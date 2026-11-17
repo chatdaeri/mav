@@ -46,7 +46,7 @@
 @keyframes smTalk { from { transform: scaleY(0.35); } to { transform: scaleY(1); } }
 
 /* Focus: z's float up. */
-.sm-z { opacity: 0; font: 700 150px Inter, sans-serif; fill: #7c5cff; animation: smZ 3s ease-in infinite; }
+.sm-z { opacity: 0; font: 700 150px Inter, sans-serif; fill: #FF7E5F; animation: smZ 3s ease-in infinite; }
 @keyframes smZ { 0% { opacity: 0; transform: translate(0, 0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(260px, -500px) scale(1.2); } }
 
 /* Puffs grow from their own centre, not the box corner. */

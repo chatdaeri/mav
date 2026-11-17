@@ -3,6 +3,26 @@ import type { SearchResult } from "../lib/ipc";
 import * as ipc from "../lib/ipc";
 import { noteLabel } from "../lib/notePath";
 import { useStore } from "../store";
+import {
+  type DatePreset,
+  type SearchKind,
+  hasFilters,
+  mergeFilters,
+  parseSearch,
+  presetAfter,
+} from "../lib/search/filters";
+
+const KIND_CHIPS: { id: SearchKind | ""; label: string }[] = [
+  { id: "", label: "전체" },
+  { id: "note", label: "노트" },
+  { id: "file", label: "파일" },
+];
+const DATE_CHIPS: { id: DatePreset | ""; label: string }[] = [
+  { id: "", label: "전체 기간" },
+  { id: "today", label: "오늘" },
+  { id: "7d", label: "7일" },
+  { id: "30d", label: "30일" },
+];
 
 /**
  * Search, as a centered overlay rather than a sidebar panel.
@@ -15,6 +35,15 @@ import { useStore } from "../store";
  */
 export function SearchPanel({ onClose }: { onClose?: () => void }) {
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState<SearchKind | "">("");
+  const [datePreset, setDatePreset] = useState<DatePreset | "">("");
+  const parsed = parseSearch(query);
+  const filters = mergeFilters(parsed.filters, {
+    kind: kind || undefined,
+    after: datePreset ? presetAfter(datePreset) : undefined,
+  });
+  const filtered = hasFilters(filters);
+  const filterKey = JSON.stringify(filters);
   const [results, setResults] = useState<SearchResult[]>([]);
   // Bumped when the index extracts more file text, to re-run the live query.
   const [indexTick, setIndexTick] = useState(0);
@@ -32,14 +61,16 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
 
   useEffect(() => {
     if (timer.current) window.clearTimeout(timer.current);
-    if (!query.trim()) {
+    if (!query.trim() && !filtered) {
       setResults([]);
       setActive(0);
       return;
     }
     timer.current = window.setTimeout(async () => {
       try {
-        setResults(await ipc.searchNotes(query));
+        setResults(
+          filtered ? await ipc.searchNotes(parsed.text, filters) : await ipc.searchNotes(query),
+        );
         setActive(0);
       } catch (e) {
         console.error("search failed", e);
@@ -48,7 +79,8 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
     return () => {
       if (timer.current) window.clearTimeout(timer.current);
     };
-  }, [query, indexTick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, indexTick, filterKey]);
 
   // A search typed while a folder of documents is still being extracted answers
   // from whatever text had landed; this re-asks as the rest arrives. The event
@@ -87,7 +119,11 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
     e.preventDefault();
   };
 
-  const searching = query.trim().length > 0;
+  const searching = query.trim().length > 0 || filtered;
+  const syntaxChips = [
+    ...parsed.filters.exts.map((e) => `.${e}`),
+    ...(parsed.filters.path ? [`${parsed.filters.path}/`] : []),
+  ];
 
   return (
     <div className="modal-backdrop search-backdrop" onClick={() => onClose?.()}>
@@ -114,13 +150,47 @@ export function SearchPanel({ onClose }: { onClose?: () => void }) {
           <input
             ref={inputRef}
             className="search-box"
-            placeholder="노트 검색…"
+            placeholder="검색  ·  ext:pdf  path:폴더/  after:2026-11-01"
             value={query}
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
           />
           <kbd className="search-esc">esc</kbd>
+        </div>
+
+        <div className="search-filters" role="toolbar" aria-label="검색 필터">
+          <div className="search-chip-group">
+            {KIND_CHIPS.map((c) => (
+              <button
+                key={c.id || "all"}
+                type="button"
+                className={`search-chip${kind === c.id ? " on" : ""}`}
+                aria-pressed={kind === c.id}
+                onClick={() => setKind(c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <div className="search-chip-group">
+            {DATE_CHIPS.map((c) => (
+              <button
+                key={c.id || "any"}
+                type="button"
+                className={`search-chip${datePreset === c.id ? " on" : ""}`}
+                aria-pressed={datePreset === c.id}
+                onClick={() => setDatePreset(c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          {syntaxChips.map((c) => (
+            <span key={c} className="search-chip on static">
+              {c}
+            </span>
+          ))}
         </div>
 
         {searching && (

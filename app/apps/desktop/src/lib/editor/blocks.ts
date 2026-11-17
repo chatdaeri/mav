@@ -60,6 +60,9 @@ function buildBlockDecorations(view: EditorView): DecorationSet {
           add(doc.line(endLine).from, "cm-codeblock-close");
         } else if (node.name === "HorizontalRule") {
           add(doc.line(startLine).from, "cm-hr");
+        } else {
+          const h = /^(?:ATXHeading|SetextHeading)([1-6])$/.exec(node.name);
+          if (h) add(doc.line(startLine).from, `cm-h-line cm-h${h[1]}-line`);
         }
       },
     });

@@ -20,6 +20,8 @@ pub struct NoteQuery {
     pub modified_since: Option<i64>,
     pub sort: Option<NoteSort>,
     pub limit: Option<usize>,
+    /// Matching notes to skip first, for paging past `MAX_LIMIT`.
+    pub offset: Option<usize>,
     pub extensions: Option<Vec<String>>,
     /// Internal host aggregate queries intersect these with server-readable ids.
     pub doc_ids: Option<Vec<String>>,
@@ -171,9 +173,14 @@ impl Index {
         let mut rows = stmt.query(params_from_iter(args))?;
         let mut notes = Vec::new();
         let mut result_bytes = 0;
+        let mut skip = query.offset.unwrap_or(0);
         while let Some(row) = rows.next()? {
             let path: String = row.get(1)?;
             if vault::rel_path_is_ignored(&path) || !vault::is_note_file(&path) {
+                continue;
+            }
+            if skip > 0 {
+                skip -= 1;
                 continue;
             }
             let id: String = row.get(0)?;
@@ -315,6 +322,18 @@ mod tests {
                 .len(),
             1
         );
+        // Paging: offset skips matching notes, so pages never overlap.
+        let all = index.query_notes(&NoteQuery { limit: Some(200), ..Default::default() }).unwrap();
+        let first = index.query_notes(&NoteQuery { limit: Some(1), ..Default::default() }).unwrap();
+        let second = index
+            .query_notes(&NoteQuery { limit: Some(1), offset: Some(1), ..Default::default() })
+            .unwrap();
+        assert_eq!(first[0].path, all[0].path);
+        assert_eq!(second[0].path, all[1].path);
+        assert!(index
+            .query_notes(&NoteQuery { offset: Some(all.len()), ..Default::default() })
+            .unwrap()
+            .is_empty());
         assert!(serde_json::from_str::<NoteQuery>(r#"{"sort":"sql;DROP TABLE notes"}"#).is_err());
         let only_a = index
             .query_notes(&NoteQuery {

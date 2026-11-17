@@ -38,9 +38,9 @@ export function HomeSection() {
   }, []);
   if (st.homeSectionHidden) return null;
   const selected = isHomeNavigation(st);
-  const label = home ? displayName(home.path.split("/").pop() ?? home.path, false) : "홈 설정";
-  return <section className="home-section" aria-label="홈">
-    <div className="pinned-label">홈</div>
+  const label = home ? displayName(home.path.split("/").pop() ?? home.path, false) : "대시보드 설정";
+  return <section className="home-section" aria-label="대시보드">
+    <div className="pinned-label">대시보드</div>
     <div className="home-sidebar-entry" onContextMenu={(event) => {
       if (!menu.current) return;
       event.preventDefault(); menu.current.open = true;
@@ -48,7 +48,7 @@ export function HomeSection() {
     }}>
     <button className={`home-sidebar-row${selected ? " selected" : ""}${!home ? " is-unset" : ""}`}
       aria-current={selected ? "page" : undefined}
-      title={home ? `홈 열기: ${home.path}` : "홈 대시보드 템플릿 선택"}
+      title={home ? `대시보드 열기: ${home.path}` : "대시보드 템플릿 선택"}
       onClick={() => { if (home) void st.openHome(true, true).catch(onError); else requestNewDashboard(undefined, { setAsHome: true }); }}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z" /></svg>
       <span>{label}</span>
@@ -61,12 +61,12 @@ export function HomeSection() {
       // click. Outside pointerdown handles that case without removing its target.
       onBlur={(event) => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) closeMenu(); }}
       onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); closeMenu(); menu.current?.querySelector<HTMLElement>("summary")?.focus(); } }}>
-      <summary className="icon-btn" aria-label="홈 옵션" title="홈 옵션">···</summary>
+      <summary className="icon-btn" aria-label="대시보드 옵션" title="대시보드 옵션">···</summary>
       <div className="home-sidebar-menu-items">
-        <button type="button" onClick={() => { closeMenu(); useStore.setState({ homePickerOpen: true }); }}>홈 변경…</button>
-        {st.personalHomeDocId && <button type="button" onClick={() => { closeMenu(); void st.setHome(null, "personal").catch(onError); }}>{sharedHome ? "볼트 홈 사용" : "홈 해제"}</button>}
-        {sharedHome && canManage && <button type="button" onClick={() => { closeMenu(); void st.setHome(null, "vault").catch(onError); }}>모든 멤버의 볼트 홈 해제</button>}
-        <button type="button" onClick={() => { closeMenu(); st.setHomeSectionHidden(true); }}>홈 섹션 숨기기</button>
+        <button type="button" onClick={() => { closeMenu(); useStore.setState({ homePickerOpen: true }); }}>대시보드 변경…</button>
+        {st.personalHomeDocId && <button type="button" onClick={() => { closeMenu(); void st.setHome(null, "personal").catch(onError); }}>{sharedHome ? "볼트 대시보드 사용" : "대시보드 해제"}</button>}
+        {sharedHome && canManage && <button type="button" onClick={() => { closeMenu(); void st.setHome(null, "vault").catch(onError); }}>모든 멤버의 볼트 대시보드 해제</button>}
+        <button type="button" onClick={() => { closeMenu(); st.setHomeSectionHidden(true); }}>대시보드 섹션 숨기기</button>
       </div>
     </details>
     </div>

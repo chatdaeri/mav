@@ -5350,7 +5350,7 @@ export class SyncManager implements InboundHost {
   async prepareSharedHome(docId: string, relPath: string, epoch: number): Promise<void> {
     const scope = this.scope;
     if (!this.enabled || !scope?.isCurrent() || scope.vaultEpoch !== epoch) {
-      throw new Error("공유 홈을 설정하려면 먼저 이 볼트를 연결하세요.");
+      throw new Error("공유 대시보드를 설정하려면 먼저 이 볼트를 연결하세요.");
     }
     const token = await api.syncToken(docId);
     if (!scope.isCurrent()) throw new Error("열려 있는 볼트가 바뀌었어요.");
@@ -5364,7 +5364,7 @@ export class SyncManager implements InboundHost {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
       if (!this.registry.isPushed(docId) || !scope.isCurrent() || this.current !== current || !(await current.whenFlushed(30_000))) {
-        throw new Error("볼트 홈을 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
+        throw new Error("볼트 대시보드를 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
       }
       return;
     }
@@ -5381,7 +5381,7 @@ export class SyncManager implements InboundHost {
       if (this.permanentFailures.has(docId)) break;
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
-    throw new Error("볼트 홈을 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
+    throw new Error("볼트 대시보드를 설정하기 전에 이 노트의 동기화가 끝날 때까지 기다리세요.");
   }
 
   /**

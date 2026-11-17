@@ -10,7 +10,7 @@ import {
 } from "./fixture-api";
 import { fixtureIpc } from "./fixture-ipc";
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
-import dailyDashboard from "../../src/dashboards/templates/daily-home.html?raw";
+import dailyDashboard from "../../public/dashboard-templates/mav-overview.html?raw";
 const params = new URLSearchParams(location.search);
 notes.push({ ...notes[0], id: "preview-home", docId: "preview-home", relPath: "Home.html", title: "Home", folderId: null });
 notes.push({ ...notes[0], id: "preview-link", docId: "preview-link", relPath: "Artifact.url", title: "Artifact", folderId: null });
@@ -205,6 +205,23 @@ mockIPC(
       case "get_note_ui_state":
       case "plugin:deep-link|get_current":
         return null;
+      case "search_notes": {
+        const q = String(args.query ?? "").trim().toLowerCase();
+        const f = args.filters ?? {};
+        return notes
+          .filter((n) => !q || n.relPath.toLowerCase().includes(q) || n.title.toLowerCase().includes(q))
+          .filter((n) => !f.exts?.length || f.exts.includes(n.relPath.split(".").pop()!.toLowerCase()))
+          .filter((n) => !f.path || n.relPath.startsWith(`${f.path}/`))
+          .filter(() => f.kind !== "file")
+          .map((n) => ({
+            id: n.id,
+            path: n.relPath,
+            title: n.title,
+            kind: "note",
+            ext: n.relPath.split(".").pop(),
+            snippet: q ? `… ${n.title.replace(new RegExp(q, "i"), (m: string) => `<mark>${m}</mark>`)} …` : "",
+          }));
+      }
       case "list_tags":
       case "list_trash_copies":
       case "get_vault_types":

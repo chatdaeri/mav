@@ -1,0 +1,199 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0
+마이 세컨드 브레인 기본 대시보드. 볼트를 읽기만 한다(/__baalda/sdk.js).
+배치는 Tabler(MIT)의 카드 격자를 참고했고 코드는 새로 썼다.
+루틴 카드: 볼트의 운영/루틴/routines.json 을 읽는다. 형식
+  [{"name":"주간 성과 리포트","status":"ok"|"fail"|"paused","lastRun":"월 09:00"}]
+파일이 없으면 카드를 숨긴다. 미리보기(SDK 없음)에서는 예시 숫자를 보여 준다.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="baalda-template" content="mav-overview">
+<title>대시보드</title>
+<style>
+*{box-sizing:border-box}
+:root{--tone:#FF7E5F;--line:var(--border,#ebebeb);--ink:var(--fg,#1a1a1a);--sub:var(--muted,#6b6b6b);--card:var(--surface,#fff)}
+body{margin:0;background:var(--bg,#fafafa);color:var(--ink);font:14px/1.55 Pretendard,"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1120px;margin:0 auto;padding:32px clamp(16px,4vw,40px) 48px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 20px}
+h2{font-size:13px;font-weight:600;color:var(--sub);margin:0 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.tile,.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.tile{padding:16px 18px}
+.tile b{display:block;font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:4px}
+.tile span{font-size:12px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;align-items:start}
+.side{display:grid;gap:12px}
+.card{padding:16px 18px}
+ul{list-style:none;margin:0;padding:0}
+.recent li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.recent li:first-child{border-top:0}
+.recent button{all:unset;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent button:hover{color:var(--tone)}
+.recent button:focus-visible{outline:2px solid var(--tone);outline-offset:2px;border-radius:3px}
+.folder small{text-align:right}
+.recent small,.folder small{color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+.folder li{display:grid;grid-template-columns:7em 1fr 4.5ch;align-items:center;gap:10px;padding:5px 0;font-size:13px}
+.folder .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);opacity:.75;border-radius:3px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:12px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:var(--sub)}
+.routine li{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px}
+.routine .dot{width:7px;height:7px;border-radius:50%;background:#2f9e6b;flex:none}
+.routine .fail .dot{background:#d1453b}
+.routine .paused .dot{background:var(--line)}
+.routine small{margin-left:auto;color:var(--sub)}
+.empty{color:var(--sub);font-size:13px}
+[hidden]{display:none!important}
+@media(max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+<script src="/__baalda/sdk.js"></script>
+</head>
+<body>
+<main>
+  <h1>대시보드</h1>
+  <section class="tiles" aria-label="요약">
+    <div class="tile"><span>노트</span><b id="t-notes">–</b></div>
+    <div class="tile"><span>파일</span><b id="t-files">–</b></div>
+    <div class="tile"><span>최근 7일 편집</span><b id="t-week">–</b></div>
+    <div class="tile"><span>태그</span><b id="t-tags">–</b></div>
+  </section>
+  <div class="grid">
+    <section class="card">
+      <h2>최근 편집</h2>
+      <ul class="recent" id="recent"></ul>
+    </section>
+    <div class="side">
+      <section class="card"><h2>폴더별 노트</h2><ul class="folder" id="folders"></ul></section>
+      <section class="card"><h2>태그</h2><div class="tags" id="tags"></div></section>
+      <section class="card" id="routine-card" hidden><h2>루틴</h2><ul class="routine" id="routines"></ul></section>
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return Number(n || 0).toLocaleString("ko-KR"); };
+  function ago(sec) {
+    var d = Math.max(0, Date.now() / 1000 - sec);
+    if (d < 60) return "방금";
+    if (d < 3600) return Math.floor(d / 60) + "분 전";
+    if (d < 86400) return Math.floor(d / 3600) + "시간 전";
+    if (d < 86400 * 30) return Math.floor(d / 86400) + "일 전";
+    var t = new Date(sec * 1000);
+    return t.getFullYear() + "." + (t.getMonth() + 1) + "." + t.getDate();
+  }
+  function label(path) {
+    var base = path.split("/").pop();
+    return base.replace(/\.(md|markdown|mdx|txt)$/i, "");
+  }
+  function render(data, open) {
+    $("t-notes").textContent = fmt(data.notes);
+    $("t-files").textContent = fmt(data.files);
+    $("t-week").textContent = fmt(data.week);
+    $("t-tags").textContent = fmt(data.tags.length);
+    var recent = $("recent");
+    recent.textContent = "";
+    if (!data.recent.length) { var e = document.createElement("li"); e.className = "empty"; e.textContent = "아직 노트가 없어요"; recent.append(e); }
+    data.recent.forEach(function (n) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.textContent = label(n.path);
+      b.title = n.path;
+      b.onclick = function () { open(n); };
+      var s = document.createElement("small");
+      s.textContent = ago(n.mtime);
+      li.append(b, s);
+      recent.append(li);
+    });
+    var max = data.folders.length ? data.folders[0][1] : 1;
+    var folders = $("folders");
+    folders.textContent = "";
+    data.folders.slice(0, 6).forEach(function (f) {
+      var li = document.createElement("li");
+      var n = document.createElement("span"); n.className = "n"; n.textContent = f[0];
+      var bar = document.createElement("span"); bar.className = "bar";
+      var i = document.createElement("i"); i.style.width = Math.max(4, (f[1] / max) * 100) + "%"; bar.append(i);
+      var c = document.createElement("small"); c.textContent = fmt(f[1]);
+      li.append(n, bar, c);
+      folders.append(li);
+    });
+    var tags = $("tags");
+    tags.textContent = "";
+    if (!data.tags.length) { var t = document.createElement("span"); t.textContent = "태그 없음"; tags.append(t); }
+    data.tags.slice(0, 14).forEach(function (t) {
+      var s = document.createElement("span"); s.textContent = "#" + t.name; tags.append(s);
+    });
+    if (data.routines && data.routines.length) {
+      $("routine-card").hidden = false;
+      var ul = $("routines"); ul.textContent = "";
+      data.routines.forEach(function (r) {
+        var li = document.createElement("li");
+        li.className = r.status === "fail" ? "fail" : r.status === "paused" ? "paused" : "";
+        var d = document.createElement("span"); d.className = "dot";
+        var n = document.createElement("span"); n.textContent = r.name;
+        var s = document.createElement("small");
+        s.textContent = (r.status === "fail" ? "실패" : r.status === "paused" ? "멈춤" : "정상") + (r.lastRun ? " · " + r.lastRun : "");
+        li.append(d, n, s);
+        ul.append(li);
+      });
+    }
+  }
+  function sample() {
+    var now = Date.now() / 1000;
+    return {
+      notes: 1284, files: 312, week: 38,
+      tags: [{ name: "캠페인" }, { name: "SNS" }, { name: "보도자료" }, { name: "KPI" }, { name: "경쟁사" }, { name: "브랜드" }],
+      recent: [["캠페인/봄 시즌 캠페인 기획안.md", 120], ["보고서/주간 성과 리포트.md", 3600], ["리서치/경쟁사 동향 정리.md", 86400 * 2], ["브랜드/톤앤매너 가이드.md", 86400 * 4]].map(function (r) { return { path: r[0], mtime: now - r[1] }; }),
+      folders: [["캠페인", 412], ["보고서", 268], ["리서치", 190], ["브랜드", 84], ["회의록", 61]],
+      routines: [{ name: "주간 성과 리포트", status: "ok", lastRun: "월 09:00" }, { name: "경쟁사 소식 수집", status: "fail", lastRun: "오늘 08:00" }]
+    };
+  }
+  async function listAll(query) {
+    var out = [], offset = 0;
+    for (;;) {
+      var page = await baalda.notes.list(Object.assign({}, query, { limit: 200, offset: offset }));
+      if (!page.length) return out;
+      out = out.concat(page);
+      offset += 200;
+    }
+  }
+  if (!window.baalda) { render(sample(), function () {}); return; }
+  baalda.ready.then(async function () {
+    var since = Math.floor(Date.now() / 1000) - 7 * 86400;
+    var results = await Promise.all([
+      baalda.vault.stats().catch(function () { return {}; }),
+      baalda.notes.list({ sort: "modified-desc", limit: 10 }),
+      listAll({ modifiedSince: since }),
+      listAll({ sort: "path" }),
+      baalda.tags.list().catch(function () { return []; }),
+      baalda.notes.read({ path: "운영/루틴/routines.json" }).catch(function () { return null; })
+    ]);
+    var stats = results[0] || {};
+    var counts = {};
+    results[3].forEach(function (n) {
+      var top = n.path.indexOf("/") > 0 ? n.path.split("/")[0] : "(최상위)";
+      counts[top] = (counts[top] || 0) + 1;
+    });
+    var routines = null;
+    try {
+      if (typeof results[5] === "string") routines = JSON.parse(results[5]);
+    } catch (e) { routines = null; }
+    var tags = (results[4] || []).slice().sort(function (a, b) { return b.count - a.count; });
+    render({
+      notes: results[3].length,
+      files: (stats.attachments ? stats.attachments.count : 0) + (stats.otherFiles ? stats.otherFiles.count : 0),
+      week: results[2].length,
+      tags: tags,
+      recent: results[1],
+      folders: Object.keys(counts).map(function (k) { return [k, counts[k]]; }).sort(function (a, b) { return b[1] - a[1]; }),
+      routines: Array.isArray(routines) ? routines : null
+    }, function (n) { baalda.app.open({ docId: n.id }); });
+  }).catch(console.error);
+})();
+</script>
+</body>
+</html>

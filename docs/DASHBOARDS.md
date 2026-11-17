@@ -213,7 +213,7 @@ permission change.
 `note` accepts a path string, `{path: "Projects/Plan.md"}`, or `{docId: "…"}`.
 `notes.list` accepts `folder`, `tag`, `property: {key, value}`, `modifiedSince`
 (Unix seconds), `sort` (`path`, `title`, `modified-desc`, `modified-asc`),
-`extensions`, and `limit` (0–200). Filters combine. Use filtered lists for large
+`extensions`, `limit` (0–200) and `offset` (matching notes to skip). Filters combine; page with `offset += 200` until an empty page to read every note. Use filtered lists for large
 vaults: aggregate tags/properties/stats are bounded to 10,000 readable notes.
 
 The SDK applies `data-theme` and `--bg`, `--fg`, `--surface`, `--muted`, `--accent`,

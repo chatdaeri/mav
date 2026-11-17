@@ -2060,10 +2060,14 @@ pub async fn delete_path(
 pub async fn search_notes(
     state: State<'_, AppState>,
     query: String,
+    filters: Option<crate::index::SearchFilters>,
 ) -> AppResult<Vec<SearchResult>> {
     let (_, index) = require_vault(&state)?;
     let guard = index.lock().unwrap();
-    guard.search_all(&query)
+    match filters {
+        Some(f) => guard.search_filtered(&query, &f),
+        None => guard.search_all(&query),
+    }
 }
 
 /// The extracted plain text of one tree binary, by vault-relative path.

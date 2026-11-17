@@ -68,8 +68,8 @@ describe("migrateStoredAppearance", () => {
     expect(
       migrateStoredAppearance({
         theme: "dark",
-        autoColors: true, // default → inherit
-        contentWidth: "full", // default → inherit
+        autoColors: false, // default → inherit
+        contentWidth: 76, // default → inherit
         textSize: 18,
         lineNumbers: false, // default → inherit
         properties: "source",
@@ -117,11 +117,10 @@ describe("readAppearanceOverrides (stored values)", () => {
     store.set("context.editorFontSize", "16"); // equals the default → inherit
     store.set("context.lineNumbers", "on");
     store.set("context.propertiesMode", "visible"); // default → inherit
-    store.set("context.automaticItemColors:u1", "off");
+    store.set("context.automaticItemColors:u1", "off"); // default → inherit
     expect(readAppearanceOverrides(null)).toEqual({
       theme: "dark",
       lineNumbers: true,
-      autoColors: false,
     });
     // Written once; later reads come from the new key, not the legacy ones.
     store.set("cbk-theme", "light");

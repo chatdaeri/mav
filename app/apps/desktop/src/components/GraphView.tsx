@@ -69,7 +69,7 @@ const CLICK_DRAG_THRESHOLD = 4; // px moved before a pointerdown counts as a dra
 const LABEL_FADE_START = 1.5; // camera.k at which labels begin to appear (labelScale 1)
 const LABEL_FADE_END = 2.4; // camera.k at which labels are fully opaque (labelScale 1)
 const DEFAULT_FONT_FAMILY = "sans-serif";
-const FALLBACK_ACCENT = "#7f73ff";
+const FALLBACK_ACCENT = "#FF7E5F";
 
 // How the graph opens (redesign): every note starts where its cluster will be
 // (seedByCluster in lib/graph/formation.ts), and the forces then bloom the

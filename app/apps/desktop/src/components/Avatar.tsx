@@ -15,24 +15,13 @@
    chunk they are already in.
    ============================================================ */
 import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
-import { createAvatar } from "@dicebear/core";
-import { notionists } from "@dicebear/collection";
-import { PRESENCE_PALETTE } from "../lib/presence/color";
+import { pixelAvatarSvg } from "../lib/pixelAvatar";
 import { useResolvedAvatar, type AvatarIdentity } from "../lib/avatarIdentity";
 import { scopeSvgIds } from "../lib/svgIds";
 
-// Palette hex values without the leading "#", as DiceBear expects. DiceBear
-// deterministically picks one per seed, so each character gets its own colour.
-const AVATAR_BG = PRESENCE_PALETTE.map((c) => c.slice(1));
-
-/** Build the illustrated-character SVG for a seed. */
+/** Build the 8-bit character SVG for a seed (`lib/pixelAvatar.ts`). */
 export function characterSvg(seed: string): string {
-  return createAvatar(notionists, {
-    seed,
-    backgroundColor: AVATAR_BG,
-    backgroundType: ["solid"],
-    radius: 50,
-  }).toString();
+  return pixelAvatarSvg(seed);
 }
 
 export interface FaceProps extends AvatarIdentity {
